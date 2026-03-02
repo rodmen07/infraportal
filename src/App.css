@@ -2,7 +2,6 @@
   max-width: 760px;
   margin: 4rem auto;
   padding: 0 1rem;
-  text-align: center;
 }
 
 .container h1 {
@@ -25,4 +24,87 @@
 .hint {
   margin-top: 1.5rem;
   opacity: 0.8;
+}
+
+.tasks {
+  margin-top: 2rem;
+  padding: 1rem;
+  border: 1px solid #888;
+  border-radius: 12px;
+}
+
+.tasks-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.tasks-header h2 {
+  margin: 0;
+}
+
+.task-form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.task-form input {
+  padding: 0.65rem 0.75rem;
+  border: 1px solid #888;
+  border-radius: 8px;
+  background: transparent;
+}
+
+.task-form button,
+.ghost,
+.danger {
+  padding: 0.65rem 0.85rem;
+  border: 1px solid #888;
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.task-form button:disabled,
+.ghost:disabled,
+.danger:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.task-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.task-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid #888;
+  border-radius: 8px;
+}
+
+.task-item label {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.done {
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+.error {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
 }
