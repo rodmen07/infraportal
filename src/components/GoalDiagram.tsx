@@ -16,14 +16,26 @@ function escapeLabel(value: string): string {
 
 function buildDefinition(plan: GoalPlan): string {
   const goal = escapeLabel(plan.goal)
-  const lines = [`graph TD`, `goal["🎯 ${goal}"]`]
+  const lines = [`flowchart LR`, `goal["🎯 ${goal}"]`]
+
+  if (plan.tasks.length === 0) {
+    return lines.join('\n')
+  }
 
   plan.tasks.forEach((task, index) => {
     const key = `task${index + 1}`
     const label = escapeLabel(task)
     lines.push(`${key}["${index + 1}. ${label}"]`)
-    lines.push(`goal --> ${key}`)
   })
+
+  lines.push(`goal --> task1`)
+
+  for (let index = 1; index < plan.tasks.length; index += 1) {
+    lines.push(`task${index} --> task${index + 1}`)
+  }
+
+  lines.push(`done["✅ Goal achieved"]`)
+  lines.push(`task${plan.tasks.length} --> done`)
 
   return lines.join('\n')
 }

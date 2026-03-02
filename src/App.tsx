@@ -45,6 +45,18 @@ function plannerToneClass(tone: PlannerTone): string {
   }
 }
 
+function normalizePlanTask(task: string): string {
+  return task
+    .replace(/^\s*(?:\d+[\).:-]\s*|[-*•]\s*)+/, '')
+    .trim()
+}
+
+function normalizePlanTasks(tasks: string[]): string[] {
+  return tasks
+    .map(normalizePlanTask)
+    .filter((task) => task.length > 0)
+}
+
 function App() {
   const baseUrl = import.meta.env.BASE_URL
 
@@ -182,7 +194,9 @@ function App() {
 
     try {
       const plan = await planTasksFromGoal(goal)
-      const generated = Array.isArray(plan.tasks) ? plan.tasks : []
+      const generated = normalizePlanTasks(
+        Array.isArray(plan.tasks) ? plan.tasks : [],
+      )
       setPlannedTasks(generated)
 
       if (generated.length > 0) {
