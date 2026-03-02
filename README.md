@@ -41,6 +41,7 @@ This repo includes a workflow at `.github/workflows/deploy-pages.yml`.
 - Trigger: push to `main`
 - Build output: `dist/`
 - Deploy target: GitHub Pages
+- Build env supports `VITE_API_BASE_URL` from GitHub repo settings
 
 ### Required repo settings
 
@@ -48,6 +49,9 @@ In GitHub repo settings:
 
 1. Go to **Pages**.
 2. Set **Build and deployment** source to **GitHub Actions**.
+3. Go to **Secrets and variables → Actions** and set one of:
+	- Repository Variable: `VITE_API_BASE_URL` (preferred)
+	- Repository Secret: `VITE_API_BASE_URL`
 
 Vite production base path is configured for this repo path (`/frontend-service/`) in `vite.config.js`.
 
