@@ -33,7 +33,8 @@ npm run build
 Frontend reads API base URL from `VITE_API_BASE_URL`.
 
 - Local default: `http://localhost:3000`
-- Production default fallback: `https://backend-service.example.com`
+- Production: `VITE_API_BASE_URL` is required (no placeholder fallback)
+- API request timeout is configurable with `VITE_API_TIMEOUT_MS` (default: `10000`)
 
 Create a local env file from `.env.example` when needed:
 
@@ -45,6 +46,7 @@ Then set:
 
 ```bash
 VITE_API_BASE_URL=https://your-backend-host
+VITE_API_TIMEOUT_MS=10000
 ```
 
 ## GitHub Pages deployment

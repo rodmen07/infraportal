@@ -18,6 +18,8 @@ Use this file as the repository-specific implementation contract for AI-assisted
 
 - Read backend URL from VITE_API_BASE_URL.
 - Local default backend URL: http://localhost:3000.
+- Production builds require VITE_API_BASE_URL (do not rely on placeholder defaults).
+- API timeout is controlled by VITE_API_TIMEOUT_MS (default 10000ms).
 - Keep environment variable names stable to avoid deployment breakage.
 
 ## 4) Product behavior requirements
@@ -92,6 +94,7 @@ When changing API usage, environment variables, routes, or CMS behavior:
 - Keep API error extraction compatible with backend envelope (`message` / `code`).
 - Avoid silently changing task list query assumptions (`limit=100&offset=0`) without UI/perf review.
 - Preserve backend error-code handling branches for planner unconfigured/rate-limited/unavailable states.
+- Keep fetch timeout behavior predictable and user-visible (clear timeout errors).
 
 ## 13) Diagram rendering constraints
 

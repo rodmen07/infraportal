@@ -1,4 +1,4 @@
-import { API_BASE_URL } from '../config'
+import { API_BASE_URL, API_TIMEOUT_MS } from '../config'
 import type { Task } from '../types'
 
 interface PlanResponse {
@@ -22,13 +22,29 @@ async function parseError(response: Response): Promise<string> {
 }
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const response = await fetch(buildUrl(path), {
-    headers: {
-      'Content-Type': 'application/json',
-      ...(options.headers || {}),
-    },
-    ...options,
-  })
+  const timeoutController = new AbortController()
+  const timeoutId = window.setTimeout(() => timeoutController.abort(), API_TIMEOUT_MS)
+
+  let response: Response
+
+  try {
+    response = await fetch(buildUrl(path), {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(options.headers || {}),
+      },
+      signal: timeoutController.signal,
+    })
+  } catch (error) {
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      throw new Error(`Request timed out after ${API_TIMEOUT_MS}ms`)
+    }
+
+    throw error
+  } finally {
+    window.clearTimeout(timeoutId)
+  }
 
   if (!response.ok) {
     throw new Error(await parseError(response))
