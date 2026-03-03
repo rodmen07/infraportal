@@ -158,6 +158,51 @@ export function useAuthSession() {
     }
   }, [knownUsers, subjectInput])
 
+  const signInAdmin = useCallback(async () => {
+    const subject = subjectInput.trim()
+    if (!subject) {
+      setAuthError('Username is required')
+      return
+    }
+
+    const exists = knownUsers.some((value) => value.toLowerCase() === subject.toLowerCase())
+    if (!exists) {
+      setAuthError('Username not found. Create it first.')
+      return
+    }
+
+    setAuthBusy(true)
+    setAuthError('')
+
+    try {
+      const token = await issueToken(subject, ['user', 'planner', 'admin'])
+      const verification = await verifyToken(token.access_token)
+
+      if (!verification.active) {
+        throw new Error('Issued token could not be verified')
+      }
+
+      const nextSession: AuthSession = {
+        subject: verification.subject || subject,
+        accessToken: token.access_token,
+        roles: verification.roles || [],
+        expiresAt: Date.now() + token.expires_in * 1000,
+      }
+
+      setApiAccessToken(nextSession.accessToken)
+      persistSession(nextSession)
+      setSession(nextSession)
+      setSubjectInput('')
+    } catch (error) {
+      setAuthError(error instanceof Error ? error.message : 'Failed to sign in as admin')
+      setApiAccessToken('')
+      persistSession(null)
+      setSession(null)
+    } finally {
+      setAuthBusy(false)
+    }
+  }, [knownUsers, subjectInput])
+
   const createUsername = useCallback(async () => {
     const subject = subjectInput.trim()
     if (!subject) {
@@ -228,6 +273,7 @@ export function useAuthSession() {
     subjectInput,
     setSubjectInput,
     signIn,
+    signInAdmin,
     createUsername,
     signOut,
   }

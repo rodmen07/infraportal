@@ -42,3 +42,29 @@ export interface TokenVerifyResponse {
   exp: number | null
   issuer: string | null
 }
+
+export interface AdminMetrics {
+  total_tasks: number
+  completed_tasks: number
+  pending_tasks: number
+  total_requests: number
+  unique_subjects: number
+}
+
+export interface AdminRequestLog {
+  id: number
+  occurred_at: string
+  subject: string | null
+  method: string
+  path: string
+  status_code: number
+  duration_ms: number
+  user_agent: string | null
+}
+
+export interface AdminUserActivity {
+  subject: string
+  request_count: number
+  first_seen_at: string
+  last_seen_at: string
+}

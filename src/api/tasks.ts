@@ -1,5 +1,5 @@
 import { API_BASE_URL, API_TIMEOUT_MS } from '../config'
-import type { Task } from '../types'
+import type { AdminMetrics, AdminRequestLog, AdminUserActivity, Task } from '../types'
 
 interface PlanResponse {
   tasks: string[]
@@ -107,4 +107,16 @@ export async function planTasksFromGoal(goal: string): Promise<PlanResponse> {
     method: 'POST',
     body: JSON.stringify({ goal }),
   })
+}
+
+export async function getAdminMetrics(): Promise<AdminMetrics> {
+  return request<AdminMetrics>('/api/v1/admin/metrics')
+}
+
+export async function getAdminRequestLogs(limit = 10): Promise<AdminRequestLog[]> {
+  return request<AdminRequestLog[]>(`/api/v1/admin/requests?limit=${limit}&offset=0`)
+}
+
+export async function getAdminUserActivity(limit = 10): Promise<AdminUserActivity[]> {
+  return request<AdminUserActivity[]>(`/api/v1/admin/users?limit=${limit}&offset=0`)
 }

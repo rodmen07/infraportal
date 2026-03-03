@@ -1,4 +1,6 @@
+import { AdminDashboardSection } from './features/admin/AdminDashboardSection'
 import { CelebrationOverlay } from './components/CelebrationOverlay'
+import { useAdminDashboard } from './features/admin/useAdminDashboard'
 import { useAuthSession } from './features/auth/useAuthSession'
 import { GoalDiagramsSection } from './features/plans/GoalDiagramsSection'
 import { SiteHeader } from './features/site/SiteHeader'
@@ -18,9 +20,20 @@ function App() {
     subjectInput,
     setSubjectInput,
     signIn,
+    signInAdmin,
     createUsername,
     signOut,
   } = useAuthSession()
+
+  const isAdmin = Boolean(session?.roles?.includes('admin'))
+  const {
+    metrics,
+    requestLogs,
+    userActivity,
+    loading: adminLoading,
+    error: adminError,
+    loadAdminData,
+  } = useAdminDashboard(isAuthenticated && isAdmin)
   const {
     tasks,
     taskTitle,
@@ -35,6 +48,7 @@ function App() {
     plannedTasks,
     planning,
     creatingPlanTasks,
+    deletingAllTasks,
     plannerStatus,
     goalPlans,
     celebrationToken,
@@ -52,8 +66,10 @@ function App() {
     handleSetTaskDifficulty,
     handleToggleTask,
     handleDeleteTask,
+    handleDeleteAllTasks,
     handleGeneratePlan,
     handleCreatePlannedTasks,
+    handleResetGeneratedPlan,
   } = useTaskManager(isAuthenticated)
 
   const boardGoal = goalPlans[0]?.goal || 'Current Task Path'
@@ -74,11 +90,26 @@ function App() {
           authError={authError}
           subjectInput={subjectInput}
           currentSubject={session?.subject || ''}
+          currentRoles={session?.roles || []}
           onSubjectInputChange={setSubjectInput}
           onSignIn={signIn}
+          onSignInAdmin={signInAdmin}
           onCreateUsername={createUsername}
           onSignOut={signOut}
         />
+
+        {isAuthenticated && isAdmin && (
+          <AdminDashboardSection
+            loading={adminLoading}
+            error={adminError}
+            metrics={metrics}
+            requestLogs={requestLogs}
+            userActivity={userActivity}
+            onRefresh={() => {
+              void loadAdminData()
+            }}
+          />
+        )}
 
         <TaskManagerSection
           authLocked={!isAuthenticated}
@@ -92,6 +123,7 @@ function App() {
           plannedTaskDifficulty={plannedTaskDifficulty}
           planning={planning}
           creatingPlanTasks={creatingPlanTasks}
+          deletingAllTasks={deletingAllTasks}
           plannerStatus={plannerStatus}
           plannedTasks={plannedTasks}
           taskTitle={taskTitle}
@@ -112,6 +144,8 @@ function App() {
           onSetTaskDifficulty={handleSetTaskDifficulty}
           onToggleTask={handleToggleTask}
           onDeleteTask={handleDeleteTask}
+          onDeleteAllTasks={handleDeleteAllTasks}
+          onResetGeneratedPlan={handleResetGeneratedPlan}
         />
 
         <GoalDiagramsSection goal={boardGoal} tasks={tasks} />

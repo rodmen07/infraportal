@@ -9,8 +9,10 @@ interface SiteHeaderProps {
   authError: string
   subjectInput: string
   currentSubject: string
+  currentRoles: string[]
   onSubjectInputChange: (value: string) => void
   onSignIn: () => Promise<void>
+  onSignInAdmin: () => Promise<void>
   onCreateUsername: () => Promise<void>
   onSignOut: () => void
 }
@@ -23,8 +25,10 @@ export function SiteHeader({
   authError,
   subjectInput,
   currentSubject,
+  currentRoles,
   onSubjectInputChange,
   onSignIn,
+  onSignInAdmin,
   onCreateUsername,
   onSignOut,
 }: SiteHeaderProps) {
@@ -51,6 +55,9 @@ export function SiteHeader({
           <div className="flex flex-wrap items-center gap-3">
             <span className="rounded-lg border border-emerald-400/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-200">
               Signed in as {currentSubject}
+            </span>
+            <span className="rounded-lg border border-zinc-500/40 bg-zinc-800 px-3 py-2 text-xs text-zinc-300">
+              Roles: {currentRoles.length > 0 ? currentRoles.join(', ') : 'none'}
             </span>
             <button
               type="button"
@@ -79,6 +86,16 @@ export function SiteHeader({
               }}
             >
               {authBusy || authLoading ? 'Signing in…' : 'Sign in'}
+            </button>
+            <button
+              type="button"
+              className="rounded-xl border border-indigo-300/40 bg-indigo-500/10 px-4 py-2 text-sm font-semibold text-indigo-200 transition hover:bg-indigo-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+              disabled={authBusy || authLoading}
+              onClick={() => {
+                void onSignInAdmin()
+              }}
+            >
+              {authBusy || authLoading ? 'Signing in…' : 'Admin sign in'}
             </button>
             <button
               type="button"
