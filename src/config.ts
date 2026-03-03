@@ -5,6 +5,10 @@ if (import.meta.env.PROD && configuredApiBaseUrl.length === 0) {
   throw new Error('VITE_API_BASE_URL is required in production builds')
 }
 
+if (import.meta.env.PROD && configuredAuthApiBaseUrl.length === 0) {
+  throw new Error('VITE_AUTH_API_BASE_URL is required in production builds')
+}
+
 const configuredTimeoutRaw = Number(import.meta.env.VITE_API_TIMEOUT_MS)
 
 export const API_TIMEOUT_MS =
@@ -18,4 +22,4 @@ export const API_BASE_URL =
 export const AUTH_API_BASE_URL =
   configuredAuthApiBaseUrl.length > 0
     ? configuredAuthApiBaseUrl
-    : 'http://localhost:8000'
+    : 'http://localhost:8082'

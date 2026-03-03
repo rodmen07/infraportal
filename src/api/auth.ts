@@ -37,6 +37,12 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
       throw new Error(`Auth request timed out after ${API_TIMEOUT_MS}ms`)
     }
 
+    if (error instanceof TypeError) {
+      throw new Error(
+        'Unable to reach auth service. Check VITE_AUTH_API_BASE_URL and auth-service CORS settings.',
+      )
+    }
+
     throw error
   } finally {
     window.clearTimeout(timeoutId)
