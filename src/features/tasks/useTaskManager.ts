@@ -39,6 +39,36 @@ function normalizePlanTasks(tasks: string[]): string[] {
     .filter((task) => task.length > 0)
 }
 
+function playCompletionSound(): void {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  try {
+    const audioContext = new window.AudioContext()
+    const oscillator = audioContext.createOscillator()
+    const gain = audioContext.createGain()
+
+    oscillator.type = 'triangle'
+    oscillator.frequency.setValueAtTime(620, audioContext.currentTime)
+    oscillator.frequency.exponentialRampToValueAtTime(880, audioContext.currentTime + 0.12)
+
+    gain.gain.setValueAtTime(0.0001, audioContext.currentTime)
+    gain.gain.exponentialRampToValueAtTime(0.06, audioContext.currentTime + 0.02)
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + 0.18)
+
+    oscillator.connect(gain)
+    gain.connect(audioContext.destination)
+    oscillator.start(audioContext.currentTime)
+    oscillator.stop(audioContext.currentTime + 0.2)
+
+    window.setTimeout(() => {
+      void audioContext.close()
+    }, 260)
+  } catch {
+  }
+}
+
 export function useTaskManager() {
   const [tasks, setTasks] = useState<Task[]>([])
   const [taskTitle, setTaskTitle] = useState('')
@@ -108,6 +138,9 @@ export function useTaskManager() {
       setTasks((current) =>
         current.map((item) => (item.id === task.id ? updatedTask : item)),
       )
+      if (!task.completed && updatedTask.completed) {
+        playCompletionSound()
+      }
     } catch (error) {
       setTaskError(error instanceof Error ? error.message : 'Failed to update task')
     } finally {

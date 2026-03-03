@@ -43,5 +43,11 @@ export function useSiteContent(baseUrl: string): SiteContent {
     loadContent()
   }, [baseUrl])
 
+  useEffect(() => {
+    if (content.title.trim()) {
+      document.title = content.title
+    }
+  }, [content.title])
+
   return content
 }

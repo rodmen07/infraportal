@@ -31,6 +31,8 @@ function App() {
     handleCreatePlannedTasks,
   } = useTaskManager()
 
+  const boardGoal = goalPlans[0]?.goal || 'Current Task Path'
+
   return (
     <main className="relative min-h-screen overflow-hidden bg-slate-950 px-4 py-8 text-slate-100 sm:px-6 lg:px-8">
       <div className="pointer-events-none absolute -top-32 left-1/2 h-80 w-80 -translate-x-1/2 rounded-full bg-indigo-500/25 blur-3xl" />
@@ -62,7 +64,7 @@ function App() {
           onDeleteTask={handleDeleteTask}
         />
 
-        <GoalDiagramsSection goalPlans={goalPlans} />
+        <GoalDiagramsSection goal={boardGoal} tasks={tasks} />
       </div>
     </main>
   )

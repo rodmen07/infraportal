@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import type { GoalPlan } from '../types'
+import type { Task } from '../types'
 
 interface GoalDiagramProps {
-  plan: GoalPlan
+  goal: string
+  tasks: Task[]
 }
 
 const BOARD_COLUMNS = 3
@@ -11,6 +12,7 @@ const LABEL_MAX_LENGTH = 72
 interface BoardTile {
   step: number
   label: string
+  completed: boolean
 }
 
 function normalizeLabel(value: string): string {
@@ -22,10 +24,11 @@ function normalizeLabel(value: string): string {
   return `${compact.slice(0, LABEL_MAX_LENGTH - 1).trimEnd()}…`
 }
 
-function toTiles(tasks: string[]): BoardTile[] {
+function toTiles(tasks: Task[]): BoardTile[] {
   return tasks.map((task, index) => ({
     step: index + 1,
-    label: normalizeLabel(task),
+    label: normalizeLabel(task.title),
+    completed: task.completed,
   }))
 }
 
@@ -41,14 +44,14 @@ function toRows(tiles: BoardTile[]): BoardTile[][] {
   return rows
 }
 
-function buildExportText(plan: GoalPlan, tiles: BoardTile[]): string {
+function buildExportText(goal: string, tiles: BoardTile[]): string {
   const lines: string[] = []
   lines.push(`TaskForge Gameboard Plan`)
-  lines.push(`Goal: ${normalizeLabel(plan.goal)}`)
+  lines.push(`Goal: ${normalizeLabel(goal)}`)
   lines.push('')
 
   for (const tile of tiles) {
-    lines.push(`${tile.step}. ${tile.label}`)
+    lines.push(`${tile.step}. [${tile.completed ? 'x' : ' '}] ${tile.label}`)
   }
 
   lines.push('')
@@ -88,11 +91,11 @@ function safeFilename(input: string): string {
   return normalized || 'gameboard-plan'
 }
 
-export function GoalDiagram({ plan }: GoalDiagramProps) {
+export function GoalDiagram({ goal, tasks }: GoalDiagramProps) {
   const [exportStatus, setExportStatus] = useState('')
-  const tiles = toTiles(plan.tasks)
+  const tiles = toTiles(tasks)
   const rows = toRows(tiles)
-  const exportText = buildExportText(plan, tiles)
+  const exportText = buildExportText(goal, tiles)
 
   const handleCopy = async () => {
     const copied = await copyToClipboard(exportText)
@@ -100,7 +103,7 @@ export function GoalDiagram({ plan }: GoalDiagramProps) {
   }
 
   const handleDownload = () => {
-    downloadTextFile(`${safeFilename(plan.goal)}-taskforge-board.txt`, exportText)
+    downloadTextFile(`${safeFilename(goal)}-taskforge-board.txt`, exportText)
     setExportStatus('Downloaded board as text file.')
   }
 
@@ -135,7 +138,7 @@ export function GoalDiagram({ plan }: GoalDiagramProps) {
       </div>
 
       <div className="mb-4 rounded-xl border border-indigo-300/30 bg-indigo-500/10 px-4 py-3 text-sm font-semibold text-indigo-100">
-        🎯 Start: {normalizeLabel(plan.goal)}
+        🎯 Start: {normalizeLabel(goal)}
       </div>
 
       <div className="space-y-3">
@@ -146,15 +149,19 @@ export function GoalDiagram({ plan }: GoalDiagramProps) {
                 <div
                   key={`tile-${tile.step}`}
                   className={`aspect-square rounded-2xl border p-3 shadow-lg ${
-                    tile.step % 2 === 0
-                      ? 'border-cyan-300/40 bg-cyan-500/10 text-cyan-100'
-                      : 'border-violet-300/40 bg-violet-500/10 text-violet-100'
+                    tile.completed
+                      ? 'board-tile-complete border-emerald-300/40 bg-emerald-500/15 text-emerald-100'
+                      : tile.step % 2 === 0
+                        ? 'border-cyan-300/40 bg-cyan-500/10 text-cyan-100'
+                        : 'border-violet-300/40 bg-violet-500/10 text-violet-100'
                   }`}
                 >
                   <div className="mb-2 inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/30 bg-slate-900/70 text-sm font-semibold text-white">
                     {tile.step}
                   </div>
-                  <p className="text-sm font-medium leading-snug">{tile.label}</p>
+                  <p className={`text-sm font-medium leading-snug ${tile.completed ? 'line-through opacity-80' : ''}`}>
+                    {tile.label}
+                  </p>
                 </div>
               ))}
             </div>

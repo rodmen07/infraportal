@@ -150,14 +150,17 @@ export function TaskManagerSection({
         <p className="text-sm text-slate-300">No tasks yet. Create your first one.</p>
       ) : (
         <ul className="space-y-2">
-          {tasks.map((task) => {
+          {tasks.map((task, index) => {
             const isWorking = workingTaskId === task.id
             return (
               <li
                 key={task.id}
-                className="flex items-center justify-between gap-3 rounded-xl border border-white/15 bg-slate-900/70 p-3"
+                className={`flex items-center justify-between gap-3 rounded-xl border border-white/15 bg-slate-900/70 p-3 ${task.completed ? 'task-complete-pulse' : ''}`}
               >
-                <label className="flex items-center gap-2 text-sm text-slate-100">
+                <label className="flex items-center gap-3 text-sm text-slate-100">
+                  <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-white/20 bg-slate-800/80 text-xs font-semibold text-slate-200">
+                    {index + 1}
+                  </span>
                   <input
                     type="checkbox"
                     className="h-4 w-4"
