@@ -84,3 +84,35 @@ Typical options:
 - Self-hosted OAuth proxy for GitHub (if hosted elsewhere, including GitHub Pages)
 
 The current config is ready for GitHub repo wiring and content structure, and can be finalized once your auth flow choice is made.
+
+## Working context from current code
+
+### App flow and state
+
+- Main UX flow is implemented in `src/App.tsx`.
+- App loads editable site content from `content/site.json` (base-aware path handling).
+- Planner state includes transient generated tasks and a local in-memory history of recent plans.
+- Goal plan history is currently capped to the latest `8` plans.
+
+### API layer behavior
+
+- Backend calls are centralized in `src/api/tasks.ts`.
+- Error parsing prefers backend envelope fields (`message`, then `code`) before status fallback.
+- Current task listing request uses `GET /api/v1/tasks?limit=100&offset=0`.
+
+### Planner UX and resilience
+
+- Planner request uses backend `POST /api/v1/tasks/plan` via `planTasksFromGoal`.
+- Generated tasks are normalized client-side to remove numbering and bullet prefixes.
+- UI maps known backend planner errors (`LLM_API_KEY_MISSING`, upstream/rate-limit signals) to friendly status messages.
+
+### Diagram rendering details
+
+- Goal diagrams are rendered by `src/components/GoalDiagram.tsx` using Mermaid.
+- Mermaid is initialized once per app lifecycle.
+- Diagram labels are sanitized to reduce invalid Mermaid syntax from user/model text.
+
+### Build/deploy implementation details
+
+- `vite.config.js` sets production base path to `/frontend-service/`.
+- GitHub Pages deploy workflow injects `VITE_API_BASE_URL` from repository variables/secrets.

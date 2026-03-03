@@ -70,3 +70,31 @@ When changing API usage, environment variables, routes, or CMS behavior:
 - update README.md,
 - verify deployment notes remain accurate,
 - document any required operator setup changes.
+
+## 10) Current code map (authoritative)
+
+- Main app/state flow: `src/App.tsx`
+- API client and error parsing: `src/api/tasks.ts`
+- Diagram rendering: `src/components/GoalDiagram.tsx`
+- Shared types: `src/types.ts`
+- Runtime backend URL selection: `src/config.ts`
+- Production base path behavior: `vite.config.js`
+
+## 11) UX behavior constraints from current code
+
+- Keep planner status messaging flow (info/success/warning) coherent with request lifecycle.
+- Preserve client-side normalization of planned task text before rendering/creation.
+- Keep generated plan history bounded (currently latest 8 entries) unless product requirements change.
+- Preserve base-aware content/admin URL handling for Pages vs local dev paths.
+
+## 12) API coupling constraints
+
+- Keep API error extraction compatible with backend envelope (`message` / `code`).
+- Avoid silently changing task list query assumptions (`limit=100&offset=0`) without UI/perf review.
+- Preserve backend error-code handling branches for planner unconfigured/rate-limited/unavailable states.
+
+## 13) Diagram rendering constraints
+
+- Keep Mermaid initialization one-time to avoid repeated init side effects.
+- Preserve diagram label sanitization to avoid invalid Mermaid markup from user/model output.
+- Prefer deterministic diagram generation from persisted `GoalPlan` data.
