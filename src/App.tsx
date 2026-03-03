@@ -36,9 +36,10 @@ function App() {
   const boardGoal = goalPlans[0]?.goal || 'Current Task Path'
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-slate-950 px-4 py-8 text-slate-100 sm:px-6 lg:px-8">
-      <div className="pointer-events-none absolute -top-32 left-1/2 h-80 w-80 -translate-x-1/2 rounded-full bg-indigo-500/25 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-24 right-8 h-64 w-64 rounded-full bg-cyan-500/20 blur-3xl" />
+    <main className="forge-grid relative min-h-screen overflow-hidden bg-zinc-950 px-4 py-8 text-zinc-100 sm:px-6 lg:px-8">
+      <div className="pointer-events-none absolute -top-32 left-1/2 h-80 w-80 -translate-x-1/2 rounded-full bg-amber-500/20 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-24 right-8 h-64 w-64 rounded-full bg-orange-500/20 blur-3xl" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-amber-500/10 to-transparent" />
       <CelebrationOverlay trigger={celebrationToken} />
 
       <div className="relative mx-auto flex w-full max-w-5xl flex-col gap-6">

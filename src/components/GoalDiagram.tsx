@@ -109,18 +109,18 @@ export function GoalDiagram({ goal, tasks }: GoalDiagramProps) {
 
   if (tiles.length === 0) {
     return (
-      <p className="rounded-xl border border-white/15 bg-slate-900/60 px-3 py-2 text-sm text-slate-300">
+      <p className="rounded-xl border border-zinc-500/35 bg-zinc-900/70 px-3 py-2 text-sm text-zinc-300">
         Add a generated task list to render your gameboard path.
       </p>
     )
   }
 
   return (
-    <div className="goal-diagram rounded-2xl border border-white/15 bg-slate-950/80 p-4">
+    <div className="goal-diagram rounded-2xl border border-zinc-500/35 bg-zinc-950/85 p-4">
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <button
           type="button"
-          className="rounded-lg border border-white/20 bg-slate-800/80 px-3 py-2 text-xs font-semibold text-slate-100 transition hover:bg-slate-700"
+          className="rounded-lg border border-zinc-500/40 bg-zinc-800/85 px-3 py-2 text-xs font-semibold text-zinc-100 transition hover:bg-zinc-700"
           onClick={() => {
             void handleCopy()
           }}
@@ -129,15 +129,15 @@ export function GoalDiagram({ goal, tasks }: GoalDiagramProps) {
         </button>
         <button
           type="button"
-          className="rounded-lg border border-white/20 bg-slate-800/80 px-3 py-2 text-xs font-semibold text-slate-100 transition hover:bg-slate-700"
+          className="rounded-lg border border-zinc-500/40 bg-zinc-800/85 px-3 py-2 text-xs font-semibold text-zinc-100 transition hover:bg-zinc-700"
           onClick={handleDownload}
         >
           Export .txt
         </button>
-        {exportStatus && <span className="text-xs text-slate-300">{exportStatus}</span>}
+        {exportStatus && <span className="text-xs text-zinc-300">{exportStatus}</span>}
       </div>
 
-      <div className="mb-4 rounded-xl border border-indigo-300/30 bg-indigo-500/10 px-4 py-3 text-sm font-semibold text-indigo-100">
+      <div className="mb-4 rounded-xl border border-amber-300/35 bg-amber-500/10 px-4 py-3 text-sm font-semibold text-amber-100">
         🎯 Start: {normalizeLabel(goal)}
       </div>
 
@@ -152,11 +152,11 @@ export function GoalDiagram({ goal, tasks }: GoalDiagramProps) {
                     tile.completed
                       ? 'board-tile-complete border-emerald-300/40 bg-emerald-500/15 text-emerald-100'
                       : tile.step % 2 === 0
-                        ? 'border-cyan-300/40 bg-cyan-500/10 text-cyan-100'
-                        : 'border-violet-300/40 bg-violet-500/10 text-violet-100'
+                        ? 'border-zinc-300/40 bg-zinc-700/40 text-zinc-100'
+                        : 'border-amber-300/35 bg-amber-700/20 text-amber-100'
                   }`}
                 >
-                  <div className="mb-2 inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/30 bg-slate-900/70 text-sm font-semibold text-white">
+                  <div className="mb-2 inline-flex h-8 w-8 items-center justify-center rounded-full border border-zinc-300/35 bg-zinc-900/80 text-sm font-semibold text-zinc-100">
                     {tile.step}
                   </div>
                   <p className={`text-sm font-medium leading-snug ${tile.completed ? 'line-through opacity-80' : ''}`}>
@@ -167,7 +167,7 @@ export function GoalDiagram({ goal, tasks }: GoalDiagramProps) {
             </div>
 
             {rowIndex < rows.length - 1 && (
-              <p className="text-center text-xs font-semibold tracking-wide text-slate-400">
+              <p className="text-center text-xs font-semibold tracking-wide text-zinc-400">
                 ↓ continue to next row
               </p>
             )}
@@ -175,7 +175,7 @@ export function GoalDiagram({ goal, tasks }: GoalDiagramProps) {
         ))}
       </div>
 
-      <div className="mt-4 rounded-xl border border-emerald-300/40 bg-emerald-500/10 px-4 py-3 text-sm font-semibold text-emerald-100">
+      <div className="mt-4 rounded-xl border border-orange-300/35 bg-orange-500/15 px-4 py-3 text-sm font-semibold text-orange-100">
         🏁 Finish: Goal achieved
       </div>
     </div>
