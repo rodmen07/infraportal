@@ -84,20 +84,23 @@ function playToneSequence(steps: ToneStep[]): void {
 
 function playTaskCompletionSound(): void {
   playToneSequence([
-    { frequency: 784, startOffset: 0, duration: 0.12, type: 'triangle', gain: 0.05 },
-    { frequency: 988, startOffset: 0.08, duration: 0.16, type: 'triangle', gain: 0.055 },
-    { frequency: 1174, startOffset: 0.16, duration: 0.2, type: 'sine', gain: 0.05 },
+    { frequency: 318, startOffset: 0, duration: 0.08, type: 'square', gain: 0.07 },
+    { frequency: 642, startOffset: 0.006, duration: 0.1, type: 'triangle', gain: 0.06 },
+    { frequency: 960, startOffset: 0.014, duration: 0.07, type: 'sawtooth', gain: 0.035 },
+    { frequency: 214, startOffset: 0.08, duration: 0.16, type: 'triangle', gain: 0.02 },
   ])
 }
 
 function playCelebrationSound(): void {
   playToneSequence([
-    { frequency: 523.25, startOffset: 0, duration: 0.32, type: 'triangle', gain: 0.05 },
-    { frequency: 659.25, startOffset: 0, duration: 0.32, type: 'triangle', gain: 0.05 },
-    { frequency: 783.99, startOffset: 0, duration: 0.32, type: 'triangle', gain: 0.05 },
-    { frequency: 1046.5, startOffset: 0.24, duration: 0.3, type: 'sine', gain: 0.06 },
-    { frequency: 1318.51, startOffset: 0.24, duration: 0.3, type: 'sine', gain: 0.06 },
-    { frequency: 1567.98, startOffset: 0.24, duration: 0.3, type: 'sine', gain: 0.06 },
+    { frequency: 254, startOffset: 0, duration: 0.2, type: 'triangle', gain: 0.04 },
+    { frequency: 508, startOffset: 0.01, duration: 0.13, type: 'square', gain: 0.055 },
+    { frequency: 774, startOffset: 0.02, duration: 0.11, type: 'sawtooth', gain: 0.03 },
+    { frequency: 212, startOffset: 0.2, duration: 0.32, type: 'triangle', gain: 0.022 },
+    { frequency: 284, startOffset: 0.32, duration: 0.18, type: 'square', gain: 0.04 },
+    { frequency: 568, startOffset: 0.332, duration: 0.1, type: 'triangle', gain: 0.035 },
+    { frequency: 860, startOffset: 0.34, duration: 0.08, type: 'sawtooth', gain: 0.02 },
+    { frequency: 188, startOffset: 0.5, duration: 0.34, type: 'triangle', gain: 0.018 },
   ])
 }
 

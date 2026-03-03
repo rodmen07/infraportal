@@ -11,6 +11,7 @@ interface SiteHeaderProps {
   currentSubject: string
   onSubjectInputChange: (value: string) => void
   onSignIn: () => Promise<void>
+  onCreateUsername: () => Promise<void>
   onSignOut: () => void
 }
 
@@ -24,6 +25,7 @@ export function SiteHeader({
   currentSubject,
   onSubjectInputChange,
   onSignIn,
+  onCreateUsername,
   onSignOut,
 }: SiteHeaderProps) {
   return (
@@ -70,13 +72,23 @@ export function SiteHeader({
             />
             <button
               type="button"
-              className="rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-2 text-sm font-semibold text-zinc-950 transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-xl bg-zinc-200 px-4 py-2 text-sm font-semibold text-zinc-900 transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
               disabled={authBusy || authLoading}
               onClick={() => {
                 void onSignIn()
               }}
             >
               {authBusy || authLoading ? 'Signing in…' : 'Sign in'}
+            </button>
+            <button
+              type="button"
+              className="rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-2 text-sm font-semibold text-zinc-950 transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+              disabled={authBusy || authLoading}
+              onClick={() => {
+                void onCreateUsername()
+              }}
+            >
+              {authBusy || authLoading ? 'Creating…' : 'Create username'}
             </button>
           </div>
         )}

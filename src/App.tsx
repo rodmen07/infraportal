@@ -18,6 +18,7 @@ function App() {
     subjectInput,
     setSubjectInput,
     signIn,
+    createUsername,
     signOut,
   } = useAuthSession()
   const {
@@ -65,6 +66,7 @@ function App() {
           currentSubject={session?.subject || ''}
           onSubjectInputChange={setSubjectInput}
           onSignIn={signIn}
+          onCreateUsername={createUsername}
           onSignOut={signOut}
         />
 

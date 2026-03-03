@@ -4,6 +4,7 @@ import { setApiAccessToken } from '../../api/tasks'
 import type { AuthSession } from '../../types'
 
 const STORAGE_KEY = 'taskforge.auth.session'
+const USERS_STORAGE_KEY = 'taskforge.auth.users'
 
 function readStoredSession(): AuthSession | null {
   try {
@@ -32,12 +33,39 @@ function persistSession(session: AuthSession | null): void {
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(session))
 }
 
+function readStoredUsers(): string[] {
+  try {
+    const raw = window.localStorage.getItem(USERS_STORAGE_KEY)
+    if (!raw) {
+      return []
+    }
+
+    const parsed = JSON.parse(raw) as string[]
+    if (!Array.isArray(parsed)) {
+      return []
+    }
+
+    return parsed.map((value) => value.trim()).filter((value) => value.length > 0)
+  } catch {
+    return []
+  }
+}
+
+function persistUsers(users: string[]): void {
+  window.localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users))
+}
+
 export function useAuthSession() {
   const [session, setSession] = useState<AuthSession | null>(null)
   const [authLoading, setAuthLoading] = useState(true)
   const [authBusy, setAuthBusy] = useState(false)
   const [authError, setAuthError] = useState('')
   const [subjectInput, setSubjectInput] = useState('')
+  const [knownUsers, setKnownUsers] = useState<string[]>([])
+
+  useEffect(() => {
+    setKnownUsers(readStoredUsers())
+  }, [])
 
   const restoreSession = useCallback(async () => {
     setAuthLoading(true)
@@ -92,6 +120,12 @@ export function useAuthSession() {
       return
     }
 
+    const exists = knownUsers.some((value) => value.toLowerCase() === subject.toLowerCase())
+    if (!exists) {
+      setAuthError('Username not found. Create it first.')
+      return
+    }
+
     setAuthBusy(true)
     setAuthError('')
 
@@ -122,7 +156,56 @@ export function useAuthSession() {
     } finally {
       setAuthBusy(false)
     }
-  }, [subjectInput])
+  }, [knownUsers, subjectInput])
+
+  const createUsername = useCallback(async () => {
+    const subject = subjectInput.trim()
+    if (!subject) {
+      setAuthError('Username is required')
+      return
+    }
+
+    const exists = knownUsers.some((value) => value.toLowerCase() === subject.toLowerCase())
+    if (exists) {
+      setAuthError('Username already exists. Sign in instead.')
+      return
+    }
+
+    setAuthBusy(true)
+    setAuthError('')
+
+    try {
+      const token = await issueToken(subject, ['user', 'planner'])
+      const verification = await verifyToken(token.access_token)
+
+      if (!verification.active) {
+        throw new Error('Issued token could not be verified')
+      }
+
+      const nextSession: AuthSession = {
+        subject: verification.subject || subject,
+        accessToken: token.access_token,
+        roles: verification.roles || [],
+        expiresAt: Date.now() + token.expires_in * 1000,
+      }
+
+      const nextUsers = [...knownUsers, nextSession.subject]
+      setKnownUsers(nextUsers)
+      persistUsers(nextUsers)
+
+      setApiAccessToken(nextSession.accessToken)
+      persistSession(nextSession)
+      setSession(nextSession)
+      setSubjectInput('')
+    } catch (error) {
+      setAuthError(error instanceof Error ? error.message : 'Failed to create username')
+      setApiAccessToken('')
+      persistSession(null)
+      setSession(null)
+    } finally {
+      setAuthBusy(false)
+    }
+  }, [knownUsers, subjectInput])
 
   const signOut = useCallback(() => {
     setApiAccessToken('')
@@ -145,6 +228,7 @@ export function useAuthSession() {
     subjectInput,
     setSubjectInput,
     signIn,
+    createUsername,
     signOut,
   }
 }
