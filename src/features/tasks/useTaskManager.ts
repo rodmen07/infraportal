@@ -1,4 +1,4 @@
-import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react'
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   createTask,
   deleteTask,
@@ -39,34 +39,66 @@ function normalizePlanTasks(tasks: string[]): string[] {
     .filter((task) => task.length > 0)
 }
 
-function playCompletionSound(): void {
+interface ToneStep {
+  frequency: number
+  startOffset: number
+  duration: number
+  type: OscillatorType
+  gain: number
+}
+
+function playToneSequence(steps: ToneStep[]): void {
   if (typeof window === 'undefined') {
     return
   }
 
   try {
     const audioContext = new window.AudioContext()
-    const oscillator = audioContext.createOscillator()
-    const gain = audioContext.createGain()
+    for (const step of steps) {
+      const oscillator = audioContext.createOscillator()
+      const gainNode = audioContext.createGain()
+      const startTime = audioContext.currentTime + step.startOffset
+      const endTime = startTime + step.duration
 
-    oscillator.type = 'triangle'
-    oscillator.frequency.setValueAtTime(620, audioContext.currentTime)
-    oscillator.frequency.exponentialRampToValueAtTime(880, audioContext.currentTime + 0.12)
+      oscillator.type = step.type
+      oscillator.frequency.setValueAtTime(step.frequency, startTime)
 
-    gain.gain.setValueAtTime(0.0001, audioContext.currentTime)
-    gain.gain.exponentialRampToValueAtTime(0.06, audioContext.currentTime + 0.02)
-    gain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + 0.18)
+      gainNode.gain.setValueAtTime(0.0001, startTime)
+      gainNode.gain.exponentialRampToValueAtTime(step.gain, startTime + 0.02)
+      gainNode.gain.exponentialRampToValueAtTime(0.0001, endTime)
 
-    oscillator.connect(gain)
-    gain.connect(audioContext.destination)
-    oscillator.start(audioContext.currentTime)
-    oscillator.stop(audioContext.currentTime + 0.2)
+      oscillator.connect(gainNode)
+      gainNode.connect(audioContext.destination)
+      oscillator.start(startTime)
+      oscillator.stop(endTime)
+    }
+
+    const totalDuration = Math.max(...steps.map((step) => step.startOffset + step.duration), 0)
 
     window.setTimeout(() => {
       void audioContext.close()
-    }, 260)
+    }, Math.ceil((totalDuration + 0.3) * 1000))
   } catch {
   }
+}
+
+function playTaskCompletionSound(): void {
+  playToneSequence([
+    { frequency: 784, startOffset: 0, duration: 0.12, type: 'triangle', gain: 0.05 },
+    { frequency: 988, startOffset: 0.08, duration: 0.16, type: 'triangle', gain: 0.055 },
+    { frequency: 1174, startOffset: 0.16, duration: 0.2, type: 'sine', gain: 0.05 },
+  ])
+}
+
+function playCelebrationSound(): void {
+  playToneSequence([
+    { frequency: 523.25, startOffset: 0, duration: 0.32, type: 'triangle', gain: 0.05 },
+    { frequency: 659.25, startOffset: 0, duration: 0.32, type: 'triangle', gain: 0.05 },
+    { frequency: 783.99, startOffset: 0, duration: 0.32, type: 'triangle', gain: 0.05 },
+    { frequency: 1046.5, startOffset: 0.24, duration: 0.3, type: 'sine', gain: 0.06 },
+    { frequency: 1318.51, startOffset: 0.24, duration: 0.3, type: 'sine', gain: 0.06 },
+    { frequency: 1567.98, startOffset: 0.24, duration: 0.3, type: 'sine', gain: 0.06 },
+  ])
 }
 
 export function useTaskManager() {
@@ -82,6 +114,8 @@ export function useTaskManager() {
   const [creatingPlanTasks, setCreatingPlanTasks] = useState(false)
   const [plannerStatus, setPlannerStatus] = useState<PlannerStatus>(INITIAL_PLANNER_STATUS)
   const [goalPlans, setGoalPlans] = useState<GoalPlan[]>([])
+  const [celebrationToken, setCelebrationToken] = useState(0)
+  const previousPendingRef = useRef<number | null>(null)
 
   const pendingCount = useMemo(
     () => tasks.filter((task) => !task.completed).length,
@@ -105,6 +139,20 @@ export function useTaskManager() {
   useEffect(() => {
     loadTasks()
   }, [loadTasks])
+
+  useEffect(() => {
+    const previousPending = previousPendingRef.current
+    previousPendingRef.current = pendingCount
+
+    if (previousPending === null) {
+      return
+    }
+
+    if (tasks.length > 0 && previousPending > 0 && pendingCount === 0) {
+      playCelebrationSound()
+      setCelebrationToken(Date.now())
+    }
+  }, [pendingCount, tasks.length])
 
   const handleCreateTask = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -139,7 +187,7 @@ export function useTaskManager() {
         current.map((item) => (item.id === task.id ? updatedTask : item)),
       )
       if (!task.completed && updatedTask.completed) {
-        playCompletionSound()
+        playTaskCompletionSound()
       }
     } catch (error) {
       setTaskError(error instanceof Error ? error.message : 'Failed to update task')
@@ -301,6 +349,7 @@ export function useTaskManager() {
     creatingPlanTasks,
     plannerStatus,
     goalPlans,
+    celebrationToken,
     pendingCount,
     setTaskTitle,
     setGoalInput,
