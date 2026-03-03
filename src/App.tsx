@@ -25,6 +25,7 @@ function App() {
     tasks,
     taskTitle,
     taskDifficulty,
+    taskGoal,
     tasksLoading,
     taskError,
     submitting,
@@ -38,10 +39,12 @@ function App() {
     goalPlans,
     celebrationToken,
     forgedPoints,
-    rubies,
+    gemCounts,
+    goalProgress,
     pendingCount,
     setTaskTitle,
     setTaskDifficulty,
+    setTaskGoal,
     setGoalInput,
     setPlannedTaskDifficulty,
     loadTasks,
@@ -81,7 +84,8 @@ function App() {
           authLocked={!isAuthenticated}
           pendingCount={pendingCount}
           forgedPoints={forgedPoints}
-          rubies={rubies}
+          gemCounts={gemCounts}
+          goalProgress={goalProgress}
           tasksLoading={tasksLoading}
           taskError={taskError}
           goalInput={goalInput}
@@ -92,6 +96,7 @@ function App() {
           plannedTasks={plannedTasks}
           taskTitle={taskTitle}
           taskDifficulty={taskDifficulty}
+          taskGoal={taskGoal}
           submitting={submitting}
           tasks={tasks}
           workingTaskId={workingTaskId}
@@ -102,6 +107,7 @@ function App() {
           onCreatePlannedTasks={handleCreatePlannedTasks}
           onTaskTitleChange={setTaskTitle}
           onTaskDifficultyChange={setTaskDifficulty}
+          onTaskGoalChange={setTaskGoal}
           onCreateTask={handleCreateTask}
           onSetTaskDifficulty={handleSetTaskDifficulty}
           onToggleTask={handleToggleTask}

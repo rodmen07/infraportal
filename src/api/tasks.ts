@@ -78,16 +78,17 @@ export async function createTask(title: string): Promise<Task> {
 export async function createTaskWithDifficulty(
   title: string,
   difficulty: number,
+  goal?: string,
 ): Promise<Task> {
   return request<Task>('/api/v1/tasks', {
     method: 'POST',
-    body: JSON.stringify({ title, difficulty }),
+    body: JSON.stringify({ title, difficulty, goal: goal?.trim() || undefined }),
   })
 }
 
 export async function updateTask(
   id: number,
-  updates: Partial<Pick<Task, 'title' | 'completed' | 'difficulty'>>,
+  updates: Partial<Pick<Task, 'title' | 'completed' | 'difficulty' | 'goal'>>,
 ): Promise<Task> {
   return request<Task>(`/api/v1/tasks/${id}`, {
     method: 'PATCH',

@@ -1,12 +1,13 @@
 import type { FormEvent } from 'react'
 import type { PlannerTone, Task } from '../../types'
-import type { PlannerStatus } from './useTaskManager'
+import type { GemCounts, GoalProgress, PlannerStatus } from './useTaskManager'
 
 interface TaskManagerSectionProps {
   authLocked: boolean
   pendingCount: number
   forgedPoints: number
-  rubies: number
+  gemCounts: GemCounts
+  goalProgress: GoalProgress[]
   tasksLoading: boolean
   taskError: string
   goalInput: string
@@ -17,6 +18,7 @@ interface TaskManagerSectionProps {
   plannedTasks: string[]
   taskTitle: string
   taskDifficulty: number
+  taskGoal: string
   submitting: boolean
   tasks: Task[]
   workingTaskId: number | null
@@ -27,6 +29,7 @@ interface TaskManagerSectionProps {
   onCreatePlannedTasks: () => Promise<void>
   onTaskTitleChange: (value: string) => void
   onTaskDifficultyChange: (value: number) => void
+  onTaskGoalChange: (value: string) => void
   onCreateTask: (event: FormEvent<HTMLFormElement>) => Promise<void>
   onSetTaskDifficulty: (task: Task, difficulty: number) => Promise<void>
   onToggleTask: (task: Task) => Promise<void>
@@ -48,7 +51,8 @@ export function TaskManagerSection({
   authLocked,
   pendingCount,
   forgedPoints,
-  rubies,
+  gemCounts,
+  goalProgress,
   tasksLoading,
   taskError,
   goalInput,
@@ -59,6 +63,7 @@ export function TaskManagerSection({
   plannedTasks,
   taskTitle,
   taskDifficulty,
+  taskGoal,
   submitting,
   tasks,
   workingTaskId,
@@ -69,6 +74,7 @@ export function TaskManagerSection({
   onCreatePlannedTasks,
   onTaskTitleChange,
   onTaskDifficultyChange,
+  onTaskGoalChange,
   onCreateTask,
   onSetTaskDifficulty,
   onToggleTask,
@@ -96,10 +102,23 @@ export function TaskManagerSection({
         <p className="rounded-xl border border-orange-300/30 bg-orange-500/10 px-3 py-2 text-sm text-orange-100">
           Forged Rings (points): <strong>{forgedPoints}</strong>
         </p>
-        <p className="rounded-xl border border-rose-300/30 bg-rose-500/10 px-3 py-2 text-sm text-rose-100">
-          Rubies earned: <strong>{rubies}</strong>
-        </p>
+        <div className="rounded-xl border border-rose-300/30 bg-rose-500/10 px-3 py-2 text-sm text-rose-100">
+          Gems — Ruby: <strong>{gemCounts.ruby}</strong>, Sapphire: <strong>{gemCounts.sapphire}</strong>, Emerald: <strong>{gemCounts.emerald}</strong>
+        </div>
       </div>
+
+      {goalProgress.length > 0 && (
+        <div className="mb-4 rounded-2xl border border-zinc-500/35 bg-zinc-800/70 p-4">
+          <h3 className="mb-2 text-base font-semibold text-white">Goal Tracking</h3>
+          <ul className="space-y-1 text-sm text-zinc-200">
+            {goalProgress.map((item) => (
+              <li key={item.goal}>
+                <span className="font-medium text-amber-200">{item.goal}</span>: {item.completed}/{item.total} complete
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {authLocked && (
         <p className="mb-4 rounded-xl border border-amber-300/35 bg-amber-500/10 px-3 py-2 text-sm text-amber-200">
@@ -110,7 +129,7 @@ export function TaskManagerSection({
       <form className="mb-3 space-y-3" onSubmit={onGeneratePlan}>
         <textarea
           className="w-full rounded-xl border border-zinc-500/40 bg-zinc-900/70 px-3 py-2 text-sm text-zinc-100 outline-none ring-amber-400 placeholder:text-zinc-500 focus:ring"
-          placeholder="Describe your long-term goal..."
+          placeholder="Describe your short-term goal..."
           value={goalInput}
           onChange={(event) => onGoalInputChange(event.target.value)}
           rows={4}
@@ -176,6 +195,15 @@ export function TaskManagerSection({
           maxLength={120}
           disabled={authLocked || submitting}
         />
+        <input
+          type="text"
+          className="flex-1 rounded-xl border border-zinc-500/40 bg-zinc-900/70 px-3 py-2 text-sm text-zinc-100 outline-none ring-amber-400 placeholder:text-zinc-500 focus:ring"
+          placeholder="Goal for this task"
+          value={taskGoal}
+          onChange={(event) => onTaskGoalChange(event.target.value)}
+          maxLength={160}
+          disabled={authLocked || submitting}
+        />
         <select
           className="rounded-xl border border-zinc-500/40 bg-zinc-900/70 px-3 py-2 text-sm text-zinc-100 outline-none ring-amber-400 focus:ring"
           value={taskDifficulty}
@@ -233,6 +261,11 @@ export function TaskManagerSection({
                   <span className={task.completed ? 'line-through text-zinc-500' : ''}>
                     {task.title}
                   </span>
+                  {task.goal && (
+                    <span className="rounded-md border border-amber-300/30 bg-amber-500/10 px-2 py-0.5 text-xs text-amber-200">
+                      {task.goal}
+                    </span>
+                  )}
                 </label>
                 <div className="flex items-center gap-2">
                   <select

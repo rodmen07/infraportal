@@ -12,6 +12,7 @@ export interface Task {
   title: string
   completed: boolean
   difficulty: number
+  goal: string | null
 }
 
 export interface GoalPlan {

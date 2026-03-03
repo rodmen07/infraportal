@@ -15,16 +15,28 @@ export interface PlannerStatus {
   message: string
 }
 
+export interface GemCounts {
+  ruby: number
+  sapphire: number
+  emerald: number
+}
+
+export interface GoalProgress {
+  goal: string
+  completed: number
+  total: number
+}
+
 const INITIAL_PLANNER_STATUS: PlannerStatus = {
   tone: 'info',
-  message: 'Planner ready. Enter a long-term goal to generate task breakdowns.',
+  message: 'Planner ready. Enter a short-term goal to generate task breakdowns.',
 }
 
 const PROGRESSION_STORAGE_KEY = 'taskforge.gamification.progress'
 
 interface ProgressState {
   forgedPoints: number
-  rubies: number
+  gemCounts: GemCounts
   completedTaskIds: number[]
   rewardedPlanIds: number[]
 }
@@ -46,13 +58,28 @@ function readProgressState(): ProgressState {
   try {
     const raw = window.localStorage.getItem(PROGRESSION_STORAGE_KEY)
     if (!raw) {
-      return { forgedPoints: 0, rubies: 0, completedTaskIds: [], rewardedPlanIds: [] }
+      return {
+        forgedPoints: 0,
+        gemCounts: { ruby: 0, sapphire: 0, emerald: 0 },
+        completedTaskIds: [],
+        rewardedPlanIds: [],
+      }
     }
 
-    const parsed = JSON.parse(raw) as ProgressState
+    const parsed = JSON.parse(raw) as ProgressState & { rubies?: number }
+    const gemCounts = parsed.gemCounts || {
+      ruby: Number(parsed.rubies) || 0,
+      sapphire: 0,
+      emerald: 0,
+    }
+
     return {
       forgedPoints: Number(parsed.forgedPoints) || 0,
-      rubies: Number(parsed.rubies) || 0,
+      gemCounts: {
+        ruby: Number(gemCounts.ruby) || 0,
+        sapphire: Number(gemCounts.sapphire) || 0,
+        emerald: Number(gemCounts.emerald) || 0,
+      },
       completedTaskIds: Array.isArray(parsed.completedTaskIds)
         ? parsed.completedTaskIds.filter((value): value is number => Number.isInteger(value))
         : [],
@@ -61,14 +88,32 @@ function readProgressState(): ProgressState {
         : [],
     }
   } catch {
-    return { forgedPoints: 0, rubies: 0, completedTaskIds: [], rewardedPlanIds: [] }
+    return {
+      forgedPoints: 0,
+      gemCounts: { ruby: 0, sapphire: 0, emerald: 0 },
+      completedTaskIds: [],
+      rewardedPlanIds: [],
+    }
   }
+}
+
+function gemTierForPlanDifficulty(totalDifficulty: number): keyof GemCounts {
+  if (totalDifficulty <= 8) {
+    return 'ruby'
+  }
+
+  if (totalDifficulty <= 16) {
+    return 'sapphire'
+  }
+
+  return 'emerald'
 }
 
 export function useTaskManager(isAuthenticated: boolean) {
   const [tasks, setTasks] = useState<Task[]>([])
   const [taskTitle, setTaskTitle] = useState('')
   const [taskDifficulty, setTaskDifficulty] = useState(1)
+  const [taskGoal, setTaskGoal] = useState('')
   const [tasksLoading, setTasksLoading] = useState(true)
   const [taskError, setTaskError] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -82,7 +127,11 @@ export function useTaskManager(isAuthenticated: boolean) {
   const [goalPlans, setGoalPlans] = useState<GoalPlan[]>([])
   const [celebrationToken, setCelebrationToken] = useState(0)
   const [forgedPoints, setForgedPoints] = useState(0)
-  const [rubies, setRubies] = useState(0)
+  const [gemCounts, setGemCounts] = useState<GemCounts>({
+    ruby: 0,
+    sapphire: 0,
+    emerald: 0,
+  })
   const [completedTaskIds, setCompletedTaskIds] = useState<Set<number>>(new Set())
   const [rewardedPlanIds, setRewardedPlanIds] = useState<Set<number>>(new Set())
   const previousPendingRef = useRef<number | null>(null)
@@ -90,7 +139,7 @@ export function useTaskManager(isAuthenticated: boolean) {
   useEffect(() => {
     const progress = readProgressState()
     setForgedPoints(progress.forgedPoints)
-    setRubies(progress.rubies)
+    setGemCounts(progress.gemCounts)
     setCompletedTaskIds(new Set(progress.completedTaskIds))
     setRewardedPlanIds(new Set(progress.rewardedPlanIds))
   }, [])
@@ -98,12 +147,12 @@ export function useTaskManager(isAuthenticated: boolean) {
   useEffect(() => {
     const serializable: ProgressState = {
       forgedPoints,
-      rubies,
+      gemCounts,
       completedTaskIds: Array.from(completedTaskIds),
       rewardedPlanIds: Array.from(rewardedPlanIds),
     }
     window.localStorage.setItem(PROGRESSION_STORAGE_KEY, JSON.stringify(serializable))
-  }, [completedTaskIds, forgedPoints, rewardedPlanIds, rubies])
+  }, [completedTaskIds, forgedPoints, gemCounts, rewardedPlanIds])
 
   const pendingCount = useMemo(
     () => tasks.filter((task) => !task.completed).length,
@@ -168,6 +217,12 @@ export function useTaskManager(isAuthenticated: boolean) {
       return
     }
 
+    const normalizedGoal = taskGoal.trim()
+    if (!normalizedGoal) {
+      setTaskError('Goal is required for tracking')
+      return
+    }
+
     setSubmitting(true)
     setTaskError('')
 
@@ -175,6 +230,7 @@ export function useTaskManager(isAuthenticated: boolean) {
       const createdTask = await createTaskWithDifficulty(
         normalizedTitle,
         normalizeDifficulty(taskDifficulty),
+        normalizedGoal,
       )
       setTasks((current) => [...current, createdTask])
       setTaskTitle('')
@@ -246,10 +302,10 @@ export function useTaskManager(isAuthenticated: boolean) {
 
     const goal = goalInput.trim()
     if (!goal) {
-      setTaskError('A long-term goal is required')
+      setTaskError('A short-term goal is required')
       setPlannerStatus({
         tone: 'warning',
-        message: 'Enter a long-term goal before generating a plan.',
+        message: 'Enter a short-term goal before generating a plan.',
       })
       return
     }
@@ -341,6 +397,7 @@ export function useTaskManager(isAuthenticated: boolean) {
         const task = await createTaskWithDifficulty(
           title,
           normalizeDifficulty(plannedTaskDifficulty),
+          goalInput.trim(),
         )
         created.push(task)
       } catch (error) {
@@ -383,7 +440,7 @@ export function useTaskManager(isAuthenticated: boolean) {
     const completedTitles = new Set(
       tasks
         .filter((task) => task.completed)
-        .map((task) => task.title.trim().toLowerCase()),
+        .map((task) => `${task.goal || ''}::${task.title.trim().toLowerCase()}`),
     )
 
     const newlyCompletedPlans = goalPlans.filter((plan) => {
@@ -391,7 +448,9 @@ export function useTaskManager(isAuthenticated: boolean) {
         return false
       }
 
-      return plan.tasks.every((task) => completedTitles.has(task.trim().toLowerCase()))
+      return plan.tasks.every((task) =>
+        completedTitles.has(`${plan.goal}::${task.trim().toLowerCase()}`),
+      )
     })
 
     if (newlyCompletedPlans.length === 0) {
@@ -399,17 +458,60 @@ export function useTaskManager(isAuthenticated: boolean) {
     }
 
     const nextRewarded = new Set(rewardedPlanIds)
+    const tierIncrements: GemCounts = { ruby: 0, sapphire: 0, emerald: 0 }
+
     for (const plan of newlyCompletedPlans) {
       nextRewarded.add(plan.id)
+
+      const totalDifficulty = tasks
+        .filter(
+          (task) =>
+            task.completed &&
+            task.goal === plan.goal &&
+            plan.tasks.some(
+              (planTask) => planTask.trim().toLowerCase() === task.title.trim().toLowerCase(),
+            ),
+        )
+        .reduce((total, task) => total + normalizeDifficulty(task.difficulty), 0)
+
+      const tier = gemTierForPlanDifficulty(totalDifficulty)
+      tierIncrements[tier] += 1
     }
 
     setRewardedPlanIds(nextRewarded)
-    setRubies((current) => current + newlyCompletedPlans.length)
+    setGemCounts((current) => ({
+      ruby: current.ruby + tierIncrements.ruby,
+      sapphire: current.sapphire + tierIncrements.sapphire,
+      emerald: current.emerald + tierIncrements.emerald,
+    }))
     setPlannerStatus({
       tone: 'success',
-      message: `Plan completed! You forged ${newlyCompletedPlans.length} ruby reward${newlyCompletedPlans.length > 1 ? 's' : ''}.`,
+      message: `Plan completed! Gems forged — Ruby: ${tierIncrements.ruby}, Sapphire: ${tierIncrements.sapphire}, Emerald: ${tierIncrements.emerald}.`,
     })
   }, [goalPlans, rewardedPlanIds, tasks])
+
+  const goalProgress = useMemo<GoalProgress[]>(() => {
+    const byGoal = new Map<string, { total: number; completed: number }>()
+
+    for (const task of tasks) {
+      if (!task.goal) {
+        continue
+      }
+
+      const current = byGoal.get(task.goal) || { total: 0, completed: 0 }
+      current.total += 1
+      if (task.completed) {
+        current.completed += 1
+      }
+      byGoal.set(task.goal, current)
+    }
+
+    return Array.from(byGoal.entries()).map(([goal, metrics]) => ({
+      goal,
+      completed: metrics.completed,
+      total: metrics.total,
+    }))
+  }, [tasks])
 
   const handleSetTaskDifficulty = async (task: Task, difficulty: number) => {
     if (!isAuthenticated) {
@@ -438,6 +540,7 @@ export function useTaskManager(isAuthenticated: boolean) {
     tasks,
     taskTitle,
     taskDifficulty,
+    taskGoal,
     tasksLoading,
     taskError,
     submitting,
@@ -451,10 +554,12 @@ export function useTaskManager(isAuthenticated: boolean) {
     goalPlans,
     celebrationToken,
     forgedPoints,
-    rubies,
+    gemCounts,
+    goalProgress,
     pendingCount,
     setTaskTitle,
     setTaskDifficulty,
+    setTaskGoal,
     setGoalInput,
     setPlannedTaskDifficulty,
     loadTasks,
