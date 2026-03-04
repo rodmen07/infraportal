@@ -14,12 +14,12 @@ export function HomeSections({ content }: HomeSectionsProps) {
       <h2 className="mb-4 text-center text-xl font-semibold text-white">{content.title}</h2>
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
         {content.cards.map((card) => (
-          <article key={card.heading} className="rounded-xl border border-zinc-500/35 bg-zinc-800/70 p-4">
+          <article key={card.heading} className="rounded-xl border border-zinc-500/35 bg-zinc-800/70 p-4 text-center">
             {card.image && (
               <img
                 src={card.image}
                 alt={card.heading}
-                className="mb-3 h-28 w-full rounded-lg border border-zinc-500/35 object-cover"
+                className="mx-auto mb-3 h-28 w-full rounded-lg border border-zinc-500/35 object-cover"
                 loading="lazy"
               />
             )}
