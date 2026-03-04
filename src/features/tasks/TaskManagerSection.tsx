@@ -1,6 +1,7 @@
 import { useMemo, useState, type FormEvent } from 'react'
-import type { PlannerTone, Task } from '../../types'
+import type { PlannerTone, Task, TaskStatus } from '../../types'
 import type { BarCounts, GoalProgress, PlannerStatus } from './useTaskManager'
+import { KanbanBoard } from './kanban/KanbanBoard'
 
 const DIFFICULTY_TIERS = [
   { value: 1, label: 'Wood' },
@@ -45,12 +46,14 @@ interface TaskManagerSectionProps {
   onToggleTask: (task: Task) => Promise<void>
   onDeleteTask: (task: Task) => Promise<void>
   onDeleteAllTasks: () => Promise<void>
+  onUpdateTaskStatus: (task: Task, status: TaskStatus) => Promise<void>
   onResetGeneratedPlan: () => void
 }
 
 type ConfirmAction = 'delete-all' | 'reset-generated' | null
 type TaskVisibilityFilter = 'all' | 'active' | 'completed'
 type TaskSortMode = 'newest' | 'oldest' | 'difficulty-desc' | 'difficulty-asc'
+type TaskViewMode = 'kanban' | 'list'
 
 function plannerToneClass(tone: PlannerTone): string {
   switch (tone) {
@@ -97,12 +100,14 @@ export function TaskManagerSection({
   onToggleTask,
   onDeleteTask,
   onDeleteAllTasks,
+  onUpdateTaskStatus,
   onResetGeneratedPlan,
 }: TaskManagerSectionProps) {
   const [confirmAction, setConfirmAction] = useState<ConfirmAction>(null)
   const [taskSearch, setTaskSearch] = useState('')
   const [visibilityFilter, setVisibilityFilter] = useState<TaskVisibilityFilter>('all')
   const [sortMode, setSortMode] = useState<TaskSortMode>('newest')
+  const [viewMode, setViewMode] = useState<TaskViewMode>('kanban')
   const canResetGeneratedPlan = plannedTasks.length > 0 || goalInput.trim().length > 0
 
   const confirmDialog = useMemo(() => {
@@ -354,6 +359,50 @@ export function TaskManagerSection({
         </p>
       )}
 
+      {/* View mode toggle */}
+      <div className="mb-4 flex items-center gap-1 rounded-xl border border-zinc-500/30 bg-zinc-800/50 p-1 w-fit">
+        <button
+          type="button"
+          className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+            viewMode === 'kanban'
+              ? 'bg-amber-500/20 text-amber-200 border border-amber-400/30'
+              : 'text-zinc-400 hover:text-zinc-200 border border-transparent'
+          }`}
+          onClick={() => setViewMode('kanban')}
+        >
+          Board
+        </button>
+        <button
+          type="button"
+          className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+            viewMode === 'list'
+              ? 'bg-amber-500/20 text-amber-200 border border-amber-400/30'
+              : 'text-zinc-400 hover:text-zinc-200 border border-transparent'
+          }`}
+          onClick={() => setViewMode('list')}
+        >
+          List
+        </button>
+      </div>
+
+      {viewMode === 'kanban' ? (
+        tasksLoading ? (
+          <p className="text-sm text-zinc-300">Loading tasks…</p>
+        ) : (
+          <KanbanBoard
+            tasks={tasks}
+            workingTaskId={workingTaskId}
+            disabled={authLocked}
+            onStatusChange={(task, status) => {
+              void onUpdateTaskStatus(task, status)
+            }}
+            onDelete={(task) => {
+              void onDeleteTask(task)
+            }}
+          />
+        )
+      ) : (
+      <>
       <div className="mb-4 grid gap-2 md:grid-cols-3">
         <input
           type="text"
@@ -405,7 +454,7 @@ export function TaskManagerSection({
             return (
               <li
                 key={task.id}
-                className={`flex items-center justify-between gap-3 rounded-xl border border-zinc-500/35 bg-zinc-900/70 p-3 ${task.completed ? 'task-complete-pulse' : ''}`}
+                className="flex items-center justify-between gap-3 rounded-xl border border-zinc-500/35 bg-zinc-900/70 p-3"
               >
                 <label className="flex items-center gap-3 text-sm text-zinc-100">
                   <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-zinc-400/40 bg-zinc-800/80 text-xs font-semibold text-zinc-200">
@@ -461,6 +510,8 @@ export function TaskManagerSection({
             )
           })}
         </ul>
+      )}
+      </>
       )}
 
       {confirmDialog && (

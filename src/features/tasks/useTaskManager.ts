@@ -1,14 +1,14 @@
-import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react'
 import {
   createTaskWithDifficulty,
   deleteTask,
   listTasks,
   planTasksFromGoal,
   updateTask,
+  updateTaskStatus,
 } from '../../api/tasks'
-import type { GoalPlan, PlannerTone, Task } from '../../types'
+import type { GoalPlan, PlannerTone, Task, TaskStatus } from '../../types'
 import { normalizePlanTask, normalizePlanTasks } from './planNormalization'
-import { playCelebrationSound, playTaskCompletionSound } from './taskAudio'
 
 export interface PlannerStatus {
   tone: PlannerTone
@@ -160,7 +160,6 @@ export function useTaskManager(isAuthenticated: boolean, subject: string | null)
   const [deletingAllTasks, setDeletingAllTasks] = useState(false)
   const [plannerStatus, setPlannerStatus] = useState<PlannerStatus>(INITIAL_PLANNER_STATUS)
   const [goalPlans, setGoalPlans] = useState<GoalPlan[]>([])
-  const [celebrationToken, setCelebrationToken] = useState(0)
   const [coins, setCoins] = useState(0)
   const [barCounts, setBarCounts] = useState<BarCounts>({
     wood: 0,
@@ -172,7 +171,6 @@ export function useTaskManager(isAuthenticated: boolean, subject: string | null)
   })
   const [completedTaskIds, setCompletedTaskIds] = useState<Set<number>>(new Set())
   const [rewardedPlanIds, setRewardedPlanIds] = useState<Set<number>>(new Set())
-  const previousPendingRef = useRef<number | null>(null)
   const normalizedSubject = (subject || '').trim().toLowerCase()
   const progressStorageKey =
     isAuthenticated && normalizedSubject.length > 0
@@ -244,20 +242,6 @@ export function useTaskManager(isAuthenticated: boolean, subject: string | null)
     loadTasks()
   }, [isAuthenticated, loadTasks])
 
-  useEffect(() => {
-    const previousPending = previousPendingRef.current
-    previousPendingRef.current = pendingCount
-
-    if (previousPending === null) {
-      return
-    }
-
-    if (tasks.length > 0 && previousPending > 0 && pendingCount === 0) {
-      playCelebrationSound()
-      setCelebrationToken(Date.now())
-    }
-  }, [pendingCount, tasks.length])
-
   const handleCreateTask = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
@@ -315,7 +299,6 @@ export function useTaskManager(isAuthenticated: boolean, subject: string | null)
           setCoins((current) => current + normalizeDifficulty(updatedTask.difficulty))
           setCompletedTaskIds((current) => new Set(current).add(task.id))
         }
-        playTaskCompletionSound()
       }
     } catch (error) {
       setTaskError(error instanceof Error ? error.message : 'Failed to update task')
@@ -641,6 +624,33 @@ export function useTaskManager(isAuthenticated: boolean, subject: string | null)
     }
   }
 
+  const handleUpdateTaskStatus = async (task: Task, status: TaskStatus) => {
+    if (!isAuthenticated) {
+      setTaskError('Sign in is required to update task status')
+      return
+    }
+
+    setWorkingTaskId(task.id)
+    setTaskError('')
+
+    try {
+      const updatedTask = await updateTaskStatus(task.id, status)
+      setTasks((current) =>
+        current.map((item) => (item.id === task.id ? updatedTask : item)),
+      )
+      if (status === 'done' && !task.completed) {
+        if (!completedTaskIds.has(task.id)) {
+          setCoins((current) => current + normalizeDifficulty(updatedTask.difficulty))
+          setCompletedTaskIds((current) => new Set(current).add(task.id))
+        }
+      }
+    } catch (error) {
+      setTaskError(error instanceof Error ? error.message : 'Failed to update task status')
+    } finally {
+      setWorkingTaskId(null)
+    }
+  }
+
   return {
     tasks,
     taskTitle,
@@ -658,7 +668,6 @@ export function useTaskManager(isAuthenticated: boolean, subject: string | null)
     deletingAllTasks,
     plannerStatus,
     goalPlans,
-    celebrationToken,
     coins,
     barCounts,
     goalProgress,
@@ -671,6 +680,7 @@ export function useTaskManager(isAuthenticated: boolean, subject: string | null)
     loadTasks,
     handleCreateTask,
     handleSetTaskDifficulty,
+    handleUpdateTaskStatus,
     handleToggleTask,
     handleDeleteTask,
     handleDeleteAllTasks,

@@ -28,12 +28,15 @@ export interface FaqContent {
   items: FaqItem[]
 }
 
+export type TaskStatus = 'todo' | 'doing' | 'done'
+
 export interface Task {
   id: number
   title: string
   completed: boolean
   difficulty: number
   goal: string | null
+  status: TaskStatus
 }
 
 export interface GoalPlan {

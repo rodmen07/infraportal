@@ -15,6 +15,11 @@
       "heading": "Admin observability",
       "body": "Review usage signals and activity with role-gated admin insights.",
       "image": "/uploads/admin-insights.svg"
+    },
+    {
+      "heading": "Focused delivery flow",
+      "body": "Keep the current module in focus as you scroll through a vertical carousel-like workspace.",
+      "image": "/uploads/focus-rail.svg"
     }
   ]
 }

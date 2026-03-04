@@ -1,5 +1,5 @@
 import { API_BASE_URL, API_TIMEOUT_MS } from '../config'
-import type { AdminMetrics, AdminRequestLog, AdminUserActivity, Task } from '../types'
+import type { AdminMetrics, AdminRequestLog, AdminUserActivity, Task, TaskStatus } from '../types'
 
 interface PlanResponse {
   tasks: string[]
@@ -88,7 +88,7 @@ export async function createTaskWithDifficulty(
 
 export async function updateTask(
   id: number,
-  updates: Partial<Pick<Task, 'title' | 'completed' | 'difficulty' | 'goal'>>,
+  updates: Partial<Pick<Task, 'title' | 'completed' | 'difficulty' | 'goal' | 'status'>>,
 ): Promise<Task> {
   return request<Task>(`/api/v1/tasks/${id}`, {
     method: 'PATCH',
@@ -99,6 +99,13 @@ export async function updateTask(
 export async function deleteTask(id: number): Promise<void> {
   await request<void>(`/api/v1/tasks/${id}`, {
     method: 'DELETE',
+  })
+}
+
+export async function updateTaskStatus(id: number, status: TaskStatus): Promise<Task> {
+  return request<Task>(`/api/v1/tasks/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status }),
   })
 }
 

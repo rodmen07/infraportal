@@ -6,7 +6,6 @@ Use this file as the repository-specific implementation contract for AI-assisted
 
 - This repository delivers user-facing task planning and task management UX.
 - Stack: React + Vite + TypeScript (strict mode) + Tailwind CSS.
-- Visual planning output uses Mermaid diagrams.
 
 ## 2) Service boundaries
 
@@ -29,7 +28,6 @@ Use this file as the repository-specific implementation contract for AI-assisted
   - receiving generated composite tasks,
   - bulk creation of generated tasks,
   - continued task CRUD management in list views.
-- Diagram flow must render Goal -> Tasks representation for generated plans.
 
 ## 5) Backend contract compatibility
 
@@ -57,7 +55,6 @@ Avoid introducing frontend payload changes that require backend contract drift w
 - Keep changes minimal and consistent with current UI patterns.
 - Preserve TypeScript strictness; avoid introducing any/unsafe casting without necessity.
 - Maintain clear loading/error/empty states for API-driven views.
-- Keep Mermaid generation deterministic from planner outputs.
 
 ## 8) Quality gates before completion
 
@@ -77,7 +74,6 @@ When changing API usage, environment variables, routes, or CMS behavior:
 
 - Main app/state flow: `src/App.tsx`
 - API client and error parsing: `src/api/tasks.ts`
-- Diagram rendering: `src/components/GoalDiagram.tsx`
 - Shared types: `src/types.ts`
 - Runtime backend URL selection: `src/config.ts`
 - Production base path behavior: `vite.config.js`
@@ -95,9 +91,3 @@ When changing API usage, environment variables, routes, or CMS behavior:
 - Avoid silently changing task list query assumptions (`limit=100&offset=0`) without UI/perf review.
 - Preserve backend error-code handling branches for planner unconfigured/rate-limited/unavailable states.
 - Keep fetch timeout behavior predictable and user-visible (clear timeout errors).
-
-## 13) Diagram rendering constraints
-
-- Keep Mermaid initialization one-time to avoid repeated init side effects.
-- Preserve diagram label sanitization to avoid invalid Mermaid markup from user/model output.
-- Prefer deterministic diagram generation from persisted `GoalPlan` data.

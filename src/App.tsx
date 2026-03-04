@@ -1,10 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { AdminDashboardSection } from './features/admin/AdminDashboardSection'
-import { CelebrationOverlay } from './components/CelebrationOverlay'
 import { useAdminDashboard } from './features/admin/useAdminDashboard'
 import { SessionPanel } from './features/auth/SessionPanel'
 import { useAuthSession } from './features/auth/useAuthSession'
-import { GoalDiagramsSection } from './features/plans/GoalDiagramsSection'
 import { FaqSection } from './features/site/FaqSection'
 import { HomeSections } from './features/site/HomeSections'
 import { SiteHeader } from './features/site/SiteHeader'
@@ -14,20 +12,19 @@ import { useSiteContent } from './features/site/useSiteContent'
 import { TaskManagerSection } from './features/tasks/TaskManagerSection'
 import { useTaskManager } from './features/tasks/useTaskManager'
 
+interface ScrollMenuItem {
+  id: string
+  label: string
+  isExternal?: boolean
+  href?: string
+}
+
 function App() {
   const baseUrl = import.meta.env.BASE_URL
-  const dashboardHash = '#admin-dashboard'
-  const dashboardHref = `${baseUrl}${dashboardHash}`
   const cmsHref = `${baseUrl}admin/`
-  const homeHref = baseUrl
-  const [currentHash, setCurrentHash] = useState(() => window.location.hash)
   const [showBackToTop, setShowBackToTop] = useState(false)
-
-  useEffect(() => {
-    const onHashChange = () => setCurrentHash(window.location.hash)
-    window.addEventListener('hashchange', onHashChange)
-    return () => window.removeEventListener('hashchange', onHashChange)
-  }, [])
+  const [activeSectionId, setActiveSectionId] = useState('hero')
+  const [sectionVisibility, setSectionVisibility] = useState<Record<string, number>>({})
 
   useEffect(() => {
     const onScroll = () => setShowBackToTop(window.scrollY > 500)
@@ -78,8 +75,6 @@ function App() {
     creatingPlanTasks,
     deletingAllTasks,
     plannerStatus,
-    goalPlans,
-    celebrationToken,
     coins,
     barCounts,
     goalProgress,
@@ -92,6 +87,7 @@ function App() {
     loadTasks,
     handleCreateTask,
     handleSetTaskDifficulty,
+    handleUpdateTaskStatus,
     handleToggleTask,
     handleDeleteTask,
     handleDeleteAllTasks,
@@ -100,17 +96,97 @@ function App() {
     handleResetGeneratedPlan,
   } = useTaskManager(isAuthenticated, session?.subject ?? null)
 
-  const boardGoal = goalPlans[0]?.goal || 'Current Task Path'
   const completedCount = useMemo(() => tasks.filter((task) => task.completed).length, [tasks])
   const completionPercent = tasks.length > 0 ? Math.round((completedCount / tasks.length) * 100) : 0
   const pendingLabel = Math.max(tasks.length - completedCount, 0)
+
+  const menuItems = useMemo<ScrollMenuItem[]>(() => {
+    const items: ScrollMenuItem[] = [
+      { id: 'hero', label: 'Overview' },
+      { id: 'session', label: 'Session' },
+      { id: 'sections', label: 'Highlights' },
+    ]
+
+    if (isAuthenticated && isAdmin) {
+      items.push({ id: 'admin-dashboard', label: 'Admin Dashboard' })
+    }
+
+    items.push(
+      { id: 'task-manager', label: 'Task Manager' },
+      { id: 'faq', label: 'FAQ' },
+      { id: 'cms-link', label: 'Open CMS', isExternal: true, href: cmsHref },
+    )
+
+    return items
+  }, [cmsHref, isAdmin, isAuthenticated])
+
+  useEffect(() => {
+    const sectionIds = menuItems.filter((item) => !item.isExternal).map((item) => item.id)
+    if (!sectionIds.length) {
+      return
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        setSectionVisibility((previous) => {
+          const next = { ...previous }
+          for (const entry of entries) {
+            next[entry.target.id] = entry.intersectionRatio
+          }
+          return next
+        })
+
+        const visibleEntries = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)
+
+        if (visibleEntries[0]) {
+          setActiveSectionId(visibleEntries[0].target.id)
+        }
+      },
+      {
+        root: null,
+        rootMargin: '-20% 0px -20% 0px',
+        threshold: [0, 0.2, 0.45, 0.65, 0.85, 1],
+      },
+    )
+
+    for (const sectionId of sectionIds) {
+      const node = document.getElementById(sectionId)
+      if (node) {
+        observer.observe(node)
+      }
+    }
+
+    return () => observer.disconnect()
+  }, [menuItems])
+
+  const handleMenuJump = (sectionId: string) => {
+    const node = document.getElementById(sectionId)
+    if (!node) {
+      return
+    }
+
+    node.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    window.history.replaceState(null, '', `#${sectionId}`)
+  }
+
+  const sectionStateClass = (sectionId: string) => {
+    const ratio = sectionVisibility[sectionId] ?? 0
+    if (ratio >= 0.55) {
+      return 'section-carousel-item section-carousel-active'
+    }
+    if (ratio >= 0.2) {
+      return 'section-carousel-item section-carousel-near'
+    }
+    return 'section-carousel-item section-carousel-away'
+  }
 
   return (
     <main className="forge-grid relative min-h-screen overflow-hidden bg-zinc-950 px-2 py-6 text-zinc-100 sm:px-4 sm:py-8 lg:px-8 xl:px-10 2xl:px-14">
       <div className="pointer-events-none absolute -top-32 left-1/2 h-80 w-80 -translate-x-1/2 rounded-full bg-amber-500/20 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-24 right-8 h-64 w-64 rounded-full bg-orange-500/20 blur-3xl" />
       <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-amber-500/10 to-transparent" />
-      <CelebrationOverlay trigger={celebrationToken} />
 
       <div className="relative mx-auto flex w-full max-w-[2200px] flex-col gap-6">
         <section className="sticky top-2 z-40 rounded-2xl border border-zinc-500/30 bg-zinc-900/75 p-3 shadow-xl shadow-black/40 backdrop-blur-xl">
@@ -134,129 +210,135 @@ function App() {
           </div>
         </section>
 
-        <SiteHeader
-          content={content}
-        />
+        <div className="grid gap-5 xl:grid-cols-[220px_minmax(0,1fr)]">
+          <aside className="hidden xl:block">
+            <nav className="sticky top-24 rounded-2xl border border-zinc-500/30 bg-zinc-900/70 p-3 shadow-xl shadow-black/40 backdrop-blur-xl">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-400">On This Screen</p>
+              <ul className="space-y-1.5">
+                {menuItems.map((item) => {
+                  const isActive = activeSectionId === item.id
+                  if (item.isExternal) {
+                    return (
+                      <li key={item.id}>
+                        <a
+                          href={item.href}
+                          className="block rounded-lg border border-zinc-500/35 bg-zinc-800/70 px-3 py-2 text-sm text-zinc-200 transition hover:bg-zinc-700"
+                        >
+                          {item.label}
+                        </a>
+                      </li>
+                    )
+                  }
 
-        <SessionPanel
-          isAuthenticated={isAuthenticated}
-          authLoading={authLoading}
-          authBusy={authBusy}
-          authError={authError}
-          subjectInput={subjectInput}
-          currentSubject={session?.subject || ''}
-          currentRoles={session?.roles || []}
-          onSubjectInputChange={setSubjectInput}
-          onSignIn={signIn}
-          onSignInAdmin={signInAdmin}
-          onCreateUsername={createUsername}
-          onSignOut={signOut}
-        />
+                  return (
+                    <li key={item.id}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          handleMenuJump(item.id)
+                        }}
+                        className={`flex w-full items-center justify-between rounded-lg border px-3 py-2 text-left text-sm transition ${
+                          isActive
+                            ? 'border-amber-300/40 bg-amber-500/10 text-amber-100'
+                            : 'border-zinc-500/35 bg-zinc-800/70 text-zinc-200 hover:bg-zinc-700'
+                        }`}
+                      >
+                        <span>{item.label}</span>
+                        {isActive && <span className="text-[10px] uppercase tracking-wide text-amber-200">On screen</span>}
+                      </button>
+                    </li>
+                  )
+                })}
+              </ul>
+            </nav>
+          </aside>
 
-        <HomeSections content={homeSections} />
+          <div className="space-y-6">
+            <div id="hero" className={sectionStateClass('hero')}>
+              <SiteHeader content={content} />
+            </div>
 
-        {isAuthenticated && isAdmin && (
-          <AdminDashboardSection
-            loading={adminLoading}
-            error={adminError}
-            metrics={metrics}
-            requestLogs={requestLogs}
-            userActivity={userActivity}
-            onRefresh={() => {
-              void loadAdminData()
-            }}
-          />
-        )}
+            <div id="session" className={sectionStateClass('session')}>
+              <SessionPanel
+                isAuthenticated={isAuthenticated}
+                authLoading={authLoading}
+                authBusy={authBusy}
+                authError={authError}
+                subjectInput={subjectInput}
+                currentSubject={session?.subject || ''}
+                currentRoles={session?.roles || []}
+                onSubjectInputChange={setSubjectInput}
+                onSignIn={signIn}
+                onSignInAdmin={signInAdmin}
+                onCreateUsername={createUsername}
+                onSignOut={signOut}
+              />
+            </div>
 
-        <div className="grid gap-6 xl:grid-cols-12">
-          <div className="xl:col-span-8">
-            <TaskManagerSection
-              authLocked={!isAuthenticated}
-              pendingCount={pendingCount}
-              coins={coins}
-              barCounts={barCounts}
-              goalProgress={goalProgress}
-              tasksLoading={tasksLoading}
-              taskError={taskError}
-              goalInput={goalInput}
-              plannedTaskDifficulty={plannedTaskDifficulty}
-              planning={planning}
-              creatingPlanTasks={creatingPlanTasks}
-              deletingAllTasks={deletingAllTasks}
-              plannerStatus={plannerStatus}
-              plannedTasks={plannedTasks}
-              taskTitle={taskTitle}
-              taskDifficulty={taskDifficulty}
-              taskGoal={taskGoal}
-              submitting={submitting}
-              tasks={tasks}
-              workingTaskId={workingTaskId}
-              onRefresh={loadTasks}
-              onGoalInputChange={setGoalInput}
-              onPlannedTaskDifficultyChange={setPlannedTaskDifficulty}
-              onGeneratePlan={handleGeneratePlan}
-              onCreatePlannedTasks={handleCreatePlannedTasks}
-              onTaskTitleChange={setTaskTitle}
-              onTaskDifficultyChange={setTaskDifficulty}
-              onTaskGoalChange={setTaskGoal}
-              onCreateTask={handleCreateTask}
-              onSetTaskDifficulty={handleSetTaskDifficulty}
-              onToggleTask={handleToggleTask}
-              onDeleteTask={handleDeleteTask}
-              onDeleteAllTasks={handleDeleteAllTasks}
-              onResetGeneratedPlan={handleResetGeneratedPlan}
-            />
-          </div>
-          <div className="xl:col-span-4">
-            <GoalDiagramsSection goal={boardGoal} tasks={tasks} />
+            <div id="sections" className={sectionStateClass('sections')}>
+              <HomeSections content={homeSections} />
+            </div>
+
+            {isAuthenticated && isAdmin && (
+              <div id="admin-dashboard" className={sectionStateClass('admin-dashboard')}>
+                <AdminDashboardSection
+                  loading={adminLoading}
+                  error={adminError}
+                  metrics={metrics}
+                  requestLogs={requestLogs}
+                  userActivity={userActivity}
+                  onRefresh={() => {
+                    void loadAdminData()
+                  }}
+                />
+              </div>
+            )}
+
+            <div id="task-manager" className={sectionStateClass('task-manager')}>
+              <TaskManagerSection
+                authLocked={!isAuthenticated}
+                pendingCount={pendingCount}
+                coins={coins}
+                barCounts={barCounts}
+                goalProgress={goalProgress}
+                tasksLoading={tasksLoading}
+                taskError={taskError}
+                goalInput={goalInput}
+                plannedTaskDifficulty={plannedTaskDifficulty}
+                planning={planning}
+                creatingPlanTasks={creatingPlanTasks}
+                deletingAllTasks={deletingAllTasks}
+                plannerStatus={plannerStatus}
+                plannedTasks={plannedTasks}
+                taskTitle={taskTitle}
+                taskDifficulty={taskDifficulty}
+                taskGoal={taskGoal}
+                submitting={submitting}
+                tasks={tasks}
+                workingTaskId={workingTaskId}
+                onRefresh={loadTasks}
+                onGoalInputChange={setGoalInput}
+                onPlannedTaskDifficultyChange={setPlannedTaskDifficulty}
+                onGeneratePlan={handleGeneratePlan}
+                onCreatePlannedTasks={handleCreatePlannedTasks}
+                onTaskTitleChange={setTaskTitle}
+                onTaskDifficultyChange={setTaskDifficulty}
+                onTaskGoalChange={setTaskGoal}
+                onCreateTask={handleCreateTask}
+                onSetTaskDifficulty={handleSetTaskDifficulty}
+                onToggleTask={handleToggleTask}
+                onDeleteTask={handleDeleteTask}
+                onDeleteAllTasks={handleDeleteAllTasks}
+                onUpdateTaskStatus={handleUpdateTaskStatus}
+                onResetGeneratedPlan={handleResetGeneratedPlan}
+              />
+            </div>
+
+            <div id="faq" className={sectionStateClass('faq')}>
+              <FaqSection content={faqContent} />
+            </div>
           </div>
         </div>
-
-        <FaqSection content={faqContent} />
-
-        {isAuthenticated && isAdmin && (
-          <section className="forge-panel rounded-3xl border border-indigo-300/20 bg-zinc-900/80 p-6 shadow-2xl shadow-black/50 backdrop-blur-xl">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-zinc-400">Admin Navigation</p>
-            <div className="mb-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-              <p className="rounded-xl border border-zinc-500/35 bg-zinc-800/70 px-3 py-2 text-sm text-zinc-100">
-                Total Tasks: <strong>{metrics?.total_tasks ?? '—'}</strong>
-              </p>
-              <p className="rounded-xl border border-zinc-500/35 bg-zinc-800/70 px-3 py-2 text-sm text-zinc-100">
-                Completed: <strong>{metrics?.completed_tasks ?? '—'}</strong>
-              </p>
-              <p className="rounded-xl border border-zinc-500/35 bg-zinc-800/70 px-3 py-2 text-sm text-zinc-100">
-                API Requests: <strong>{metrics?.total_requests ?? '—'}</strong>
-              </p>
-              <p className="rounded-xl border border-zinc-500/35 bg-zinc-800/70 px-3 py-2 text-sm text-zinc-100">
-                Unique Users: <strong>{metrics?.unique_subjects ?? '—'}</strong>
-              </p>
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              {currentHash !== dashboardHash && (
-                <a
-                  href={dashboardHref}
-                  className="rounded-xl border border-zinc-500/40 bg-zinc-800/80 px-3 py-2 text-sm font-medium text-zinc-200 transition hover:bg-zinc-700"
-                >
-                  Open Dashboard
-                </a>
-              )}
-              <a
-                href={cmsHref}
-                className="rounded-xl border border-zinc-500/40 bg-zinc-800/80 px-3 py-2 text-sm font-medium text-zinc-200 transition hover:bg-zinc-700"
-              >
-                Open CMS
-              </a>
-              {currentHash === dashboardHash && (
-                <a
-                  href={homeHref}
-                  className="rounded-xl border border-zinc-500/40 bg-zinc-800/80 px-3 py-2 text-sm font-medium text-zinc-200 transition hover:bg-zinc-700"
-                >
-                  Back to Main Page
-                </a>
-              )}
-            </div>
-          </section>
-        )}
 
         {showBackToTop && (
           <button

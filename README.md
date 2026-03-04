@@ -1,13 +1,12 @@
-# Frontend Service
+# Task Portal Service
 
-Frontend project for the tutorial ecosystem, built with React + Vite + TypeScript, styled with Tailwind CSS, and integrated with a free open-source CMS (Decap CMS).
+Task portal project for the tutorial ecosystem, built with React + Vite + TypeScript, styled with Tailwind CSS, and integrated with a free open-source CMS (Decap CMS).
 
 ## Tech stack
 
 - React 19 + Vite 5
 - TypeScript (strict mode)
 - Tailwind CSS (utility-first styling)
-- Mermaid (goal/task visual diagrams)
 
 ## Run locally
 
@@ -22,11 +21,10 @@ npm run dev
 npm run build
 ```
 
-## Goal planner and diagrams
+## Goal planner
 
 - Enter a long-term goal in the planner form and generate composite tasks.
 - Create generated tasks in bulk and manage them from the task list.
-- Every generated plan is visualized as a Goal → Tasks diagram in the **Goal Diagrams** section.
 
 ## API base URL strategy
 
@@ -113,12 +111,6 @@ Set these in Fly secrets for `auth-service`, then use `/frontend-service/admin/`
 - Planner request uses backend `POST /api/v1/tasks/plan` via `planTasksFromGoal`.
 - Generated tasks are normalized client-side to remove numbering and bullet prefixes.
 - UI maps known backend planner errors (`LLM_API_KEY_MISSING`, upstream/rate-limit signals) to friendly status messages.
-
-### Diagram rendering details
-
-- Goal diagrams are rendered by `src/components/GoalDiagram.tsx` using Mermaid.
-- Mermaid is initialized once per app lifecycle.
-- Diagram labels are sanitized to reduce invalid Mermaid syntax from user/model text.
 
 ### Build/deploy implementation details
 

@@ -1,5 +1,5 @@
 {
-  "name": "frontend-service",
+  "name": "task-portal-service",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -10,7 +10,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "mermaid": "^11.12.3",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
