@@ -26,6 +26,46 @@ body {
     linear-gradient(165deg, rgba(245, 158, 11, 0.08), rgba(24, 24, 27, 0.12) 35%, rgba(245, 158, 11, 0.04));
 }
 
+.forge-panel {
+  transition: border-color 220ms ease, transform 220ms ease, box-shadow 220ms ease;
+}
+
+.forge-panel:hover {
+  border-color: rgba(251, 191, 36, 0.32);
+}
+
+.interactive-card {
+  transition: transform 220ms ease, border-color 220ms ease, background-color 220ms ease;
+}
+
+.interactive-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(251, 191, 36, 0.35);
+}
+
+.btn-modern {
+  transition: transform 180ms ease, filter 180ms ease;
+}
+
+.btn-modern:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.03);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .forge-panel,
+  .interactive-card,
+  .btn-modern,
+  .task-complete-pulse,
+  .board-tile-complete,
+  .celebration-ember,
+  .celebration-spark,
+  .forge-flare-ring {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
 @keyframes completePulse {
   0% {
     transform: scale(1);

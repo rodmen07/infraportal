@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { AdminDashboardSection } from './features/admin/AdminDashboardSection'
 import { CelebrationOverlay } from './components/CelebrationOverlay'
 import { useAdminDashboard } from './features/admin/useAdminDashboard'
@@ -21,11 +21,19 @@ function App() {
   const cmsHref = `${baseUrl}admin/`
   const homeHref = baseUrl
   const [currentHash, setCurrentHash] = useState(() => window.location.hash)
+  const [showBackToTop, setShowBackToTop] = useState(false)
 
   useEffect(() => {
     const onHashChange = () => setCurrentHash(window.location.hash)
     window.addEventListener('hashchange', onHashChange)
     return () => window.removeEventListener('hashchange', onHashChange)
+  }, [])
+
+  useEffect(() => {
+    const onScroll = () => setShowBackToTop(window.scrollY > 500)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
   const content = useSiteContent(baseUrl)
@@ -93,6 +101,9 @@ function App() {
   } = useTaskManager(isAuthenticated, session?.subject ?? null)
 
   const boardGoal = goalPlans[0]?.goal || 'Current Task Path'
+  const completedCount = useMemo(() => tasks.filter((task) => task.completed).length, [tasks])
+  const completionPercent = tasks.length > 0 ? Math.round((completedCount / tasks.length) * 100) : 0
+  const pendingLabel = Math.max(tasks.length - completedCount, 0)
 
   return (
     <main className="forge-grid relative min-h-screen overflow-hidden bg-zinc-950 px-2 py-6 text-zinc-100 sm:px-4 sm:py-8 lg:px-8 xl:px-10 2xl:px-14">
@@ -102,6 +113,27 @@ function App() {
       <CelebrationOverlay trigger={celebrationToken} />
 
       <div className="relative mx-auto flex w-full max-w-[2200px] flex-col gap-6">
+        <section className="sticky top-2 z-40 rounded-2xl border border-zinc-500/30 bg-zinc-900/75 p-3 shadow-xl shadow-black/40 backdrop-blur-xl">
+          <div className="mb-2 flex flex-wrap items-center justify-between gap-2 text-xs sm:text-sm">
+            <p className="font-semibold text-zinc-100">
+              Progress HUD: <span className="text-amber-200">{completionPercent}% complete</span>
+            </p>
+            <div className="flex flex-wrap items-center gap-2 text-zinc-300">
+              <span className="rounded-lg border border-zinc-500/40 bg-zinc-800/80 px-2 py-1">{completedCount} done</span>
+              <span className="rounded-lg border border-zinc-500/40 bg-zinc-800/80 px-2 py-1">{pendingLabel} pending</span>
+              <span className="rounded-lg border border-zinc-500/40 bg-zinc-800/80 px-2 py-1">
+                {isAuthenticated ? `Signed in: ${session?.subject || 'user'}` : 'Signed out'}
+              </span>
+            </div>
+          </div>
+          <div className="h-2 overflow-hidden rounded-full bg-zinc-800/90">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-amber-400 via-orange-400 to-emerald-400 transition-all duration-500"
+              style={{ width: `${completionPercent}%` }}
+            />
+          </div>
+        </section>
+
         <SiteHeader
           content={content}
         />
@@ -224,6 +256,18 @@ function App() {
               )}
             </div>
           </section>
+        )}
+
+        {showBackToTop && (
+          <button
+            type="button"
+            className="fixed bottom-6 right-6 z-50 rounded-full border border-zinc-400/40 bg-zinc-900/85 px-4 py-3 text-xs font-semibold text-zinc-100 shadow-lg shadow-black/40 backdrop-blur transition hover:-translate-y-0.5 hover:bg-zinc-800"
+            onClick={() => {
+              window.scrollTo({ top: 0, behavior: 'smooth' })
+            }}
+          >
+            ↑ Top
+          </button>
         )}
       </div>
     </main>

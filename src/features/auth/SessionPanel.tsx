@@ -41,7 +41,7 @@ export function SessionPanel({
           </span>
           <button
             type="button"
-            className="rounded-lg border border-zinc-500/40 bg-zinc-800 px-3 py-2 text-sm font-semibold text-zinc-100 transition hover:bg-zinc-700"
+            className="btn-modern rounded-lg border border-zinc-500/40 bg-zinc-800 px-3 py-2 text-sm font-semibold text-zinc-100 transition hover:bg-zinc-700"
             onClick={onSignOut}
           >
             Sign out
@@ -59,7 +59,7 @@ export function SessionPanel({
           />
           <button
             type="button"
-            className="rounded-xl bg-zinc-200 px-4 py-2 text-sm font-semibold text-zinc-900 transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
+            className="btn-modern rounded-xl bg-zinc-200 px-4 py-2 text-sm font-semibold text-zinc-900 transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
             disabled={authBusy || authLoading}
             onClick={() => {
               void onSignIn()
@@ -69,7 +69,7 @@ export function SessionPanel({
           </button>
           <button
             type="button"
-            className="rounded-xl border border-indigo-300/40 bg-indigo-500/10 px-4 py-2 text-sm font-semibold text-indigo-200 transition hover:bg-indigo-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+            className="btn-modern rounded-xl border border-indigo-300/40 bg-indigo-500/10 px-4 py-2 text-sm font-semibold text-indigo-200 transition hover:bg-indigo-500/20 disabled:cursor-not-allowed disabled:opacity-60"
             disabled={authBusy || authLoading}
             onClick={() => {
               void onSignInAdmin()
@@ -79,7 +79,7 @@ export function SessionPanel({
           </button>
           <button
             type="button"
-            className="rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-2 text-sm font-semibold text-zinc-950 transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+            className="btn-modern rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-2 text-sm font-semibold text-zinc-950 transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
             disabled={authBusy || authLoading}
             onClick={() => {
               void onCreateUsername()

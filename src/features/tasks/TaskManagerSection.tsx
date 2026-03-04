@@ -40,6 +40,8 @@ interface TaskManagerSectionProps {
 }
 
 type ConfirmAction = 'delete-all' | 'reset-generated' | null
+type TaskVisibilityFilter = 'all' | 'active' | 'completed'
+type TaskSortMode = 'newest' | 'oldest' | 'difficulty-desc' | 'difficulty-asc'
 
 function plannerToneClass(tone: PlannerTone): string {
   switch (tone) {
@@ -89,6 +91,9 @@ export function TaskManagerSection({
   onResetGeneratedPlan,
 }: TaskManagerSectionProps) {
   const [confirmAction, setConfirmAction] = useState<ConfirmAction>(null)
+  const [taskSearch, setTaskSearch] = useState('')
+  const [visibilityFilter, setVisibilityFilter] = useState<TaskVisibilityFilter>('all')
+  const [sortMode, setSortMode] = useState<TaskSortMode>('newest')
   const canResetGeneratedPlan = plannedTasks.length > 0 || goalInput.trim().length > 0
 
   const confirmDialog = useMemo(() => {
@@ -130,6 +135,38 @@ export function TaskManagerSection({
       setConfirmAction(null)
     }
   }
+
+  const visibleTasks = useMemo(() => {
+    const normalizedSearch = taskSearch.trim().toLowerCase()
+    let filtered = tasks.filter((task) => {
+      if (visibilityFilter === 'active' && task.completed) {
+        return false
+      }
+      if (visibilityFilter === 'completed' && !task.completed) {
+        return false
+      }
+
+      if (!normalizedSearch) {
+        return true
+      }
+
+      const haystack = `${task.title} ${task.goal || ''}`.toLowerCase()
+      return haystack.includes(normalizedSearch)
+    })
+
+    switch (sortMode) {
+      case 'oldest':
+        return filtered
+      case 'difficulty-desc':
+        filtered = [...filtered].sort((a, b) => b.difficulty - a.difficulty)
+        return filtered
+      case 'difficulty-asc':
+        filtered = [...filtered].sort((a, b) => a.difficulty - b.difficulty)
+        return filtered
+      default:
+        return [...filtered].reverse()
+    }
+  }, [sortMode, taskSearch, tasks, visibilityFilter])
 
   return (
     <section className="forge-panel relative rounded-3xl border border-amber-300/20 bg-zinc-900/80 p-6 shadow-2xl shadow-black/50 backdrop-blur-xl">
@@ -308,13 +345,53 @@ export function TaskManagerSection({
         </p>
       )}
 
+      <div className="mb-4 grid gap-2 md:grid-cols-3">
+        <input
+          type="text"
+          className="rounded-xl border border-zinc-500/40 bg-zinc-900/70 px-3 py-2 text-sm text-zinc-100 outline-none ring-amber-400 placeholder:text-zinc-500 focus:ring"
+          placeholder="Search tasks or goals"
+          value={taskSearch}
+          onChange={(event) => setTaskSearch(event.target.value)}
+          disabled={tasksLoading}
+        />
+        <select
+          className="rounded-xl border border-zinc-500/40 bg-zinc-900/70 px-3 py-2 text-sm text-zinc-100 outline-none ring-amber-400 focus:ring"
+          value={visibilityFilter}
+          onChange={(event) => setVisibilityFilter(event.target.value as TaskVisibilityFilter)}
+          disabled={tasksLoading}
+          aria-label="Filter tasks"
+        >
+          <option value="all">All tasks</option>
+          <option value="active">Active only</option>
+          <option value="completed">Completed only</option>
+        </select>
+        <select
+          className="rounded-xl border border-zinc-500/40 bg-zinc-900/70 px-3 py-2 text-sm text-zinc-100 outline-none ring-amber-400 focus:ring"
+          value={sortMode}
+          onChange={(event) => setSortMode(event.target.value as TaskSortMode)}
+          disabled={tasksLoading}
+          aria-label="Sort tasks"
+        >
+          <option value="newest">Sort: Newest first</option>
+          <option value="oldest">Sort: Oldest first</option>
+          <option value="difficulty-desc">Sort: Difficulty high → low</option>
+          <option value="difficulty-asc">Sort: Difficulty low → high</option>
+        </select>
+      </div>
+
+      <p className="mb-3 text-xs text-zinc-400">
+        Showing {visibleTasks.length} of {tasks.length} tasks
+      </p>
+
       {tasksLoading ? (
         <p className="text-sm text-zinc-300">Loading tasks…</p>
       ) : tasks.length === 0 ? (
         <p className="text-sm text-zinc-300">No tasks yet. Create your first one.</p>
+      ) : visibleTasks.length === 0 ? (
+        <p className="text-sm text-zinc-300">No tasks match your current filters.</p>
       ) : (
         <ul className="space-y-2">
-          {tasks.map((task, index) => {
+          {visibleTasks.map((task, index) => {
             const isWorking = workingTaskId === task.id
             return (
               <li
