@@ -90,7 +90,7 @@ function App() {
     handleGeneratePlan,
     handleCreatePlannedTasks,
     handleResetGeneratedPlan,
-  } = useTaskManager(isAuthenticated)
+  } = useTaskManager(isAuthenticated, session?.subject ?? null)
 
   const boardGoal = goalPlans[0]?.goal || 'Current Task Path'
 

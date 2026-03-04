@@ -32,7 +32,14 @@ const INITIAL_PLANNER_STATUS: PlannerStatus = {
   message: 'Planner ready. Enter a short-term goal to generate task breakdowns.',
 }
 
-const PROGRESSION_STORAGE_KEY = 'taskforge.gamification.progress'
+const PROGRESSION_STORAGE_KEY_PREFIX = 'taskforge.gamification.progress'
+
+const EMPTY_PROGRESS_STATE: ProgressState = {
+  forgedPoints: 0,
+  gemCounts: { ruby: 0, sapphire: 0, emerald: 0 },
+  completedTaskIds: [],
+  rewardedPlanIds: [],
+}
 
 interface ProgressState {
   forgedPoints: number
@@ -54,16 +61,15 @@ function normalizeDifficulty(value: number): number {
   return rounded
 }
 
-function readProgressState(): ProgressState {
+function getProgressStorageKey(subject: string): string {
+  return `${PROGRESSION_STORAGE_KEY_PREFIX}.${encodeURIComponent(subject.trim().toLowerCase())}`
+}
+
+function readProgressState(storageKey: string): ProgressState {
   try {
-    const raw = window.localStorage.getItem(PROGRESSION_STORAGE_KEY)
+    const raw = window.localStorage.getItem(storageKey)
     if (!raw) {
-      return {
-        forgedPoints: 0,
-        gemCounts: { ruby: 0, sapphire: 0, emerald: 0 },
-        completedTaskIds: [],
-        rewardedPlanIds: [],
-      }
+      return EMPTY_PROGRESS_STATE
     }
 
     const parsed = JSON.parse(raw) as ProgressState & { rubies?: number }
@@ -88,12 +94,7 @@ function readProgressState(): ProgressState {
         : [],
     }
   } catch {
-    return {
-      forgedPoints: 0,
-      gemCounts: { ruby: 0, sapphire: 0, emerald: 0 },
-      completedTaskIds: [],
-      rewardedPlanIds: [],
-    }
+    return EMPTY_PROGRESS_STATE
   }
 }
 
@@ -109,7 +110,7 @@ function gemTierForPlanDifficulty(totalDifficulty: number): keyof GemCounts {
   return 'emerald'
 }
 
-export function useTaskManager(isAuthenticated: boolean) {
+export function useTaskManager(isAuthenticated: boolean, subject: string | null) {
   const [tasks, setTasks] = useState<Task[]>([])
   const [taskTitle, setTaskTitle] = useState('')
   const [taskDifficulty, setTaskDifficulty] = useState(1)
@@ -136,24 +137,41 @@ export function useTaskManager(isAuthenticated: boolean) {
   const [completedTaskIds, setCompletedTaskIds] = useState<Set<number>>(new Set())
   const [rewardedPlanIds, setRewardedPlanIds] = useState<Set<number>>(new Set())
   const previousPendingRef = useRef<number | null>(null)
+  const normalizedSubject = (subject || '').trim().toLowerCase()
+  const progressStorageKey =
+    isAuthenticated && normalizedSubject.length > 0
+      ? getProgressStorageKey(normalizedSubject)
+      : ''
 
   useEffect(() => {
-    const progress = readProgressState()
+    if (!progressStorageKey) {
+      setForgedPoints(0)
+      setGemCounts({ ruby: 0, sapphire: 0, emerald: 0 })
+      setCompletedTaskIds(new Set())
+      setRewardedPlanIds(new Set())
+      return
+    }
+
+    const progress = readProgressState(progressStorageKey)
     setForgedPoints(progress.forgedPoints)
     setGemCounts(progress.gemCounts)
     setCompletedTaskIds(new Set(progress.completedTaskIds))
     setRewardedPlanIds(new Set(progress.rewardedPlanIds))
-  }, [])
+  }, [progressStorageKey])
 
   useEffect(() => {
+    if (!progressStorageKey) {
+      return
+    }
+
     const serializable: ProgressState = {
       forgedPoints,
       gemCounts,
       completedTaskIds: Array.from(completedTaskIds),
       rewardedPlanIds: Array.from(rewardedPlanIds),
     }
-    window.localStorage.setItem(PROGRESSION_STORAGE_KEY, JSON.stringify(serializable))
-  }, [completedTaskIds, forgedPoints, gemCounts, rewardedPlanIds])
+    window.localStorage.setItem(progressStorageKey, JSON.stringify(serializable))
+  }, [completedTaskIds, forgedPoints, gemCounts, progressStorageKey, rewardedPlanIds])
 
   const pendingCount = useMemo(
     () => tasks.filter((task) => !task.completed).length,
