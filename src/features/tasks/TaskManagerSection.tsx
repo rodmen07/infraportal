@@ -89,6 +89,7 @@ export function TaskManagerSection({
   onResetGeneratedPlan,
 }: TaskManagerSectionProps) {
   const [confirmAction, setConfirmAction] = useState<ConfirmAction>(null)
+  const canResetGeneratedPlan = plannedTasks.length > 0 || goalInput.trim().length > 0
 
   const confirmDialog = useMemo(() => {
     if (confirmAction === 'delete-all') {
@@ -210,6 +211,19 @@ export function TaskManagerSection({
         {plannerStatus.message}
       </p>
 
+      <div className="mb-4 flex flex-wrap items-center justify-end gap-2">
+        <button
+          type="button"
+          className="rounded-xl border border-zinc-500/40 bg-zinc-900/70 px-4 py-2 text-sm font-semibold text-zinc-100 transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-60"
+          onClick={() => {
+            setConfirmAction('reset-generated')
+          }}
+          disabled={authLocked || creatingPlanTasks || !canResetGeneratedPlan}
+        >
+          Reset Generated Tasks
+        </button>
+      </div>
+
       {plannedTasks.length > 0 && (
         <div className="mb-4 rounded-2xl border border-zinc-500/35 bg-zinc-800/70 p-4">
           <h3 className="mb-2 text-base font-semibold text-white">Generated Plan</h3>
@@ -243,16 +257,6 @@ export function TaskManagerSection({
             disabled={authLocked || creatingPlanTasks}
           >
             {creatingPlanTasks ? 'Creating tasks…' : 'Create All Planned Tasks'}
-          </button>
-          <button
-            type="button"
-            className="ml-2 rounded-xl border border-zinc-500/40 bg-zinc-900/70 px-4 py-2 text-sm font-semibold text-zinc-100 transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-60"
-            onClick={() => {
-              setConfirmAction('reset-generated')
-            }}
-            disabled={authLocked || creatingPlanTasks}
-          >
-            Reset Generated Tasks
           </button>
         </div>
       )}

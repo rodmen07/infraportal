@@ -28,10 +28,12 @@
             return
           }
 
-          nav.innerHTML = [
-            navLink(basePath + '#admin-dashboard', 'Open Dashboard'),
-            navLink(basePath, 'Back to Main Page'),
-          ].join('')
+          const links = []
+          if (window.location.hash !== '#admin-dashboard') {
+            links.push(navLink(basePath + '#admin-dashboard', 'Open Dashboard'))
+          }
+          links.push(navLink(basePath, 'Back to Main Page'))
+          nav.innerHTML = links.join('')
         }
 
         function hasAdminSession() {

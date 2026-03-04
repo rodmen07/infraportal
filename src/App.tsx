@@ -95,13 +95,13 @@ function App() {
   const boardGoal = goalPlans[0]?.goal || 'Current Task Path'
 
   return (
-    <main className="forge-grid relative min-h-screen overflow-hidden bg-zinc-950 px-4 py-8 text-zinc-100 sm:px-6 lg:px-8">
+    <main className="forge-grid relative min-h-screen overflow-hidden bg-zinc-950 px-2 py-6 text-zinc-100 sm:px-4 sm:py-8 lg:px-8 xl:px-10 2xl:px-14">
       <div className="pointer-events-none absolute -top-32 left-1/2 h-80 w-80 -translate-x-1/2 rounded-full bg-amber-500/20 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-24 right-8 h-64 w-64 rounded-full bg-orange-500/20 blur-3xl" />
       <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-amber-500/10 to-transparent" />
       <CelebrationOverlay trigger={celebrationToken} />
 
-      <div className="relative mx-auto flex w-full max-w-5xl flex-col gap-6">
+      <div className="relative mx-auto flex w-full max-w-[2200px] flex-col gap-6">
         <SiteHeader
           content={content}
         />
@@ -136,44 +136,49 @@ function App() {
           />
         )}
 
-        <TaskManagerSection
-          authLocked={!isAuthenticated}
-          pendingCount={pendingCount}
-          forgedPoints={forgedPoints}
-          gemCounts={gemCounts}
-          goalProgress={goalProgress}
-          tasksLoading={tasksLoading}
-          taskError={taskError}
-          goalInput={goalInput}
-          plannedTaskDifficulty={plannedTaskDifficulty}
-          planning={planning}
-          creatingPlanTasks={creatingPlanTasks}
-          deletingAllTasks={deletingAllTasks}
-          plannerStatus={plannerStatus}
-          plannedTasks={plannedTasks}
-          taskTitle={taskTitle}
-          taskDifficulty={taskDifficulty}
-          taskGoal={taskGoal}
-          submitting={submitting}
-          tasks={tasks}
-          workingTaskId={workingTaskId}
-          onRefresh={loadTasks}
-          onGoalInputChange={setGoalInput}
-          onPlannedTaskDifficultyChange={setPlannedTaskDifficulty}
-          onGeneratePlan={handleGeneratePlan}
-          onCreatePlannedTasks={handleCreatePlannedTasks}
-          onTaskTitleChange={setTaskTitle}
-          onTaskDifficultyChange={setTaskDifficulty}
-          onTaskGoalChange={setTaskGoal}
-          onCreateTask={handleCreateTask}
-          onSetTaskDifficulty={handleSetTaskDifficulty}
-          onToggleTask={handleToggleTask}
-          onDeleteTask={handleDeleteTask}
-          onDeleteAllTasks={handleDeleteAllTasks}
-          onResetGeneratedPlan={handleResetGeneratedPlan}
-        />
-
-        <GoalDiagramsSection goal={boardGoal} tasks={tasks} />
+        <div className="grid gap-6 xl:grid-cols-12">
+          <div className="xl:col-span-8">
+            <TaskManagerSection
+              authLocked={!isAuthenticated}
+              pendingCount={pendingCount}
+              forgedPoints={forgedPoints}
+              gemCounts={gemCounts}
+              goalProgress={goalProgress}
+              tasksLoading={tasksLoading}
+              taskError={taskError}
+              goalInput={goalInput}
+              plannedTaskDifficulty={plannedTaskDifficulty}
+              planning={planning}
+              creatingPlanTasks={creatingPlanTasks}
+              deletingAllTasks={deletingAllTasks}
+              plannerStatus={plannerStatus}
+              plannedTasks={plannedTasks}
+              taskTitle={taskTitle}
+              taskDifficulty={taskDifficulty}
+              taskGoal={taskGoal}
+              submitting={submitting}
+              tasks={tasks}
+              workingTaskId={workingTaskId}
+              onRefresh={loadTasks}
+              onGoalInputChange={setGoalInput}
+              onPlannedTaskDifficultyChange={setPlannedTaskDifficulty}
+              onGeneratePlan={handleGeneratePlan}
+              onCreatePlannedTasks={handleCreatePlannedTasks}
+              onTaskTitleChange={setTaskTitle}
+              onTaskDifficultyChange={setTaskDifficulty}
+              onTaskGoalChange={setTaskGoal}
+              onCreateTask={handleCreateTask}
+              onSetTaskDifficulty={handleSetTaskDifficulty}
+              onToggleTask={handleToggleTask}
+              onDeleteTask={handleDeleteTask}
+              onDeleteAllTasks={handleDeleteAllTasks}
+              onResetGeneratedPlan={handleResetGeneratedPlan}
+            />
+          </div>
+          <div className="xl:col-span-4">
+            <GoalDiagramsSection goal={boardGoal} tasks={tasks} />
+          </div>
+        </div>
 
         <FaqSection content={faqContent} />
 
