@@ -68,14 +68,14 @@
     },
     {
       "title": "Accounts service",
-      "description": "Persistent user profiles, display names, preferences, and cross-service identity backed by a dedicated Rust service.",
-      "status": "in-progress",
+      "description": "SQLite-backed Rust/Axum service with full CRUD, JWT auth, status validation (active/inactive/churned), and paginated search. Fly.io deployment ready.",
+      "status": "shipped",
       "category": "Integrations"
     },
     {
       "title": "Contacts service",
-      "description": "CRM contact records that can be associated with tasks and goals, enabling person-level execution tracking.",
-      "status": "in-progress",
+      "description": "SQLite-backed Rust/Axum service with lifecycle stage tracking (lead→customer→evangelist), account FK validation via cross-service HTTP, and full-text search across name and email.",
+      "status": "shipped",
       "category": "Integrations"
     },
     {
