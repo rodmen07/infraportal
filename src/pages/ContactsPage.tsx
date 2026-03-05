@@ -285,66 +285,75 @@ export function ContactsPage() {
         {/* Create form */}
         {showCreate && (
           <div className="mt-4 rounded-2xl border border-zinc-700/50 bg-zinc-800/50 p-4">
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              <input
-                type="text"
-                placeholder="First name *"
-                value={newFirst}
-                onChange={(e) => setNewFirst(e.target.value)}
-                className="rounded-lg border border-zinc-600/50 bg-zinc-900/60 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 outline-none focus:border-amber-400/60"
-              />
-              <input
-                type="text"
-                placeholder="Last name *"
-                value={newLast}
-                onChange={(e) => setNewLast(e.target.value)}
-                className="rounded-lg border border-zinc-600/50 bg-zinc-900/60 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 outline-none focus:border-amber-400/60"
-              />
-              <input
-                type="email"
-                placeholder="Email"
-                value={newEmail}
-                onChange={(e) => setNewEmail(e.target.value)}
-                className="rounded-lg border border-zinc-600/50 bg-zinc-900/60 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 outline-none focus:border-amber-400/60"
-              />
-              <input
-                type="tel"
-                placeholder="Phone"
-                value={newPhone}
-                onChange={(e) => setNewPhone(e.target.value)}
-                className="rounded-lg border border-zinc-600/50 bg-zinc-900/60 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 outline-none focus:border-amber-400/60"
-              />
-              <select
-                value={newAccountId}
-                onChange={(e) => setNewAccountId(e.target.value)}
-                className="rounded-lg border border-zinc-600/50 bg-zinc-900/60 px-3 py-2 text-sm text-zinc-300 outline-none focus:border-amber-400/60"
-              >
-                <option value="">No account</option>
-                {accounts.map((a) => (
-                  <option key={a.id} value={a.id}>{a.name}</option>
-                ))}
-              </select>
-              <select
-                value={newStage}
-                onChange={(e) => setNewStage(e.target.value)}
-                className="rounded-lg border border-zinc-600/50 bg-zinc-900/60 px-3 py-2 text-sm text-zinc-300 outline-none focus:border-amber-400/60"
-              >
-                {LIFECYCLE_STAGES.map((s) => (
-                  <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
-                ))}
-              </select>
-            </div>
-            <div className="mt-3 flex items-center gap-3">
-              <button
-                type="button"
-                onClick={() => void handleCreate()}
-                disabled={creating}
-                className="rounded-lg border border-emerald-400/40 bg-emerald-500/15 px-4 py-2 text-sm font-medium text-emerald-300 transition hover:bg-emerald-500/25 disabled:opacity-50"
-              >
-                {creating ? 'Creating…' : 'Create Contact'}
-              </button>
-              {createError && <p className="text-xs text-red-400">{createError}</p>}
-            </div>
+            <form onSubmit={(e) => { e.preventDefault(); void handleCreate() }}>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                <input
+                  type="text"
+                  name="given-name"
+                  autoComplete="given-name"
+                  placeholder="First name *"
+                  value={newFirst}
+                  onChange={(e) => setNewFirst(e.target.value)}
+                  className="rounded-lg border border-zinc-600/50 bg-zinc-900/60 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 outline-none focus:border-amber-400/60"
+                />
+                <input
+                  type="text"
+                  name="family-name"
+                  autoComplete="family-name"
+                  placeholder="Last name *"
+                  value={newLast}
+                  onChange={(e) => setNewLast(e.target.value)}
+                  className="rounded-lg border border-zinc-600/50 bg-zinc-900/60 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 outline-none focus:border-amber-400/60"
+                />
+                <input
+                  type="email"
+                  name="email"
+                  autoComplete="email"
+                  placeholder="Email"
+                  value={newEmail}
+                  onChange={(e) => setNewEmail(e.target.value)}
+                  className="rounded-lg border border-zinc-600/50 bg-zinc-900/60 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 outline-none focus:border-amber-400/60"
+                />
+                <input
+                  type="tel"
+                  name="tel"
+                  autoComplete="tel"
+                  placeholder="Phone"
+                  value={newPhone}
+                  onChange={(e) => setNewPhone(e.target.value)}
+                  className="rounded-lg border border-zinc-600/50 bg-zinc-900/60 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 outline-none focus:border-amber-400/60"
+                />
+                <select
+                  value={newAccountId}
+                  onChange={(e) => setNewAccountId(e.target.value)}
+                  className="rounded-lg border border-zinc-600/50 bg-zinc-900/60 px-3 py-2 text-sm text-zinc-300 outline-none focus:border-amber-400/60"
+                >
+                  <option value="">No account</option>
+                  {accounts.map((a) => (
+                    <option key={a.id} value={a.id}>{a.name}</option>
+                  ))}
+                </select>
+                <select
+                  value={newStage}
+                  onChange={(e) => setNewStage(e.target.value)}
+                  className="rounded-lg border border-zinc-600/50 bg-zinc-900/60 px-3 py-2 text-sm text-zinc-300 outline-none focus:border-amber-400/60"
+                >
+                  {LIFECYCLE_STAGES.map((s) => (
+                    <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="mt-3 flex items-center gap-3">
+                <button
+                  type="submit"
+                  disabled={creating}
+                  className="rounded-lg border border-emerald-400/40 bg-emerald-500/15 px-4 py-2 text-sm font-medium text-emerald-300 transition hover:bg-emerald-500/25 disabled:opacity-50"
+                >
+                  {creating ? 'Creating…' : 'Create Contact'}
+                </button>
+                {createError && <p className="text-xs text-red-400">{createError}</p>}
+              </div>
+            </form>
           </div>
         )}
       </section>

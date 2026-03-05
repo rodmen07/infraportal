@@ -223,17 +223,20 @@ export function AccountsPage() {
         {/* Create form */}
         {showCreate && (
           <div className="mt-4 rounded-2xl border border-zinc-700/50 bg-zinc-800/50 p-4">
-            <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto_auto]">
+            <form onSubmit={(e) => { e.preventDefault(); void handleCreate() }} className="grid gap-3 sm:grid-cols-[1fr_1fr_auto_auto]">
               <input
                 type="text"
+                name="organization"
+                autoComplete="organization"
                 placeholder="Company name *"
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && void handleCreate()}
                 className="rounded-lg border border-zinc-600/50 bg-zinc-900/60 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 outline-none focus:border-amber-400/60"
               />
               <input
                 type="text"
+                name="domain"
+                autoComplete="off"
                 placeholder="Domain (e.g. acme.com)"
                 value={newDomain}
                 onChange={(e) => setNewDomain(e.target.value)}
@@ -251,14 +254,13 @@ export function AccountsPage() {
                 ))}
               </select>
               <button
-                type="button"
-                onClick={() => void handleCreate()}
+                type="submit"
                 disabled={creating}
                 className="rounded-lg border border-emerald-400/40 bg-emerald-500/15 px-4 py-2 text-sm font-medium text-emerald-300 transition hover:bg-emerald-500/25 disabled:opacity-50"
               >
                 {creating ? 'Creating…' : 'Create'}
               </button>
-            </div>
+            </form>
             {createError && <p className="mt-2 text-xs text-red-400">{createError}</p>}
           </div>
         )}
