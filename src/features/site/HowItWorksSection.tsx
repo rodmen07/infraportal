@@ -10,15 +10,15 @@ const STEPS = [
     number: '02',
     heading: 'Review AI task suggestions',
     body: 'The planner analyses your goal and existing workload to generate a focused, actionable list. Nothing is saved until you approve it.',
-    accent: 'border-orange-400/30 bg-orange-500/5',
-    numColor: 'text-orange-500/50',
+    accent: 'border-amber-400/25 bg-amber-500/5',
+    numColor: 'text-amber-500/40',
   },
   {
     number: '03',
     heading: 'Create, track, and earn',
     body: 'Confirm the plan to add tasks to your board. Move cards across columns as you work. Every completion earns story points toward your next writing tier.',
-    accent: 'border-emerald-400/30 bg-emerald-500/5',
-    numColor: 'text-emerald-500/50',
+    accent: 'border-amber-400/20 bg-amber-500/[0.03]',
+    numColor: 'text-amber-500/30',
   },
 ] as const
 
@@ -29,7 +29,7 @@ export function HowItWorksSection() {
 
       <div className="relative grid gap-4 sm:grid-cols-3">
         {/* Connecting line visible on sm+ */}
-        <div className="absolute left-0 right-0 top-10 hidden h-px bg-gradient-to-r from-amber-500/20 via-orange-500/20 to-emerald-500/20 sm:block" />
+        <div className="absolute left-0 right-0 top-10 hidden h-px bg-amber-500/20 sm:block" />
 
         {STEPS.map((step) => (
           <article

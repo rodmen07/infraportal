@@ -1,9 +1,33 @@
 <svg width="640" height="360" viewBox="0 0 640 360" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="640" height="360" rx="24" fill="#18181B"/>
-  <circle cx="190" cy="176" r="120" fill="#F59E0B" fill-opacity="0.22"/>
-  <circle cx="240" cy="156" r="84" fill="#F97316" fill-opacity="0.24"/>
-  <rect x="320" y="98" width="220" height="18" rx="9" fill="#FDE68A" fill-opacity="0.85"/>
-  <rect x="320" y="136" width="188" height="14" rx="7" fill="#FCD34D" fill-opacity="0.72"/>
-  <rect x="320" y="166" width="202" height="14" rx="7" fill="#FCD34D" fill-opacity="0.56"/>
-  <rect x="320" y="196" width="160" height="14" rx="7" fill="#FCD34D" fill-opacity="0.42"/>
+  <rect width="640" height="360" rx="24" fill="#0A0A0E"/>
+  <!-- Goal input bar -->
+  <rect x="72" y="48" width="496" height="48" rx="12" fill="#27272A" stroke="#3F3F46" stroke-width="1.5"/>
+  <rect x="92" y="64" width="260" height="10" rx="5" fill="#52525B"/>
+  <rect x="505" y="56" width="47" height="32" rx="8" fill="#F59E0B"/>
+  <path d="M522 72 L528 72 M525 69 L525 75" stroke="#18181B" stroke-width="2" stroke-linecap="round"/>
+  <!-- AI pulse line -->
+  <line x1="320" y1="102" x2="320" y2="140" stroke="#A78BFA" stroke-opacity="0.4" stroke-width="1.5" stroke-dasharray="4 4"/>
+  <!-- Sparkle cluster -->
+  <circle cx="320" cy="121" r="4" fill="#A78BFA" fill-opacity="0.85"/>
+  <circle cx="310" cy="114" r="2.5" fill="#A78BFA" fill-opacity="0.5"/>
+  <circle cx="330" cy="114" r="2.5" fill="#A78BFA" fill-opacity="0.5"/>
+  <circle cx="314" cy="130" r="1.5" fill="#A78BFA" fill-opacity="0.35"/>
+  <circle cx="326" cy="130" r="1.5" fill="#A78BFA" fill-opacity="0.35"/>
+  <!-- Task item 1 (approved) -->
+  <rect x="72" y="152" width="496" height="46" rx="11" fill="#18181B" stroke="#3F3F46" stroke-width="1.5"/>
+  <circle cx="100" cy="175" r="8" fill="#22C55E" fill-opacity="0.85"/>
+  <path d="M96 175 L99 178 L104 171" stroke="#0A0A0E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="119" y="169" width="240" height="10" rx="5" fill="#71717A"/>
+  <rect x="119" y="184" width="140" height="8" rx="4" fill="#3F3F46"/>
+  <!-- Task item 2 (approved) -->
+  <rect x="72" y="208" width="496" height="46" rx="11" fill="#18181B" stroke="#3F3F46" stroke-width="1.5"/>
+  <circle cx="100" cy="231" r="8" fill="#22C55E" fill-opacity="0.85"/>
+  <path d="M96 231 L99 234 L104 227" stroke="#0A0A0E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="119" y="225" width="270" height="10" rx="5" fill="#71717A"/>
+  <rect x="119" y="240" width="110" height="8" rx="4" fill="#3F3F46"/>
+  <!-- Task item 3 (pending / faded) -->
+  <rect x="72" y="264" width="496" height="46" rx="11" fill="#18181B" stroke="#3F3F46" stroke-width="1" stroke-opacity="0.6"/>
+  <circle cx="100" cy="287" r="8" fill="#F59E0B" fill-opacity="0.25" stroke="#F59E0B" stroke-width="1" stroke-opacity="0.4"/>
+  <rect x="119" y="281" width="195" height="10" rx="5" fill="#52525B"/>
+  <rect x="119" y="296" width="125" height="8" rx="4" fill="#3F3F46" fill-opacity="0.6"/>
 </svg>

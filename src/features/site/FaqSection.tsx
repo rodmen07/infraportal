@@ -28,7 +28,7 @@ export function FaqSection({ content }: FaqSectionProps) {
               <span className="text-xs text-zinc-400">{openIndex === index ? '−' : '+'}</span>
             </button>
             <div className={`overflow-hidden transition-all duration-300 ${openIndex === index ? 'mt-2 max-h-44 opacity-100' : 'max-h-0 opacity-0'}`}>
-              <p className="text-sm text-zinc-300">{item.answer}</p>
+              <p className="text-[15px] leading-relaxed text-zinc-200">{item.answer}</p>
             </div>
           </article>
         ))}

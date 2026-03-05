@@ -212,24 +212,14 @@ export function TaskManagerSection({
       {/* ── Header ── */}
       <div className="mb-4 flex items-center justify-between gap-3">
         <h2 className="text-xl font-semibold text-white">Task Manager</h2>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            className="rounded-xl border border-red-300/30 bg-red-500/10 px-3 py-2 text-sm font-medium text-red-200 transition hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-60"
-            onClick={() => { setConfirmAction('delete-all') }}
-            disabled={authLocked || tasksLoading || deletingAllTasks || tasks.length === 0}
-          >
-            {deletingAllTasks ? 'Removing…' : 'Remove All Tasks'}
-          </button>
-          <button
-            type="button"
-            className="rounded-xl border border-zinc-500/40 bg-zinc-800/80 px-3 py-2 text-sm font-medium text-zinc-200 transition hover:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-60"
-            onClick={onRefresh}
-            disabled={authLocked || tasksLoading || deletingAllTasks}
-          >
-            Refresh
-          </button>
-        </div>
+        <button
+          type="button"
+          className="rounded-xl border border-zinc-500/40 bg-zinc-800/80 px-3 py-2 text-sm font-medium text-zinc-200 transition hover:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-60"
+          onClick={onRefresh}
+          disabled={authLocked || tasksLoading || deletingAllTasks}
+        >
+          Refresh
+        </button>
       </div>
 
       {/* ── Gamification stats ── */}
@@ -248,7 +238,7 @@ export function TaskManagerSection({
               </span>
             )
           })()}
-          <span className="ml-auto flex gap-1">
+          <span className="ml-auto flex items-center gap-1">
             {WRITING_TIER_ORDER.map((t) => {
               const active = WRITING_TIER_ORDER.indexOf(writingTierForPoints(storyPoints)) >= WRITING_TIER_ORDER.indexOf(t)
               return (
@@ -259,6 +249,13 @@ export function TaskManagerSection({
                 />
               )
             })}
+            <a
+              href="#/tiers"
+              className="ml-1 text-[10px] text-zinc-500 transition hover:text-zinc-300"
+              title="View tier progression"
+            >
+              ?
+            </a>
           </span>
         </div>
       </div>
@@ -322,9 +319,11 @@ export function TaskManagerSection({
           </div>
         </form>
 
-        <p className={`mt-3 rounded-xl border px-3 py-2 text-sm ${plannerToneClass(plannerStatus.tone)}`}>
-          {plannerStatus.message}
-        </p>
+        {(plannerStatus.tone !== 'info' || goalInput.trim().length > 0 || planning) && (
+          <p className={`mt-3 rounded-xl border px-3 py-2 text-sm ${plannerToneClass(plannerStatus.tone)}`}>
+            {plannerStatus.message}
+          </p>
+        )}
       </div>
 
       {/* ── Generated plan preview ── */}
@@ -478,8 +477,9 @@ export function TaskManagerSection({
         </p>
       )}
 
-      {/* ── View mode toggle ── */}
-      <div className="mb-4 flex items-center gap-1 rounded-xl border border-zinc-500/30 bg-zinc-800/50 p-1 w-fit">
+      {/* ── View mode toggle + destructive actions ── */}
+      <div className="mb-4 flex items-center justify-between gap-3">
+      <div className="flex items-center gap-1 rounded-xl border border-zinc-500/30 bg-zinc-800/50 p-1 w-fit">
         <button
           type="button"
           className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
@@ -502,6 +502,18 @@ export function TaskManagerSection({
         >
           List
         </button>
+      </div>
+
+        {tasks.length > 0 && (
+          <button
+            type="button"
+            className="text-xs text-red-400/60 transition hover:text-red-300 disabled:cursor-not-allowed disabled:opacity-40"
+            onClick={() => { setConfirmAction('delete-all') }}
+            disabled={authLocked || tasksLoading || deletingAllTasks}
+          >
+            {deletingAllTasks ? 'Removing…' : 'Remove all tasks'}
+          </button>
+        )}
       </div>
 
       {/* ── Task board / list (scrollable) ── */}

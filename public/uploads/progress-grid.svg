@@ -1,18 +1,24 @@
 <svg width="640" height="360" viewBox="0 0 640 360" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="640" height="360" rx="24" fill="#18181B"/>
-  <rect x="88" y="78" width="468" height="204" rx="16" fill="#27272A"/>
-  <g opacity="0.6">
-    <rect x="116" y="108" width="126" height="40" rx="10" fill="#A1A1AA"/>
-    <rect x="258" y="108" width="126" height="40" rx="10" fill="#A1A1AA"/>
-    <rect x="400" y="108" width="126" height="40" rx="10" fill="#A1A1AA"/>
-    <rect x="116" y="162" width="126" height="40" rx="10" fill="#A1A1AA"/>
-    <rect x="258" y="162" width="126" height="40" rx="10" fill="#A1A1AA"/>
-    <rect x="400" y="162" width="126" height="40" rx="10" fill="#A1A1AA"/>
-    <rect x="116" y="216" width="126" height="40" rx="10" fill="#A1A1AA"/>
-    <rect x="258" y="216" width="126" height="40" rx="10" fill="#A1A1AA"/>
-    <rect x="400" y="216" width="126" height="40" rx="10" fill="#A1A1AA"/>
-  </g>
-  <circle cx="150" cy="128" r="8" fill="#22C55E"/>
-  <circle cx="292" cy="182" r="8" fill="#F59E0B"/>
-  <circle cx="434" cy="236" r="8" fill="#3B82F6"/>
+  <rect width="640" height="360" rx="24" fill="#0A0A0E"/>
+  <!-- SP counter badge -->
+  <rect x="72" y="40" width="130" height="38" rx="10" fill="#1C1409" stroke="#F59E0B" stroke-width="1" stroke-opacity="0.5"/>
+  <rect x="86" y="50" width="44" height="9" rx="4" fill="#F59E0B" fill-opacity="0.45"/>
+  <rect x="86" y="64" width="64" height="8" rx="4" fill="#3D2C08"/>
+  <!-- Tier 1: Poem (unlocked, muted) -->
+  <rect x="72" y="100" width="96" height="38" rx="10" fill="#27272A"/>
+  <rect x="86" y="113" width="68" height="12" rx="4" fill="#52525B"/>
+  <!-- Tier 2: Paragraph (unlocked, muted) -->
+  <rect x="72" y="150" width="192" height="38" rx="10" fill="#27272A"/>
+  <rect x="86" y="163" width="100" height="12" rx="4" fill="#52525B"/>
+  <!-- Tier 3: Short Story (current / amber) -->
+  <rect x="72" y="200" width="320" height="38" rx="10" fill="#1C1409" stroke="#F59E0B" stroke-width="1.5" stroke-opacity="0.75"/>
+  <rect x="86" y="213" width="200" height="12" rx="4" fill="#F59E0B" fill-opacity="0.6"/>
+  <circle cx="420" cy="219" r="9" fill="#F59E0B" fill-opacity="0.2" stroke="#F59E0B" stroke-width="1.5" stroke-opacity="0.8"/>
+  <circle cx="420" cy="219" r="3.5" fill="#F59E0B"/>
+  <!-- Tier 4: Novel (locked) -->
+  <rect x="72" y="250" width="448" height="38" rx="10" fill="#18181B" stroke="#3F3F46" stroke-width="1"/>
+  <rect x="86" y="263" width="148" height="12" rx="4" fill="#3F3F46"/>
+  <!-- Tier 5: Epic (locked, emerald tint) -->
+  <rect x="72" y="300" width="496" height="38" rx="10" fill="#091811" stroke="#22C55E" stroke-width="1" stroke-opacity="0.3"/>
+  <rect x="86" y="313" width="100" height="12" rx="4" fill="#166534" fill-opacity="0.55"/>
 </svg>
