@@ -112,7 +112,7 @@ export async function deleteTask(id: number): Promise<void> {
 export async function updateTaskStatus(id: number, status: TaskStatus): Promise<Task> {
   return request<Task>(`/api/v1/tasks/${id}`, {
     method: 'PATCH',
-    body: JSON.stringify({ status }),
+    body: JSON.stringify({ status, completed: status === 'done' }),
   })
 }
 

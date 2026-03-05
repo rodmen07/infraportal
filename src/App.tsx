@@ -98,7 +98,7 @@ function App() {
     handleRemovePlannedTask,
     handleRegeneratePlan,
     handleClearPlanTasks,
-  } = useTaskManager(isAuthenticated, session?.subject ?? null)
+  } = useTaskManager(isAuthenticated)
 
   const completedCount = useMemo(() => tasks.filter((task) => task.completed).length, [tasks])
   const hasAnyTask = tasks.length > 0

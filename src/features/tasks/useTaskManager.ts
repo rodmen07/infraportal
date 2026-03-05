@@ -8,7 +8,7 @@ import {
   updateTask,
   updateTaskStatus,
 } from '../../api/tasks'
-import type { GoalPlan, PlannerTone, Task, TaskStatus } from '../../types'
+import type { PlannerTone, Task, TaskStatus } from '../../types'
 import { normalizePlanTask, normalizePlanTasks } from './planNormalization'
 
 export interface PlannerStatus {
@@ -40,20 +40,6 @@ const INITIAL_PLANNER_STATUS: PlannerStatus = {
   message: 'Planner ready. Enter a short-term goal to generate task breakdowns.',
 }
 
-const PROGRESSION_STORAGE_KEY_PREFIX = 'taskforge.gamification.progress'
-
-const EMPTY_PROGRESS_STATE: ProgressState = {
-  storyPoints: 0,
-  completedTaskIds: [],
-  rewardedPlanIds: [],
-}
-
-interface ProgressState {
-  storyPoints: number
-  completedTaskIds: number[]
-  rewardedPlanIds: number[]
-}
-
 function normalizeDifficulty(value: number): number {
   const rounded = Math.round(value)
   if (rounded < 1) {
@@ -67,44 +53,8 @@ function normalizeDifficulty(value: number): number {
   return rounded
 }
 
-function getProgressStorageKey(subject: string): string {
-  return `${PROGRESSION_STORAGE_KEY_PREFIX}.${encodeURIComponent(subject.trim().toLowerCase())}`
-}
 
-function readProgressState(storageKey: string): ProgressState {
-  try {
-    const raw = window.localStorage.getItem(storageKey)
-    if (!raw) {
-      return EMPTY_PROGRESS_STATE
-    }
-
-    const parsed = JSON.parse(raw) as ProgressState & {
-      coins?: number
-      forgedPoints?: number
-      gemCounts?: {
-        ruby?: number
-        sapphire?: number
-        emerald?: number
-      }
-      rubies?: number
-    }
-    return {
-      storyPoints: Number(parsed.storyPoints) || Number(parsed.coins) || Number(parsed.forgedPoints) || 0,
-      completedTaskIds: Array.isArray(parsed.completedTaskIds)
-        ? parsed.completedTaskIds.filter((value): value is number => Number.isInteger(value))
-        : [],
-      rewardedPlanIds: Array.isArray(parsed.rewardedPlanIds)
-        ? parsed.rewardedPlanIds.filter((value): value is number => Number.isInteger(value))
-        : [],
-    }
-  } catch {
-    return EMPTY_PROGRESS_STATE
-  }
-}
-
-
-
-export function useTaskManager(isAuthenticated: boolean, subject: string | null) {
+export function useTaskManager(isAuthenticated: boolean) {
   const [tasks, setTasks] = useState<Task[]>([])
   const [taskTitle, setTaskTitle] = useState('')
   const [taskDifficulty, setTaskDifficulty] = useState(1)
@@ -122,46 +72,18 @@ export function useTaskManager(isAuthenticated: boolean, subject: string | null)
   const [creatingPlanTasks, setCreatingPlanTasks] = useState(false)
   const [deletingAllTasks, setDeletingAllTasks] = useState(false)
   const [plannerStatus, setPlannerStatus] = useState<PlannerStatus>(INITIAL_PLANNER_STATUS)
-  const [goalPlans, setGoalPlans] = useState<GoalPlan[]>([])
-  const [storyPoints, setStoryPoints] = useState(0)
-  const [completedTaskIds, setCompletedTaskIds] = useState<Set<number>>(new Set())
-  const [rewardedPlanIds, setRewardedPlanIds] = useState<Set<number>>(new Set())
   const [clearingGoal, setClearingGoal] = useState<string | null>(null)
-  const normalizedSubject = (subject || '').trim().toLowerCase()
-  const progressStorageKey =
-    isAuthenticated && normalizedSubject.length > 0
-      ? getProgressStorageKey(normalizedSubject)
-      : ''
-
-  useEffect(() => {
-    if (!progressStorageKey) {
-      setStoryPoints(0)
-      setCompletedTaskIds(new Set())
-      setRewardedPlanIds(new Set())
-      return
-    }
-
-    const progress = readProgressState(progressStorageKey)
-    setStoryPoints(progress.storyPoints)
-    setCompletedTaskIds(new Set(progress.completedTaskIds))
-    setRewardedPlanIds(new Set(progress.rewardedPlanIds))
-  }, [progressStorageKey])
-
-  useEffect(() => {
-    if (!progressStorageKey) {
-      return
-    }
-
-    const serializable: ProgressState = {
-      storyPoints,
-      completedTaskIds: Array.from(completedTaskIds),
-      rewardedPlanIds: Array.from(rewardedPlanIds),
-    }
-    window.localStorage.setItem(progressStorageKey, JSON.stringify(serializable))
-  }, [storyPoints, completedTaskIds, progressStorageKey, rewardedPlanIds])
 
   const pendingCount = useMemo(
     () => tasks.filter((task) => !task.completed).length,
+    [tasks],
+  )
+
+  const storyPoints = useMemo(
+    () =>
+      tasks
+        .filter((t) => t.status === 'done')
+        .reduce((sum, t) => sum + normalizeDifficulty(t.difficulty), 0),
     [tasks],
   )
 
@@ -243,16 +165,14 @@ export function useTaskManager(isAuthenticated: boolean, subject: string | null)
     setTaskError('')
 
     try {
-      const updatedTask = await updateTask(task.id, { completed: !task.completed })
+      const completing = !task.completed
+      const updatedTask = await updateTask(task.id, {
+        completed: completing,
+        status: completing ? 'done' : 'todo',
+      })
       setTasks((current) =>
         current.map((item) => (item.id === task.id ? updatedTask : item)),
       )
-      if (!task.completed && updatedTask.completed) {
-        if (!completedTaskIds.has(task.id)) {
-          setStoryPoints((current) => current + normalizeDifficulty(updatedTask.difficulty))
-          setCompletedTaskIds((current) => new Set(current).add(task.id))
-        }
-      }
     } catch (error) {
       setTaskError(error instanceof Error ? error.message : 'Failed to update task')
     } finally {
@@ -357,6 +277,7 @@ export function useTaskManager(isAuthenticated: boolean, subject: string | null)
       if (
         message.includes('LLM_API_KEY_MISSING') ||
         message.toLowerCase().includes('openrouter_api_key') ||
+        message.toLowerCase().includes('anthropic_api_key') ||
         message.toLowerCase().includes('not configured')
       ) {
         setPlannerStatus({
@@ -365,6 +286,7 @@ export function useTaskManager(isAuthenticated: boolean, subject: string | null)
         })
       } else if (
         message.includes('LLM_UPSTREAM_RESPONSE_FAILED') ||
+        message.includes('LLM_RATE_LIMIT_EXCEEDED') ||
         message.toLowerCase().includes('llm provider') ||
         message.includes('429') ||
         message.toLowerCase().includes('rate limit') ||
@@ -433,14 +355,6 @@ export function useTaskManager(isAuthenticated: boolean, subject: string | null)
 
     if (created.length > 0) {
       setTasks((current) => [...current, ...created])
-
-      const nextPlan: GoalPlan = {
-        id: Date.now(),
-        goal: goalInput.trim(),
-        tasks: created.map((t) => t.title),
-        createdAt: new Date().toISOString(),
-      }
-      setGoalPlans((current) => [nextPlan, ...current].slice(0, 8))
     }
 
     if (failed.length === 0) {
@@ -544,61 +458,6 @@ export function useTaskManager(isAuthenticated: boolean, subject: string | null)
     }
   }
 
-  useEffect(() => {
-    if (goalPlans.length === 0 || tasks.length === 0) {
-      return
-    }
-
-    const completedTitles = new Set(
-      tasks
-        .filter((task) => task.completed)
-        .map((task) => `${task.goal || ''}::${task.title.trim().toLowerCase()}`),
-    )
-
-    const newlyCompletedPlans = goalPlans.filter((plan) => {
-      if (rewardedPlanIds.has(plan.id)) {
-        return false
-      }
-
-      return plan.tasks.every((task) =>
-        completedTitles.has(`${plan.goal}::${task.trim().toLowerCase()}`),
-      )
-    })
-
-    if (newlyCompletedPlans.length === 0) {
-      return
-    }
-
-    const nextRewarded = new Set(rewardedPlanIds)
-    let bonusPoints = 0
-
-    for (const plan of newlyCompletedPlans) {
-      nextRewarded.add(plan.id)
-
-      const totalDifficulty = tasks
-        .filter(
-          (task) =>
-            task.completed &&
-            task.goal === plan.goal &&
-            plan.tasks.some(
-              (planTask) => planTask.trim().toLowerCase() === task.title.trim().toLowerCase(),
-            ),
-        )
-        .reduce((total, task) => total + normalizeDifficulty(task.difficulty), 0)
-
-      bonusPoints += totalDifficulty
-    }
-
-    setRewardedPlanIds(nextRewarded)
-    if (bonusPoints > 0) {
-      setStoryPoints((current) => current + bonusPoints)
-    }
-    setPlannerStatus({
-      tone: 'success',
-      message: `Plan completed! +${bonusPoints} bonus story points.`,
-    })
-  }, [goalPlans, rewardedPlanIds, tasks])
-
   const goalProgress = useMemo<GoalProgress[]>(() => {
     const byGoal = new Map<string, { total: number; completed: number; aiCount: number }>()
 
@@ -663,12 +522,6 @@ export function useTaskManager(isAuthenticated: boolean, subject: string | null)
       setTasks((current) =>
         current.map((item) => (item.id === task.id ? updatedTask : item)),
       )
-      if (status === 'done' && !task.completed) {
-        if (!completedTaskIds.has(task.id)) {
-          setStoryPoints((current) => current + normalizeDifficulty(updatedTask.difficulty))
-          setCompletedTaskIds((current) => new Set(current).add(task.id))
-        }
-      }
     } catch (error) {
       setTaskError(error instanceof Error ? error.message : 'Failed to update task status')
     } finally {
@@ -694,8 +547,8 @@ export function useTaskManager(isAuthenticated: boolean, subject: string | null)
     creatingPlanTasks,
     deletingAllTasks,
     plannerStatus,
-    storyPoints,
     goalProgress,
+    storyPoints,
     pendingCount,
     clearingGoal,
     setTaskTitle,
