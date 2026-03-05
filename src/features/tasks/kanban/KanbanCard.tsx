@@ -2,12 +2,12 @@ import { useState } from 'react'
 import type { Task, TaskStatus } from '../../../types'
 
 const DIFFICULTY_LABELS: Record<number, string> = {
-  1: 'Wood',
-  2: 'Stone',
-  3: 'Iron',
-  4: 'Silver',
-  5: 'Gold',
-  6: 'Diamond',
+  1: '1 SP',
+  2: '2 SP',
+  3: '3 SP',
+  4: '4 SP',
+  5: '5 SP',
+  6: '6 SP',
 }
 
 const DIFFICULTY_COLORS: Record<number, string> = {
@@ -78,7 +78,7 @@ export function KanbanCard({ task, isWorking, disabled, onDelete, onStatusChange
           </span>
         )}
         <span className="ml-auto text-[10px] text-zinc-500">
-          +{task.difficulty} coin{task.difficulty === 1 ? '' : 's'}
+          +{task.difficulty} SP
         </span>
       </div>
 

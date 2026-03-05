@@ -1,22 +1,30 @@
 import { useMemo, useState, type FormEvent } from 'react'
 import type { PlannerTone, Task, TaskStatus } from '../../types'
-import type { BarCounts, GoalProgress, PlannerStatus } from './useTaskManager'
+import type { GoalProgress, PlannerStatus, WritingTier } from './useTaskManager'
+import { writingTierForPoints, WRITING_TIER_ORDER } from './useTaskManager'
 import { KanbanBoard } from './kanban/KanbanBoard'
 
 const DIFFICULTY_TIERS = [
-  { value: 1, label: 'Wood' },
-  { value: 2, label: 'Stone' },
-  { value: 3, label: 'Iron' },
-  { value: 4, label: 'Silver' },
-  { value: 5, label: 'Gold' },
-  { value: 6, label: 'Diamond' },
+  { value: 1, label: '1 SP' },
+  { value: 2, label: '2 SP' },
+  { value: 3, label: '3 SP' },
+  { value: 4, label: '4 SP' },
+  { value: 5, label: '5 SP' },
+  { value: 6, label: '6 SP' },
 ] as const
+
+const WRITING_TIER_COLORS: Record<WritingTier, string> = {
+  'poem':        'border-zinc-500/50 bg-zinc-800/50 text-zinc-300',
+  'paragraph':   'border-blue-400/40 bg-blue-500/10 text-blue-200',
+  'short story': 'border-purple-400/40 bg-purple-500/10 text-purple-200',
+  'novel':       'border-amber-300/40 bg-amber-500/10 text-amber-200',
+  'epic':        'border-emerald-300/40 bg-emerald-500/10 text-emerald-100',
+}
 
 interface TaskManagerSectionProps {
   authLocked: boolean
   pendingCount: number
-  coins: number
-  barCounts: BarCounts
+  storyPoints: number
   goalProgress: GoalProgress[]
   tasksLoading: boolean
   taskError: string
@@ -69,8 +77,7 @@ function plannerToneClass(tone: PlannerTone): string {
 export function TaskManagerSection({
   authLocked,
   pendingCount,
-  coins,
-  barCounts,
+  storyPoints,
   goalProgress,
   tasksLoading,
   taskError,
@@ -208,18 +215,39 @@ export function TaskManagerSection({
         </div>
       </div>
 
+      <div className="mb-4 grid gap-2 sm:grid-cols-2">
+        <p className="rounded-xl border border-orange-300/30 bg-orange-500/10 px-3 py-2 text-sm text-orange-100">
+          Story Points: <strong>{storyPoints}</strong>
+        </p>
+        <div className="flex items-center gap-2 rounded-xl border border-zinc-500/30 bg-zinc-800/60 px-3 py-2 text-sm text-zinc-100">
+          <span className="text-zinc-400">Tier:</span>
+          {(() => {
+            const tier = writingTierForPoints(storyPoints)
+            const color = WRITING_TIER_COLORS[tier]
+            return (
+              <span className={`inline-flex items-center rounded-lg border px-2 py-0.5 text-xs font-semibold capitalize ${color}`}>
+                {tier}
+              </span>
+            )
+          })()}
+          <span className="ml-auto flex gap-1">
+            {WRITING_TIER_ORDER.map((t) => {
+              const active = WRITING_TIER_ORDER.indexOf(writingTierForPoints(storyPoints)) >= WRITING_TIER_ORDER.indexOf(t)
+              return (
+                <span
+                  key={t}
+                  title={t}
+                  className={`inline-block h-2 w-4 rounded-sm ${active ? WRITING_TIER_COLORS[t].split(' ').find(c => c.startsWith('bg-')) ?? 'bg-zinc-600' : 'bg-zinc-700/50'}`}
+                />
+              )
+            })}
+          </span>
+        </div>
+      </div>
+
       <p className="mb-4 text-sm text-zinc-300">
         Pending tasks: <strong>{pendingCount}</strong>
       </p>
-
-      <div className="mb-4 grid gap-2 sm:grid-cols-2">
-        <p className="rounded-xl border border-orange-300/30 bg-orange-500/10 px-3 py-2 text-sm text-orange-100">
-          Coins: <strong>{coins}</strong>
-        </p>
-        <div className="rounded-xl border border-rose-300/30 bg-rose-500/10 px-3 py-2 text-sm text-rose-100">
-          Bars — Wood: <strong>{barCounts.wood}</strong>, Stone: <strong>{barCounts.stone}</strong>, Iron: <strong>{barCounts.iron}</strong>, Silver: <strong>{barCounts.silver}</strong>, Gold: <strong>{barCounts.gold}</strong>, Diamond: <strong>{barCounts.diamond}</strong>
-        </div>
-      </div>
 
       {goalProgress.length > 0 && (
         <div className="mb-4 rounded-2xl border border-zinc-500/35 bg-zinc-800/70 p-4">
@@ -494,7 +522,7 @@ export function TaskManagerSection({
                       </option>
                     ))}
                   </select>
-                  <span className="text-xs text-amber-200">+{task.difficulty} coin{task.difficulty === 1 ? '' : 's'}</span>
+                  <span className="text-xs text-amber-200">+{task.difficulty} SP</span>
                 <button
                   type="button"
                   className="rounded-lg border border-red-300/30 bg-red-500/10 px-3 py-1.5 text-sm text-red-200 transition hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-60"

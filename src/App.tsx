@@ -75,8 +75,7 @@ function App() {
     creatingPlanTasks,
     deletingAllTasks,
     plannerStatus,
-    coins,
-    barCounts,
+    storyPoints,
     goalProgress,
     pendingCount,
     setTaskTitle,
@@ -300,8 +299,7 @@ function App() {
               <TaskManagerSection
                 authLocked={!isAuthenticated}
                 pendingCount={pendingCount}
-                coins={coins}
-                barCounts={barCounts}
+                storyPoints={storyPoints}
                 goalProgress={goalProgress}
                 tasksLoading={tasksLoading}
                 taskError={taskError}

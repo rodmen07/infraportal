@@ -15,14 +15,17 @@ export interface PlannerStatus {
   message: string
 }
 
-export interface BarCounts {
-  wood: number
-  stone: number
-  iron: number
-  silver: number
-  gold: number
-  diamond: number
+export type WritingTier = 'poem' | 'paragraph' | 'short story' | 'novel' | 'epic'
+
+export function writingTierForPoints(points: number): WritingTier {
+  if (points >= 50) return 'epic'
+  if (points >= 30) return 'novel'
+  if (points >= 15) return 'short story'
+  if (points >= 6) return 'paragraph'
+  return 'poem'
 }
+
+export const WRITING_TIER_ORDER: WritingTier[] = ['poem', 'paragraph', 'short story', 'novel', 'epic']
 
 export interface GoalProgress {
   goal: string
@@ -38,15 +41,13 @@ const INITIAL_PLANNER_STATUS: PlannerStatus = {
 const PROGRESSION_STORAGE_KEY_PREFIX = 'taskforge.gamification.progress'
 
 const EMPTY_PROGRESS_STATE: ProgressState = {
-  coins: 0,
-  barCounts: { wood: 0, stone: 0, iron: 0, silver: 0, gold: 0, diamond: 0 },
+  storyPoints: 0,
   completedTaskIds: [],
   rewardedPlanIds: [],
 }
 
 interface ProgressState {
-  coins: number
-  barCounts: BarCounts
+  storyPoints: number
   completedTaskIds: number[]
   rewardedPlanIds: number[]
 }
@@ -84,31 +85,8 @@ function readProgressState(storageKey: string): ProgressState {
       }
       rubies?: number
     }
-    const legacyGemCounts = parsed.gemCounts || {
-      ruby: Number(parsed.rubies) || 0,
-      sapphire: 0,
-      emerald: 0,
-    }
-
-    const bars = parsed.barCounts || {
-      wood: Number(legacyGemCounts.ruby) || 0,
-      stone: 0,
-      iron: Number(legacyGemCounts.sapphire) || 0,
-      silver: 0,
-      gold: Number(legacyGemCounts.emerald) || 0,
-      diamond: 0,
-    }
-
     return {
-      coins: Number(parsed.coins) || Number(parsed.forgedPoints) || 0,
-      barCounts: {
-        wood: Number(bars.wood) || 0,
-        stone: Number(bars.stone) || 0,
-        iron: Number(bars.iron) || 0,
-        silver: Number(bars.silver) || 0,
-        gold: Number(bars.gold) || 0,
-        diamond: Number(bars.diamond) || 0,
-      },
+      storyPoints: Number(parsed.storyPoints) || Number(parsed.coins) || Number(parsed.forgedPoints) || 0,
       completedTaskIds: Array.isArray(parsed.completedTaskIds)
         ? parsed.completedTaskIds.filter((value): value is number => Number.isInteger(value))
         : [],
@@ -121,27 +99,7 @@ function readProgressState(storageKey: string): ProgressState {
   }
 }
 
-function barTierForPlanDifficulty(totalDifficulty: number, taskCount: number): keyof BarCounts {
-  if (taskCount <= 0) {
-    return 'wood'
-  }
 
-  const averageDifficulty = normalizeDifficulty(totalDifficulty / taskCount)
-  switch (averageDifficulty) {
-    case 1:
-      return 'wood'
-    case 2:
-      return 'stone'
-    case 3:
-      return 'iron'
-    case 4:
-      return 'silver'
-    case 5:
-      return 'gold'
-    default:
-      return 'diamond'
-  }
-}
 
 export function useTaskManager(isAuthenticated: boolean, subject: string | null) {
   const [tasks, setTasks] = useState<Task[]>([])
@@ -160,15 +118,7 @@ export function useTaskManager(isAuthenticated: boolean, subject: string | null)
   const [deletingAllTasks, setDeletingAllTasks] = useState(false)
   const [plannerStatus, setPlannerStatus] = useState<PlannerStatus>(INITIAL_PLANNER_STATUS)
   const [goalPlans, setGoalPlans] = useState<GoalPlan[]>([])
-  const [coins, setCoins] = useState(0)
-  const [barCounts, setBarCounts] = useState<BarCounts>({
-    wood: 0,
-    stone: 0,
-    iron: 0,
-    silver: 0,
-    gold: 0,
-    diamond: 0,
-  })
+  const [storyPoints, setStoryPoints] = useState(0)
   const [completedTaskIds, setCompletedTaskIds] = useState<Set<number>>(new Set())
   const [rewardedPlanIds, setRewardedPlanIds] = useState<Set<number>>(new Set())
   const normalizedSubject = (subject || '').trim().toLowerCase()
@@ -179,16 +129,14 @@ export function useTaskManager(isAuthenticated: boolean, subject: string | null)
 
   useEffect(() => {
     if (!progressStorageKey) {
-      setCoins(0)
-      setBarCounts({ wood: 0, stone: 0, iron: 0, silver: 0, gold: 0, diamond: 0 })
+      setStoryPoints(0)
       setCompletedTaskIds(new Set())
       setRewardedPlanIds(new Set())
       return
     }
 
     const progress = readProgressState(progressStorageKey)
-    setCoins(progress.coins)
-    setBarCounts(progress.barCounts)
+    setStoryPoints(progress.storyPoints)
     setCompletedTaskIds(new Set(progress.completedTaskIds))
     setRewardedPlanIds(new Set(progress.rewardedPlanIds))
   }, [progressStorageKey])
@@ -199,13 +147,12 @@ export function useTaskManager(isAuthenticated: boolean, subject: string | null)
     }
 
     const serializable: ProgressState = {
-      coins,
-      barCounts,
+      storyPoints,
       completedTaskIds: Array.from(completedTaskIds),
       rewardedPlanIds: Array.from(rewardedPlanIds),
     }
     window.localStorage.setItem(progressStorageKey, JSON.stringify(serializable))
-  }, [barCounts, coins, completedTaskIds, progressStorageKey, rewardedPlanIds])
+  }, [storyPoints, completedTaskIds, progressStorageKey, rewardedPlanIds])
 
   const pendingCount = useMemo(
     () => tasks.filter((task) => !task.completed).length,
@@ -296,7 +243,7 @@ export function useTaskManager(isAuthenticated: boolean, subject: string | null)
       )
       if (!task.completed && updatedTask.completed) {
         if (!completedTaskIds.has(task.id)) {
-          setCoins((current) => current + normalizeDifficulty(updatedTask.difficulty))
+          setStoryPoints((current) => current + normalizeDifficulty(updatedTask.difficulty))
           setCompletedTaskIds((current) => new Set(current).add(task.id))
         }
       }
@@ -536,14 +483,7 @@ export function useTaskManager(isAuthenticated: boolean, subject: string | null)
     }
 
     const nextRewarded = new Set(rewardedPlanIds)
-    const tierIncrements: BarCounts = {
-      wood: 0,
-      stone: 0,
-      iron: 0,
-      silver: 0,
-      gold: 0,
-      diamond: 0,
-    }
+    let bonusPoints = 0
 
     for (const plan of newlyCompletedPlans) {
       nextRewarded.add(plan.id)
@@ -559,22 +499,16 @@ export function useTaskManager(isAuthenticated: boolean, subject: string | null)
         )
         .reduce((total, task) => total + normalizeDifficulty(task.difficulty), 0)
 
-      const tier = barTierForPlanDifficulty(totalDifficulty, plan.tasks.length)
-      tierIncrements[tier] += 1
+      bonusPoints += totalDifficulty
     }
 
     setRewardedPlanIds(nextRewarded)
-    setBarCounts((current) => ({
-      wood: current.wood + tierIncrements.wood,
-      stone: current.stone + tierIncrements.stone,
-      iron: current.iron + tierIncrements.iron,
-      silver: current.silver + tierIncrements.silver,
-      gold: current.gold + tierIncrements.gold,
-      diamond: current.diamond + tierIncrements.diamond,
-    }))
+    if (bonusPoints > 0) {
+      setStoryPoints((current) => current + bonusPoints)
+    }
     setPlannerStatus({
       tone: 'success',
-      message: `Plan completed! Bars forged — Wood: ${tierIncrements.wood}, Stone: ${tierIncrements.stone}, Iron: ${tierIncrements.iron}, Silver: ${tierIncrements.silver}, Gold: ${tierIncrements.gold}, Diamond: ${tierIncrements.diamond}.`,
+      message: `Plan completed! +${bonusPoints} bonus story points.`,
     })
   }, [goalPlans, rewardedPlanIds, tasks])
 
@@ -640,7 +574,7 @@ export function useTaskManager(isAuthenticated: boolean, subject: string | null)
       )
       if (status === 'done' && !task.completed) {
         if (!completedTaskIds.has(task.id)) {
-          setCoins((current) => current + normalizeDifficulty(updatedTask.difficulty))
+          setStoryPoints((current) => current + normalizeDifficulty(updatedTask.difficulty))
           setCompletedTaskIds((current) => new Set(current).add(task.id))
         }
       }
@@ -668,8 +602,7 @@ export function useTaskManager(isAuthenticated: boolean, subject: string | null)
     deletingAllTasks,
     plannerStatus,
     goalPlans,
-    coins,
-    barCounts,
+    storyPoints,
     goalProgress,
     pendingCount,
     setTaskTitle,
