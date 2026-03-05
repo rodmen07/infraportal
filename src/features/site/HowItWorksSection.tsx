@@ -44,6 +44,15 @@ export function HowItWorksSection() {
           </article>
         ))}
       </div>
+
+      <div className="mt-5 text-center">
+        <a
+          href="#/guide"
+          className="inline-block rounded-xl border border-amber-400/30 bg-amber-500/10 px-4 py-2 text-sm font-medium text-amber-200 transition hover:border-amber-400/50 hover:bg-amber-500/20 hover:text-amber-100"
+        >
+          Read the full guide →
+        </a>
+      </div>
     </section>
   )
 }

@@ -132,6 +132,15 @@ export function QuickStartSection({
           />
         ))}
       </ul>
+
+      <div className="mt-4 border-t border-zinc-700/40 pt-4 text-center">
+        <a
+          href="#/tiers"
+          className="text-xs font-medium text-zinc-400 transition hover:text-amber-300"
+        >
+          View tier progression →
+        </a>
+      </div>
     </section>
   )
 }

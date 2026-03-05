@@ -4,7 +4,8 @@
     {
       "heading": "AI-assisted planning",
       "body": "Generate practical short-term task plans from your goals in seconds. Review suggestions before committing — nothing is created until you confirm.",
-      "image": "/uploads/planning-orb.svg"
+      "image": "/uploads/planning-orb.svg",
+      "link": "#/guide"
     },
     {
       "heading": "Goal-based organisation",
@@ -14,7 +15,8 @@
     {
       "heading": "Story points & tiers",
       "body": "Earn story points as you complete tasks. Difficulty multiplies your score. Climb from Poem to Epic as momentum builds across sessions.",
-      "image": "/uploads/progress-grid.svg"
+      "image": "/uploads/progress-grid.svg",
+      "link": "#/tiers"
     },
     {
       "heading": "Board and list views",

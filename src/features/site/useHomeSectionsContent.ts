@@ -51,6 +51,7 @@ export function useHomeSectionsContent(baseUrl: string): HomeSectionsContent {
                   heading: card.heading,
                   body: card.body,
                   image: resolveMediaUrl(baseUrl, card.image),
+                  link: card.link ?? undefined,
                 }))
             : DEFAULT_HOME_SECTIONS.cards,
         })

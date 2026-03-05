@@ -11,6 +11,7 @@ export interface HomeSectionCard {
   heading: string
   body: string
   image?: string
+  link?: string
 }
 
 export interface HomeSectionsContent {
