@@ -191,6 +191,11 @@ function App() {
     items.push({ id: 'architecture-link', label: 'Architecture', isExternal: true, href: '#/architecture' })
     items.push({ id: 'api-link', label: 'API Reference', isExternal: true, href: '#/api' })
 
+    if (isAuthenticated) {
+      items.push({ id: 'accounts-link', label: 'Accounts', isExternal: true, href: '#/accounts' })
+      items.push({ id: 'contacts-link', label: 'Contacts', isExternal: true, href: '#/contacts' })
+    }
+
     if (isAuthenticated && isAdmin) {
       items.push({ id: 'cms-link', label: 'Open CMS', isExternal: true, href: cmsHref })
     }

@@ -2,8 +2,10 @@ import { StrictMode, useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App'
-import { ArchitecturePage } from './pages/ArchitecturePage'
+import { AccountsPage } from './pages/AccountsPage'
 import { ApiReferencePage } from './pages/ApiReferencePage'
+import { ArchitecturePage } from './pages/ArchitecturePage'
+import { ContactsPage } from './pages/ContactsPage'
 import { GuidePage } from './pages/GuidePage'
 import { TiersPage } from './pages/TiersPage'
 
@@ -20,6 +22,8 @@ function Root() {
   if (hash === '#/guide') return <GuidePage />
   if (hash === '#/architecture') return <ArchitecturePage />
   if (hash === '#/api') return <ApiReferencePage />
+  if (hash === '#/accounts') return <AccountsPage />
+  if (hash === '#/contacts') return <ContactsPage />
   return <App />
 }
 
