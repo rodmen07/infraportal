@@ -92,6 +92,27 @@ const DOMAINS = [
       'Scroll-spy sidebar navigation tracks the active section via IntersectionObserver, updating the nav indicator without layout thrash or scroll event polling',
     ],
   },
+  {
+    title: 'Backend Engineering',
+    accent: 'border-orange-400/30 bg-orange-500/5',
+    headingColor: 'text-orange-300',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+        <ellipse cx="12" cy="5" rx="9" ry="3" />
+        <path d="M3 5v6c0 1.66 4.03 3 9 3s9-1.34 9-3V5" />
+        <path d="M3 11v6c0 1.66 4.03 3 9 3s9-1.34 9-3v-6" />
+      </svg>
+    ),
+    points: [
+      'Three production Rust/Axum services (task API, accounts, contacts) share a consistent module layout — app_state, auth, models, router, handlers — making each service independently navigable and deployable without shared framework magic',
+      'sqlx with SQLite: compile-time query validation prevents malformed SQL at build time, FromRow derive gives zero-boilerplate result mapping, and sqlx::migrate! runs pending migrations automatically on startup',
+      'UUID v4 string primary keys across all services — portable, opaque, and URL-safe without leaking row-order or internal counters to API consumers',
+      'Tower middleware stack (CorsLayer, TraceLayer) composed at the router level; auth validation runs per-handler rather than as global middleware, giving precise per-endpoint control over required JWT claims',
+      "Cross-service HTTP: contacts-service validates account_id existence by calling accounts-service with the caller's forwarded Bearer token — no duplicated auth logic; fails open when ACCOUNTS_SERVICE_URL is unset for local dev",
+      'Structured { code, message, details } error envelope on every failure path — no raw status-only responses — so the frontend can surface specific error messages without guessing at HTTP status semantics',
+      'Paginated list endpoints with optional server-side filters (status, lifecycle_stage, full-text name/email search) reduce over-fetching; PATCH semantics allow partial field updates without requiring a full resource replacement',
+    ],
+  },
 ]
 
 const STACK: { label: string; color: string }[] = [
