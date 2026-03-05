@@ -64,20 +64,17 @@ function App() {
     submitting,
     workingTaskId,
     goalInput,
-    plannedTaskDifficulty,
-    plannedTasks,
     planning,
-    creatingPlanTasks,
     deletingAllTasks,
     plannerStatus,
     storyPoints,
     goalProgress,
     pendingCount,
+    clearingGoal,
     setTaskTitle,
     setTaskDifficulty,
     setTaskGoal,
     setGoalInput,
-    setPlannedTaskDifficulty,
     loadTasks,
     handleCreateTask,
     handleSetTaskDifficulty,
@@ -86,8 +83,7 @@ function App() {
     handleDeleteTask,
     handleDeleteAllTasks,
     handleGeneratePlan,
-    handleCreatePlannedTasks,
-    handleResetGeneratedPlan,
+    handleClearPlanTasks,
   } = useTaskManager(isAuthenticated, session?.subject ?? null)
 
   const completedCount = useMemo(() => tasks.filter((task) => task.completed).length, [tasks])
@@ -186,23 +182,19 @@ function App() {
                 tasksLoading={tasksLoading}
                 taskError={taskError}
                 goalInput={goalInput}
-                plannedTaskDifficulty={plannedTaskDifficulty}
                 planning={planning}
-                creatingPlanTasks={creatingPlanTasks}
                 deletingAllTasks={deletingAllTasks}
                 plannerStatus={plannerStatus}
-                plannedTasks={plannedTasks}
                 taskTitle={taskTitle}
                 taskDifficulty={taskDifficulty}
                 taskGoal={taskGoal}
                 submitting={submitting}
                 tasks={tasks}
                 workingTaskId={workingTaskId}
+                clearingGoal={clearingGoal}
                 onRefresh={loadTasks}
                 onGoalInputChange={setGoalInput}
-                onPlannedTaskDifficultyChange={setPlannedTaskDifficulty}
                 onGeneratePlan={handleGeneratePlan}
-                onCreatePlannedTasks={handleCreatePlannedTasks}
                 onTaskTitleChange={setTaskTitle}
                 onTaskDifficultyChange={setTaskDifficulty}
                 onTaskGoalChange={setTaskGoal}
@@ -212,7 +204,7 @@ function App() {
                 onDeleteTask={handleDeleteTask}
                 onDeleteAllTasks={handleDeleteAllTasks}
                 onUpdateTaskStatus={handleUpdateTaskStatus}
-                onResetGeneratedPlan={handleResetGeneratedPlan}
+                onClearPlanTasks={handleClearPlanTasks}
               />
             </div>
 

@@ -1,5 +1,6 @@
 import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react'
 import {
+  clearPlanTasks,
   createTaskWithDifficulty,
   deleteTask,
   listTasks,
@@ -8,7 +9,6 @@ import {
   updateTaskStatus,
 } from '../../api/tasks'
 import type { GoalPlan, PlannerTone, Task, TaskStatus } from '../../types'
-import { normalizePlanTask, normalizePlanTasks } from './planNormalization'
 
 export interface PlannerStatus {
   tone: PlannerTone
@@ -31,6 +31,7 @@ export interface GoalProgress {
   goal: string
   completed: number
   total: number
+  aiCount: number
 }
 
 const INITIAL_PLANNER_STATUS: PlannerStatus = {
@@ -112,16 +113,14 @@ export function useTaskManager(isAuthenticated: boolean, subject: string | null)
   const [submitting, setSubmitting] = useState(false)
   const [workingTaskId, setWorkingTaskId] = useState<number | null>(null)
   const [goalInput, setGoalInput] = useState('')
-  const [plannedTasks, setPlannedTasks] = useState<string[]>([])
   const [planning, setPlanning] = useState(false)
-  const [plannedTaskDifficulty, setPlannedTaskDifficulty] = useState(2)
-  const [creatingPlanTasks, setCreatingPlanTasks] = useState(false)
   const [deletingAllTasks, setDeletingAllTasks] = useState(false)
   const [plannerStatus, setPlannerStatus] = useState<PlannerStatus>(INITIAL_PLANNER_STATUS)
   const [goalPlans, setGoalPlans] = useState<GoalPlan[]>([])
   const [storyPoints, setStoryPoints] = useState(0)
   const [completedTaskIds, setCompletedTaskIds] = useState<Set<number>>(new Set())
   const [rewardedPlanIds, setRewardedPlanIds] = useState<Set<number>>(new Set())
+  const [clearingGoal, setClearingGoal] = useState<string | null>(null)
   const normalizedSubject = (subject || '').trim().toLowerCase()
   const progressStorageKey =
     isAuthenticated && normalizedSubject.length > 0
@@ -329,23 +328,27 @@ export function useTaskManager(isAuthenticated: boolean, subject: string | null)
 
     try {
       const plan = await planTasksFromGoal(goal)
-      const generated = normalizePlanTasks(
-        Array.isArray(plan.tasks) ? plan.tasks : [],
-      )
-      setPlannedTasks(generated)
+      const generatedTasks = Array.isArray(plan.tasks) ? plan.tasks : []
 
-      if (generated.length > 0) {
+      // Tasks are auto-created in the DB — merge into local state
+      if (generatedTasks.length > 0) {
+        setTasks((current) => {
+          const existingIds = new Set(current.map((t) => t.id))
+          const newTasks = generatedTasks.filter((t) => !existingIds.has(t.id))
+          return [...current, ...newTasks]
+        })
+
         const nextPlan: GoalPlan = {
           id: Date.now(),
-          goal,
-          tasks: generated,
+          goal: plan.goal,
+          tasks: generatedTasks,
           createdAt: new Date().toISOString(),
         }
         setGoalPlans((current) => [nextPlan, ...current].slice(0, 8))
 
         setPlannerStatus({
           tone: 'success',
-          message: `Generated ${generated.length} tasks. Review and create them when ready.`,
+          message: `Generated ${generatedTasks.length} task${generatedTasks.length === 1 ? '' : 's'} for "${plan.goal}".`,
         })
       } else {
         setPlannerStatus({
@@ -357,19 +360,30 @@ export function useTaskManager(isAuthenticated: boolean, subject: string | null)
       const message = error instanceof Error ? error.message : 'Failed to generate plan'
       setTaskError(message)
 
-      if (message.includes('LLM_API_KEY_MISSING')) {
+      if (
+        message.includes('LLM_API_KEY_MISSING') ||
+        message.toLowerCase().includes('openrouter_api_key') ||
+        message.toLowerCase().includes('not configured')
+      ) {
         setPlannerStatus({
           tone: 'warning',
           message: 'Planner is not configured yet on backend (missing LLM key).',
         })
       } else if (
         message.includes('LLM_UPSTREAM_RESPONSE_FAILED') ||
+        message.toLowerCase().includes('llm provider') ||
         message.includes('429') ||
-        message.toLowerCase().includes('rate')
+        message.toLowerCase().includes('rate limit') ||
+        message.toLowerCase().includes('rate-limit')
       ) {
         setPlannerStatus({
           tone: 'warning',
-          message: 'Planner provider is temporarily rate-limited. Retry in a minute.',
+          message: 'Planner provider is temporarily unavailable. Please try again shortly.',
+        })
+      } else if (message.includes('PLAN_RATE_LIMIT_EXCEEDED') || message.toLowerCase().includes('planning limit')) {
+        setPlannerStatus({
+          tone: 'warning',
+          message: 'AI planning limit reached. Try again in a few minutes.',
         })
       } else {
         setPlannerStatus({
@@ -382,80 +396,29 @@ export function useTaskManager(isAuthenticated: boolean, subject: string | null)
     }
   }
 
-  const handleCreatePlannedTasks = async () => {
+  const handleClearPlanTasks = async (goal: string) => {
     if (!isAuthenticated) {
-      setTaskError('Sign in is required to create planned tasks')
+      setTaskError('Sign in is required to clear AI tasks')
       return
     }
 
-    if (plannedTasks.length === 0) {
-      return
-    }
-
-    setCreatingPlanTasks(true)
+    setClearingGoal(goal)
     setTaskError('')
-    setPlannerStatus({ tone: 'info', message: 'Creating planned tasks…' })
 
-    const created: Task[] = []
-    const failed: string[] = []
-    let firstErrorMessage = ''
-
-    for (const plannedTitle of plannedTasks) {
-      const title = normalizePlanTask(plannedTitle)
-      if (!title) {
-        continue
-      }
-
-      try {
-        const task = await createTaskWithDifficulty(
-          title,
-          normalizeDifficulty(plannedTaskDifficulty),
-          goalInput.trim(),
-        )
-        created.push(task)
-      } catch (error) {
-        failed.push(title)
-        if (!firstErrorMessage) {
-          firstErrorMessage =
-            error instanceof Error ? error.message : 'Failed to create planned tasks'
-        }
-      }
-    }
-
-    if (created.length > 0) {
-      setTasks((current) => [...current, ...created])
-    }
-
-    if (failed.length === 0) {
-      setPlannedTasks([])
-      setGoalInput('')
+    try {
+      await clearPlanTasks(goal)
+      setTasks((current) =>
+        current.filter((t) => !(t.goal === goal && t.source === 'ai_generated')),
+      )
       setPlannerStatus({
         tone: 'success',
-        message: `Created ${created.length} tasks from your plan.`,
+        message: `Cleared AI-generated tasks for "${goal}".`,
       })
-    } else {
-      setPlannedTasks(failed)
-      setTaskError(firstErrorMessage)
-      setPlannerStatus({
-        tone: 'warning',
-        message: `Created ${created.length} tasks. ${failed.length} could not be created. You can retry.`,
-      })
+    } catch (error) {
+      setTaskError(error instanceof Error ? error.message : 'Failed to clear AI tasks')
+    } finally {
+      setClearingGoal(null)
     }
-
-    setCreatingPlanTasks(false)
-  }
-
-  const handleResetGeneratedPlan = () => {
-    if (plannedTasks.length === 0 && goalInput.trim().length === 0) {
-      return
-    }
-
-    setPlannedTasks([])
-    setGoalInput('')
-    setPlannerStatus({
-      tone: 'info',
-      message: 'AI-generated tasks were reset.',
-    })
   }
 
   useEffect(() => {
@@ -463,20 +426,16 @@ export function useTaskManager(isAuthenticated: boolean, subject: string | null)
       return
     }
 
-    const completedTitles = new Set(
-      tasks
-        .filter((task) => task.completed)
-        .map((task) => `${task.goal || ''}::${task.title.trim().toLowerCase()}`),
-    )
+    const completedIds = new Set(tasks.filter((t) => t.completed).map((t) => t.id))
 
     const newlyCompletedPlans = goalPlans.filter((plan) => {
       if (rewardedPlanIds.has(plan.id)) {
         return false
       }
-
-      return plan.tasks.every((task) =>
-        completedTitles.has(`${plan.goal}::${task.trim().toLowerCase()}`),
-      )
+      if (plan.tasks.length === 0) {
+        return false
+      }
+      return plan.tasks.every((t) => completedIds.has(t.id))
     })
 
     if (newlyCompletedPlans.length === 0) {
@@ -488,19 +447,9 @@ export function useTaskManager(isAuthenticated: boolean, subject: string | null)
 
     for (const plan of newlyCompletedPlans) {
       nextRewarded.add(plan.id)
-
-      const totalDifficulty = tasks
-        .filter(
-          (task) =>
-            task.completed &&
-            task.goal === plan.goal &&
-            plan.tasks.some(
-              (planTask) => planTask.trim().toLowerCase() === task.title.trim().toLowerCase(),
-            ),
-        )
-        .reduce((total, task) => total + normalizeDifficulty(task.difficulty), 0)
-
-      bonusPoints += totalDifficulty
+      bonusPoints += plan.tasks
+        .filter((t) => completedIds.has(t.id))
+        .reduce((sum, t) => sum + normalizeDifficulty(t.difficulty), 0)
     }
 
     setRewardedPlanIds(nextRewarded)
@@ -514,17 +463,20 @@ export function useTaskManager(isAuthenticated: boolean, subject: string | null)
   }, [goalPlans, rewardedPlanIds, tasks])
 
   const goalProgress = useMemo<GoalProgress[]>(() => {
-    const byGoal = new Map<string, { total: number; completed: number }>()
+    const byGoal = new Map<string, { total: number; completed: number; aiCount: number }>()
 
     for (const task of tasks) {
       if (!task.goal) {
         continue
       }
 
-      const current = byGoal.get(task.goal) || { total: 0, completed: 0 }
+      const current = byGoal.get(task.goal) || { total: 0, completed: 0, aiCount: 0 }
       current.total += 1
       if (task.completed) {
         current.completed += 1
+      }
+      if (task.source === 'ai_generated') {
+        current.aiCount += 1
       }
       byGoal.set(task.goal, current)
     }
@@ -533,6 +485,7 @@ export function useTaskManager(isAuthenticated: boolean, subject: string | null)
       goal,
       completed: metrics.completed,
       total: metrics.total,
+      aiCount: metrics.aiCount,
     }))
   }, [tasks])
 
@@ -596,21 +549,17 @@ export function useTaskManager(isAuthenticated: boolean, subject: string | null)
     submitting,
     workingTaskId,
     goalInput,
-    plannedTaskDifficulty,
-    plannedTasks,
     planning,
-    creatingPlanTasks,
     deletingAllTasks,
     plannerStatus,
-    goalPlans,
     storyPoints,
     goalProgress,
     pendingCount,
+    clearingGoal,
     setTaskTitle,
     setTaskDifficulty,
     setTaskGoal,
     setGoalInput,
-    setPlannedTaskDifficulty,
     loadTasks,
     handleCreateTask,
     handleSetTaskDifficulty,
@@ -619,7 +568,6 @@ export function useTaskManager(isAuthenticated: boolean, subject: string | null)
     handleDeleteTask,
     handleDeleteAllTasks,
     handleGeneratePlan,
-    handleCreatePlannedTasks,
-    handleResetGeneratedPlan,
+    handleClearPlanTasks,
   }
 }

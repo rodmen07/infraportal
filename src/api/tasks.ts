@@ -2,7 +2,13 @@ import { API_BASE_URL, API_TIMEOUT_MS } from '../config'
 import type { AdminMetrics, AdminRequestLog, AdminUserActivity, Task, TaskStatus } from '../types'
 
 interface PlanResponse {
-  tasks: string[]
+  goal: string
+  tasks: Task[]
+}
+
+interface ClearPlanResponse {
+  deleted: number
+  goal: string
 }
 
 let currentAccessToken = ''
@@ -113,6 +119,12 @@ export async function planTasksFromGoal(goal: string): Promise<PlanResponse> {
   return request<PlanResponse>('/api/v1/tasks/plan', {
     method: 'POST',
     body: JSON.stringify({ goal }),
+  })
+}
+
+export async function clearPlanTasks(goal: string): Promise<ClearPlanResponse> {
+  return request<ClearPlanResponse>(`/api/v1/tasks/plan?goal=${encodeURIComponent(goal)}`, {
+    method: 'DELETE',
   })
 }
 

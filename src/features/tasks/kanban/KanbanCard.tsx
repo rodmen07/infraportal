@@ -72,6 +72,11 @@ export function KanbanCard({ task, isWorking, disabled, onDelete, onStatusChange
         <span className={`inline-flex items-center rounded-md border px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${difficultyColor}`}>
           {difficultyLabel}
         </span>
+        {task.source === 'ai_generated' && (
+          <span className="inline-flex items-center rounded-md border border-purple-300/25 bg-purple-500/10 px-1.5 py-0.5 text-[10px] font-medium text-purple-200/90">
+            AI
+          </span>
+        )}
         {task.goal && (
           <span className="inline-flex items-center rounded-md border border-amber-300/25 bg-amber-500/10 px-1.5 py-0.5 text-[10px] text-amber-200/80 truncate max-w-[120px]" title={task.goal}>
             {task.goal}

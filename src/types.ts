@@ -37,12 +37,13 @@ export interface Task {
   difficulty: number
   goal: string | null
   status: TaskStatus
+  source: string
 }
 
 export interface GoalPlan {
   id: number
   goal: string
-  tasks: string[]
+  tasks: Task[]
   createdAt: string
 }
 
