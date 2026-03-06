@@ -79,6 +79,42 @@
       "category": "Integrations"
     },
     {
+      "title": "Opportunities service",
+      "description": "SQLite-backed Rust/Axum service with full CRUD, JWT auth, stage tracking (qualification→proposal→closed), and Fly.io deployment.",
+      "status": "shipped",
+      "category": "Integrations"
+    },
+    {
+      "title": "Activities service",
+      "description": "SQLite-backed Rust/Axum service tracking calls, emails, meetings, and tasks linked to accounts and contacts. Full CRUD with JWT auth.",
+      "status": "shipped",
+      "category": "Integrations"
+    },
+    {
+      "title": "Automation service",
+      "description": "SQLite-backed workflow engine with event-driven trigger/action rules. Enable, disable, and manage automation workflows via REST API.",
+      "status": "shipped",
+      "category": "Automation"
+    },
+    {
+      "title": "Integrations service",
+      "description": "SQLite-backed connection registry for third-party providers (Salesforce, HubSpot, Stripe). Tracks sync status and last-synced timestamps.",
+      "status": "shipped",
+      "category": "Integrations"
+    },
+    {
+      "title": "Reporting service",
+      "description": "SQLite-backed saved reports with a dashboard summary endpoint that aggregates active report counts and distinct metrics.",
+      "status": "shipped",
+      "category": "Reporting"
+    },
+    {
+      "title": "Cross-service search",
+      "description": "SQLite-backed search service indexing entities by type and content. Full-text search across titles and bodies with snippet extraction.",
+      "status": "shipped",
+      "category": "Search"
+    },
+    {
       "title": "Task comments & notes",
       "description": "Add freeform notes or threaded comments to individual tasks for context, blockers, and progress updates.",
       "status": "planned",
@@ -103,12 +139,6 @@
       "category": "Planning"
     },
     {
-      "title": "Opportunities service",
-      "description": "Sales pipeline with stage-level task tracking. Link tasks to open opportunities and track execution against deal progress.",
-      "status": "planned",
-      "category": "Integrations"
-    },
-    {
       "title": "Activity feed",
       "description": "Real-time timeline of task completions, plan creations, tier progressions, and linked CRM events across all services.",
       "status": "planned",
@@ -119,18 +149,6 @@
       "description": "Global shortcuts for jumping to sections, opening the planner, focusing search, and performing common task actions.",
       "status": "planned",
       "category": "UX"
-    },
-    {
-      "title": "Automation rules",
-      "description": "Event-driven rules that trigger task creation or status transitions from external webhooks and service events.",
-      "status": "planned",
-      "category": "Automation"
-    },
-    {
-      "title": "Cross-service search",
-      "description": "Full-text search across tasks, goals, contacts, and opportunities via a dedicated search service with ranked results.",
-      "status": "planned",
-      "category": "Search"
     },
     {
       "title": "Reporting & velocity charts",
