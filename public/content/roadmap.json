@@ -117,7 +117,7 @@
     {
       "title": "Task comments & notes",
       "description": "Add freeform notes or threaded comments to individual tasks for context, blockers, and progress updates.",
-      "status": "planned",
+      "status": "shipped",
       "category": "Core"
     },
     {

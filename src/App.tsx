@@ -54,9 +54,11 @@ function App() {
     authError,
     subjectInput,
     setSubjectInput,
+    passwordInput,
+    setPasswordInput,
     signIn,
-    signInAdmin,
     createUsername,
+    signInWithOAuth,
     signOut,
   } = useAuthSession()
 
@@ -247,12 +249,15 @@ function App() {
                 authBusy={authBusy}
                 authError={authError}
                 subjectInput={subjectInput}
+                passwordInput={passwordInput}
                 currentSubject={session?.subject || ''}
                 currentRoles={session?.roles || []}
                 onSubjectInputChange={setSubjectInput}
+                onPasswordInputChange={setPasswordInput}
                 onSignIn={signIn}
-                onSignInAdmin={signInAdmin}
                 onCreateUsername={createUsername}
+                onSignInWithGitHub={() => signInWithOAuth('github')}
+                onSignInWithGoogle={() => signInWithOAuth('google')}
                 onSignOut={signOut}
               />
             </div>

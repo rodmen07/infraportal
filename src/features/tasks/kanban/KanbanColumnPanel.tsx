@@ -13,6 +13,7 @@ interface KanbanColumnPanelProps {
   onStatusChange: (task: Task, status: TaskStatus) => void
   onTitleSave: (task: Task, title: string) => void
   onDueDateChange: (task: Task, due_date: string | null) => void
+  onViewNotes: (task: Task) => void
 }
 
 export function KanbanColumnPanel({
@@ -25,6 +26,7 @@ export function KanbanColumnPanel({
   onStatusChange,
   onTitleSave,
   onDueDateChange,
+  onViewNotes,
 }: KanbanColumnPanelProps) {
   const [isDragOver, setIsDragOver] = useState(false)
 
@@ -92,6 +94,7 @@ export function KanbanColumnPanel({
               onStatusChange={onStatusChange}
               onTitleSave={onTitleSave}
               onDueDateChange={onDueDateChange}
+              onViewNotes={onViewNotes}
             />
           ))
         )}

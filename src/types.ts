@@ -82,6 +82,7 @@ export interface GoalPlan {
 
 export interface AuthSession {
   subject: string
+  userId: string
   accessToken: string
   roles: string[]
   expiresAt: number
@@ -91,6 +92,15 @@ export interface TokenIssueResponse {
   access_token: string
   token_type: string
   expires_in: number
+}
+
+export interface AuthUserResponse {
+  access_token: string
+  token_type: string
+  expires_in: number
+  user_id: string
+  username: string
+  roles: string[]
 }
 
 export interface TokenVerifyResponse {
@@ -125,4 +135,13 @@ export interface AdminUserActivity {
   request_count: number
   first_seen_at: string
   last_seen_at: string
+}
+
+export interface TaskComment {
+  id: number
+  task_id: number
+  author_id: string | null
+  body: string
+  created_at: string
+  updated_at: string | null
 }

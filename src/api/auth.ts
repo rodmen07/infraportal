@@ -1,5 +1,5 @@
 import { AUTH_API_BASE_URL, API_TIMEOUT_MS } from '../config'
-import type { TokenIssueResponse, TokenVerifyResponse } from '../types'
+import type { AuthUserResponse, TokenIssueResponse, TokenVerifyResponse } from '../types'
 
 function buildUrl(path: string): string {
   const normalizedBase = AUTH_API_BASE_URL.endsWith('/')
@@ -66,5 +66,84 @@ export async function verifyToken(token: string): Promise<TokenVerifyResponse> {
   return request<TokenVerifyResponse>('/auth/verify', {
     method: 'POST',
     body: JSON.stringify({ token }),
+  })
+}
+
+export async function registerUser(username: string, password: string): Promise<AuthUserResponse> {
+  return request<AuthUserResponse>('/auth/register', {
+    method: 'POST',
+    body: JSON.stringify({ username, password }),
+  })
+}
+
+export async function loginWithPassword(
+  username: string,
+  password: string,
+): Promise<AuthUserResponse> {
+  return request<AuthUserResponse>('/auth/login', {
+    method: 'POST',
+    body: JSON.stringify({ username, password }),
+  })
+}
+
+const OAUTH_POPUP_TIMEOUT_MS = 120_000
+
+export function openOAuthPopup(provider: 'github' | 'google'): Promise<AuthUserResponse> {
+  return new Promise((resolve, reject) => {
+    const authUrl = buildUrl(`/user/oauth/${provider}`)
+    const popup = window.open(authUrl, `oauth_${provider}`, 'width=600,height=700')
+
+    if (!popup) {
+      reject(new Error('Could not open sign-in popup. Check your browser popup settings.'))
+      return
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      cleanup()
+      reject(new Error('OAuth sign-in timed out. Please try again.'))
+    }, OAUTH_POPUP_TIMEOUT_MS)
+
+    function onMessage(event: MessageEvent): void {
+      if (event.source !== popup) return
+
+      const data = typeof event.data === 'string' ? event.data : ''
+
+      if (data === 'authorizing:user') {
+        popup.postMessage('authorizing:user', event.origin)
+        return
+      }
+
+      if (data.startsWith('authorization:user:success:')) {
+        const json = data.slice('authorization:user:success:'.length)
+        try {
+          const payload = JSON.parse(json) as AuthUserResponse
+          cleanup()
+          resolve(payload)
+        } catch {
+          cleanup()
+          reject(new Error('Received malformed OAuth response'))
+        }
+        return
+      }
+
+      if (data.startsWith('authorization:user:error:')) {
+        const json = data.slice('authorization:user:error:'.length)
+        try {
+          const payload = JSON.parse(json) as { message?: string }
+          cleanup()
+          reject(new Error(payload?.message || 'OAuth sign-in failed'))
+        } catch {
+          cleanup()
+          reject(new Error('OAuth sign-in failed'))
+        }
+      }
+    }
+
+    function cleanup(): void {
+      window.clearTimeout(timeoutId)
+      window.removeEventListener('message', onMessage)
+    }
+
+    window.addEventListener('message', onMessage)
   })
 }

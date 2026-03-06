@@ -1,23 +1,16 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { issueToken, verifyToken } from '../../api/auth'
+import { loginWithPassword, openOAuthPopup, registerUser, verifyToken } from '../../api/auth'
 import { setApiAccessToken } from '../../api/tasks'
-import type { AuthSession } from '../../types'
+import type { AuthSession, AuthUserResponse } from '../../types'
 
 const STORAGE_KEY = 'taskforge.auth.session'
-const USERS_STORAGE_KEY = 'taskforge.auth.users'
 
 function readStoredSession(): AuthSession | null {
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY)
-    if (!raw) {
-      return null
-    }
-
+    if (!raw) return null
     const parsed = JSON.parse(raw) as AuthSession
-    if (!parsed.accessToken || !parsed.subject || !parsed.expiresAt) {
-      return null
-    }
-
+    if (!parsed.accessToken || !parsed.subject || !parsed.expiresAt || !parsed.userId) return null
     return parsed
   } catch {
     return null
@@ -29,30 +22,17 @@ function persistSession(session: AuthSession | null): void {
     window.localStorage.removeItem(STORAGE_KEY)
     return
   }
-
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(session))
 }
 
-function readStoredUsers(): string[] {
-  try {
-    const raw = window.localStorage.getItem(USERS_STORAGE_KEY)
-    if (!raw) {
-      return []
-    }
-
-    const parsed = JSON.parse(raw) as string[]
-    if (!Array.isArray(parsed)) {
-      return []
-    }
-
-    return parsed.map((value) => value.trim()).filter((value) => value.length > 0)
-  } catch {
-    return []
+function sessionFromResponse(resp: AuthUserResponse): AuthSession {
+  return {
+    subject: resp.username,
+    userId: resp.user_id,
+    accessToken: resp.access_token,
+    roles: resp.roles,
+    expiresAt: Date.now() + resp.expires_in * 1000,
   }
-}
-
-function persistUsers(users: string[]): void {
-  window.localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users))
 }
 
 export function useAuthSession() {
@@ -61,11 +41,7 @@ export function useAuthSession() {
   const [authBusy, setAuthBusy] = useState(false)
   const [authError, setAuthError] = useState('')
   const [subjectInput, setSubjectInput] = useState('')
-  const [knownUsers, setKnownUsers] = useState<string[]>([])
-
-  useEffect(() => {
-    setKnownUsers(readStoredUsers())
-  }, [])
+  const [passwordInput, setPasswordInput] = useState('')
 
   const restoreSession = useCallback(async () => {
     setAuthLoading(true)
@@ -113,16 +89,24 @@ export function useAuthSession() {
     void restoreSession()
   }, [restoreSession])
 
+  const _applySession = useCallback((nextSession: AuthSession) => {
+    setApiAccessToken(nextSession.accessToken)
+    persistSession(nextSession)
+    setSession(nextSession)
+    setSubjectInput('')
+    setPasswordInput('')
+  }, [])
+
   const signIn = useCallback(async () => {
-    const subject = subjectInput.trim()
-    if (!subject) {
-      setAuthError('Username is required')
+    const username = subjectInput.trim()
+    const password = passwordInput
+
+    if (!username) {
+      setAuthError('Email address is required')
       return
     }
-
-    const exists = knownUsers.some((value) => value.toLowerCase() === subject.toLowerCase())
-    if (!exists) {
-      setAuthError('Username not found. Create it first.')
+    if (!password) {
+      setAuthError('Password is required')
       return
     }
 
@@ -130,24 +114,8 @@ export function useAuthSession() {
     setAuthError('')
 
     try {
-      const token = await issueToken(subject, ['user', 'planner'])
-      const verification = await verifyToken(token.access_token)
-
-      if (!verification.active) {
-        throw new Error('Issued token could not be verified')
-      }
-
-      const nextSession: AuthSession = {
-        subject: verification.subject || subject,
-        accessToken: token.access_token,
-        roles: verification.roles || [],
-        expiresAt: Date.now() + token.expires_in * 1000,
-      }
-
-      setApiAccessToken(nextSession.accessToken)
-      persistSession(nextSession)
-      setSession(nextSession)
-      setSubjectInput('')
+      const resp = await loginWithPassword(username, password)
+      _applySession(sessionFromResponse(resp))
     } catch (error) {
       setAuthError(error instanceof Error ? error.message : 'Failed to sign in')
       setApiAccessToken('')
@@ -156,63 +124,22 @@ export function useAuthSession() {
     } finally {
       setAuthBusy(false)
     }
-  }, [knownUsers, subjectInput])
-
-  const signInAdmin = useCallback(async () => {
-    const subject = subjectInput.trim()
-    if (!subject) {
-      setAuthError('Username is required')
-      return
-    }
-
-    const exists = knownUsers.some((value) => value.toLowerCase() === subject.toLowerCase())
-    if (!exists) {
-      setAuthError('Username not found. Create it first.')
-      return
-    }
-
-    setAuthBusy(true)
-    setAuthError('')
-
-    try {
-      const token = await issueToken(subject, ['user', 'planner', 'admin'])
-      const verification = await verifyToken(token.access_token)
-
-      if (!verification.active) {
-        throw new Error('Issued token could not be verified')
-      }
-
-      const nextSession: AuthSession = {
-        subject: verification.subject || subject,
-        accessToken: token.access_token,
-        roles: verification.roles || [],
-        expiresAt: Date.now() + token.expires_in * 1000,
-      }
-
-      setApiAccessToken(nextSession.accessToken)
-      persistSession(nextSession)
-      setSession(nextSession)
-      setSubjectInput('')
-    } catch (error) {
-      setAuthError(error instanceof Error ? error.message : 'Failed to sign in as admin')
-      setApiAccessToken('')
-      persistSession(null)
-      setSession(null)
-    } finally {
-      setAuthBusy(false)
-    }
-  }, [knownUsers, subjectInput])
+  }, [subjectInput, passwordInput, _applySession])
 
   const createUsername = useCallback(async () => {
-    const subject = subjectInput.trim()
-    if (!subject) {
-      setAuthError('Username is required')
+    const username = subjectInput.trim()
+    const password = passwordInput
+
+    if (!username) {
+      setAuthError('Email address is required')
       return
     }
-
-    const exists = knownUsers.some((value) => value.toLowerCase() === subject.toLowerCase())
-    if (exists) {
-      setAuthError('Username already exists. Sign in instead.')
+    if (!password) {
+      setAuthError('Password is required (min 6 characters)')
+      return
+    }
+    if (password.length < 6) {
+      setAuthError('Password must be at least 6 characters')
       return
     }
 
@@ -220,43 +147,41 @@ export function useAuthSession() {
     setAuthError('')
 
     try {
-      const token = await issueToken(subject, ['user', 'planner'])
-      const verification = await verifyToken(token.access_token)
-
-      if (!verification.active) {
-        throw new Error('Issued token could not be verified')
-      }
-
-      const nextSession: AuthSession = {
-        subject: verification.subject || subject,
-        accessToken: token.access_token,
-        roles: verification.roles || [],
-        expiresAt: Date.now() + token.expires_in * 1000,
-      }
-
-      const nextUsers = [...knownUsers, nextSession.subject]
-      setKnownUsers(nextUsers)
-      persistUsers(nextUsers)
-
-      setApiAccessToken(nextSession.accessToken)
-      persistSession(nextSession)
-      setSession(nextSession)
-      setSubjectInput('')
+      const resp = await registerUser(username, password)
+      _applySession(sessionFromResponse(resp))
     } catch (error) {
-      setAuthError(error instanceof Error ? error.message : 'Failed to create username')
+      setAuthError(error instanceof Error ? error.message : 'Failed to create account')
       setApiAccessToken('')
       persistSession(null)
       setSession(null)
     } finally {
       setAuthBusy(false)
     }
-  }, [knownUsers, subjectInput])
+  }, [subjectInput, passwordInput, _applySession])
+
+  const signInWithOAuth = useCallback(async (provider: 'github' | 'google') => {
+    setAuthBusy(true)
+    setAuthError('')
+
+    try {
+      const resp = await openOAuthPopup(provider)
+      _applySession(sessionFromResponse(resp))
+    } catch (error) {
+      setAuthError(error instanceof Error ? error.message : `Failed to sign in with ${provider}`)
+      setApiAccessToken('')
+      persistSession(null)
+      setSession(null)
+    } finally {
+      setAuthBusy(false)
+    }
+  }, [_applySession])
 
   const signOut = useCallback(() => {
     setApiAccessToken('')
     persistSession(null)
     setSession(null)
     setAuthError('')
+    setPasswordInput('')
   }, [])
 
   const isAuthenticated = useMemo(
@@ -272,9 +197,11 @@ export function useAuthSession() {
     authError,
     subjectInput,
     setSubjectInput,
+    passwordInput,
+    setPasswordInput,
     signIn,
-    signInAdmin,
     createUsername,
+    signInWithOAuth,
     signOut,
   }
 }

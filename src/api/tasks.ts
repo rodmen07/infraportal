@@ -148,3 +148,27 @@ export async function getAdminRequestLogs(limit = 10): Promise<AdminRequestLog[]
 export async function getAdminUserActivity(limit = 10): Promise<AdminUserActivity[]> {
   return request<AdminUserActivity[]>(`/api/v1/admin/users?limit=${limit}&offset=0`)
 }
+
+export async function listComments(taskId: number): Promise<import('../types').TaskComment[]> {
+  return request<import('../types').TaskComment[]>(`/api/v1/tasks/${taskId}/comments`)
+}
+
+export async function createComment(taskId: number, body: string): Promise<import('../types').TaskComment> {
+  return request<import('../types').TaskComment>(`/api/v1/tasks/${taskId}/comments`, {
+    method: 'POST',
+    body: JSON.stringify({ body }),
+  })
+}
+
+export async function updateComment(commentId: number, body: string): Promise<import('../types').TaskComment> {
+  return request<import('../types').TaskComment>(`/api/v1/comments/${commentId}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ body }),
+  })
+}
+
+export async function deleteComment(commentId: number): Promise<void> {
+  await request<void>(`/api/v1/comments/${commentId}`, {
+    method: 'DELETE',
+  })
+}

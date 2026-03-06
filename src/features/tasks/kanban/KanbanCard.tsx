@@ -27,9 +27,10 @@ interface KanbanCardProps {
   onStatusChange: (task: Task, status: TaskStatus) => void
   onTitleSave: (task: Task, title: string) => void
   onDueDateChange: (task: Task, due_date: string | null) => void
+  onViewNotes: (task: Task) => void
 }
 
-export function KanbanCard({ task, isWorking, disabled, onDelete, onStatusChange, onTitleSave, onDueDateChange }: KanbanCardProps) {
+export function KanbanCard({ task, isWorking, disabled, onDelete, onStatusChange, onTitleSave, onDueDateChange, onViewNotes }: KanbanCardProps) {
   const [isDragging, setIsDragging] = useState(false)
   const [editingTitle, setEditingTitle] = useState(false)
   const [titleDraft, setTitleDraft] = useState(task.title)
@@ -157,6 +158,15 @@ export function KanbanCard({ task, isWorking, disabled, onDelete, onStatusChange
             <option key={opt.value} value={opt.value}>{opt.label}</option>
           ))}
         </select>
+        <button
+          type="button"
+          className="rounded-lg border border-zinc-600/40 bg-zinc-700/40 px-2 py-1 text-[11px] text-zinc-300 transition hover:bg-zinc-600/50 disabled:cursor-not-allowed disabled:opacity-50"
+          disabled={disabled || isWorking}
+          onClick={() => onViewNotes(task)}
+          aria-label="View notes"
+        >
+          Notes
+        </button>
         <button
           type="button"
           className="rounded-lg border border-red-400/25 bg-red-500/10 px-2 py-1 text-[11px] text-red-300 transition hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-50"
