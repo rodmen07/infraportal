@@ -63,8 +63,8 @@ const INTEGRATIONS: Integration[] = [
   {
     name: 'Reporting',
     slug: 'reporting-service',
-    description: 'Velocity charts, story point history, and goal completion exports.',
-    status: 'coming-soon',
+    description: 'SQLite-backed Rust/Axum service with saved reports and a dashboard summary endpoint aggregating active report counts and distinct metrics.',
+    status: 'in-development',
     category: 'Analytics',
   },
   {
