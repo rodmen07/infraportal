@@ -70,8 +70,8 @@ const INTEGRATIONS: Integration[] = [
   {
     name: 'Search',
     slug: 'search-service',
-    description: 'Full-text search across tasks, goals, contacts, and opportunities.',
-    status: 'coming-soon',
+    description: 'SQLite-backed Rust/Axum service indexing entities by type and content. Full-text search across titles and bodies with snippet extraction.',
+    status: 'in-development',
     category: 'Core',
   },
   {
