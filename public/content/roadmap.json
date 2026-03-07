@@ -155,6 +155,42 @@
       "description": "Story point history, sprint velocity graphs, goal completion rates, and exportable reports via the reporting service.",
       "status": "planned",
       "category": "Reporting"
+    },
+    {
+      "title": "GitHub connector",
+      "description": "Sync GitHub issues and PRs as tasks. Automatically update task status when a linked PR is merged or a branch is pushed.",
+      "status": "planned",
+      "category": "Integrations"
+    },
+    {
+      "title": "Slack connector",
+      "description": "Post task completions, tier-ups, and plan summaries to a Slack channel. Create tasks from Slack messages via slash commands.",
+      "status": "planned",
+      "category": "Integrations"
+    },
+    {
+      "title": "Jira connector",
+      "description": "Two-way sync between Jira issues and TaskForge tasks. Map Jira status transitions to Kanban columns.",
+      "status": "planned",
+      "category": "Integrations"
+    },
+    {
+      "title": "Salesforce connector",
+      "description": "Pull Salesforce accounts and contacts into the CRM layer. Keep opportunity stages in sync across both systems.",
+      "status": "planned",
+      "category": "Integrations"
+    },
+    {
+      "title": "Webhook event bus",
+      "description": "Expose outbound webhooks so external systems can react to TaskForge events like task completion, tier-up, and plan creation.",
+      "status": "planned",
+      "category": "Automation"
+    },
+    {
+      "title": "Cross-service notifications",
+      "description": "In-app notification center aggregating events from activities, automation triggers, CRM updates, and search alerts.",
+      "status": "planned",
+      "category": "Core"
     }
   ]
 }
