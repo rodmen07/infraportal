@@ -74,20 +74,20 @@
     },
     {
       "title": "Contacts service",
-      "description": "SQLite-backed Rust/Axum service with lifecycle stage tracking (lead→customer→evangelist), account FK validation via cross-service HTTP, and full-text search across name and email.",
+      "description": "SQLite-backed Rust/Axum service with lifecycle stage tracking (lead\u2192customer\u2192evangelist), account FK validation via cross-service HTTP, and full-text search across name and email.",
       "status": "shipped",
       "category": "Integrations"
     },
     {
       "title": "Opportunities service",
-      "description": "SQLite-backed Rust/Axum service with full CRUD, JWT auth, stage tracking (qualification→proposal→closed), and Fly.io deployment.",
+      "description": "SQLite-backed Rust/Axum service with full CRUD, JWT auth, stage tracking (qualification\u2192proposal\u2192closed), and Fly.io deployment.",
       "status": "shipped",
       "category": "Integrations"
     },
     {
       "title": "Activities service",
       "description": "SQLite-backed Rust/Axum service tracking calls, emails, meetings, and tasks linked to accounts and contacts. Full CRUD with JWT auth.",
-      "status": "shipped",
+      "status": "in-progress",
       "category": "Integrations"
     },
     {

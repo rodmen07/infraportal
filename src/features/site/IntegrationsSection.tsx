@@ -49,8 +49,8 @@ const INTEGRATIONS: Integration[] = [
   {
     name: 'Activities',
     slug: 'activities-service',
-    description: 'Real-time activity timeline across all connected services.',
-    status: 'coming-soon',
+    description: 'SQLite-backed Rust/Axum service tracking calls, emails, meetings, and tasks linked to accounts and contacts. Full CRUD with JWT auth.',
+    status: 'in-development',
     category: 'Core',
   },
   {
