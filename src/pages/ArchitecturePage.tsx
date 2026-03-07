@@ -8,7 +8,7 @@ const SERVICES = [
     color: 'border-cyan-500/30 bg-cyan-900/10',
     badge: 'border-cyan-400/40 bg-cyan-500/15 text-cyan-300',
     dot: 'bg-cyan-400',
-    description: 'Static SPA deployed on Fly.io. Hash-based client router with no server configuration required. Communicates with the Task API over HTTPS. Builds to a single asset bundle with tree-shaking.',
+    description: 'Static SPA deployed on GitHub Pages. Hash-based client router with no server configuration required. Communicates with the Task API and CRM services over HTTPS. Builds to a single asset bundle with tree-shaking.',
     responsibilities: [
       'Authentication UI — sign-in, session management, JWT storage',
       'Task Manager — Kanban board, list view, bulk operations, CSV export',
@@ -49,6 +49,25 @@ const SERVICES = [
       'Health and readiness endpoints for Fly.io probes',
     ],
   },
+  {
+    name: 'crm-platform-services',
+    label: 'CRM & Platform',
+    tech: 'Rust · Axum · SQLite · sqlx · Tokio',
+    color: 'border-emerald-500/30 bg-emerald-900/10',
+    badge: 'border-emerald-400/40 bg-emerald-500/15 text-emerald-300',
+    dot: 'bg-emerald-400',
+    description: 'Eight independently deployed Rust/Axum services providing CRM, automation, search, and reporting. Each has its own SQLite volume on Fly.io, JWT auth, and full CRUD REST API.',
+    responsibilities: [
+      'accounts-service — company/org records with status tracking (active/inactive/churned)',
+      'contacts-service — people records with lifecycle stages and cross-service account validation',
+      'opportunities-service — sales pipeline with stage tracking (qualification → proposal → closed)',
+      'activities-service — calls, emails, meetings and tasks linked to accounts and contacts',
+      'automation-service — event-driven workflow rules with trigger/action engine',
+      'integrations-service — third-party connector registry (Salesforce, HubSpot, Stripe)',
+      'reporting-service — saved reports and dashboard summary aggregations',
+      'search-service — full-text entity search with snippet extraction across all record types',
+    ],
+  },
 ]
 
 const REQUEST_FLOW = [
@@ -85,6 +104,10 @@ const DESIGN_DECISIONS = [
     title: 'Why a hash router instead of react-router-dom?',
     body: 'Hash routing works with a static file host without any server-side route configuration. The entire implementation is ~15 lines in main.tsx. For a project with fewer than ten routes, adding a routing library would be over-engineering.',
   },
+  {
+    title: 'Why eight separate CRM services instead of one monolith?',
+    body: 'Each CRM domain (accounts, contacts, opportunities, etc.) is independently deployable, scalable, and replaceable. A bug in the automation engine cannot take down the contacts API. Each service owns its own SQLite volume so schema migrations are fully isolated. This structure mirrors how real enterprise SaaS platforms are built and demonstrates distributed systems design at a portfolio scale.',
+  },
 ]
 
 export function ArchitecturePage() {
@@ -94,29 +117,29 @@ export function ArchitecturePage() {
       <section className="rounded-3xl border border-zinc-500/30 bg-zinc-900/80 p-6 shadow-2xl shadow-black/50 backdrop-blur-xl">
         <h2 className="mb-4 text-lg font-semibold text-white">System overview</h2>
         <p className="mb-5 text-sm leading-relaxed text-zinc-300">
-          TaskForge is composed of three independently deployed services on Fly.io. The frontend communicates only with
-          the Task API. The AI Orchestrator is internal-only and unreachable from the public internet.
+          TaskForge is built on ten independently deployed services. The frontend communicates with the Task API for
+          core task management and directly with the CRM services for accounts, contacts, and opportunities data.
+          The AI Orchestrator is internal-only and unreachable from the public internet.
         </p>
         <div className="overflow-x-auto rounded-2xl border border-zinc-700/50 bg-zinc-950/60 p-4 font-mono text-xs leading-relaxed text-zinc-300">
           <pre>{`
-  ┌─────────────────────────────┐
-  │       Browser (User)        │
-  └──────────────┬──────────────┘
-                 │ HTTPS
-  ┌──────────────▼──────────────┐
-  │    task-portal-service      │  React SPA (Fly.io)
-  │    (static files)           │
-  └──────────────┬──────────────┘
-                 │ HTTPS + JWT
-  ┌──────────────▼──────────────┐
-  │    task-api-service         │  Rust / Axum (Fly.io)
-  │    SQLite on Fly volume     │
-  └──────────────┬──────────────┘
-                 │ Fly internal network only
-  ┌──────────────▼──────────────┐
-  │  ai-orchestrator-service    │  Python / FastAPI (Fly.io)
-  │  Anthropic Claude API ──────┼──► api.anthropic.com
-  └─────────────────────────────┘
+  ┌──────────────────────────────────────────┐
+  │              Browser (User)              │
+  └─────────────────────┬────────────────────┘
+                        │ HTTPS
+  ┌─────────────────────▼────────────────────┐
+  │          frontend-service                │  React SPA (GitHub Pages)
+  └──────────┬───────────────────┬───────────┘
+             │ HTTPS + JWT       │ HTTPS + JWT
+  ┌──────────▼───────────┐  ┌────▼─────────────────────────────┐
+  │   task-api-service   │  │      CRM & Platform Services      │
+  │   Rust · SQLite      │  │  accounts  ·  contacts            │
+  └──────────┬───────────┘  │  opportunities  ·  activities     │
+             │ Fly net      │  automation  ·  integrations       │
+  ┌──────────▼───────────┐  │  reporting  ·  search             │
+  │  ai-orchestrator     │  └──────────────────────────────────-┘
+  │  Python · FastAPI    │──► api.anthropic.com
+  └──────────────────────┘
 `.trim()}</pre>
         </div>
       </section>

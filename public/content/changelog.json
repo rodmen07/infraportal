@@ -1,6 +1,19 @@
 {
   "entries": [
     {
+      "version": "0.6.0",
+      "date": "2026-03-07",
+      "changes": [
+        { "type": "new",      "text": "Task labels & tags — colour-coded label chips on Kanban cards with inline add/remove input" },
+        { "type": "new",      "text": "8 additional microservices shipped: accounts, contacts, opportunities, activities, automation, integrations, reporting, and search" },
+        { "type": "new",      "text": "Accounts and Contacts pages with full CRUD UI connected to live CRM services" },
+        { "type": "new",      "text": "GitHub Actions CI integration for automatic Fly.io deploys on push" },
+        { "type": "new",      "text": "19 new roadmap items across Core, AI, Integrations, Automation, and UX categories" },
+        { "type": "improved", "text": "Docker builds updated to rust:latest with workspace-root build context for edition2024 support" },
+        { "type": "improved", "text": "All services use SqliteConnectOptions::create_if_missing for reliable first-boot on Fly.io volumes" }
+      ]
+    },
+    {
       "version": "0.5.0",
       "date": "2026-03-05",
       "changes": [
