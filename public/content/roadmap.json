@@ -191,6 +191,78 @@
       "description": "In-app notification center aggregating events from activities, automation triggers, CRM updates, and search alerts.",
       "status": "planned",
       "category": "Core"
+    },
+    {
+      "title": "Team workspaces",
+      "description": "Invite team members to a shared workspace. Assign tasks to teammates, set role-based permissions, and track contributions per user.",
+      "status": "planned",
+      "category": "Core"
+    },
+    {
+      "title": "Email digest notifications",
+      "description": "Daily or weekly email summaries of task completions, overdue items, tier progress, and CRM pipeline changes.",
+      "status": "planned",
+      "category": "Automation"
+    },
+    {
+      "title": "Google OAuth login",
+      "description": "Sign in with Google as an alternative to email/password. Tokens map to existing accounts by email address.",
+      "status": "planned",
+      "category": "Admin"
+    },
+    {
+      "title": "Time tracking",
+      "description": "Log time directly against tasks. View per-task and per-goal time totals in the reporting dashboard.",
+      "status": "planned",
+      "category": "Core"
+    },
+    {
+      "title": "Task labels & tags",
+      "description": "Apply colour-coded labels to tasks for cross-cutting categorisation independent of goal or status.",
+      "status": "planned",
+      "category": "Core"
+    },
+    {
+      "title": "Calendar view",
+      "description": "Monthly and weekly calendar view of tasks by due date. Drag tasks between days to reschedule.",
+      "status": "planned",
+      "category": "UX"
+    },
+    {
+      "title": "Import from CSV / Jira / Trello",
+      "description": "Bulk-import existing tasks and projects from a CSV file or directly from Jira and Trello via their APIs.",
+      "status": "planned",
+      "category": "Core"
+    },
+    {
+      "title": "HubSpot connector",
+      "description": "Sync HubSpot contacts and deals into the CRM layer. Reflect deal stage changes as opportunity updates in TaskForge.",
+      "status": "planned",
+      "category": "Integrations"
+    },
+    {
+      "title": "Linear connector",
+      "description": "Pull Linear issues into TaskForge as tasks. Sync status changes bidirectionally and map cycles to sprints.",
+      "status": "planned",
+      "category": "Integrations"
+    },
+    {
+      "title": "Natural language task creation",
+      "description": "Type \"finish report by Friday 3 points\" and let AI parse the title, due date, and difficulty automatically.",
+      "status": "planned",
+      "category": "AI"
+    },
+    {
+      "title": "AI goal retrospectives",
+      "description": "After a goal is completed, Claude generates a retrospective summary: what was delivered, blockers encountered, and suggested next steps.",
+      "status": "planned",
+      "category": "AI"
+    },
+    {
+      "title": "Progressive web app (PWA)",
+      "description": "Install TaskForge as a PWA on mobile and desktop. Offline task viewing and queued writes sync when reconnected.",
+      "status": "planned",
+      "category": "UX"
     }
   ]
 }
