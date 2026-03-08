@@ -20,7 +20,14 @@ jobs:
     env:
       VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL || secrets.VITE_API_BASE_URL }}
       VITE_AUTH_API_BASE_URL: ${{ vars.VITE_AUTH_API_BASE_URL || secrets.VITE_AUTH_API_BASE_URL }}
-      VITE_ACTIVITIES_API_BASE_URL: ${{ vars.VITE_ACTIVITIES_API_BASE_URL || secrets.VITE_ACTIVITIES_API_BASE_URL }}
+      VITE_ACCOUNTS_API_BASE_URL: https://accounts-service.fly.dev
+      VITE_CONTACTS_API_BASE_URL: https://contacts-service.fly.dev
+      VITE_ACTIVITIES_API_BASE_URL: https://taskforge-activities-service.fly.dev
+      VITE_OPPORTUNITIES_API_BASE_URL: https://taskforge-opportunities-service.fly.dev
+      VITE_AUTOMATION_API_BASE_URL: https://taskforge-automation-service.fly.dev
+      VITE_INTEGRATIONS_API_BASE_URL: https://taskforge-integrations-service.fly.dev
+      VITE_REPORTING_API_BASE_URL: https://taskforge-reporting-service.fly.dev
+      VITE_SEARCH_API_BASE_URL: https://taskforge-search-service.fly.dev
     steps:
       - name: Checkout
         uses: actions/checkout@v4
