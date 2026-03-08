@@ -1,6 +1,7 @@
 import { StrictMode, useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
+import 'highlight.js/styles/github-dark.css'
 import App from './App'
 import { ServicesPage } from './pages/ServicesPage'
 import { CaseStudiesPage } from './pages/CaseStudiesPage'

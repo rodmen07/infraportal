@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { PageLayout } from './PageLayout'
+import { CodeBlock } from '../features/consulting/CodeBlock'
 
 const TECH_STACK = ['Rust', 'AWS SDK for Rust', 'DynamoDB', 'Tokio', 'CloudTrail', 'Splunk HEC']
 
-const HIGHLIGHTS: { label: string; detail: string; file: string; code: string }[] = [
+const HIGHLIGHTS: { label: string; detail: string; file: string; code: string; language?: string }[] = [
   {
     label: 'Idempotency lock',
     detail: 'A conditional PutItem with attribute_not_exists(pk) atomically acquires a per-event lock. If the item already exists DynamoDB rejects the write — only one Lambda processes each event even under parallel retries.',
@@ -343,7 +344,7 @@ export function DynamoDbCaseStudyPage() {
           <p className="mt-0.5 text-xs text-zinc-500">Click any item to see the implementation</p>
         </div>
         <div className="divide-y divide-zinc-800/60">
-          {HIGHLIGHTS.map(({ label, detail, file, code }, idx) => (
+          {HIGHLIGHTS.map(({ label, detail, file, code, language }, idx) => (
             <div key={label}>
               <button
                 onClick={() => toggle(idx)}
@@ -357,19 +358,14 @@ export function DynamoDbCaseStudyPage() {
                   {openIdx === idx ? '▲' : '▼'}
                 </span>
               </button>
-              {openIdx === idx && (
-                <div className="space-y-3 px-5 pb-5 pt-1">
-                  <p className="pl-4 text-sm leading-relaxed text-zinc-400">{detail}</p>
-                  <div className="overflow-hidden rounded-xl border border-zinc-800/60 bg-zinc-950">
-                    <div className="border-b border-zinc-800/60 px-4 py-2">
-                      <span className="text-[11px] text-zinc-500">{file}</span>
-                    </div>
-                    <pre className="overflow-x-auto p-4 text-[11.5px] leading-relaxed text-zinc-300">
-                      <code>{code}</code>
-                    </pre>
+              <div className={`grid transition-all duration-200 ease-out ${openIdx === idx ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
+                <div className="overflow-hidden">
+                  <div className="space-y-3 px-5 pb-5 pt-1">
+                    <p className="pl-4 text-sm leading-relaxed text-zinc-400">{detail}</p>
+                    <CodeBlock code={code} language={language ?? 'rust'} file={file} />
                   </div>
                 </div>
-              )}
+              </div>
             </div>
           ))}
         </div>
@@ -387,13 +383,13 @@ export function DynamoDbCaseStudyPage() {
           </div>
           <span className="text-[10px] text-zinc-500">{showSource ? '▲' : '▼'}</span>
         </button>
-        {showSource && (
-          <div className="border-t border-zinc-800/60">
-            <pre className="overflow-x-auto p-5 text-[11.5px] leading-relaxed text-zinc-300">
-              <code>{FULL_SOURCE}</code>
-            </pre>
+        <div className={`grid transition-all duration-200 ease-out ${showSource ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
+          <div className="overflow-hidden">
+            <div className="border-t border-zinc-800/60 p-5">
+              <CodeBlock code={FULL_SOURCE} language="rust" />
+            </div>
           </div>
-        )}
+        </div>
       </section>
     </PageLayout>
   )

@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { PageLayout } from './PageLayout'
+import { CodeBlock } from '../features/consulting/CodeBlock'
 
 const TECH_STACK = ['Rust', 'Axum', 'Python', 'FastAPI', 'React 19', 'Vite', 'Tailwind', 'SQLite', 'Fly.io', 'GitHub Actions', 'Docker']
 
-const HIGHLIGHTS: { label: string; detail: string; file: string; code: string }[] = [
+const HIGHLIGHTS: { label: string; detail: string; file: string; code: string; language?: string }[] = [
   {
     label: 'Zero shared runtime state',
     detail: 'Each service has its own Axum Router, AppState, and SQLite connection pool. No shared memory, no shared database — services communicate only via HTTP with Bearer token forwarding.',
@@ -141,6 +142,7 @@ pub async fn delete_account(
         run: flyctl deploy -c \${{ matrix.fly_config }} --remote-only
         env:
           FLY_API_TOKEN: \${{ secrets.FLY_API_TOKEN }}`,
+    language: 'yaml',
   },
   {
     label: 'Fly.io persistent SQLite volumes',
@@ -165,6 +167,7 @@ pub async fn from_database_url(database_url: &str) -> Result<Self, sqlx::Error> 
 
     Ok(Self { pool })
 }`,
+    language: 'toml',
   },
   {
     label: 'Cross-service token validation',
@@ -257,7 +260,7 @@ export function MicroservicesCaseStudyPage() {
           <p className="mt-0.5 text-xs text-zinc-500">Click any item to see the implementation</p>
         </div>
         <div className="divide-y divide-zinc-800/60">
-          {HIGHLIGHTS.map(({ label, detail, file, code }, idx) => (
+          {HIGHLIGHTS.map(({ label, detail, file, code, language }, idx) => (
             <div key={label}>
               <button
                 onClick={() => toggle(idx)}
@@ -271,19 +274,14 @@ export function MicroservicesCaseStudyPage() {
                   {openIdx === idx ? '▲' : '▼'}
                 </span>
               </button>
-              {openIdx === idx && (
-                <div className="space-y-3 px-5 pb-5 pt-1">
-                  <p className="pl-4 text-sm leading-relaxed text-zinc-400">{detail}</p>
-                  <div className="overflow-hidden rounded-xl border border-zinc-800/60 bg-zinc-950">
-                    <div className="border-b border-zinc-800/60 px-4 py-2">
-                      <span className="text-[11px] text-zinc-500">{file}</span>
-                    </div>
-                    <pre className="overflow-x-auto p-4 text-[11.5px] leading-relaxed text-zinc-300">
-                      <code>{code}</code>
-                    </pre>
+              <div className={`grid transition-all duration-200 ease-out ${openIdx === idx ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
+                <div className="overflow-hidden">
+                  <div className="space-y-3 px-5 pb-5 pt-1">
+                    <p className="pl-4 text-sm leading-relaxed text-zinc-400">{detail}</p>
+                    <CodeBlock code={code} language={language ?? 'rust'} file={file} />
                   </div>
                 </div>
-              )}
+              </div>
             </div>
           ))}
         </div>
