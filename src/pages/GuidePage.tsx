@@ -1,3 +1,6 @@
+import { FaqSection } from '../features/site/FaqSection'
+import { KeyboardShortcutsSection } from '../features/site/KeyboardShortcutsSection'
+import { useFaqContent } from '../features/site/useFaqContent'
 import { PageLayout } from './PageLayout'
 
 interface GuideSection {
@@ -94,6 +97,9 @@ const SECTIONS: GuideSection[] = [
 ]
 
 export function GuidePage() {
+  const baseUrl = import.meta.env.BASE_URL
+  const faqContent = useFaqContent(baseUrl)
+
   return (
     <PageLayout title="TaskForge Guide">
       {/* Table of contents */}
@@ -148,15 +154,9 @@ export function GuidePage() {
         </section>
       ))}
 
-      {/* Back CTA */}
-      <div className="text-center">
-        <a
-          href="#/"
-          className="inline-block rounded-xl border border-zinc-600/50 bg-zinc-800/60 px-5 py-2.5 text-sm font-medium text-zinc-300 transition hover:border-zinc-500/60 hover:bg-zinc-700/60 hover:text-zinc-100"
-        >
-          ← Back to home
-        </a>
-      </div>
+      <KeyboardShortcutsSection />
+
+      <FaqSection content={faqContent} />
     </PageLayout>
   )
 }

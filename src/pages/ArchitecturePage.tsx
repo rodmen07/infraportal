@@ -1,3 +1,4 @@
+import { TechSummarySection } from '../features/site/TechSummarySection'
 import { PageLayout } from './PageLayout'
 
 const SERVICES = [
@@ -205,14 +206,7 @@ export function ArchitecturePage() {
         </div>
       </section>
 
-      <div className="text-center">
-        <a
-          href="#/"
-          className="inline-block rounded-xl border border-zinc-600/50 bg-zinc-800/60 px-5 py-2.5 text-sm font-medium text-zinc-300 transition hover:border-zinc-500/60 hover:bg-zinc-700/60 hover:text-zinc-100"
-        >
-          ← Back to home
-        </a>
-      </div>
+      <TechSummarySection />
     </PageLayout>
   )
 }

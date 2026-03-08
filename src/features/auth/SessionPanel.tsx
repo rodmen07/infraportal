@@ -1,3 +1,6 @@
+import { useState } from 'react'
+import { requestPasswordReset } from '../../api/auth'
+
 interface SessionPanelProps {
   isAuthenticated: boolean
   authLoading: boolean
@@ -35,8 +38,29 @@ export function SessionPanel({
 }: SessionPanelProps) {
   const busy = authBusy || authLoading
 
+  const [view, setView] = useState<'main' | 'reset'>('main')
+  const [resetEmail, setResetEmail] = useState('')
+  const [resetBusy, setResetBusy] = useState(false)
+  const [resetMessage, setResetMessage] = useState('')
+  const [resetError, setResetError] = useState('')
+
   const inputCls =
     'flex-1 rounded-xl border border-zinc-500/40 bg-zinc-900/70 px-3 py-2 text-sm text-zinc-100 outline-none ring-amber-400 placeholder:text-zinc-500 focus:ring'
+
+  async function handleResetRequest(e: React.FormEvent) {
+    e.preventDefault()
+    setResetBusy(true)
+    setResetError('')
+    setResetMessage('')
+    try {
+      await requestPasswordReset(resetEmail.trim())
+      setResetMessage('If that email exists, a reset link has been sent.')
+    } catch (err) {
+      setResetError(err instanceof Error ? err.message : 'Request failed')
+    } finally {
+      setResetBusy(false)
+    }
+  }
 
   return (
     <section className="forge-panel rounded-3xl border border-zinc-500/30 bg-zinc-900/80 p-6 shadow-2xl shadow-black/50 backdrop-blur-xl">
@@ -56,6 +80,44 @@ export function SessionPanel({
             onClick={onSignOut}
           >
             Sign out
+          </button>
+        </div>
+      ) : view === 'reset' ? (
+        <div className="flex flex-col gap-4">
+          <form onSubmit={(e) => { void handleResetRequest(e) }} className="flex flex-col gap-3">
+            <input
+              type="email"
+              className={inputCls}
+              placeholder="Your email address"
+              value={resetEmail}
+              onChange={(e) => setResetEmail(e.target.value)}
+              disabled={resetBusy}
+              required
+            />
+            <button
+              type="submit"
+              className="btn-modern w-full rounded-xl bg-zinc-200 px-4 py-2 text-sm font-semibold text-zinc-900 transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
+              disabled={resetBusy}
+            >
+              {resetBusy ? 'Sending…' : 'Send reset link'}
+            </button>
+          </form>
+          {resetMessage && (
+            <p className="rounded-lg border border-emerald-400/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-200">
+              {resetMessage}
+            </p>
+          )}
+          {resetError && (
+            <p className="rounded-lg border border-rose-300/40 bg-rose-500/10 px-3 py-2 text-sm text-rose-200">
+              {resetError}
+            </p>
+          )}
+          <button
+            type="button"
+            className="text-xs text-zinc-400 hover:text-zinc-200"
+            onClick={() => { setView('main'); setResetMessage(''); setResetError('') }}
+          >
+            ← Back to sign in
           </button>
         </div>
       ) : (
@@ -105,6 +167,14 @@ export function SessionPanel({
               {busy ? 'Signing in…' : 'Sign in'}
             </button>
           </form>
+
+          <button
+            type="button"
+            className="text-xs text-zinc-400 hover:text-zinc-200 text-right"
+            onClick={() => { setView('reset'); setResetEmail(subjectInput) }}
+          >
+            Forgot password?
+          </button>
 
           {/* Register form: autoComplete=new-password tells Chrome to offer to save credentials */}
           <form onSubmit={(e) => { e.preventDefault(); void onCreateUsername() }}>
