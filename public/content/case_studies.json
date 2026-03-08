@@ -13,7 +13,8 @@
       "Fly.io persistent volumes for SQLite — no managed database costs at startup scale",
       "Full CRUD REST APIs: accounts, contacts, opportunities, activities, automation, reporting, search"
     ],
-    "githubUrl": "https://github.com/rodmen07"
+    "githubUrl": "https://github.com/rodmen07",
+    "detailUrl": "#/case-studies/microservices-platform"
   },
   "others": [
     {

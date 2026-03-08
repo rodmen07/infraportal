@@ -17,7 +17,7 @@ export function TopNav() {
   return (
     <nav className="sticky top-2 z-40 rounded-2xl border border-zinc-500/30 bg-zinc-900/75 p-3 shadow-xl shadow-black/40 backdrop-blur-xl">
       <div className="flex flex-wrap items-center gap-2">
-        <span className="mr-1 shrink-0 text-sm font-bold tracking-tight text-amber-300">R.M. Cloud</span>
+        <span className="mr-1 shrink-0 text-sm font-bold tracking-tight text-amber-300">RM Cloud</span>
         <div className="h-4 w-px shrink-0 bg-zinc-700" />
         {NAV_ITEMS.map((item) => (
           <a

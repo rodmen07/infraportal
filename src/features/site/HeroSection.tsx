@@ -15,16 +15,16 @@ export function HeroSection({ content }: HeroSectionProps) {
       </p>
       <div className="mt-8 flex flex-wrap justify-center gap-3">
         <a
-          href="#/services"
+          href="#/case-studies"
           className="rounded-xl border border-amber-400/40 bg-amber-500/15 px-5 py-2.5 text-sm font-semibold text-amber-200 transition hover:border-amber-400/60 hover:bg-amber-500/25 hover:text-amber-100"
         >
-          View Services →
+          See the work →
         </a>
         <a
-          href="#/case-studies"
+          href="#/contact"
           className="rounded-xl border border-zinc-600/50 bg-zinc-800/60 px-5 py-2.5 text-sm font-semibold text-zinc-300 transition hover:border-zinc-500/60 hover:bg-zinc-700/60 hover:text-zinc-100"
         >
-          See Case Studies →
+          Book a free call →
         </a>
       </div>
     </header>
