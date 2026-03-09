@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { PageLayout } from './PageLayout'
 import { CodeBlock } from '../features/consulting/CodeBlock'
 
-const TECH_STACK = ['Rust', 'AWS SDK for Rust', 'DynamoDB', 'Tokio', 'CloudTrail', 'Splunk HEC', 'Bronze/Silver/Gold Pipeline']
+const TECH_STACK = ['Rust', 'AWS SDK for Rust', 'DynamoDB', 'Google Cloud (GCP)', 'Tokio', 'CloudTrail', 'Cloud Logging', 'Splunk HEC', 'Bronze/Silver/Gold Pipeline', 'Azure (planned)']
 
 const MEDALLION_LAYERS = [
   {
@@ -313,7 +313,7 @@ export function DynamoDbCaseStudyPage() {
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-white">DynamoDB Idempotency Prototype</h1>
-            <p className="mt-1 text-sm text-amber-300/80">Rust · AWS SDK · CloudTrail · Splunk HEC</p>
+            <p className="mt-1 text-sm text-amber-300/80">Rust · AWS + GCP equal focus · CloudTrail/Cloud Logging · Splunk HEC</p>
           </div>
           <div className="flex gap-2">
             <a
@@ -333,12 +333,13 @@ export function DynamoDbCaseStudyPage() {
           </div>
         </div>
         <p className="mt-4 text-sm leading-relaxed text-zinc-300">
-          A Rust prototype implementing exactly-once log delivery from AWS CloudTrail to a Splunk
-          HEC endpoint. DynamoDB acts as a distributed idempotency store: a conditional write
-          atomically acquires a per-event lock before any processing begins, preventing duplicate
-          delivery even when the Lambda retries in parallel. The next evolution is a medallion
-          architecture where this idempotent ingest path becomes the Bronze entrypoint for a
-          Bronze/Silver/Gold data pipeline.
+          A Rust prototype implementing exactly-once log delivery for cloud audit events to a
+          Splunk HEC endpoint, with AWS and GCP treated as equal focus areas. DynamoDB acts as a
+          distributed idempotency store: a conditional write atomically acquires a per-event lock
+          before any processing begins, preventing duplicate delivery even when retries happen in
+          parallel. The next evolution is a medallion architecture where this idempotent ingest
+          path becomes the Bronze entrypoint for a Bronze/Silver/Gold pipeline, with room to
+          expand into Azure.
         </p>
       </section>
 

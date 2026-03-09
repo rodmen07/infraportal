@@ -19,28 +19,31 @@
   "others": [
     {
       "title": "DynamoDB Idempotency Prototype",
-      "subtitle": "AWS CloudTrail · Rust · DynamoDB · Splunk HEC",
-      "description": "A Rust prototype implementing exactly-once log delivery from AWS CloudTrail to a Splunk HEC endpoint. Uses DynamoDB conditional writes as a distributed idempotency lock, tracking per-event state (processing → done / failed) with TTL-based expiry and duplicate counting.",
-      "techStack": ["Rust", "AWS SDK for Rust", "DynamoDB", "Tokio", "CloudTrail", "Splunk HEC"],
+      "subtitle": "AWS + GCP focus · Rust · DynamoDB · CloudTrail/Cloud Logging · Splunk HEC",
+      "description": "A Rust prototype implementing exactly-once log delivery for cloud audit events to a Splunk HEC endpoint, with AWS and GCP treated as equal focus areas. Current implementation uses DynamoDB conditional writes as a distributed idempotency lock, tracking per-event state (processing → done / failed) with TTL-based expiry and duplicate counting, and is designed for Azure expansion.",
+      "techStack": ["Rust", "AWS SDK for Rust", "DynamoDB", "Google Cloud (GCP)", "Tokio", "CloudTrail", "Cloud Logging", "Splunk HEC", "Azure (planned)"],
       "highlights": [
         "Atomic conditional PutItem ensures only one Lambda processes each event, even under retries",
+        "Cloud ingestion model is framed for AWS CloudTrail and GCP Cloud Logging parity",
         "TTL-based record expiry keeps the table lean without manual cleanup",
         "Duplicate counter tracks retry frequency for operational visibility",
         "Status lifecycle: processing → done / failed, each with a timestamp",
-        "Full CRUD helpers abstracted for reuse across other DynamoDB-backed services"
+        "Full CRUD helpers abstracted for reuse across other data pipeline services",
+        "Architecture direction includes Azure-compatible ingestion and transformation stages"
       ],
       "githubUrl": "https://github.com/rodmen07/dynamodb_prototype",
       "detailUrl": "#/case-studies/dynamodb-idempotency"
     },
     {
       "title": "CloudTrail Medallion Data Pipeline",
-      "subtitle": "Bronze/Silver/Gold · Rust Workers · DynamoDB Idempotency",
-      "description": "Extension of the DynamoDB prototype into a medallion-style pipeline: Bronze captures raw CloudTrail events, Silver normalises and enriches records, Gold publishes analytics-ready security metrics. Idempotency keys and duplicate tracking remain the guardrail at ingestion.",
-      "techStack": ["Rust", "AWS Lambda", "DynamoDB", "S3", "EventBridge", "CloudTrail", "Splunk HEC"],
+      "subtitle": "Bronze/Silver/Gold · AWS + GCP parity · Azure-ready",
+      "description": "Extension of the idempotency prototype into a medallion-style pipeline: Bronze captures raw cloud audit events, Silver normalises and enriches records, Gold publishes analytics-ready security metrics. Idempotency keys and duplicate tracking remain the guardrail at ingestion across AWS and GCP, with an Azure expansion path.",
+      "techStack": ["Rust", "AWS Lambda", "DynamoDB", "S3", "EventBridge", "CloudTrail", "Google Cloud Logging", "BigQuery-ready schemas", "Splunk HEC", "Azure (planned)"],
       "highlights": [
         "Bronze layer preserves immutable raw events for auditability and replay",
         "Silver layer applies schema normalisation, enrichment, and PII-safe shaping",
         "Gold layer aggregates operational and security metrics for reporting",
+        "Pipeline patterns are positioned for AWS and GCP equivalence in production design",
         "Ingestion keeps conditional-write idempotency so retries never double count",
         "Structured to evolve into a standalone repo when implementation grows past prototype scope"
       ],
