@@ -93,6 +93,13 @@ function Root() {
     return () => window.removeEventListener('hashchange', onHash)
   }, [])
 
+  useEffect(() => {
+    const fallback = document.getElementById('boot-fallback')
+    if (fallback) {
+      fallback.style.display = 'none'
+    }
+  }, [])
+
   if (hash === '#/services') return <ServicesPage />
   if (hash === '#/case-studies') return <CaseStudiesPage />
   if (hash === '#/case-studies/dynamodb-idempotency') return <DynamoDbCaseStudyPage />
