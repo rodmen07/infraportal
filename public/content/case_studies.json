@@ -1,5 +1,5 @@
 {
-  "intro": "Real systems, shipped to production with a clear path for what ships next.",
+  "intro": "Real systems shipped to production, grounded in full-stack engineering and cloud/security consulting across enterprise and regulated contexts.",
   "featured": {
     "title": "Microservices Platform — 9 Services, Solo-Built",
     "subtitle": "Cloud architecture · Rust · Python · React · Terraform-first IaC · Google Cloud Run",
@@ -12,6 +12,7 @@
       "GitHub Actions CI pipeline with per-service Docker builds and automated deploys",
       "Terraform-managed GCP baseline: Cloud Run + Cloud SQL + Artifact Registry + Secret Manager",
       "IaC foundation designed to plug into Databricks-backed analytics pipelines",
+      "Execution model informed by platform engineering at Smoothstack and cloud/security consulting exposure in government-focused environments",
       "Migration foundation in place for next iterations: observability, autoscaling tuning, and product feature expansion"
     ],
     "githubUrl": "https://github.com/rodmen07",

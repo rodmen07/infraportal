@@ -1,5 +1,5 @@
 {
-  "intro": "End-to-end cloud engineering for startups that need to move fast without accumulating infrastructure debt.",
+  "intro": "End-to-end cloud engineering shaped by full-stack delivery experience, enterprise platform work, and regulated-environment consulting.",
   "services": [
     {
       "title": "Cloud Architecture",
@@ -35,6 +35,11 @@
       "title": "Security Hardening",
       "description": "Least-privilege IAM, secrets management, WAF setup, dependency scanning, and SAST pipeline integration. Secure by default, not bolted on after.",
       "tags": ["IAM", "Vault", "AWS Secrets Manager", "GCP Secret Manager", "Trivy", "Azure Key Vault"]
+    },
+    {
+      "title": "Regulated Cloud & Security Delivery",
+      "description": "Delivery patterns informed by Finance/FinTech operations and government-facing cloud/security consulting. Focus on traceability, access control, and production change discipline.",
+      "tags": ["AFS/IRS", "Auditability", "Change Control", "Security Baselines", "Compliance-ready"]
     },
     {
       "title": "Open-Source Stacks",
