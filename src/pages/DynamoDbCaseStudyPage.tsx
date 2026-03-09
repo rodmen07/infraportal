@@ -2,7 +2,22 @@ import { useState } from 'react'
 import { PageLayout } from './PageLayout'
 import { CodeBlock } from '../features/consulting/CodeBlock'
 
-const TECH_STACK = ['Rust', 'AWS SDK for Rust', 'DynamoDB', 'Tokio', 'CloudTrail', 'Splunk HEC']
+const TECH_STACK = ['Rust', 'AWS SDK for Rust', 'DynamoDB', 'Tokio', 'CloudTrail', 'Splunk HEC', 'Bronze/Silver/Gold Pipeline']
+
+const MEDALLION_LAYERS = [
+  {
+    layer: 'Bronze',
+    description: 'Raw CloudTrail payloads are persisted unchanged for replayability and audit.',
+  },
+  {
+    layer: 'Silver',
+    description: 'Events are normalised, enriched, and validated into a stable analytical schema.',
+  },
+  {
+    layer: 'Gold',
+    description: 'Aggregated security and operations metrics are materialised for dashboards and alerting.',
+  },
+]
 
 const HIGHLIGHTS: { label: string; detail: string; file: string; code: string; language?: string }[] = [
   {
@@ -321,8 +336,26 @@ export function DynamoDbCaseStudyPage() {
           A Rust prototype implementing exactly-once log delivery from AWS CloudTrail to a Splunk
           HEC endpoint. DynamoDB acts as a distributed idempotency store: a conditional write
           atomically acquires a per-event lock before any processing begins, preventing duplicate
-          delivery even when the Lambda retries in parallel.
+          delivery even when the Lambda retries in parallel. The next evolution is a medallion
+          architecture where this idempotent ingest path becomes the Bronze entrypoint for a
+          Bronze/Silver/Gold data pipeline.
         </p>
+      </section>
+
+      <section className="forge-panel rounded-2xl border border-zinc-500/30 bg-zinc-900/80 p-5 backdrop-blur-xl">
+        <h2 className="text-base font-semibold text-white">Medallion architecture extension</h2>
+        <p className="mt-2 text-sm leading-relaxed text-zinc-400">
+          This keeps idempotency as the ingestion contract, then layers transformation and
+          analytics outputs without coupling ingestion reliability to reporting concerns.
+        </p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+          {MEDALLION_LAYERS.map((item) => (
+            <div key={item.layer} className="rounded-xl border border-zinc-700/50 bg-zinc-800/50 p-3">
+              <h3 className="text-sm font-semibold text-amber-300">{item.layer}</h3>
+              <p className="mt-1 text-xs leading-relaxed text-zinc-400">{item.description}</p>
+            </div>
+          ))}
+        </div>
       </section>
 
       {/* Tech stack */}

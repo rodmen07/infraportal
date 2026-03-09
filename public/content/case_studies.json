@@ -31,6 +31,21 @@
       ],
       "githubUrl": "https://github.com/rodmen07/dynamodb_prototype",
       "detailUrl": "#/case-studies/dynamodb-idempotency"
+    },
+    {
+      "title": "CloudTrail Medallion Data Pipeline",
+      "subtitle": "Bronze/Silver/Gold · Rust Workers · DynamoDB Idempotency",
+      "description": "Extension of the DynamoDB prototype into a medallion-style pipeline: Bronze captures raw CloudTrail events, Silver normalises and enriches records, Gold publishes analytics-ready security metrics. Idempotency keys and duplicate tracking remain the guardrail at ingestion.",
+      "techStack": ["Rust", "AWS Lambda", "DynamoDB", "S3", "EventBridge", "CloudTrail", "Splunk HEC"],
+      "highlights": [
+        "Bronze layer preserves immutable raw events for auditability and replay",
+        "Silver layer applies schema normalisation, enrichment, and PII-safe shaping",
+        "Gold layer aggregates operational and security metrics for reporting",
+        "Ingestion keeps conditional-write idempotency so retries never double count",
+        "Structured to evolve into a standalone repo when implementation grows past prototype scope"
+      ],
+      "githubUrl": "https://github.com/rodmen07/dynamodb_prototype",
+      "detailUrl": "#/case-studies/dynamodb-idempotency"
     }
   ]
 }

@@ -3,7 +3,7 @@
   "tiers": [
     {
       "tier": "Consultation",
-      "price": "$50 / hr",
+      "price": "$100 / hour",
       "description": "Hourly advisory for architecture reviews, second opinions, and troubleshooting sessions.",
       "features": [
         "Scheduled 1-hr video calls",
@@ -17,7 +17,7 @@
     },
     {
       "tier": "Project",
-      "price": "From $1,000",
+      "price": "From $3,500",
       "description": "Fixed-scope delivery. CI/CD pipeline, IaC baseline, containerisation, or cloud migration.",
       "features": [
         "Scoped proposal with timeline",
@@ -31,7 +31,7 @@
     },
     {
       "tier": "Retainer",
-      "price": "$650 / mo",
+      "price": "$2,400 / mo",
       "description": "Ongoing engineering support. Treat me like a part-time staff cloud engineer.",
       "features": [
         "Up to 16 hrs/month hands-on work",
