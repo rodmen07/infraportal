@@ -111,7 +111,7 @@
     {
       "title": "Cross-service search",
       "description": "SQLite-backed search service indexing entities by type and content. Full-text search across titles and bodies with snippet extraction.",
-      "status": "shipped",
+      "status": "in-progress",
       "category": "Search"
     },
     {

@@ -1,5 +1,7 @@
+import { TopNav } from '../features/layout/TopNav'
+
 interface PageLayoutProps {
-  title: string
+  title?: string
   children: React.ReactNode
 }
 
@@ -12,15 +14,9 @@ export function PageLayout({ title, children }: PageLayoutProps) {
       </div>
 
       <div className="relative mx-auto max-w-4xl space-y-6">
-        <div className="flex items-center gap-4">
-          <a
-            href="#/"
-            className="flex items-center gap-1.5 rounded-lg border border-zinc-700/60 bg-zinc-800/60 px-3 py-1.5 text-xs font-medium text-zinc-300 transition hover:border-zinc-500/60 hover:bg-zinc-700/60 hover:text-zinc-100"
-          >
-            ← Back
-          </a>
-          <h1 className="text-2xl font-bold text-white">{title}</h1>
-        </div>
+        <TopNav />
+
+        {title && <h1 className="text-2xl font-bold text-white">{title}</h1>}
 
         {children}
       </div>

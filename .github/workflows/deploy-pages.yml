@@ -17,10 +17,6 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL || secrets.VITE_API_BASE_URL }}
-      VITE_AUTH_API_BASE_URL: ${{ vars.VITE_AUTH_API_BASE_URL || secrets.VITE_AUTH_API_BASE_URL }}
-      VITE_ACTIVITIES_API_BASE_URL: ${{ vars.VITE_ACTIVITIES_API_BASE_URL || secrets.VITE_ACTIVITIES_API_BASE_URL }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4

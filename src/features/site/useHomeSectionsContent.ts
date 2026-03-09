@@ -2,11 +2,11 @@ import { useEffect, useState } from 'react'
 import type { HomeSectionsContent } from '../../types'
 
 const DEFAULT_HOME_SECTIONS: HomeSectionsContent = {
-  title: 'Why teams use TaskForge',
+  title: 'What I help with',
   cards: [
     {
-      heading: 'AI-assisted planning',
-      body: 'Generate practical short-term task plans from your goals in seconds.',
+      heading: 'Cloud Architecture',
+      body: 'Right-sized AWS/GCP setups for early-stage teams. No over-engineering, no vendor lock-in.',
     },
   ],
 }
