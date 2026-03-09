@@ -99,7 +99,7 @@
     {
       "title": "Integrations service",
       "description": "SQLite-backed connection registry for third-party providers (Salesforce, HubSpot, Stripe). Tracks sync status and last-synced timestamps.",
-      "status": "shipped",
+      "status": "in-progress",
       "category": "Integrations"
     },
     {
