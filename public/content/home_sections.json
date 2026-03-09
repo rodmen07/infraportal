@@ -8,7 +8,7 @@
     },
     {
       "heading": "Cloud-native from day one",
-      "body": "Containers, managed infra, infrastructure-as-code, and zero-downtime deploys from the first push. Built on AWS, GCP, or Fly.io depending on your scale and budget.",
+      "body": "Containers, managed infra, infrastructure-as-code, and zero-downtime deploys from the first push. Built on AWS or GCP depending on your scale and budget.",
       "link": "#/services"
     },
     {

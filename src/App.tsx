@@ -3,6 +3,7 @@ import { HomeSections } from './features/site/HomeSections'
 import { HowItWorksSection } from './features/site/HowItWorksSection'
 import { IntegrationsSection } from './features/site/IntegrationsSection'
 import { HeroSection } from './features/site/HeroSection'
+import { AboutSection } from './features/site/AboutSection'
 import { ContactCTA } from './features/site/ContactCTA'
 import { useHomeSectionsContent } from './features/site/useHomeSectionsContent'
 import { useSiteContent } from './features/site/useSiteContent'
@@ -24,6 +25,7 @@ function App() {
         <TopNav />
         <HeroSection content={content} />
         <HomeSections content={homeSections} />
+        <AboutSection />
         <HowItWorksSection />
         <IntegrationsSection />
         <ContactCTA />

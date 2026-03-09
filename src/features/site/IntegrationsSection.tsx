@@ -6,7 +6,7 @@ interface TechBadge {
 const TECH_STACK: TechBadge[] = [
   { name: 'AWS',            category: 'Cloud' },
   { name: 'GCP',            category: 'Cloud' },
-  { name: 'Fly.io',         category: 'Cloud' },
+  { name: 'Cloud Run',      category: 'Cloud' },
   { name: 'Terraform',      category: 'IaC' },
   { name: 'Pulumi',         category: 'IaC' },
   { name: 'Docker',         category: 'Containers' },

@@ -1,52 +1,44 @@
-{
+﻿{
   "intro": "End-to-end cloud engineering for startups that need to move fast without accumulating infrastructure debt.",
   "services": [
     {
-      "icon": "☁️",
       "title": "Cloud Architecture",
-      "description": "VPC design, IAM policies, multi-environment account structure. AWS-first, GCP available. Right-sized for your stage — no over-provisioning.",
+      "description": "VPC design, IAM policies, multi-environment account structure. AWS-first, GCP available. Right-sized for your stage â€” no over-provisioning.",
       "tags": ["AWS", "GCP", "VPC", "IAM"]
     },
     {
-      "icon": "⚙️",
       "title": "CI/CD Pipelines",
       "description": "GitHub Actions workflows that lint, test, build, and deploy on every push. Zero-downtime deploys with health checks from day one.",
-      "tags": ["GitHub Actions", "Docker", "Fly.io", "ECS"]
+      "tags": ["GitHub Actions", "Docker", "Cloud Run", "ECS"]
     },
     {
-      "icon": "📦",
       "title": "Infrastructure as Code",
       "description": "Terraform or Pulumi modules for repeatable, version-controlled infrastructure. Remote state, workspaces, and secrets management.",
       "tags": ["Terraform", "Pulumi", "AWS CDK"]
     },
     {
-      "icon": "🐳",
       "title": "Containers & Orchestration",
-      "description": "Dockerised services on ECS Fargate, lightweight Kubernetes, or Fly.io for cost-conscious teams. Matched to your scale and budget.",
-      "tags": ["Docker", "Kubernetes", "ECS", "Fly.io"]
+      "description": "Dockerised services on ECS Fargate, lightweight Kubernetes, or Cloud Run for fast managed deployment. Matched to your scale and budget.",
+      "tags": ["Docker", "Kubernetes", "ECS", "Cloud Run"]
     },
     {
-      "icon": "📊",
       "title": "Monitoring & Alerting",
-      "description": "Observability from day one — structured logs, metrics dashboards, uptime alerts, and on-call runbooks your team can actually follow.",
+      "description": "Observability from day one â€” structured logs, metrics dashboards, uptime alerts, and on-call runbooks your team can actually follow.",
       "tags": ["Prometheus", "Grafana", "CloudWatch", "PagerDuty"]
     },
     {
-      "icon": "💰",
       "title": "Cost Optimisation",
       "description": "Audit unused resources, right-size instances, implement spot/preemptible strategies, and plan reserved capacity before your AWS bill surprises you.",
       "tags": ["AWS Cost Explorer", "Savings Plans", "Spot Instances"]
     },
     {
-      "icon": "🔒",
       "title": "Security Hardening",
       "description": "Least-privilege IAM, secrets management, WAF setup, dependency scanning, and SAST pipeline integration. Secure by default, not bolted on after.",
       "tags": ["IAM", "Vault", "AWS Secrets Manager", "Trivy"]
     },
     {
-      "icon": "🛠️",
       "title": "Open-Source Stacks",
-      "description": "Rust/Axum, Python/FastAPI, PostgreSQL, SQLite, React — production setups with open-source tooling. No managed-service lock-in required.",
+      "description": "Rust/Axum, Python/FastAPI, PostgreSQL, SQLite, React â€” production setups with open-source tooling. No managed-service lock-in required.",
       "tags": ["Rust", "Python", "PostgreSQL", "React"]
     }
   ]

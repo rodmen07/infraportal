@@ -2,12 +2,12 @@ import { useState } from 'react'
 import { PageLayout } from './PageLayout'
 import { CodeBlock } from '../features/consulting/CodeBlock'
 
-const TECH_STACK = ['Rust', 'Axum', 'Python', 'FastAPI', 'React 19', 'Vite', 'Tailwind', 'SQLite', 'Fly.io', 'GitHub Actions', 'Docker']
+const TECH_STACK = ['Rust', 'Axum', 'Python', 'FastAPI', 'React 19', 'Vite', 'Tailwind', 'PostgreSQL', 'Terraform', 'Google Cloud Run', 'Cloud SQL', 'Secret Manager', 'Artifact Registry', 'GitHub Actions', 'Docker']
 
 const HIGHLIGHTS: { label: string; detail: string; file: string; code: string; language?: string }[] = [
   {
     label: 'Zero shared runtime state',
-    detail: 'Each service has its own Axum Router, AppState, and SQLite connection pool. No shared memory, no shared database — services communicate only via HTTP with Bearer token forwarding.',
+    detail: 'Each service has its own Axum Router and AppState with isolated runtime boundaries. No shared memory, and cross-service communication stays HTTP-first with Bearer token forwarding.',
     file: 'accounts-service/src/lib/router.rs',
     code: `// Each service assembles its own Router from its own AppState.
 // No shared singletons, no global state.
@@ -105,8 +105,39 @@ pub async fn delete_account(
 }`,
   },
   {
+    label: 'Fly.io to Google Cloud migration',
+    detail: 'Deployment was migrated to a Terraform-managed GCP baseline with Cloud Run services, Cloud SQL Postgres, Artifact Registry images, and Secret Manager runtime config.',
+    file: 'terraform/cloud_run.tf + terraform/cloud_sql.tf + terraform/secrets.tf',
+    code: `resource "google_cloud_run_v2_service" "rust_services" {
+  for_each = local.rust_services
+
+  name     = each.key
+  location = var.region
+
+  template {
+    service_account = google_service_account.cloud_run.email
+
+    containers {
+      # Bootstrap image for first infra rollout; CI later deploys service images.
+      image = "us-docker.pkg.dev/cloudrun/container/hello:latest"
+
+      env {
+        name = "DATABASE_URL"
+        value_source {
+          secret_key_ref {
+            secret  = google_secret_manager_secret.database_urls[each.value.db_key].secret_id
+            version = "latest"
+          }
+        }
+      }
+    }
+  }
+}`,
+    language: 'hcl',
+  },
+  {
     label: 'GitHub Actions CI/CD',
-    detail: 'All 8 services build, lint (clippy -D warnings), and test in CI, then deploy to Fly.io in parallel on every push to main. Services using sqlx compile-time macros get a temp SQLite DB seeded from migrations.',
+    detail: 'All services build, lint, and test in CI, then build/push container images and deploy to Cloud Run in parallel on every push to main.',
     file: '.github/workflows/rust.yml',
     code: `jobs:
   test:
@@ -133,41 +164,46 @@ pub async fn delete_account(
       fail-fast: false        # one service failing does not cancel the others
       matrix:
         include:
-          - { service: accounts-service,   fly_config: accounts-service/fly.toml }
-          - { service: contacts-service,   fly_config: contacts-service/fly.toml }
-          - { service: activities-service, fly_config: activities-service/fly.toml }
+          - { service: accounts-service,   dockerfile: accounts-service/Dockerfile }
+          - { service: contacts-service,   dockerfile: contacts-service/Dockerfile }
+          - { service: activities-service, dockerfile: activities-service/Dockerfile }
           # ... 5 more services in parallel
     steps:
-      - name: Deploy
-        run: flyctl deploy -c \${{ matrix.fly_config }} --remote-only
-        env:
-          FLY_API_TOKEN: \${{ secrets.FLY_API_TOKEN }}`,
+      - name: Build + deploy
+        run: |
+          docker build -f \${{ matrix.dockerfile }} -t "$IMAGE" .
+          docker push "$IMAGE"
+          gcloud run deploy \${{ matrix.service }} --image "$IMAGE" --region us-south1 --platform managed --quiet`,
     language: 'yaml',
   },
   {
-    label: 'Fly.io persistent SQLite volumes',
-    detail: 'Each service mounts a named Fly.io volume at /data and points SQLite there. sqlx::migrate! runs pending migrations automatically at startup — no manual schema setup after deploy.',
-    file: 'accounts-service/fly.toml + src/lib/app_state.rs',
-    code: `# fly.toml — named volume mounted into the container
-[mounts]
-  source      = "accounts_data"   # fly volume create accounts_data --region lhr
-  destination = "/data"
+    label: 'Cloud Run + Secret Manager runtime config',
+    detail: 'Services are deployed to Cloud Run and receive runtime env/secrets (DATABASE_URL, AUTH_JWT_SECRET, ALLOWED_ORIGINS) from managed infrastructure.',
+    file: 'terraform/cloud_run.tf',
+    code: `containers {
+  image = "${local.registry_base}/${each.key}:latest"
 
-[env]
-  DATABASE_URL = "sqlite:///data/accounts.db"
+  env {
+    name = "DATABASE_URL"
+    value_source {
+      secret_key_ref {
+        secret  = google_secret_manager_secret.database_urls[each.value.db_key].secret_id
+        version = "latest"
+      }
+    }
+  }
 
-# app_state.rs — pool init + auto-migration at startup
-pub async fn from_database_url(database_url: &str) -> Result<Self, sqlx::Error> {
-    let pool = SqlitePoolOptions::new()
-        .max_connections(5)
-        .connect(database_url)
-        .await?;
-
-    sqlx::migrate!("./migrations").run(&pool).await?;  // runs pending migrations
-
-    Ok(Self { pool })
+  env {
+    name = "AUTH_JWT_SECRET"
+    value_source {
+      secret_key_ref {
+        secret  = google_secret_manager_secret.jwt_secret.secret_id
+        version = "latest"
+      }
+    }
+  }
 }`,
-    language: 'toml',
+    language: 'hcl',
   },
   {
     label: 'Cross-service token validation',
@@ -214,7 +250,7 @@ export function MicroservicesCaseStudyPage() {
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-white">Microservices Platform — 9 Services, Solo-Built</h1>
-            <p className="mt-1 text-sm text-amber-300/80">Cloud architecture · Rust · Python · React · Fly.io · GitHub Actions</p>
+            <p className="mt-1 text-sm text-amber-300/80">Cloud architecture · Rust · Python · React · Google Cloud Run · GitHub Actions</p>
           </div>
           <div className="flex gap-2">
             <a
@@ -235,9 +271,9 @@ export function MicroservicesCaseStudyPage() {
         </div>
         <p className="mt-4 text-sm leading-relaxed text-zinc-300">
           Designed and built a full microservices platform from scratch: 7 Rust/Axum services, 1
-          Python/FastAPI AI orchestrator, and a React 19 frontend — all independently deployed on
-          Fly.io with persistent SQLite volumes, JWT auth across services, and a complete GitHub
-          Actions CI/CD pipeline.
+          Python/FastAPI AI orchestrator, and a React 19 frontend — independently deployable with
+          JWT auth across services and a complete GitHub Actions CI/CD pipeline targeting Google
+          Cloud Run.
         </p>
       </section>
 
@@ -252,6 +288,16 @@ export function MicroservicesCaseStudyPage() {
           </span>
         ))}
       </div>
+
+      {/* Baseline note */}
+      <section className="forge-panel rounded-2xl border border-emerald-500/30 bg-emerald-950/20 p-5 backdrop-blur-xl">
+        <h2 className="text-base font-semibold text-emerald-200">Current baseline</h2>
+        <p className="mt-2 text-sm leading-relaxed text-emerald-100/85">
+          Infrastructure migration and deployment are now stable enough to serve as the foundation
+          for future product development. Next work can prioritize UX depth and feature quality on
+          top of this Cloud Run + Terraform base, instead of reworking platform fundamentals.
+        </p>
+      </section>
 
       {/* Expandable highlights */}
       <section className="forge-panel overflow-hidden rounded-2xl border border-zinc-500/30 bg-zinc-900/80 backdrop-blur-xl">
