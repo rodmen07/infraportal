@@ -2,28 +2,28 @@
   "title": "Frequently asked questions",
   "items": [
     {
-      "question": "How do I sign in?",
-      "answer": "Enter a username in the Session panel and click Sign In. For admin access, use the Admin Sign In button — your username must be on the server allowlist."
+      "question": "What does a typical engagement look like?",
+      "answer": "It starts with a free 30-minute discovery call. After that I send a written proposal with scope, timeline, and price. Once approved, I deliver everything via pull request with documentation included."
     },
     {
-      "question": "How does the AI planner work?",
-      "answer": "Enter a short-term goal (up to 500 characters) and click Generate. The AI considers your existing tasks for that goal to avoid duplicates, plus tasks from other goals for broader context. A preview list appears — review it, set a difficulty, then click Create All Planned Tasks to commit."
+      "question": "Do you work with early-stage startups?",
+      "answer": "Yes — that's my primary focus. I specialise in 1–10 person teams that need production-grade infrastructure without a full-time DevOps hire."
     },
     {
-      "question": "What are story points?",
-      "answer": "Each task carries a difficulty rating from 1 to 6 SP. Completing a task awards those points to your session. Accumulate enough to climb writing tiers: Poem → Paragraph → Short Story → Novel → Epic. Points persist across sessions per username."
+      "question": "What cloud providers do you support?",
+      "answer": "AWS is my primary platform, GCP is secondary. I default to cloud-agnostic IaC (Terraform/Pulumi) so you're never locked into a provider. For GCP workloads, I commonly deploy on Cloud Run with managed CI/CD."
     },
     {
-      "question": "How do I clear AI-generated tasks?",
-      "answer": "Once tasks have been created from a plan, the Goal Tracking panel (at the bottom of Task Manager) shows a 'Clear AI (N)' button for each goal that has AI-generated tasks. Clicking it removes only those tasks, leaving manually created ones untouched."
+      "question": "How is pricing structured?",
+      "answer": "Three options: hourly advisory ($150/hr, no minimum), fixed-scope project (from $3,000), or a monthly retainer ($2,000/mo for up to 16 hrs). See the Pricing page for full details."
     },
     {
-      "question": "What is the Kanban board?",
-      "answer": "The Board view organises your tasks into To Do, In Progress, and Done columns. Drag cards between columns or use the status dropdown on each card. Status changes are saved immediately."
+      "question": "Do you offer ongoing support after a project?",
+      "answer": "Yes. Every project includes one month of post-delivery email support. For ongoing needs, the retainer option gives you priority access and regular infrastructure reviews."
     },
     {
-      "question": "Where do CMS edits appear?",
-      "answer": "Admins can edit site content (this page's sections, FAQ, and header copy) through the CMS at /admin. Changes are written to the content JSON files and reflected after the next deployment or page reload."
+      "question": "Can you work with an existing codebase or cloud setup?",
+      "answer": "Absolutely. Migration and modernisation projects are welcome — I'll audit what you have, identify quick wins, and propose a phased improvement plan."
     }
   ]
 }

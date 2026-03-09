@@ -2,6 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --fx-radius-lg: 0.9rem;
+  --fx-radius-xl: 1.15rem;
+  --fx-border-soft: rgba(113, 113, 122, 0.38);
+  --fx-border-strong: rgba(251, 191, 36, 0.42);
+  --fx-text-muted: rgb(161, 161, 170);
+  --fx-bg-surface: rgba(39, 39, 42, 0.66);
+  --fx-bg-surface-strong: rgba(24, 24, 27, 0.82);
+}
+
 body {
   margin: 0;
   min-width: 320px;
@@ -52,55 +62,99 @@ body {
   filter: brightness(1.03);
 }
 
-.section-carousel-item {
-  transition: opacity 260ms ease, transform 260ms ease, filter 260ms ease;
-  transform-origin: 50% 50%;
+.surface-card {
+  border: 1px solid var(--fx-border-soft);
+  border-radius: var(--fx-radius-xl);
+  background: var(--fx-bg-surface);
+  backdrop-filter: blur(10px);
 }
 
-.section-carousel-active {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-  filter: blur(0);
+.surface-card-strong {
+  border: 1px solid var(--fx-border-soft);
+  border-radius: var(--fx-radius-xl);
+  background: var(--fx-bg-surface-strong);
+  backdrop-filter: blur(12px);
 }
 
-.section-carousel-near {
-  opacity: 0.8;
-  transform: translateY(10px) scale(0.985);
-  filter: blur(0.2px);
+.fx-chip {
+  border: 1px solid rgba(113, 113, 122, 0.5);
+  border-radius: 999px;
+  background: rgba(39, 39, 42, 0.85);
+  padding: 0.23rem 0.55rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: rgb(212, 212, 216);
 }
 
-.section-carousel-away {
-  opacity: 0.48;
-  transform: translateY(20px) scale(0.96);
-  filter: blur(0.6px);
+.btn-accent {
+  border: 1px solid rgba(251, 191, 36, 0.42);
+  border-radius: var(--fx-radius-lg);
+  background: rgba(245, 158, 11, 0.16);
+  color: rgb(254, 243, 199);
+  font-weight: 600;
+  transition: border-color 180ms ease, background-color 180ms ease, transform 180ms ease;
+}
+
+.btn-accent:hover {
+  border-color: rgba(251, 191, 36, 0.6);
+  background: rgba(245, 158, 11, 0.24);
+  transform: translateY(-1px);
+}
+
+.btn-neutral {
+  border: 1px solid rgba(113, 113, 122, 0.52);
+  border-radius: var(--fx-radius-lg);
+  background: rgba(63, 63, 70, 0.45);
+  color: rgb(212, 212, 216);
+  font-weight: 600;
+  transition: border-color 180ms ease, color 180ms ease, transform 180ms ease;
+}
+
+.btn-neutral:hover {
+  border-color: rgba(161, 161, 170, 0.58);
+  color: rgb(244, 244, 245);
+  transform: translateY(-1px);
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.reveal {
+  opacity: 0;
+  animation: rise-in 380ms ease-out forwards;
+}
+
+.reveal-delay-1 {
+  animation-delay: 60ms;
+}
+
+.reveal-delay-2 {
+  animation-delay: 120ms;
+}
+
+.reveal-delay-3 {
+  animation-delay: 180ms;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .forge-panel,
   .interactive-card,
   .btn-modern,
-  .section-carousel-item,
-  .section-carousel-active,
-  .section-carousel-near,
-  .section-carousel-away,
-  .kanban-card-enter {
+  .reveal,
+  .reveal-delay-1,
+  .reveal-delay-2,
+  .reveal-delay-3 {
     animation: none !important;
     transition: none !important;
+    opacity: 1 !important;
   }
-}
-
-/* Kanban board polish */
-@keyframes kanbanCardEnter {
-  from {
-    opacity: 0;
-    transform: translateY(8px) scale(0.97);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-.kanban-card-enter {
-  animation: kanbanCardEnter 220ms ease-out both;
 }
