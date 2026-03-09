@@ -6,7 +6,7 @@ const DEFAULT_HOME_SECTIONS: HomeSectionsContent = {
   cards: [
     {
       heading: 'Cloud Architecture',
-      body: 'Right-sized AWS and GCP setups for early-stage teams, with Azure-ready expansion paths. No over-engineering, no vendor lock-in.',
+      body: 'Right-sized AWS and GCP setups with Terraform-first infrastructure and Databricks-ready data patterns, plus Azure-ready expansion paths. No over-engineering, no vendor lock-in.',
     },
   ],
 }

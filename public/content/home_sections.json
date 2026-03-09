@@ -8,7 +8,7 @@
     },
     {
       "heading": "Cloud-native from day one",
-      "body": "Containers, managed infra, infrastructure-as-code, and zero-downtime deploys from the first push. Built with equal AWS/GCP focus and ready to expand into Azure.",
+      "body": "Containers, Terraform-driven infrastructure-as-code, Databricks-ready data workflows, and zero-downtime deploys from the first push. Built with equal AWS/GCP focus and ready to expand into Azure.",
       "link": "#/services"
     },
     {

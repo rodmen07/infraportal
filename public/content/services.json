@@ -13,8 +13,8 @@
     },
     {
       "title": "Infrastructure as Code",
-      "description": "Terraform or Pulumi modules for repeatable, version-controlled infrastructure. Remote state, workspaces, and secrets management.",
-      "tags": ["Terraform", "Pulumi", "AWS CDK", "GCP IaC", "Azure IaC"]
+      "description": "Terraform-first modules for repeatable, version-controlled infrastructure, with Pulumi support where it fits. Remote state, workspaces, and secrets management included.",
+      "tags": ["Terraform", "Terraform Cloud", "Pulumi", "AWS CDK", "GCP IaC", "Azure IaC"]
     },
     {
       "title": "Containers & Orchestration",
@@ -38,8 +38,8 @@
     },
     {
       "title": "Open-Source Stacks",
-      "description": "Rust/Axum, Python/FastAPI, PostgreSQL, SQLite, React â€” production setups with open-source tooling. No managed-service lock-in required.",
-      "tags": ["Rust", "Python", "PostgreSQL", "React"]
+      "description": "Rust/Axum, Python/FastAPI, PostgreSQL, SQLite, React, and Databricks-integrated data workflows - production setups with open tooling and pragmatic managed services.",
+      "tags": ["Rust", "Python", "PostgreSQL", "React", "Databricks", "Delta Lake"]
     }
   ]
 }
