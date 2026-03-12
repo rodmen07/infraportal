@@ -1,17 +1,30 @@
-const NAV_ITEMS = [
+type NavItem = { label: string; href: string; scrollTo?: string }
+
+const NAV_ITEMS: NavItem[] = [
   { label: 'Home',         href: '#/' },
   { label: 'Services',     href: '#/services' },
   { label: 'Case Studies', href: '#/case-studies' },
   { label: 'Pricing',      href: '#/pricing' },
+  { label: 'Status',       href: '#/', scrollTo: 'build-status' },
   { label: 'Contact',      href: '#/contact' },
 ]
 
 function TopNavComponent() {
   const hash = window.location.hash
 
-  const isActive = (href: string) => {
-    if (href === '#/') return hash === '' || hash === '#/' || hash === '#'
-    return hash === href || hash.startsWith(href + '/')
+  const isActive = (item: NavItem) => {
+    if (item.scrollTo) return false
+    if (item.href === '#/') return hash === '' || hash === '#/' || hash === '#'
+    return hash === item.href || hash.startsWith(item.href + '/')
+  }
+
+  const handleClick = (item: NavItem) => (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (!item.scrollTo) return
+    e.preventDefault()
+    window.location.hash = item.href
+    setTimeout(() => {
+      document.getElementById(item.scrollTo!)?.scrollIntoView({ behavior: 'smooth' })
+    }, 50)
   }
 
   return (
@@ -21,10 +34,11 @@ function TopNavComponent() {
         <div className="h-4 w-px shrink-0 bg-zinc-700" />
         {NAV_ITEMS.map((item) => (
           <a
-            key={item.href}
+            key={item.label}
             href={item.href}
+            onClick={handleClick(item)}
             className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition ${
-              isActive(item.href)
+              isActive(item)
                 ? 'border-amber-400/50 bg-gradient-to-r from-amber-500/25 to-orange-500/25 text-amber-100'
                 : 'border-zinc-600/40 bg-zinc-800/60 text-zinc-300 hover:border-zinc-500/50 hover:bg-zinc-700/60 hover:text-zinc-100'
             }`}
