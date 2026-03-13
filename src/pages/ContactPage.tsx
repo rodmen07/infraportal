@@ -9,7 +9,7 @@ export function ContactPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     const body = `Hi Roderick,\n\n${message}\n\n— ${name}`
-    window.open(`mailto:rodmendoza07@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`)
+    window.location.href = `mailto:rodmendoza07@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
   }
 
   const fieldClass = 'w-full rounded-lg border border-zinc-700/60 bg-zinc-800/70 px-4 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 outline-none transition focus:border-amber-400/55 focus:ring-1 focus:ring-amber-400/35'
