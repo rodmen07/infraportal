@@ -3,6 +3,7 @@ import { SideNav } from './features/layout/SideNav'
 import { HomeSections } from './features/site/HomeSections'
 import { HowItWorksSection } from './features/site/HowItWorksSection'
 import { BuildStatusSection } from './features/site/BuildStatusSection'
+import { MedallionDemo } from './features/site/MedallionDemo'
 import { HeroSection } from './features/site/HeroSection'
 import { AboutSection } from './features/site/AboutSection'
 import { ContactCTA } from './features/site/ContactCTA'
@@ -32,6 +33,7 @@ function App() {
         <HomeSections content={homeSections} />
         <AboutSection />
         <HowItWorksSection />
+        <MedallionDemo defaultLayer="gold" />
         <BuildStatusSection />
         <ContactCTA />
       </div>

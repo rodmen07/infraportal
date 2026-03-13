@@ -438,8 +438,8 @@ const LAYERS: { id: Layer; label: string }[] = [
   { id: 'gold',   label: 'Gold' },
 ]
 
-export function MedallionDemo() {
-  const [activeLayer, setActiveLayer] = useState<Layer>('bronze')
+export function MedallionDemo({ defaultLayer = 'bronze' as Layer }: { defaultLayer?: Layer } = {}) {
+  const [activeLayer, setActiveLayer] = useState<Layer>(defaultLayer)
   const [raw, setRaw] = useState<OpenMeteoResponse | null>(null)
   const [error, setError] = useState(false)
 
