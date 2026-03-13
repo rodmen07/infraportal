@@ -2,6 +2,7 @@ import TopNav from './features/layout/TopNav'
 import { SideNav } from './features/layout/SideNav'
 import { HowItWorksSection } from './features/site/HowItWorksSection'
 import { BuildStatusSection } from './features/site/BuildStatusSection'
+import { AskAISection } from './features/site/AskAISection'
 import { MedallionDemo } from './features/site/MedallionDemo'
 import { HeroSection } from './features/site/HeroSection'
 import { ContactCTA } from './features/site/ContactCTA'
@@ -28,6 +29,7 @@ function App() {
         <HeroSection content={content} />
         <MedallionDemo defaultLayer="gold" />
         <BuildStatusSection />
+        <AskAISection />
         <HowItWorksSection />
         <ContactCTA />
       </div>

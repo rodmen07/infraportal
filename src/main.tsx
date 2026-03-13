@@ -9,7 +9,6 @@ import { PricingPage } from './pages/PricingPage'
 import { ContactPage } from './pages/ContactPage'
 import { DynamoDbCaseStudyPage } from './pages/DynamoDbCaseStudyPage'
 import { MicroservicesCaseStudyPage } from './pages/MicroservicesCaseStudyPage'
-import { ConsultPage } from './pages/ConsultPage'
 import { AboutPage } from './pages/AboutPage'
 
 const WATCHDOG_DELAY_MS = 5000
@@ -108,7 +107,6 @@ function Root() {
   if (hash === '#/case-studies/dynamodb-idempotency') return <DynamoDbCaseStudyPage />
   if (hash === '#/case-studies/microservices-platform') return <MicroservicesCaseStudyPage />
   if (hash === '#/pricing') return <PricingPage />
-  if (hash === '#/ask') return <ConsultPage />
   if (hash === '#/contact') return <ContactPage />
   return <App />
 }

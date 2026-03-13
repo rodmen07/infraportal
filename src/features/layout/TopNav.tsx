@@ -6,7 +6,6 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Services',     href: '#/services' },
   { label: 'Case Studies', href: '#/case-studies' },
   { label: 'Pricing',      href: '#/pricing' },
-  { label: 'Ask AI',       href: '#/ask' },
   { label: 'Status',       href: '#/', scrollTo: 'build-status' },
   { label: 'Contact',      href: '#/contact' },
 ]
