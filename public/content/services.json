@@ -37,11 +37,6 @@
       "tags": ["IAM", "Vault", "AWS Secrets Manager", "GCP Secret Manager", "Trivy", "Azure Key Vault"]
     },
     {
-      "title": "Regulated Cloud & Security Delivery",
-      "description": "Delivery patterns informed by Finance/FinTech operations and government-focused cloud/security consulting. Built for teams that need speed plus traceability, strong access controls, and clean production change habits.",
-      "tags": ["AFS/IRS", "Auditability", "Change Control", "Security Baselines", "Compliance-ready"]
-    },
-    {
       "title": "Open-Source Stacks",
       "description": "Rust/Axum, Python/FastAPI, PostgreSQL, SQLite, React, and Databricks-integrated data workflows - production setups with open tooling and pragmatic managed services.",
       "tags": ["Rust", "Python", "PostgreSQL", "React", "Databricks", "Delta Lake"]

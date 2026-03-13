@@ -59,19 +59,21 @@ export function CaseStudiesPage() {
       <section className="surface-card rounded-2xl p-5">
         <h2 className="text-lg font-semibold text-white">What comes next</h2>
         <p className="mt-2 text-sm text-zinc-400">
-          The infrastructure migration is complete. Current iteration focus is UX depth,
-          usability polish, and faster product feedback loops — including the medallion pipeline
-          spinout, a Django REST API project, and a client-facing project dashboard where
-          clients can track their individual engagement status in real time.
+          Cloud Run baseline is stable and CI/CD is fully automated. The current build queue
+          spans language breadth, product depth, and portfolio polish: a Django REST API and a
+          Go project to demonstrate multi-language backend range; a client-facing project
+          dashboard for real-time engagement tracking; AI consulting feature completion; a
+          react-router-dom migration; and a codebase audit pass to trim dead code and tighten
+          reuse across all services.
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
-          <span className="fx-chip">UX hardening</span>
-          <span className="fx-chip">Observability</span>
-          <span className="fx-chip">Performance tuning</span>
-          <span className="fx-chip">Feature iteration</span>
-          <span className="fx-chip">Medallion pipeline split</span>
           <span className="fx-chip">Django REST API</span>
+          <span className="fx-chip">Go project</span>
           <span className="fx-chip">Client project dashboard</span>
+          <span className="fx-chip">AI consulting (finish)</span>
+          <span className="fx-chip">react-router-dom migration</span>
+          <span className="fx-chip">Codebase audit</span>
+          <span className="fx-chip">Workspace consolidation</span>
         </div>
         <div className="mt-5 flex flex-wrap gap-2">
           <a href="#/contact" className="btn-accent px-5 py-2 text-sm">Plan the next release</a>
