@@ -10,6 +10,7 @@ import { ContactPage } from './pages/ContactPage'
 import { DynamoDbCaseStudyPage } from './pages/DynamoDbCaseStudyPage'
 import { MicroservicesCaseStudyPage } from './pages/MicroservicesCaseStudyPage'
 import { ConsultPage } from './pages/ConsultPage'
+import { AboutPage } from './pages/AboutPage'
 
 const WATCHDOG_DELAY_MS = 5000
 
@@ -101,6 +102,7 @@ function Root() {
     }
   }, [])
 
+  if (hash === '#/about') return <AboutPage />
   if (hash === '#/services') return <ServicesPage />
   if (hash === '#/case-studies') return <CaseStudiesPage />
   if (hash === '#/case-studies/dynamodb-idempotency') return <DynamoDbCaseStudyPage />

@@ -2,6 +2,7 @@ type NavItem = { label: string; href: string; scrollTo?: string }
 
 const NAV_ITEMS: NavItem[] = [
   { label: 'Home',         href: '#/' },
+  { label: 'About',        href: '#/about' },
   { label: 'Services',     href: '#/services' },
   { label: 'Case Studies', href: '#/case-studies' },
   { label: 'Pricing',      href: '#/pricing' },

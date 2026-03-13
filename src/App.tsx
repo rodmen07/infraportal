@@ -5,7 +5,6 @@ import { HowItWorksSection } from './features/site/HowItWorksSection'
 import { BuildStatusSection } from './features/site/BuildStatusSection'
 import { MedallionDemo } from './features/site/MedallionDemo'
 import { HeroSection } from './features/site/HeroSection'
-import { AboutSection } from './features/site/AboutSection'
 import { ContactCTA } from './features/site/ContactCTA'
 import { useHomeSectionsContent } from './features/site/useHomeSectionsContent'
 import { useSiteContent } from './features/site/useSiteContent'
@@ -31,7 +30,6 @@ function App() {
         </div>
         <HeroSection content={content} />
         <HomeSections content={homeSections} />
-        <AboutSection />
         <MedallionDemo defaultLayer="gold" />
         <BuildStatusSection />
         <HowItWorksSection />

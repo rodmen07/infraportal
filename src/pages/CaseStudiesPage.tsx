@@ -63,8 +63,9 @@ export function CaseStudiesPage() {
         <h2 className="text-lg font-semibold text-white">What comes next</h2>
         <p className="mt-2 text-sm text-zinc-400">
           The infrastructure migration is complete. Current iteration focus is UX depth,
-          usability polish, and faster product feedback loops, including the medallion pipeline
-          spinout once its scope justifies a standalone repo.
+          usability polish, and faster product feedback loops — including the medallion pipeline
+          spinout, a Django REST API project, and a client-facing project dashboard where
+          clients can track their individual engagement status in real time.
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
           <span className="fx-chip">UX hardening</span>
@@ -72,6 +73,8 @@ export function CaseStudiesPage() {
           <span className="fx-chip">Performance tuning</span>
           <span className="fx-chip">Feature iteration</span>
           <span className="fx-chip">Medallion pipeline split</span>
+          <span className="fx-chip">Django REST API</span>
+          <span className="fx-chip">Client project dashboard</span>
         </div>
         <div className="mt-5 flex flex-wrap gap-2">
           <a href="#/contact" className="btn-accent px-5 py-2 text-sm">Plan the next release</a>
