@@ -1,8 +1,11 @@
+import { AUTH_SERVICE_URL } from '../../config'
+
 const NAV_ITEMS = [
   { label: 'Home', href: '#/' },
   { label: 'Services', href: '#/services' },
   { label: 'Case Studies', href: '#/case-studies' },
   { label: 'Pricing', href: '#/pricing' },
+  { label: 'Ask AI', href: '#/ask' },
   { label: 'Contact', href: '#/contact' },
 ]
 
@@ -35,6 +38,19 @@ function SideNavComponent() {
           </a>
         ))}
       </nav>
+
+      {AUTH_SERVICE_URL && (
+        <div className="mt-4 border-t border-zinc-700/40 pt-4">
+          <a
+            href={`${AUTH_SERVICE_URL}/dashboard/login`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block rounded-lg border border-zinc-700/30 bg-zinc-800/30 px-3 py-2 text-xs font-medium text-zinc-500 transition hover:border-zinc-600/50 hover:text-zinc-400"
+          >
+            Admin →
+          </a>
+        </div>
+      )}
     </aside>
   )
 }

@@ -35,6 +35,7 @@ jobs:
         env:
           VITE_MONITORING_URL: ${{ vars.VITE_MONITORING_URL }}
           VITE_AI_ORCHESTRATOR_URL: ${{ vars.VITE_AI_ORCHESTRATOR_URL }}
+          VITE_AUTH_SERVICE_URL: ${{ vars.VITE_AUTH_SERVICE_URL }}
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
