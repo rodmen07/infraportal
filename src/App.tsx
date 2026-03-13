@@ -32,9 +32,9 @@ function App() {
         <HeroSection content={content} />
         <HomeSections content={homeSections} />
         <AboutSection />
-        <HowItWorksSection />
         <MedallionDemo defaultLayer="gold" />
         <BuildStatusSection />
+        <HowItWorksSection />
         <ContactCTA />
       </div>
     </main>
