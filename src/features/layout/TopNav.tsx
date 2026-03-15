@@ -1,3 +1,5 @@
+import { useTheme } from './ThemeContext'
+
 type NavItem = { label: string; href: string; scrollTo?: string }
 
 const NAV_ITEMS: NavItem[] = [
@@ -13,6 +15,7 @@ const NAV_ITEMS: NavItem[] = [
 
 function TopNavComponent() {
   const hash = window.location.hash
+  const { theme, toggle } = useTheme()
 
   const isActive = (item: NavItem) => {
     if (item.scrollTo) return false
@@ -48,6 +51,14 @@ function TopNavComponent() {
             {item.label}
           </a>
         ))}
+        <button
+          type="button"
+          onClick={toggle}
+          aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          className="ml-auto rounded-lg border border-zinc-600/40 bg-zinc-800/60 px-2.5 py-1.5 text-xs text-zinc-300 transition hover:border-zinc-500/50 hover:bg-zinc-700/60 hover:text-zinc-100"
+        >
+          {theme === 'dark' ? '☀️' : '🌙'}
+        </button>
       </div>
       <div className="mt-2.5 h-0.5 overflow-hidden rounded-full bg-zinc-800/90">
         <div className="h-full w-full rounded-full bg-gradient-to-r from-amber-400 via-orange-400 to-emerald-400" />

@@ -1,5 +1,6 @@
 import { Component, StrictMode, useEffect, useState, type ReactNode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { ThemeProvider } from './features/layout/ThemeContext'
 import './index.css'
 import 'highlight.js/styles/github-dark.css'
 import App from './App'
@@ -124,7 +125,9 @@ installLoadWatchdog(rootElement)
 createRoot(rootElement).render(
   <StrictMode>
     <RootBoundary>
-      <Root />
+      <ThemeProvider>
+        <Root />
+      </ThemeProvider>
     </RootBoundary>
   </StrictMode>,
 )

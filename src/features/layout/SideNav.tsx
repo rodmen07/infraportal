@@ -1,4 +1,5 @@
 import { AUTH_SERVICE_URL } from '../../config'
+import { useTheme } from './ThemeContext'
 
 const NAV_ITEMS = [
   { label: 'Home', href: '#/' },
@@ -12,6 +13,7 @@ const NAV_ITEMS = [
 
 function SideNavComponent() {
   const hash = window.location.hash
+  const { theme, toggle } = useTheme()
 
   const isActive = (href: string) => {
     if (href === '#/') return hash === '' || hash === '#/' || hash === '#'
@@ -20,8 +22,16 @@ function SideNavComponent() {
 
   return (
     <aside className="fixed left-5 top-6 z-40 hidden w-56 rounded-2xl border border-zinc-500/30 bg-zinc-900/75 p-4 shadow-xl shadow-black/40 backdrop-blur-xl lg:block">
-      <div className="mb-3 flex items-center gap-2">
+      <div className="mb-3 flex items-center justify-between gap-2">
         <span className="text-sm font-bold tracking-tight text-amber-300">RMCC</span>
+        <button
+          type="button"
+          onClick={toggle}
+          aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          className="rounded-md border border-zinc-600/40 bg-zinc-800/60 px-1.5 py-0.5 text-xs text-zinc-300 transition hover:border-zinc-500/50 hover:bg-zinc-700/60 hover:text-zinc-100"
+        >
+          {theme === 'dark' ? '☀️' : '🌙'}
+        </button>
       </div>
 
       <nav className="space-y-2">
