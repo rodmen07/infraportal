@@ -21,9 +21,9 @@ export function PageLayout({ title, children }: PageLayoutProps) {
           <TopNav />
         </div>
 
-        {title && <h1 className="text-2xl font-bold text-white">{title}</h1>}
+        {title && <h1 className="reveal text-2xl font-bold text-white">{title}</h1>}
 
-        {children}
+        <div className="reveal reveal-delay-1">{children}</div>
       </div>
     </main>
   )

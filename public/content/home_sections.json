@@ -3,32 +3,32 @@
   "cards": [
     {
       "heading": "Production systems, not prototypes",
-      "body": "You get launch-ready systems, not throwaway demos. I build across frontend, backend, cloud, and operations with CI/CD, auth, observability, and clear runbooks.",
+      "body": "Launch-ready systems with CI/CD, auth, observability, and runbooks — not throwaway demos.",
       "link": "#/case-studies"
     },
     {
       "heading": "Cloud-native from day one",
-      "body": "Containers, Terraform-driven infrastructure-as-code, Databricks-ready data workflows, and zero-downtime deploys from the first push. Built with equal AWS/GCP focus and ready to expand into Azure.",
+      "body": "Terraform IaC, containerised services, zero-downtime deploys, AWS/GCP parity, Azure-ready.",
       "link": "#/services"
     },
     {
       "heading": "You own what I build",
-      "body": "Clean code, documented architecture decisions, and a full handoff runbook. No black boxes, no vendor lock-in, no dependency on me to keep the lights on.",
+      "body": "Clean code, architecture decision records, full handoff runbook — no black boxes, no lock-in.",
       "link": "#/services"
     },
     {
       "heading": "Regulated-environment execution",
-      "body": "My background in Finance/FinTech operations and government-focused cloud/security consulting (AFS/IRS) helps teams move fast without losing auditability.",
+      "body": "Finance/FinTech and government-focused cloud security background keeps delivery audit-ready.",
       "link": "#/case-studies"
     },
     {
       "heading": "Fixed scope, fixed price",
-      "body": "I scope projects carefully so there are no surprises. Written proposal before any work begins. Retainer support available after delivery.",
+      "body": "Written proposal before any work begins. No surprises. Retainer support available post-delivery.",
       "link": "#/pricing"
     },
     {
       "heading": "Secure by default",
-      "body": "Every layer hardened from the start: JWT/RBAC, secrets management, least-privilege IAM, and audit logging — informed by compliance exposure on federal programs.",
+      "body": "JWT/RBAC, secrets management, least-privilege IAM, and audit logging at every layer.",
       "link": "#/services"
     }
   ]

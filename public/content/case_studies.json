@@ -1,19 +1,18 @@
 {
-  "intro": "Real startup-ready systems shipped to production with practical architecture choices, clear delivery scope, and room to scale.",
+  "intro": "Production systems. Real deployments. Practical architecture.",
   "featured": {
     "title": "Microservices Platform — 9 Services, Solo-Built",
     "subtitle": "Cloud architecture · Rust · Python · React · Terraform-first IaC · Google Cloud Run",
-    "description": "Designed and built a full microservices platform from scratch, then migrated deployment from Fly.io to Google Cloud: 7 Rust/Axum services, 1 Python/FastAPI AI orchestrator, and a React 19 frontend — now running on Cloud Run with Terraform-managed infrastructure, Cloud SQL Postgres, Secret Manager wiring, and GitHub Actions CI/CD.",
+    "description": "9-service Rust/Python/React platform — independently deployed on Cloud Run with Terraform IaC, JWT auth, and full CI/CD.",
     "techStack": ["Rust", "Axum", "Python", "FastAPI", "React 19", "Vite", "Tailwind", "PostgreSQL", "Terraform", "Google Cloud Run", "Cloud SQL", "Secret Manager", "Artifact Registry", "GitHub Actions", "Docker"],
     "highlights": [
-      "9 independently deployed services successfully running on Google Cloud Run",
-      "JWT-based authentication with cross-service token validation",
-      "Claude API integration for AI-powered planning via a dedicated orchestrator service",
-      "GitHub Actions CI pipeline with per-service Docker builds and automated deploys",
+      "9 independently deployed services on Google Cloud Run",
+      "JWT authentication with cross-service token validation",
+      "Claude API integration via a dedicated Python/FastAPI orchestrator",
+      "GitHub Actions CI: per-service Docker builds and automated deploys",
       "Terraform-managed GCP baseline: Cloud Run + Cloud SQL + Artifact Registry + Secret Manager",
-      "IaC foundation designed to plug into Databricks-backed analytics pipelines",
-      "Execution model informed by platform engineering at Smoothstack and cloud/security consulting exposure in government-focused environments",
-      "Migration foundation in place for next iterations: observability, autoscaling tuning, and product feature expansion"
+      "IaC foundation designed for Databricks-backed analytics pipelines",
+      "Security-hardened post-audit: JWT fail-fast, CORS enforcement, non-root Docker, OIDC CI, Terraform secrets purged"
     ],
     "githubUrl": "https://github.com/rodmen07",
     "detailUrl": "#/case-studies/microservices-platform"
@@ -22,16 +21,15 @@
     {
       "title": "DynamoDB Idempotency Prototype",
       "subtitle": "AWS + GCP focus · Rust · DynamoDB · CloudTrail/Cloud Logging · Splunk HEC",
-      "description": "A Rust prototype implementing exactly-once log delivery for cloud audit events to a Splunk HEC endpoint, with AWS and GCP treated as equal focus areas. Current implementation uses DynamoDB conditional writes as a distributed idempotency lock, tracking per-event state (processing → done / failed) with TTL-based expiry and duplicate counting, and is designed for Azure expansion.",
+      "description": "Rust prototype for exactly-once cloud audit log delivery to Splunk HEC via DynamoDB conditional writes with TTL expiry.",
       "techStack": ["Rust", "AWS SDK for Rust", "DynamoDB", "Google Cloud (GCP)", "Tokio", "CloudTrail", "Cloud Logging", "Splunk HEC", "Azure (planned)"],
       "highlights": [
         "Atomic conditional PutItem ensures only one Lambda processes each event, even under retries",
-        "Cloud ingestion model is framed for AWS CloudTrail and GCP Cloud Logging parity",
+        "AWS CloudTrail and GCP Cloud Logging treated as equal focus areas",
         "TTL-based record expiry keeps the table lean without manual cleanup",
         "Duplicate counter tracks retry frequency for operational visibility",
         "Status lifecycle: processing → done / failed, each with a timestamp",
-        "Full CRUD helpers abstracted for reuse across other data pipeline services",
-        "Architecture direction includes Azure-compatible ingestion and transformation stages"
+        "Auth hardened post-audit: all dashboard endpoints gated, OIDC CI migration, dev bypass removed"
       ],
       "githubUrl": "https://github.com/rodmen07/dynamodb_prototype",
       "detailUrl": "#/case-studies/dynamodb-idempotency"
@@ -39,16 +37,15 @@
     {
       "title": "CloudTrail Medallion Data Pipeline",
       "subtitle": "Bronze/Silver/Gold · AWS + GCP parity · Azure-ready",
-      "description": "Extension of the idempotency prototype into a medallion-style pipeline: Bronze captures raw cloud audit events, Silver normalises and enriches records, Gold publishes analytics-ready security metrics. Idempotency keys and duplicate tracking remain the guardrail at ingestion across AWS and GCP, with an Azure expansion path.",
+      "description": "Medallion pipeline (Bronze/Silver/Gold) across AWS + GCP with idempotency-guaranteed ingestion and Databricks-ready output.",
       "techStack": ["Rust", "AWS Lambda", "DynamoDB", "S3", "EventBridge", "CloudTrail", "Google Cloud Logging", "Terraform", "Databricks", "Delta Lake", "Splunk HEC", "Azure (planned)"],
       "highlights": [
         "Bronze layer preserves immutable raw events for auditability and replay",
         "Silver layer applies schema normalisation, enrichment, and PII-safe shaping",
-        "Gold layer aggregates operational and security metrics for reporting via Databricks-ready models",
-        "Pipeline patterns are positioned for AWS and GCP equivalence in production design",
+        "Gold layer aggregates operational and security metrics for Databricks-ready models",
+        "AWS and GCP parity in pipeline design and ingestion guarantees",
         "Terraform modules define portable pipeline infrastructure across environments",
-        "Ingestion keeps conditional-write idempotency so retries never double count",
-        "Structured to evolve into a standalone repo when implementation grows past prototype scope"
+        "Conditional-write idempotency so retries never double-count"
       ],
       "githubUrl": "https://github.com/rodmen07/dynamodb_prototype",
       "detailUrl": "#/case-studies/dynamodb-idempotency"

@@ -12,6 +12,10 @@
   --fx-bg-surface-strong: rgba(24, 24, 27, 0.82);
 }
 
+html {
+  font-size: 17px;
+}
+
 body {
   margin: 0;
   min-width: 320px;
@@ -145,6 +149,18 @@ body {
   animation-delay: 180ms;
 }
 
+.reveal-delay-4 {
+  animation-delay: 240ms;
+}
+
+.reveal-delay-5 {
+  animation-delay: 300ms;
+}
+
+.reveal-delay-6 {
+  animation-delay: 360ms;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .forge-panel,
   .interactive-card,
@@ -152,7 +168,10 @@ body {
   .reveal,
   .reveal-delay-1,
   .reveal-delay-2,
-  .reveal-delay-3 {
+  .reveal-delay-3,
+  .reveal-delay-4,
+  .reveal-delay-5,
+  .reveal-delay-6 {
     animation: none !important;
     transition: none !important;
     opacity: 1 !important;

@@ -134,6 +134,24 @@ item.insert(
 );`,
   },
   {
+    label: 'Dashboard auth hardening (FINDING-06/07)',
+    detail: 'Post-audit: the admin bypass was removed, all 8 dashboard endpoints gated behind require_admin(), and GitHub Actions migrated from static AWS long-lived keys to OIDC role assumption.',
+    file: 'src/bin/dashboard.rs + .github/workflows/deploy.yml',
+    code: `// FINDING-06: require_admin key at startup — dev bypass removed
+let admin_key = std::env::var("DASHBOARD_ADMIN_KEY")
+    .expect("DASHBOARD_ADMIN_KEY must be set");
+
+// All 8 data handlers now call:
+require_admin(&headers).map_err(|s| (s, "unauthorized".to_string()))?;
+
+// FINDING-07: OIDC in deploy.yml — no static AWS keys
+- uses: aws-actions/configure-aws-credentials@v4
+  with:
+    role-to-assume: arn:aws:iam::ACCOUNT_ID:role/GitHubActionsRole
+    aws-region: us-east-1`,
+    language: 'rust',
+  },
+  {
     label: 'Fail-open design',
     detail: 'The Splunk HEC sender is a separate module — the idempotency layer wraps any downstream call. If delivery fails the record is marked "failed" rather than lost, and the Lambda can retry cleanly.',
     file: 'src/main.rs',

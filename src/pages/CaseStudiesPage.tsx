@@ -11,11 +11,8 @@ export function CaseStudiesPage() {
       <section className="forge-panel surface-card-strong rounded-3xl p-6 shadow-2xl shadow-black/50">
         <div className="flex flex-wrap items-start justify-between gap-5">
           <div className="max-w-2xl">
-            <h1 className="text-2xl font-bold text-white">Case Studies</h1>
-            <p className="mt-2 text-sm leading-relaxed text-zinc-300">{intro}</p>
-            <p className="mt-2 text-sm leading-relaxed text-zinc-400">
-              Focus area right now: shipping product depth on top of the new Cloud Run baseline.
-            </p>
+            <h1 className="reveal text-2xl font-bold text-white">Case Studies</h1>
+            <p className="reveal reveal-delay-1 mt-2 text-base font-semibold leading-relaxed text-zinc-200">{intro}</p>
           </div>
 
           <div className="grid w-full max-w-md grid-cols-3 gap-2 text-center sm:w-auto">
@@ -45,13 +42,17 @@ export function CaseStudiesPage() {
       </section>
 
       {featured.title && (
-        <CaseStudyCard {...featured} featured />
+        <div className="reveal reveal-delay-2">
+          <CaseStudyCard {...featured} featured />
+        </div>
       )}
 
       {others.length > 0 && (
         <div className="grid gap-4 sm:grid-cols-2">
-          {others.map((cs) => (
-            <CaseStudyCard key={cs.title} {...cs} />
+          {others.map((cs, i) => (
+            <div key={cs.title} className={`reveal reveal-delay-${i + 3}`}>
+              <CaseStudyCard {...cs} />
+            </div>
           ))}
         </div>
       )}

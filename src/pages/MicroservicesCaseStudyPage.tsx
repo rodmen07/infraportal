@@ -208,6 +208,26 @@ pub async fn delete_account(
     language: 'hcl',
   },
   {
+    label: 'Security hardening (post-audit)',
+    detail: 'A 9-finding security audit was conducted across the full platform. All HIGH severity findings are fully remediated: JWT fail-fast, CORS enforcement, non-root Docker users, OIDC CI, and Terraform secrets purged from history.',
+    file: 'auth.rs + router.rs + Dockerfiles + terraform/',
+    code: `// FINDING-04: JWT secret fail-fast — no insecure fallback
+let secret = env::var("AUTH_JWT_SECRET")
+    .expect("AUTH_JWT_SECRET must be set");
+
+// FINDING-05: CORS — refuse to start without explicit origin list
+if origins.is_empty() {
+    panic!("ALLOWED_ORIGINS must be set — refusing to start with permissive CORS");
+}
+
+// FINDING-08: Non-root Docker user (all 8 service Dockerfiles)
+RUN useradd --no-create-home --shell /bin/false appuser
+USER appuser
+
+// FINDING-02/03: Terraform — Cloud SQL public IP removed, Cloud Run IAM restricted
+// FINDING-01: Terraform provider binaries purged from git history via git filter-repo`,
+  },
+  {
     label: 'Cross-service token validation',
     detail: "contacts-service validates that account_id exists in accounts-service before creating a contact, forwarding the caller's Bearer token. Fails open when ACCOUNTS_SERVICE_URL is unset so local dev works without all services running.",
     file: 'contacts-service/src/lib/handlers/contacts.rs',
@@ -332,6 +352,34 @@ export function MicroservicesCaseStudyPage() {
                   </div>
                 </div>
               </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Security audit summary */}
+      <section className="forge-panel overflow-hidden rounded-2xl border border-zinc-500/30 bg-zinc-900/80 backdrop-blur-xl">
+        <div className="border-b border-zinc-700/40 px-5 py-4">
+          <h2 className="text-base font-semibold text-white">Security audit — 9 findings</h2>
+          <p className="mt-0.5 text-xs text-zinc-500">Conducted 2026-03-15 · All HIGH findings fully remediated</p>
+        </div>
+        <div className="divide-y divide-zinc-800/60">
+          {([
+            ['FINDING-01', 'HIGH',    '✅', 'Terraform secrets / provider binaries purged from git history'],
+            ['FINDING-02', 'HIGH',    '✅', 'Cloud SQL public IP (0.0.0.0/0) removed; private network configured'],
+            ['FINDING-03', 'HIGH',    '✅', 'Cloud Run ingress restricted; ai-orchestrator no longer public'],
+            ['FINDING-04', 'HIGH',    '✅', 'JWT secret hardcoded fallback replaced with expect() across all 8 services'],
+            ['FINDING-05', 'MED-HIGH','✅', 'CORS permissive fallback replaced with panic! in all 8 services'],
+            ['FINDING-06', 'MED-HIGH','✅', 'Dashboard auth bypass removed; all 8 endpoints gated behind require_admin'],
+            ['FINDING-07', 'MED',     '✅', 'GitHub Actions migrated from static AWS keys to OIDC role assumption'],
+            ['FINDING-08', 'MED',     '✅', 'All 8 Dockerfiles pinned to rust:1.85-bookworm with non-root appuser'],
+            ['FINDING-09', 'LOW-MED', '✅', 'RSA timing advisory documented with rationale and revisit trigger'],
+          ] as [string, string, string, string][]).map(([id, severity, status, desc]) => (
+            <div key={id} className="flex items-start gap-3 px-5 py-3 text-sm">
+              <span className="w-24 shrink-0 font-mono text-xs text-zinc-500">{id}</span>
+              <span className={`w-20 shrink-0 text-xs font-medium ${severity === 'HIGH' ? 'text-red-400' : severity === 'MED-HIGH' ? 'text-orange-400' : 'text-yellow-400'}`}>{severity}</span>
+              <span className="shrink-0 text-base">{status}</span>
+              <span className="text-zinc-300">{desc}</span>
             </div>
           ))}
         </div>
