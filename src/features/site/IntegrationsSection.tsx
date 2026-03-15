@@ -122,7 +122,7 @@ export function IntegrationsSection() {
         <div>
           <h2 className="text-xl font-semibold text-white">Integrations</h2>
           <p className="mt-1 text-sm text-zinc-400">
-            TaskForge is built on a microservice architecture. Each service extends the platform.
+            InfraPortal is built on a microservice architecture. Each service extends the platform.
           </p>
         </div>
         <div className="flex shrink-0 flex-col items-end gap-1 text-xs text-zinc-500">

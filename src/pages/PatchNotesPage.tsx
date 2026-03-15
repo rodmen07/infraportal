@@ -262,7 +262,7 @@ export function PatchNotesPage() {
           <div className="max-w-2xl">
             <h1 className="text-2xl font-bold text-white">Patch Notes</h1>
             <p className="mt-2 text-sm leading-relaxed text-zinc-300">
-              Release history for the TaskForge microservices platform and DynamoDB pipeline prototype.
+              Release history for the InfraPortal microservices platform and DynamoDB pipeline prototype.
               Each entry documents what changed, why, and — for security releases — every finding addressed.
             </p>
           </div>
