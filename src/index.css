@@ -319,6 +319,13 @@ body {
 [data-theme="light"] .to-orange-500\/25 { --tw-gradient-to: rgba(251,146,60,0.15) !important; }
 [data-theme="light"] .text-amber-100 { color: #92400e !important; }
 
+/* Pricing card highlight — light mode */
+[data-theme="light"] .from-amber-400\/10 { --tw-gradient-from: rgba(245,158,11,0.07) !important; }
+[data-theme="light"] .via-orange-300\/6 { --tw-gradient-via: rgba(253,186,116,0.04) !important; }
+[data-theme="light"] .to-amber-200\/8 { --tw-gradient-to: rgba(253,230,138,0.06) !important; }
+[data-theme="light"] .ring-amber-300\/20 { --tw-ring-color: rgba(252,211,77,0.18) !important; }
+[data-theme="light"] .text-amber-200 { color: #92400e !important; }
+
 /* Dark theme contrast fix: bump zinc-500 callouts to zinc-400 for WCAG AA */
 /* Note: zinc-500 (#71717a) on zinc-900 (#18181b) = 3.5:1 — fails AA for body text.
    Components should use text-zinc-400 (#a1a1aa) for muted body text on dark.
