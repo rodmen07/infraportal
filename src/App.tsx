@@ -15,9 +15,63 @@ function App() {
   const content = useSiteContent(baseUrl)
 
   useEffect(() => {
-    const el = document.documentElement
-    el.style.scrollSnapType = 'y mandatory'
-    return () => { el.style.scrollSnapType = '' }
+    let rafId = 0
+    let isSnapping = false
+
+    function easeInOutCubic(t: number) {
+      return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2
+    }
+
+    function snapTo(targetY: number) {
+      const startY = window.scrollY
+      const distance = targetY - startY
+      if (Math.abs(distance) < 4) return
+      const duration = 850
+      const startTime = performance.now()
+      isSnapping = true
+      cancelAnimationFrame(rafId)
+      function step(now: number) {
+        const t = Math.min((now - startTime) / duration, 1)
+        window.scrollTo(0, startY + distance * easeInOutCubic(t))
+        if (t < 1) {
+          rafId = requestAnimationFrame(step)
+        } else {
+          isSnapping = false
+        }
+      }
+      rafId = requestAnimationFrame(step)
+    }
+
+    function findNearest(): HTMLElement | null {
+      const sections = Array.from(
+        document.querySelectorAll<HTMLElement>('.focus-card-section')
+      )
+      if (!sections.length) return null
+      const mid = window.innerHeight / 2
+      return sections.reduce((best, el) => {
+        const r = el.getBoundingClientRect()
+        const br = best.getBoundingClientRect()
+        const d = Math.abs(r.top + r.height / 2 - mid)
+        const bd = Math.abs(br.top + br.height / 2 - mid)
+        return d < bd ? el : best
+      })
+    }
+
+    function onScrollEnd() {
+      if (isSnapping) return
+      const el = findNearest()
+      if (!el) return
+      const r = el.getBoundingClientRect()
+      const target = window.scrollY + (r.top + r.height / 2 - window.innerHeight / 2)
+      snapTo(target)
+    }
+
+    // scrollend fires after all momentum has settled — ideal for snap-on-release
+    window.addEventListener('scrollend', onScrollEnd, { passive: true })
+    return () => {
+      window.removeEventListener('scrollend', onScrollEnd)
+      cancelAnimationFrame(rafId)
+    }
   }, [])
 
   return (
