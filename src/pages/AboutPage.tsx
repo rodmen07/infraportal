@@ -9,8 +9,8 @@ export function AboutPage() {
 
   return (
     <PageLayout>
-      <HomeSections content={homeSections} />
       <AboutSection />
+      <HomeSections content={homeSections} />
     </PageLayout>
   )
 }
