@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import TopNav from './features/layout/TopNav'
 import { SideNav } from './features/layout/SideNav'
 import { FocusCard } from './features/layout/FocusCard'
@@ -74,6 +74,23 @@ function App() {
     }
   }, [])
 
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  // Keep perspective-origin tracking the viewport center as the user scrolls.
+  // Without this, the default 50% 50% of the full-height container (≈360vh on a
+  // 6-section page) is nowhere near the viewport on load, causing heavy distortion.
+  useEffect(() => {
+    const container = containerRef.current
+    if (!container) return
+    const update = () => {
+      const relativeY = window.scrollY + window.innerHeight / 2 - container.offsetTop
+      container.style.perspectiveOrigin = `50% ${relativeY}px`
+    }
+    window.addEventListener('scroll', update, { passive: true })
+    update()
+    return () => window.removeEventListener('scroll', update)
+  }, [])
+
   return (
     <main className="forge-grid relative bg-zinc-950 px-2 text-zinc-100 sm:px-4 lg:px-8 lg:pl-64 xl:px-10 2xl:px-14">
       <SideNav />
@@ -86,6 +103,7 @@ function App() {
 
       {/* perspective here = shared vanishing point for all FocusCards (one cylinder) */}
       <div
+        ref={containerRef}
         className="relative mx-auto flex w-full max-w-5xl flex-col"
         style={{ perspective: '1200px' }}
       >
