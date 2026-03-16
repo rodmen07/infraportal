@@ -1,6 +1,7 @@
 import { PageLayout } from './PageLayout'
 import { CaseStudyCard } from '../features/consulting/CaseStudyCard'
 import { MedallionDemo } from '../features/site/MedallionDemo'
+import { BuildStatusSection } from '../features/site/BuildStatusSection'
 import { useCaseStudiesContent } from '../features/consulting/useCaseStudiesContent'
 
 export function CaseStudiesPage() {
@@ -65,6 +66,8 @@ export function CaseStudiesPage() {
         </div>
         <MedallionDemo defaultLayer="gold" />
       </section>
+
+      <BuildStatusSection />
 
       <section className="surface-card rounded-2xl p-5">
         <h2 className="text-lg font-semibold text-white">What comes next</h2>

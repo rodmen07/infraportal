@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { PageLayout } from './PageLayout'
 import { CodeBlock } from '../features/consulting/CodeBlock'
+import { BuildStatusSection } from '../features/site/BuildStatusSection'
 
 const TECH_STACK = ['GitHub Actions', 'GCP Cloud Run', 'AWS ECS / Fargate', 'OIDC', 'Workload Identity Federation', 'Rust', 'Python', 'Docker', 'Bash']
 
@@ -267,6 +268,8 @@ export function CicdCaseStudyPage() {
           ))}
         </div>
       </section>
+
+      <BuildStatusSection />
 
       {/* CTA */}
       <div className="forge-panel rounded-3xl border border-zinc-500/30 bg-zinc-900/80 p-6 text-center shadow-2xl shadow-black/50 backdrop-blur-xl">
