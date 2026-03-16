@@ -94,7 +94,7 @@ export function FocusCard({
     <div
       ref={ref}
       style={sectionStyle}
-      className={`min-h-screen flex items-center justify-center py-12 ${className ?? ''}`}
+      className={`min-h-screen flex items-center justify-center py-12 snap-center ${className ?? ''}`}
     >
       <div className="relative w-full">
         {children}

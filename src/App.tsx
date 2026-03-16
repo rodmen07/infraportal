@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import TopNav from './features/layout/TopNav'
 import { SideNav } from './features/layout/SideNav'
 import { FocusCard } from './features/layout/FocusCard'
@@ -12,6 +13,12 @@ import { useSiteContent } from './features/site/useSiteContent'
 function App() {
   const baseUrl = import.meta.env.BASE_URL
   const content = useSiteContent(baseUrl)
+
+  useEffect(() => {
+    const el = document.documentElement
+    el.style.scrollSnapType = 'y mandatory'
+    return () => { el.style.scrollSnapType = '' }
+  }, [])
 
   return (
     <main className="forge-grid relative bg-zinc-950 px-2 text-zinc-100 sm:px-4 lg:px-8 lg:pl-64 xl:px-10 2xl:px-14">
