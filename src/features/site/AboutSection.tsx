@@ -12,7 +12,7 @@ const FACTS = [
 export function AboutSection() {
   return (
     <section className="forge-panel rounded-3xl border border-zinc-500/30 bg-zinc-900/80 p-6 shadow-2xl shadow-black/50 backdrop-blur-xl">
-      <h2 className="mb-4 text-base font-semibold text-white">What I bring to the table</h2>
+      <h2 className="mb-4 text-base font-semibold text-white">Background & credentials</h2>
       <div className="grid gap-3 sm:grid-cols-2">
         {FACTS.map(({ label, value }) => (
           <div key={label} className="rounded-xl border border-zinc-800/60 bg-zinc-800/40 px-4 py-3">
