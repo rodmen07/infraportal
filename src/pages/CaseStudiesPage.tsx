@@ -1,5 +1,6 @@
 import { PageLayout } from './PageLayout'
 import { CaseStudyCard } from '../features/consulting/CaseStudyCard'
+import { MedallionDemo } from '../features/site/MedallionDemo'
 import { useCaseStudiesContent } from '../features/consulting/useCaseStudiesContent'
 
 export function CaseStudiesPage() {
@@ -56,6 +57,14 @@ export function CaseStudiesPage() {
           ))}
         </div>
       )}
+
+      <section className="space-y-3">
+        <div>
+          <h2 className="text-base font-semibold text-white">Live pipeline demo</h2>
+          <p className="mt-1 text-sm text-zinc-400">Bronze → Silver → Gold medallion data currently running in DynamoDB.</p>
+        </div>
+        <MedallionDemo defaultLayer="gold" />
+      </section>
 
       <section className="surface-card rounded-2xl p-5">
         <h2 className="text-lg font-semibold text-white">What comes next</h2>

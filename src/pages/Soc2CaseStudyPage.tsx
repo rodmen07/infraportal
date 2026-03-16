@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { PageLayout } from './PageLayout'
 import { CodeBlock } from '../features/consulting/CodeBlock'
+import { MedallionDemo } from '../features/site/MedallionDemo'
 
 const TECH_STACK = ['Terraform', 'GCP', 'AWS', 'Secret Manager', 'Secrets Manager', 'KMS', 'CloudTrail', 'Cloud Audit Logs', 'VPC', 'IAM', 'OIDC', 'Workload Identity Federation', 'ECS / Fargate']
 
@@ -260,6 +261,17 @@ export function Soc2CaseStudyPage() {
             </tbody>
           </table>
         </div>
+      </section>
+
+      {/* Live pipeline — CloudTrail feeds directly into this */}
+      <section className="space-y-3">
+        <div>
+          <h2 className="text-base font-semibold text-white">Audit logs in the medallion pipeline</h2>
+          <p className="mt-1 text-sm text-zinc-400">
+            CloudTrail events (CC7.2) land directly in Bronze as raw payloads, get normalised into Silver, and roll up into Gold metrics — the same idempotency guarantees from the DynamoDB prototype applied to compliance data.
+          </p>
+        </div>
+        <MedallionDemo defaultLayer="bronze" />
       </section>
 
       {/* Expandable implementation highlights */}
