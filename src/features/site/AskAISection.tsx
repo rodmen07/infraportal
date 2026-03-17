@@ -31,6 +31,9 @@ type SendState =
 export function AskAISection() {
   const [input, setInput] = useState('')
   const [messages, setMessages] = useState<Message[]>([])
+  const [leadName, setLeadName] = useState('')
+  const [leadEmail, setLeadEmail] = useState('')
+  const [leadState, setLeadState] = useState<'idle' | 'submitting' | 'done' | 'error'>('idle')
   const [sendState, setSendState] = useState<SendState>(() => {
     if (!AI_ORCHESTRATOR_URL) return { phase: 'disabled' }
     const secs = secondsLeft()
@@ -131,6 +134,22 @@ export function AskAISection() {
     }
   }
 
+  async function submitLead() {
+    if (!leadName.trim() || !leadEmail.trim() || !AI_ORCHESTRATOR_URL) return
+    setLeadState('submitting')
+    try {
+      const r = await fetch(`${AI_ORCHESTRATOR_URL}/lead`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: leadName.trim(), email: leadEmail.trim() }),
+      })
+      const data = await r.json().catch(() => ({}))
+      setLeadState(r.ok && data.saved ? 'done' : 'error')
+    } catch {
+      setLeadState('error')
+    }
+  }
+
   const canSend = (sendState.phase === 'idle' || sendState.phase === 'error') && messages.length < MAX_TURNS * 2
   const turnCount = messages.filter(m => m.role === 'user').length
   const isStreaming = sendState.phase === 'streaming'
@@ -210,15 +229,45 @@ export function AskAISection() {
         </div>
       )}
 
-      {/* CTA after first assistant response */}
+      {/* Lead capture — appears after first full response */}
       {messages.some(m => m.role === 'assistant' && m.content) && !isStreaming && (
-        <div className="border-t border-zinc-700/40 pt-3">
-          <p className="text-xs text-zinc-500">
-            Ready to move forward?{' '}
-            <a href="#/contact" className="text-amber-400 transition-colors hover:text-amber-300">
-              Get in touch →
-            </a>
-          </p>
+        <div className="border-t border-zinc-700/40 pt-4">
+          {leadState === 'done' ? (
+            <p className="text-sm text-green-400">✓ Got it — I'll follow up at {leadEmail}.</p>
+          ) : (
+            <div className="space-y-2">
+              <p className="text-xs text-zinc-500">Want a follow-up? Leave your name and email:</p>
+              <div className="flex flex-wrap gap-2">
+                <input
+                  type="text"
+                  value={leadName}
+                  onChange={e => setLeadName(e.target.value)}
+                  placeholder="Your name"
+                  disabled={leadState === 'submitting'}
+                  className="min-w-0 flex-1 rounded-lg border border-zinc-600/40 bg-zinc-900/60 px-3 py-2 text-sm text-zinc-200 placeholder-zinc-600 focus:border-amber-500/50 focus:outline-none disabled:opacity-50"
+                />
+                <input
+                  type="email"
+                  value={leadEmail}
+                  onChange={e => setLeadEmail(e.target.value)}
+                  placeholder="your@email.com"
+                  disabled={leadState === 'submitting'}
+                  className="min-w-0 flex-1 rounded-lg border border-zinc-600/40 bg-zinc-900/60 px-3 py-2 text-sm text-zinc-200 placeholder-zinc-600 focus:border-amber-500/50 focus:outline-none disabled:opacity-50"
+                  onKeyDown={e => { if (e.key === 'Enter') submitLead() }}
+                />
+                <button
+                  onClick={submitLead}
+                  disabled={!leadName.trim() || !leadEmail.trim() || leadState === 'submitting'}
+                  className="btn-accent px-4 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {leadState === 'submitting' ? 'Saving…' : 'Send →'}
+                </button>
+              </div>
+              {leadState === 'error' && (
+                <p className="text-xs text-red-400">Something went wrong — <a href="#/contact" className="underline">use the contact form instead</a>.</p>
+              )}
+            </div>
+          )}
         </div>
       )}
 
