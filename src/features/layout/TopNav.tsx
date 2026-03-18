@@ -71,3 +71,4 @@ function TopNavComponent() {
 }
 
 export const TopNav = TopNavComponent
+export default TopNavComponent
