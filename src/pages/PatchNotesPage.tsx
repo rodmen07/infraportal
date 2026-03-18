@@ -1,6 +1,7 @@
 import { PageLayout } from './PageLayout'
 
 type Severity = 'high' | 'medium-high' | 'medium' | 'low-medium'
+type CompletionState = 'planned' | 'implemented' | 'published'
 
 interface Finding {
   id: string
@@ -15,6 +16,8 @@ interface Version {
   date: string
   label: string
   status?: 'upcoming'
+  completionState: CompletionState
+  group?: string
   summary: string
   highlights: { heading: string; items: string[] }[]
   findings?: Finding[]
@@ -28,17 +31,89 @@ const SEVERITY_STYLES: Record<Severity, string> = {
   'low-medium':  'bg-zinc-500/15 text-zinc-300 border-zinc-500/30',
 }
 
+const COMPLETION_STYLES: Record<CompletionState, { badge: string; label: string }> = {
+  planned:     { badge: 'bg-zinc-500/15 text-zinc-400 ring-zinc-500/30',    label: 'Planned' },
+  implemented: { badge: 'bg-blue-500/15 text-blue-300 ring-blue-500/30',    label: 'Implemented' },
+  published:   { badge: 'bg-green-500/15 text-green-300 ring-green-500/30', label: 'Published' },
+}
+
+// Groups for section headers
+const GROUP_META: Record<string, { label: string; status: string }> = {
+  'v0.4': { label: 'Language Breadth & AI Depth', status: 'In Progress' },
+}
+
 const VERSIONS: Version[] = [
   {
-    tag: 'v0.4',
-    date: 'In progress',
-    label: 'Language Breadth & AI Depth',
-    status: 'upcoming',
+    tag: 'v0.4.3',
+    date: '2026-03-17',
+    label: 'Go Service',
+    completionState: 'published',
+    group: 'v0.4',
     summary:
-      'Two parallel tracks: finishing what was started on the AI consulting feature, then demonstrating multi-language backend range with a Django REST API and a Go service. The AI work ships first — multi-turn conversation and streaming are already live.',
+      'event-stream-service: a standalone Go SSE hub that fans events out to connected clients in real time. The third backend language in the portfolio — alongside Rust and Python — demonstrating that architecture decisions are language-agnostic.',
     highlights: [
       {
-        heading: 'AI consulting (in progress)',
+        heading: 'event-stream-service (Go)',
+        items: [
+          'Server-Sent Events hub: clients subscribe via GET /events/stream and receive a replay of the last 50 events followed by a live feed — zero polling, zero WebSocket overhead.',
+          'Goroutine-based fan-out: each publish acquires a write lock, appends to a fixed ring buffer, then releases the lock before non-blocking channel sends to all subscribers. Slow clients are dropped rather than blocked.',
+          'JWT-authenticated publishing: POST /events/publish validates the same HS256 Bearer token used across all services — AUTH_JWT_SECRET is the single shared secret.',
+          'Go stdlib net/http only — no router framework. Pattern-matched method+path routes (GET /health, POST /events/publish, GET /events/stream) using Go 1.22+ mux syntax.',
+          'Two external dependencies: golang-jwt/jwt/v5 for token validation, google/uuid for event IDs. Everything else is standard library.',
+          'Multi-stage Docker build: golang:1.24-alpine builder → alpine:3.21 runtime, CGO disabled, producing a ~10 MB image. Deployed to Fly.io.',
+        ],
+      },
+      {
+        heading: 'Endpoints',
+        items: [
+          'GET /health — returns { "status": "ok", "connected_clients": N }.',
+          'POST /events/publish — JWT auth required. Body: { source, type, payload? }. Returns 202 with assigned event ID.',
+          'GET /events/stream — SSE stream. Replays ring buffer on connect, then streams live events as id/event/data frames.',
+        ],
+      },
+    ],
+  },
+  {
+    tag: 'v0.4.2',
+    date: '2026-03-17',
+    label: 'Django REST API',
+    completionState: 'published',
+    group: 'v0.4',
+    summary:
+      'observaboard: a standalone Python/Django REST framework service for webhook event ingestion and classification, deployed to Fly.io. Demonstrates Django as a production-grade backend alongside Rust and FastAPI — the language most data and enterprise clients already run.',
+    highlights: [
+      {
+        heading: 'Django REST API',
+        items: [
+          'Django 5 + Django REST Framework: Event model with UUID primary key, category/severity classification, and PostgreSQL full-text search via SearchVectorField + GIN index.',
+          'Celery async worker classifies ingested events into deployment / security / alert / metric / info categories with low–critical severity — no external API calls.',
+          'Dual auth: custom Api-Key header authentication for webhook ingest sources, JWT (SimpleJWT) for API consumers.',
+          'Django Admin with severity-badge rendering and masked API key display for operational management.',
+          'Zero-downtime deploys via Fly.io release_command — migrations run before traffic switches over.',
+        ],
+      },
+      {
+        heading: 'Endpoints',
+        items: [
+          'POST /api/ingest/ — accepts webhook payload, creates Event, enqueues classification task. Returns 202 Accepted.',
+          'GET /api/events/ — paginated list with filters: source, category, severity, event_type, classified.',
+          'GET /api/events/search/?q= — PostgreSQL full-text search ranked by relevance.',
+          'GET/POST /api/keys/ · PATCH/DELETE /api/keys/{id}/ — API key lifecycle management (admin only).',
+        ],
+      },
+    ],
+  },
+  {
+    tag: 'v0.4.1',
+    date: '2026-03-17',
+    label: 'AI Consulting Feature',
+    completionState: 'published',
+    group: 'v0.4',
+    summary:
+      'Full AI consulting feature shipped: multi-turn conversation, streaming responses, starter prompts, markdown rendering, lead capture into contacts-service, and topic classification logged to DynamoDB.',
+    highlights: [
+      {
+        heading: 'AI consulting',
         items: [
           'Multi-turn conversation — full message history sent on each follow-up; up to 4 exchanges per session.',
           'Streaming responses — tokens render as they arrive via SSE, eliminating the loading wait entirely.',
@@ -48,26 +123,13 @@ const VERSIONS: Version[] = [
           'Topic classification — prompt categories logged to DynamoDB for analytics.',
         ],
       },
-      {
-        heading: 'Django REST API (planned)',
-        items: [
-          'observaboard: a standalone Python/Django REST framework service demonstrating a production-grade API in the language most data and enterprise clients already run.',
-          'Deployed separately from the FastAPI AI orchestrator to show Django as a first-class backend choice.',
-        ],
-      },
-      {
-        heading: 'Go service (planned)',
-        items: [
-          'Standalone Go microservice added to the portfolio — third backend language alongside Rust and Python.',
-          'Reinforces that architecture decisions are language-agnostic.',
-        ],
-      },
     ],
   },
   {
     tag: 'v0.3',
     date: '2026-03-16',
     label: 'Observability & Operations',
+    completionState: 'published',
     summary:
       'Platform visibility, AI feature accountability, and structural correctness. The DynamoDB dashboard became a real operations tool. AI prompt/response logging closed the loop on the consulting feature. A silent startup crash in two services — caused by a Postgres pool connected to SQLite volumes — was diagnosed and fixed root-cause rather than patched.',
     highlights: [
@@ -103,6 +165,7 @@ const VERSIONS: Version[] = [
     tag: 'v0.2',
     date: '2026-03-15',
     label: 'Security Hardening',
+    completionState: 'published',
     summary:
       'Addressed all nine findings from the 2026-03-15 security audit. No new features — this release is a hardening pass across both the Rust microservices platform and the DynamoDB prototype.',
     highlights: [
@@ -154,6 +217,7 @@ const VERSIONS: Version[] = [
     tag: 'v0.1',
     date: '2026-03-07',
     label: 'Platform Baseline',
+    completionState: 'published',
     summary:
       'Initial production deployment of the full portfolio platform. Eight Rust/Axum microservices deployed to Google Cloud Run, a Python/FastAPI AI orchestrator, and a DynamoDB medallion pipeline prototype — all with CI/CD, JWT auth, and database persistence.',
     highlights: [
@@ -216,9 +280,34 @@ function SeverityBadge({ severity }: { severity: Severity }) {
   )
 }
 
-function VersionCard({ version, index }: { version: Version; index: number }) {
+function CompletionBadge({ state }: { state: CompletionState }) {
+  const { badge, label } = COMPLETION_STYLES[state]
+  return (
+    <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ${badge}`}>
+      {label}
+    </span>
+  )
+}
+
+function GroupHeader({ group }: { group: string }) {
+  const meta = GROUP_META[group]
+  if (!meta) return null
+  return (
+    <div className="flex items-center gap-3 px-1">
+      <span className="rounded-xl bg-amber-500/10 px-3 py-1 text-base font-bold text-amber-400 ring-1 ring-amber-500/20">
+        {group}
+      </span>
+      <span className="text-sm font-semibold text-zinc-300">{meta.label}</span>
+      <span className="rounded-full bg-blue-500/15 px-2.5 py-0.5 text-xs font-medium text-blue-300 ring-1 ring-blue-500/30">
+        {meta.status}
+      </span>
+      <div className="flex-1 border-t border-zinc-700/40" />
+    </div>
+  )
+}
+
+function VersionCard({ version, isLatest }: { version: Version; isLatest: boolean }) {
   const isUpcoming = version.status === 'upcoming'
-  const isLatest = index === 0 && !isUpcoming
 
   return (
     <article className={`forge-panel surface-card-strong rounded-3xl p-6 shadow-2xl shadow-black/50 ${isUpcoming ? 'border border-dashed border-zinc-600/50' : ''}`}>
@@ -241,7 +330,10 @@ function VersionCard({ version, index }: { version: Version; index: number }) {
             )}
             <span className="text-sm font-semibold text-zinc-200">{version.label}</span>
           </div>
-          <p className="mt-1 text-xs text-zinc-500">{version.date}</p>
+          <div className="mt-1.5 flex items-center gap-2">
+            <p className="text-xs text-zinc-500">{version.date}</p>
+            <CompletionBadge state={version.completionState} />
+          </div>
         </div>
         <a
           href={`https://github.com/rodmen07/portfolio/releases/tag/${version.tag}`}
@@ -331,6 +423,25 @@ function VersionCard({ version, index }: { version: Version; index: number }) {
 }
 
 export function PatchNotesPage() {
+  const latestCompletedIndex = VERSIONS.findIndex(v => v.status !== 'upcoming')
+  const completedCount = VERSIONS.filter(v => v.completionState === 'published').length
+
+  // Build render list: inject a group header before the first card of each group
+  const renderItems: Array<
+    { type: 'header'; group: string } | { type: 'card'; version: Version; index: number }
+  > = []
+  let lastGroup: string | undefined = undefined
+
+  VERSIONS.forEach((v, i) => {
+    if (v.group && v.group !== lastGroup) {
+      renderItems.push({ type: 'header', group: v.group })
+      lastGroup = v.group
+    } else if (!v.group) {
+      lastGroup = undefined
+    }
+    renderItems.push({ type: 'card', version: v, index: i })
+  })
+
   return (
     <PageLayout>
       {/* Header */}
@@ -345,8 +456,8 @@ export function PatchNotesPage() {
           </div>
           <div className="grid w-full max-w-xs grid-cols-3 gap-2 text-center sm:w-auto">
             <div className="surface-card rounded-xl px-3 py-2">
-              <div className="text-base font-bold text-white">3</div>
-              <div className="text-[11px] text-zinc-400">Releases</div>
+              <div className="text-base font-bold text-white">{completedCount}</div>
+              <div className="text-[11px] text-zinc-400">Released</div>
             </div>
             <div className="surface-card rounded-xl px-3 py-2">
               <div className="text-base font-bold text-white">9</div>
@@ -373,10 +484,18 @@ export function PatchNotesPage() {
         </div>
       </section>
 
-      {/* Version cards — newest first */}
-      {VERSIONS.map((v, i) => (
-        <VersionCard key={v.tag} version={v} index={i} />
-      ))}
+      {/* Version cards — newest first, with group headers */}
+      {renderItems.map((item, i) =>
+        item.type === 'header' ? (
+          <GroupHeader key={`group-${item.group}-${i}`} group={item.group} />
+        ) : (
+          <VersionCard
+            key={item.version.tag}
+            version={item.version}
+            isLatest={item.index === latestCompletedIndex}
+          />
+        )
+      )}
     </PageLayout>
   )
 }
