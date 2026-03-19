@@ -44,6 +44,91 @@ const GROUP_META: Record<string, { label: string; status: string }> = {
 
 const VERSIONS: Version[] = [
   {
+    tag: 'v0.4.4',
+    date: '2026-03-19',
+    label: 'Frontend UI Expansion',
+    completionState: 'published',
+    group: 'v0.4',
+    summary:
+      'Full CRM admin UI shipped: create/edit/delete modals for contacts, leads, accounts, opportunities, and activities; a live SSE feed tab; and three new admin pages — Search, Reports, and Observaboard. The frontend now surfaces the full breadth of the deployed backend platform.',
+    highlights: [
+      {
+        heading: 'CRM admin CRUD',
+        items: [
+          'CrmAdminPage rebuilt with 6 scrollable tabs: Leads, Contacts, Accounts, Opportunities, Activities, and Live Feed.',
+          'Full create / edit / delete modal flow for all five entity types — shared ModalMode<T> union type, api<T>() helper with Authorization header injection, and inline error display.',
+          'ContactsTab reused for both Leads (lifecycle_stage=lead filter) and full Contacts view — no duplication.',
+          'Activities tab includes completed checkbox on edit and status badge rendering.',
+          'Accounts and Opportunities tabs with inline industry/stage badge coloring.',
+        ],
+      },
+      {
+        heading: 'Live Feed tab',
+        items: [
+          'EventSource SSE connection to event-stream-service with status indicator: no-url / connecting / connected / error.',
+          'Ring buffer replay on connect — last 50 events shown immediately, then live updates stream in.',
+          'Each event card shows source, type, timestamp, and a collapsible raw payload.',
+          'ALLOWED_ORIGINS=https://rodmen07.github.io set on event-stream-service — cross-origin SSE works from GitHub Pages.',
+        ],
+      },
+      {
+        heading: 'New pages: Search, Reports, Observaboard',
+        items: [
+          'SearchPage (#/search): debounced cross-domain search with results grouped by entity type (account / contact / opportunity / activity) and color-coded badges.',
+          'ReportsPage (#/crm/reports): saved report CRUD table, create/edit/delete modals, and a dashboard summary card showing active report count and core metrics.',
+          'ObservaboardPage (#/observaboard): paginated Django REST API event log with source, category, severity, and full-text search filters; expandable raw payload rows; previous / next pagination.',
+          'All three pages share the admin auth gate (VITE_ADMIN_KEY + sessionStorage) and show a clear "not configured" message when the backing service URL is absent.',
+        ],
+      },
+      {
+        heading: 'Infrastructure',
+        items: [
+          'Five new env vars: VITE_ACTIVITIES_API_BASE_URL, VITE_EVENT_STREAM_URL, VITE_SEARCH_API_BASE_URL, VITE_REPORTING_API_BASE_URL, VITE_OBSERVABOARD_URL — all documented in .env.example.',
+          'TopNav and SideNav updated with Search, Reports, and Observaboard navigation links.',
+          'Hash routes added to main.tsx: #/search, #/crm/reports, #/observaboard.',
+        ],
+      },
+    ],
+  },
+  {
+    tag: 'v0.4.5',
+    date: '',
+    label: 'reporting-service Production Upgrade',
+    completionState: 'planned',
+    group: 'v0.4',
+    summary:
+      'Upgrade reporting-service from in-memory stub to production-grade: SQLite persistence, JWT auth, saved report CRUD, and a /dashboard summary endpoint. Unblocks the Reports page in the frontend.',
+    highlights: [
+      {
+        heading: 'Planned scope',
+        items: [
+          'Follow standard stub-upgrade checklist: SQLite migration, AppState, JWT auth, CRUD handlers for /api/v1/reports.',
+          'Add GET /api/v1/reports/dashboard returning { active_reports, core_metrics }.',
+          'Deploy to Fly.io and set VITE_REPORTING_API_BASE_URL in GitHub Actions secrets.',
+        ],
+      },
+    ],
+  },
+  {
+    tag: 'v0.4.6',
+    date: '',
+    label: 'search-service Production Upgrade',
+    completionState: 'planned',
+    group: 'v0.4',
+    summary:
+      'Upgrade search-service from in-memory stub to production-grade: cross-domain search across accounts, contacts, opportunities, and activities via parallel fan-out requests to each service. Unblocks the Search page in the frontend.',
+    highlights: [
+      {
+        heading: 'Planned scope',
+        items: [
+          'GET /api/v1/search?q= — fan out to accounts, contacts, opportunities, activities services in parallel, merge and rank results.',
+          'Returns SearchResult[] with id, entity_type, entity_id, title, snippet.',
+          'Deploy to Fly.io and set VITE_SEARCH_API_BASE_URL in GitHub Actions secrets.',
+        ],
+      },
+    ],
+  },
+  {
     tag: 'v0.4.3',
     date: '2026-03-17',
     label: 'Go Service',
