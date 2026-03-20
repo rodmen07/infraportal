@@ -39,7 +39,8 @@ const COMPLETION_STYLES: Record<CompletionState, { badge: string; label: string 
 
 // Groups for section headers
 const GROUP_META: Record<string, { label: string; status: string }> = {
-  'v0.4': { label: 'Language Breadth & AI Depth', status: 'In Progress' },
+  'v0.5': { label: 'Platform Completeness', status: 'Planned' },
+  'v0.4': { label: 'Language Breadth & AI Depth', status: 'Complete' },
 }
 
 const VERSIONS: Version[] = [
@@ -91,11 +92,11 @@ const VERSIONS: Version[] = [
     ],
   },
   {
-    tag: 'v0.4.5',
+    tag: 'v0.5.1',
     date: '',
     label: 'reporting-service Production Upgrade',
     completionState: 'planned',
-    group: 'v0.4',
+    group: 'v0.5',
     summary:
       'Upgrade reporting-service from in-memory stub to production-grade: SQLite persistence, JWT auth, saved report CRUD, and a /dashboard summary endpoint. Unblocks the Reports page in the frontend.',
     highlights: [
@@ -110,11 +111,11 @@ const VERSIONS: Version[] = [
     ],
   },
   {
-    tag: 'v0.4.6',
+    tag: 'v0.5.2',
     date: '',
     label: 'search-service Production Upgrade',
     completionState: 'planned',
-    group: 'v0.4',
+    group: 'v0.5',
     summary:
       'Upgrade search-service from in-memory stub to production-grade: cross-domain search across accounts, contacts, opportunities, and activities via parallel fan-out requests to each service. Unblocks the Search page in the frontend.',
     highlights: [
