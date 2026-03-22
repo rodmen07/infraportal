@@ -72,14 +72,24 @@ export function ContactCTA() {
             <p className="text-sm text-red-400">Something went wrong — please try again.</p>
           )}
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <a
-              href="https://www.linkedin.com/in/roderick-mendoza-9133b7b5/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm text-zinc-500 transition hover:text-zinc-300"
-            >
-              LinkedIn →
-            </a>
+            <div className="flex flex-wrap items-center gap-3">
+              <a
+                href="https://www.linkedin.com/in/roderick-mendoza-9133b7b5/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-zinc-500 transition hover:text-zinc-300"
+              >
+                LinkedIn →
+              </a>
+              <a
+                href="https://www.upwork.com/freelancers/~01d4b41a81a0ae3ec6?mp_source=share"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-zinc-500 transition hover:text-zinc-300"
+              >
+                Upwork →
+              </a>
+            </div>
             <button
               type="submit"
               disabled={phase === 'sending'}

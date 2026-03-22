@@ -37,6 +37,14 @@ export function AboutHero() {
             >
               LinkedIn →
             </a>
+            <a
+              href="https://www.upwork.com/freelancers/~01d4b41a81a0ae3ec6?mp_source=share"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-4 py-2 text-xs font-medium text-zinc-300 transition hover:border-zinc-500/60 hover:text-zinc-100"
+            >
+              Upwork →
+            </a>
           </div>
         </div>
       </div>
