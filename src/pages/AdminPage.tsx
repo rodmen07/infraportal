@@ -253,6 +253,30 @@ export function AdminPage() {
         </details>
       </section>
 
+      {/* Dev features — in-progress, not yet in public nav */}
+      <section className="forge-panel surface-card-strong rounded-3xl p-6 shadow-2xl shadow-black/50">
+        <h2 className="text-base font-semibold text-white">Dev Features</h2>
+        <p className="mt-1 text-sm text-zinc-400">
+          In-progress features — work here before releasing to the public nav.
+        </p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+          {[
+            { label: 'Search',        href: '#/search',       desc: 'Full-text search across CRM data' },
+            { label: 'Reports',       href: '#/crm/reports',  desc: 'CRM analytics and reporting' },
+            { label: 'Observaboard',  href: '#/observaboard', desc: 'Event monitoring dashboard' },
+          ].map(({ label, href, desc }) => (
+            <a
+              key={href}
+              href={href}
+              className="block rounded-2xl border border-zinc-700/50 bg-zinc-800/40 p-4 transition hover:border-amber-500/40 hover:bg-zinc-800/70"
+            >
+              <p className="text-sm font-semibold text-zinc-100">{label}</p>
+              <p className="mt-1 text-xs text-zinc-500">{desc}</p>
+            </a>
+          ))}
+        </div>
+      </section>
+
       {/* One checklist card per upcoming release */}
       {RELEASES.map(release => (
         <ReleaseChecklist key={release.tag} release={release} />
