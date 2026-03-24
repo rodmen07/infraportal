@@ -3,7 +3,7 @@
   "tiers": [
     {
       "tier": "Hourly",
-      "price": "$125/hr",
+      "price": "$65/hr",
       "description": "Hourly advisory for architecture reviews, second opinions, and troubleshooting sessions.",
       "features": [
         "Scheduled 1-hr video calls",
@@ -17,8 +17,8 @@
     },
     {
       "tier": "Project",
-      "price": "$25,000 - 15 hrs/week, 3-month minimum commitment",
-      "description": "Fixed-scope delivery. CI/CD pipeline, IaC baseline, containerisation, or cloud migration.",
+      "price": "$65/hr (1 day - 1 week) | $1,500/week (1 week - 1 month) | $5,000/month (1+ months)",
+      "description": "Fixed-scope delivery. CI/CD pipeline, IaC baseline, containerisation, or cloud migration. Pricing unlocks per engagement length.",
       "features": [
         "Scoped proposal with timeline",
         "All code delivered via pull request",
@@ -31,8 +31,8 @@
     },
     {
       "tier": "Retainer",
-      "price": "$1,750/month - 15 hrs/month",
-      "description": "Ongoing engineering support. Treat me like a part-time staff cloud engineer.",
+      "price": "$1,500/week - 15 hrs/week (1 week - 1 month engagements)",
+      "description": "Short-term engineering support. 1 week to 1 month engagements.",
       "features": [
         "Up to 15 hrs/month hands-on work",
         "Priority response (same business day)",
