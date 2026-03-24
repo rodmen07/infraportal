@@ -17,8 +17,8 @@
     },
     {
       "tier": "Project",
-      "price": "$65/hr (1 day - 1 week) | $1,500/week (1 week - 1 month) | $5,000/month (1+ months)",
-      "description": "Fixed-scope delivery. CI/CD pipeline, IaC baseline, containerisation, or cloud migration. Pricing unlocks per engagement length.",
+      "price": "$5,000/month (1+ months)",
+      "description": "Fixed-scope delivery. CI/CD pipeline, IaC baseline, containerisation, or cloud migration.",
       "features": [
         "Scoped proposal with timeline",
         "All code delivered via pull request",
