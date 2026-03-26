@@ -3,10 +3,11 @@ import { SideNav } from '../features/layout/SideNav'
 
 interface PageLayoutProps {
   title?: string
+  subtitle?: string
   children: React.ReactNode
 }
 
-export function PageLayout({ title, children }: PageLayoutProps) {
+export function PageLayout({ title, subtitle, children }: PageLayoutProps) {
   return (
     <main className="forge-grid relative min-h-screen bg-zinc-950 px-2 py-6 text-zinc-100 sm:px-4 sm:py-8 lg:px-8 lg:pl-64 xl:px-10">
       <SideNav />
@@ -22,6 +23,7 @@ export function PageLayout({ title, children }: PageLayoutProps) {
         </div>
 
         {title && <h1 className="reveal text-2xl font-bold text-white">{title}</h1>}
+        {subtitle && <p className="reveal text-sm text-zinc-300">{subtitle}</p>}
 
         <div className="reveal reveal-delay-1">{children}</div>
       </div>
