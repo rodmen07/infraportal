@@ -39,11 +39,88 @@ const COMPLETION_STYLES: Record<CompletionState, { badge: string; label: string 
 
 // Groups for section headers
 const GROUP_META: Record<string, { label: string; status: string }> = {
-  'v0.5': { label: 'Platform Completeness', status: 'Planned' },
+  'v1.0': { label: 'Client Portal',              status: 'Complete' },
+  'v0.5': { label: 'Platform Completeness',       status: 'Complete' },
   'v0.4': { label: 'Language Breadth & AI Depth', status: 'Complete' },
 }
 
 const VERSIONS: Version[] = [
+  {
+    tag: 'v1.0',
+    date: '2026-03-29',
+    label: 'Client Portal',
+    completionState: 'published',
+    group: 'v1.0',
+    summary:
+      'Full client portal shipped: GitHub + Google OAuth flows issue client-role JWTs, a dedicated portal view shows projects with milestone timelines and per-milestone deliverables, and an admin provisioning UI lets admins create projects and assign them to specific users. All 11 backend services migrated from Fly.io to GCP Cloud Run with keyless CI/CD via GitHub Actions OIDC + Workload Identity Federation.',
+    highlights: [
+      {
+        heading: 'Client portal & OAuth',
+        items: [
+          'GitHub and Google OAuth sign-in flows integrated via auth-service — successful login issues a client-role JWT.',
+          'Client portal page: project overview, milestone timeline, and deliverable list per milestone scoped to the authenticated client.',
+          'Admin provisioning UI: create projects with inline milestone and deliverable builders; assign each project to a specific client user (OAuth subject ID).',
+          'Role-based JWT access — admin and client roles enforced across all portal endpoints.',
+        ],
+      },
+      {
+        heading: 'projects-service (Rust/Axum)',
+        items: [
+          '8 REST endpoints covering projects CRUD, milestone CRUD, and deliverable CRUD with client-scoped access.',
+          'SQLite persistence on /tmp with ?mode=rwc — no persistent volume required.',
+          'Deployed to GCP Cloud Run (us-central1) via GitHub Actions CI.',
+        ],
+      },
+      {
+        heading: 'GCP Cloud Run migration',
+        items: [
+          '11 services migrated from Fly.io to Cloud Run (scale-to-zero, us-central1): all 9 CRM microservices, auth-service, and go-gateway.',
+          'GitHub Actions OIDC + Workload Identity Federation — zero long-lived credentials stored in GitHub secrets.',
+          'Artifact Registry for Docker images; GCP Secret Manager for all sensitive env vars (JWT secret, OAuth client credentials).',
+          'go-gateway dynamically resolves upstream Cloud Run service URLs at deploy time via gcloud run services describe.',
+          'Fly.io fully decommissioned: 11 apps destroyed. Scale-to-zero brings portfolio hosting from ~$30/month to ~$2–5/month.',
+        ],
+      },
+    ],
+  },
+  {
+    tag: 'v0.5.2',
+    date: '2026-03-19',
+    label: 'search-service Production Upgrade',
+    completionState: 'published',
+    group: 'v0.5',
+    summary:
+      'Search-service production upgrade completed: cross-domain search across accounts, contacts, opportunities, and activities is now live. Search page now fully functional on the frontend.',
+    highlights: [
+      {
+        heading: 'Planned scope',
+        items: [
+          'GET /api/v1/search?q= — fan out to accounts, contacts, opportunities, activities services in parallel, merge and rank results.',
+          'Returns SearchResult[] with id, entity_type, entity_id, title, snippet.',
+          'Deploy to Fly.io and set VITE_SEARCH_API_BASE_URL in GitHub Actions secrets.',
+        ],
+      },
+    ],
+  },
+  {
+    tag: 'v0.5.1',
+    date: '2026-03-19',
+    label: 'reporting-service Production Upgrade',
+    completionState: 'published',
+    group: 'v0.5',
+    summary:
+      'Reporting-service production upgrade completed: SQLite persistence, JWT auth, saved report CRUD, and healthy /dashboard summary endpoint. Reports page now fully operational on the frontend.',
+    highlights: [
+      {
+        heading: 'Planned scope',
+        items: [
+          'Follow standard stub-upgrade checklist: SQLite migration, AppState, JWT auth, CRUD handlers for /api/v1/reports.',
+          'Add GET /api/v1/reports/dashboard returning { active_reports, core_metrics }.',
+          'Deploy to Fly.io and set VITE_REPORTING_API_BASE_URL in GitHub Actions secrets.',
+        ],
+      },
+    ],
+  },
   {
     tag: 'v0.4.4',
     date: '2026-03-19',
@@ -87,65 +164,6 @@ const VERSIONS: Version[] = [
           'Five new env vars: VITE_ACTIVITIES_API_BASE_URL, VITE_EVENT_STREAM_URL, VITE_SEARCH_API_BASE_URL, VITE_REPORTING_API_BASE_URL, VITE_OBSERVABOARD_URL — all documented in .env.example.',
           'TopNav and SideNav updated with Search, Reports, and Observaboard navigation links.',
           'Hash routes added to main.tsx: #/search, #/crm/reports, #/observaboard.',
-        ],
-      },
-    ],
-  },
-  {
-    tag: 'v0.5.1',
-    date: '2026-03-19',
-    label: 'reporting-service Production Upgrade',
-    completionState: 'published',
-    group: 'v0.5',
-    summary:
-      'Reporting-service production upgrade completed: SQLite persistence, JWT auth, saved report CRUD, and healthy /dashboard summary endpoint. Reports page now fully operational on the frontend.',
-    highlights: [
-      {
-        heading: 'Planned scope',
-        items: [
-          'Follow standard stub-upgrade checklist: SQLite migration, AppState, JWT auth, CRUD handlers for /api/v1/reports.',
-          'Add GET /api/v1/reports/dashboard returning { active_reports, core_metrics }.',
-          'Deploy to Fly.io and set VITE_REPORTING_API_BASE_URL in GitHub Actions secrets.',
-        ],
-      },
-    ],
-  },
-  {
-    tag: 'v1.0',
-    date: '',
-    label: 'Client Portal',
-    completionState: 'planned',
-    group: 'v1.0',
-    summary:
-      'Real client-facing portal at /portal. Clients sign in via Google or GitHub OAuth and see their project scope, milestone timeline, deliverables, and a per-project message thread. Admin CRM dashboard ships alongside as an internal tool.',
-    highlights: [
-      {
-        heading: 'Planned scope',
-        items: [
-          'OAuth sign-in (Google + GitHub) with client role provisioning via auth-service.',
-          'Client portal UI: project overview, milestone timeline, deliverables per milestone, message thread.',
-          'projects-service powers all portal data — projects, milestones, deliverables, and messages with client-scoped JWT access.',
-          'Admin CRM dashboard (internal): cross-service stats, opportunity stage distribution, recent activities.',
-          'Projects tab in CRM admin for managing projects, milestones, deliverables, and replying to client messages.',
-        ],
-      },
-    ],
-  },
-  {
-    tag: 'v0.5.2',
-    date: '2026-03-19',
-    label: 'search-service Production Upgrade',
-    completionState: 'published',
-    group: 'v0.5',
-    summary:
-      'Search-service production upgrade completed: cross-domain search across accounts, contacts, opportunities, and activities is now live. Search page now fully functional on the frontend.',
-    highlights: [
-      {
-        heading: 'Planned scope',
-        items: [
-          'GET /api/v1/search?q= — fan out to accounts, contacts, opportunities, activities services in parallel, merge and rank results.',
-          'Returns SearchResult[] with id, entity_type, entity_id, title, snippet.',
-          'Deploy to Fly.io and set VITE_SEARCH_API_BASE_URL in GitHub Actions secrets.',
         ],
       },
     ],

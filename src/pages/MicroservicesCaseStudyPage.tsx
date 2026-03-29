@@ -321,7 +321,7 @@ export function MicroservicesCaseStudyPage() {
         </p>
       </section>
 
-      <BuildStatusBadges repos={['microservices', 'backend-service', 'frontend-service', 'auth-service', 'ai-orchestrator-service', 'dynamodb_prototype']} />
+      <BuildStatusBadges repos={['microservices', 'backend-service', 'infraportal', 'auth-service', 'ai-orchestrator-service', 'dynamodb_prototype']} />
 
       {/* Expandable highlights */}
       <section className="forge-panel overflow-hidden rounded-2xl border border-zinc-500/30 bg-zinc-900/80 backdrop-blur-xl">
