@@ -36,6 +36,8 @@ jobs:
       - name: Build
         run: npm run build
         env:
+          VITE_ADMIN_KEY: ${{ secrets.VITE_ADMIN_KEY }}
+          VITE_ADMIN_JWT: ${{ secrets.VITE_ADMIN_JWT }}
           VITE_MONITORING_URL: ${{ vars.VITE_MONITORING_URL }}
           VITE_AI_ORCHESTRATOR_URL: ${{ vars.VITE_AI_ORCHESTRATOR_URL }}
           VITE_AUTH_SERVICE_URL: ${{ vars.VITE_AUTH_SERVICE_URL }}
