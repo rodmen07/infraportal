@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { SiteContent } from '../../types'
 import { SlideOver } from './SlideOver'
 
@@ -9,6 +9,44 @@ interface HeroSectionProps {
 export function HeroSection({ content }: HeroSectionProps) {
   const [open, setOpen] = useState(false)
   const tagline = content.heroTagline || 'AI + Cloud Launchpad'
+  const [motionEnabled, setMotionEnabled] = useState<boolean>(false)
+
+  useEffect(() => {
+    const saved = typeof window !== 'undefined' ? localStorage.getItem('motionEnabled') : null
+    const enabled = saved === '1'
+    setMotionEnabled(enabled)
+    if (typeof document !== 'undefined') {
+      if (enabled) document.documentElement.setAttribute('data-motion', 'full')
+      else document.documentElement.removeAttribute('data-motion')
+    }
+  }, [])
+
+  useEffect(() => {
+    try {
+      if (typeof window === 'undefined') return
+      if (motionEnabled) localStorage.setItem('motionEnabled', '1')
+      else localStorage.removeItem('motionEnabled')
+
+      if (motionEnabled) document.documentElement.setAttribute('data-motion', 'full')
+      else document.documentElement.removeAttribute('data-motion')
+
+      // replay animations on toggle
+      const animClasses = ['reveal', 'animate-pulse-strong', 'animate-float-slow', 'animate-wiggle', 'animate-pop', 'slide-over-enter', 'overlay-fade']
+      const selector = animClasses.map((c) => `.${c}`).join(',')
+      const nodes = Array.from(document.querySelectorAll(selector)) as HTMLElement[]
+      nodes.forEach((el) => {
+        const present = animClasses.filter((c) => el.classList.contains(c))
+        if (present.length === 0) return
+        el.classList.remove(...present)
+        // force reflow
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        el.offsetWidth
+        el.classList.add(...present)
+      })
+    } catch (e) {
+      // noop
+    }
+  }, [motionEnabled])
 
   return (
     <>
@@ -48,6 +86,26 @@ export function HeroSection({ content }: HeroSectionProps) {
           I help startup teams ship fast on AWS + GCP with Terraform, Databricks-ready
           data foundations, and production-grade engineering from day one.
         </p>
+
+        <div className="mt-4 flex items-center gap-3">
+          <label className="flex items-center gap-2 text-sm text-zinc-300">
+            <input
+              type="checkbox"
+              checked={motionEnabled}
+              onChange={(e) => setMotionEnabled(e.target.checked)}
+              className="h-4 w-4 rounded bg-zinc-800 border-zinc-600"
+            />
+            Enable animations (override system)
+          </label>
+          <button
+            type="button"
+            onClick={() => setMotionEnabled((s) => !s)}
+            className="btn-neutral"
+          >
+            Toggle
+          </button>
+        </div>
+
         <div className="mt-4 flex gap-2">
           <a href="#/case-studies" className="btn-accent">
             See the work
