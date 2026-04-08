@@ -1,4 +1,3 @@
-import { AUTH_SERVICE_URL } from '../../config'
 import { useTheme } from './ThemeContext'
 
 const NAV_ITEMS = [
@@ -50,18 +49,18 @@ function SideNavComponent() {
         ))}
       </nav>
 
-      {AUTH_SERVICE_URL && (
-        <div className="mt-4 border-t border-zinc-700/40 pt-4">
-          <a
-            href={`${AUTH_SERVICE_URL}/dashboard/login`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block rounded-lg border border-zinc-700/30 bg-zinc-800/30 px-3 py-2 text-xs font-medium text-zinc-500 transition hover:border-zinc-600/50 hover:text-zinc-400"
-          >
-            Admin →
-          </a>
-        </div>
-      )}
+      <div className="mt-4 border-t border-zinc-700/40 pt-4">
+        <a
+          href="#/crm/admin"
+          className={`block rounded-lg border px-3 py-2 text-xs font-medium leading-5 transition ${
+            isActive('#/crm/admin')
+              ? 'border-amber-400/50 bg-gradient-to-r from-amber-500/25 to-orange-500/25 text-amber-100'
+              : 'border-zinc-700/30 bg-zinc-800/30 px-3 py-2 text-xs font-medium text-zinc-500 transition hover:border-zinc-600/50 hover:text-zinc-400'
+          }`}
+        >
+          Admin →
+        </a>
+      </div>
     </aside>
   )
 }
