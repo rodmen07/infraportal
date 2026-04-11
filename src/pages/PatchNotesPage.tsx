@@ -39,7 +39,7 @@ const COMPLETION_STYLES: Record<CompletionState, { badge: string; label: string 
 
 // Groups for section headers
 const GROUP_META: Record<string, { label: string; status: string }> = {
-  'v1.1': { label: 'Developer Experience & AI Research', status: 'Active' },
+  'v1.1': { label: 'Developer Experience & AI Research', status: 'Complete' },
   'v1.0': { label: 'Client Portal',              status: 'Complete' },
   'v0.5': { label: 'Platform Completeness',       status: 'Complete' },
   'v0.4': { label: 'Language Breadth & AI Depth', status: 'Complete' },
