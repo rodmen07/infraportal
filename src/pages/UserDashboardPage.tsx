@@ -183,7 +183,7 @@ export function UserDashboardPage() {
 
   const fetchCounts = useCallback(async () => {
     if (!resolveAdminToken()) {
-      setError('No auth token — set VITE_ADMIN_JWT or log in via the portal.')
+      setError('No auth token — set VITE_ADMIN_JWT or log in via the portal to refresh your session.')
       setStatus('error')
       return
     }

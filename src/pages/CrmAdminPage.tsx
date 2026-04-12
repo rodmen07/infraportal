@@ -107,12 +107,20 @@ function Spinner({ label }: { label: string }) {
   )
 }
 
+const NO_TOKEN_MSG = 'No auth token — set VITE_ADMIN_JWT or log in via the portal.'
+
 function ErrorBox({ message, onRetry }: { message: string; onRetry: () => void }) {
+  const isNoToken = message === NO_TOKEN_MSG
   return (
     <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-4">
       <p className="text-sm font-medium text-red-300">Error</p>
       <p className="mt-1 font-mono text-xs text-red-400">{message}</p>
-      <button type="button" onClick={onRetry} className="btn-neutral mt-3 px-3 py-1.5 text-xs">Retry</button>
+      <div className="mt-3 flex gap-2">
+        <button type="button" onClick={onRetry} className="btn-neutral px-3 py-1.5 text-xs">Retry</button>
+        {isNoToken && (
+          <a href="#/portal/login" className="btn-accent px-3 py-1.5 text-xs">Log in via portal</a>
+        )}
+      </div>
     </div>
   )
 }
@@ -262,7 +270,7 @@ function ContactsTab({ stageFilter }: { stageFilter?: string }) {
 
   const load = useCallback(async () => {
     if (!CONTACTS_URL) { setError('VITE_CONTACTS_API_BASE_URL not configured.'); return }
-    if (!resolveAdminToken()) { setError('No auth token — set VITE_ADMIN_JWT or log in via the portal.'); return }
+    if (!resolveAdminToken()) { setError(NO_TOKEN_MSG); return }
     setLoading(true); setError(null)
     try {
       const qs = stageFilter ? `lifecycle_stage=${stageFilter}&limit=100` : 'limit=100'
@@ -410,7 +418,7 @@ function AccountsTab() {
 
   const load = useCallback(async () => {
     if (!ACCOUNTS_URL) { setError('VITE_ACCOUNTS_API_BASE_URL not configured.'); return }
-    if (!resolveAdminToken()) { setError('No auth token — set VITE_ADMIN_JWT or log in via the portal.'); return }
+    if (!resolveAdminToken()) { setError(NO_TOKEN_MSG); return }
     setLoading(true); setError(null)
     try {
       const body = await api<PagedResponse<Account>>(`${ACCOUNTS_URL}/api/v1/accounts?limit=100`)
@@ -533,7 +541,7 @@ function OpportunitiesTab() {
 
   const load = useCallback(async () => {
     if (!OPPS_URL)  { setError('VITE_OPPORTUNITIES_API_BASE_URL not configured.'); return }
-    if (!resolveAdminToken()) { setError('No auth token — set VITE_ADMIN_JWT or log in via the portal.'); return }
+    if (!resolveAdminToken()) { setError(NO_TOKEN_MSG); return }
     setLoading(true); setError(null)
     try   { setRows(await api<Opportunity[]>(`${OPPS_URL}/api/v1/opportunities`)) }
     catch (e) { setError(e instanceof Error ? e.message : String(e)) }
@@ -672,7 +680,7 @@ function ActivitiesTab() {
 
   const load = useCallback(async () => {
     if (!ACTIVITIES_URL) { setError('VITE_ACTIVITIES_API_BASE_URL not configured.'); return }
-    if (!resolveAdminToken()) { setError('No auth token — set VITE_ADMIN_JWT or log in via the portal.'); return }
+    if (!resolveAdminToken()) { setError(NO_TOKEN_MSG); return }
     setLoading(true); setError(null)
     try   { setRows(await api<Activity[]>(`${ACTIVITIES_URL}/api/v1/activities`)) }
     catch (e) { setError(e instanceof Error ? e.message : String(e)) }
@@ -1244,7 +1252,7 @@ function SpendTab() {
 
   const load = useCallback(async () => {
     if (!SPEND_URL)  { setError('VITE_SPEND_API_BASE_URL not configured.'); return }
-    if (!resolveAdminToken()) { setError('No auth token — set VITE_ADMIN_JWT or log in via the portal.'); return }
+    if (!resolveAdminToken()) { setError(NO_TOKEN_MSG); return }
     setLoading(true); setError(null)
     try {
       const params = new URLSearchParams()
