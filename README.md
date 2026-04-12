@@ -67,31 +67,42 @@ npm run build
 npm run lint
 ```
 
+## Test
+
+```bash
+npm run test
+```
+
 ## Goal planner
 
 - Enter a long-term goal in the planner form and generate composite tasks.
 - Create generated tasks in bulk and manage them from the task list.
 
-## API base URL strategy
+## Environment configuration
 
-Frontend reads API base URL from `VITE_API_BASE_URL`.
-
-- Local default: `http://localhost:3000`
-- Production: `VITE_API_BASE_URL` is required (no placeholder fallback)
-- API request timeout is configurable with `VITE_API_TIMEOUT_MS` (default: `10000`)
-
-Create a local env file from `.env.example` when needed:
+Create a local env file from `.env.example`:
 
 ```bash
 cp .env.example .env.local
 ```
 
-Then set:
+Commonly used variables:
 
-```bash
-VITE_API_BASE_URL=https://your-backend-host
-VITE_API_TIMEOUT_MS=10000
-```
+- `VITE_MONITORING_URL`
+- `VITE_AI_ORCHESTRATOR_URL`
+- `VITE_AUTH_SERVICE_URL`
+- `VITE_PROJECTS_API_BASE_URL`
+- `VITE_CONTACTS_API_BASE_URL`
+- `VITE_ACCOUNTS_API_BASE_URL`
+- `VITE_OPPORTUNITIES_API_BASE_URL`
+- `VITE_ACTIVITIES_API_BASE_URL`
+- `VITE_AUTOMATION_API_BASE_URL`
+- `VITE_INTEGRATIONS_API_BASE_URL`
+- `VITE_SEARCH_API_BASE_URL`
+- `VITE_REPORTING_API_BASE_URL`
+- `VITE_AUDIT_API_BASE_URL`
+- `VITE_OBSERVABOARD_URL`
+- `VITE_SPEND_API_BASE_URL`
 
 ## GitHub Pages deployment
 
@@ -100,7 +111,7 @@ This repo includes a workflow at `.github/workflows/deploy-pages.yml`.
 - Trigger: push to `main`
 - Build output: `dist/`
 - Deploy target: GitHub Pages
-- Build env supports `VITE_API_BASE_URL` from GitHub repo settings
+- Build env is populated from repository secrets/variables listed in the workflow `Build` step.
 
 ### Required repo settings
 
@@ -108,57 +119,20 @@ In GitHub repo settings:
 
 1. Go to **Pages**.
 2. Set **Build and deployment** source to **GitHub Actions**.
-3. Go to **Secrets and variables → Actions** and set one of:
-	- Repository Variable: `VITE_API_BASE_URL` (preferred)
-	- Repository Secret: `VITE_API_BASE_URL`
+3. Go to **Secrets and variables → Actions** and set the env vars used by the workflow (API base URLs, monitoring/auth/orchestrator URLs, admin secrets).
 
-Vite production base path is configured for this repo path (`/frontend-service/`) in `vite.config.js`.
+Vite production base path is configured for this repo path (`/infraportal/`) in `vite.config.js`.
 
-## CMS integration (Decap CMS)
+## Security and reliability hardening
 
-- Admin URL (dev): `/admin/`
-- Admin URL (Pages): `/frontend-service/admin/`
-- CMS config: `public/admin/config.yml`
-- Editable homepage content source: `public/content/site.json`
-
-### Notes for GitHub-backed CMS auth
-
-Decap CMS is free/open-source, but GitHub backend editing requires an OAuth flow provider.
-
-This project is wired to a self-hosted OAuth provider in `auth-service`:
-
-- `backend.base_url`: `https://auth-service-rodmen07-v2.fly.dev`
-- `backend.auth_endpoint`: `cms/auth`
-
-To make admin login work, `auth-service` must have:
-
-- `CMS_GITHUB_CLIENT_ID`
-- `CMS_GITHUB_CLIENT_SECRET`
-
-Set these in Fly secrets for `auth-service`, then use `/frontend-service/admin/` on Pages.
-
-## Working context from current code
-
-### App flow and state
-
-- Main UX flow is implemented in `src/App.tsx`.
-- App loads editable site content from `content/site.json` (base-aware path handling).
-- Planner state includes transient generated tasks and a local in-memory history of recent plans.
-- Goal plan history is currently capped to the latest `8` plans.
-
-### API layer behavior
-
-- Backend calls are centralized in `src/api/tasks.ts`.
-- Error parsing prefers backend envelope fields (`message`, then `code`) before status fallback.
-- Current task listing request uses `GET /api/v1/tasks?limit=100&offset=0`.
-
-### Planner UX and resilience
-
-- Planner request uses backend `POST /api/v1/tasks/plan` via `planTasksFromGoal`.
-- Generated tasks are normalized client-side to remove numbering and bullet prefixes.
-- UI maps known backend planner errors (`LLM_API_KEY_MISSING`, upstream/rate-limit signals) to friendly status messages.
-
-### Build/deploy implementation details
-
-- `vite.config.js` sets production base path to `/frontend-service/`.
-- GitHub Pages deploy workflow injects `VITE_API_BASE_URL` from repository variables/secrets.
+- Added unit tests for core status/time behavior:
+  - `src/utils/time.test.ts`
+  - `src/features/site/useGitHubBuildStatus.test.ts`
+- Build status polling now:
+  - cancels in-flight requests before new polls,
+  - uses timeout-driven aborts,
+  - avoids stale caching (`cache: 'no-store'`),
+  - avoids set-state-after-unmount behavior.
+- Relative time formatting now safely handles invalid and future timestamps.
+- Applied non-breaking dependency remediations via `npm audit fix`.
+- Remaining audit findings are tied to Vite major upgrades and should be addressed in a coordinated framework upgrade.
