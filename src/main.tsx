@@ -23,6 +23,7 @@ import { ObservaboardPage } from './pages/ObservaboardPage'
 import { PortalPage } from './pages/PortalPage'
 import { PortalLoginPage } from './pages/PortalLoginPage'
 import { AuditPage } from './pages/AuditPage'
+import { ServiceHealthPage } from './pages/ServiceHealthPage'
 
 const WATCHDOG_DELAY_MS = 5000
 
@@ -131,6 +132,7 @@ function Root() {
   if (hash === '#/portal' || hash.startsWith('#/portal/')) return <PortalPage />
   if (hash === '#/observaboard') return <ObservaboardPage />
   if (hash === '#/admin/audit') return <AuditPage />
+  if (hash === '#/admin/health') return <ServiceHealthPage />
   if (hash === '#/contact') return <ContactPage />
   return <App />
 }

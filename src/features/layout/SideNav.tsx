@@ -49,17 +49,23 @@ function SideNavComponent() {
         ))}
       </nav>
 
-      <div className="mt-4 border-t border-zinc-700/40 pt-4">
-        <a
-          href="#/crm/admin"
-          className={`block rounded-lg border px-3 py-2 text-xs font-medium leading-5 transition ${
-            isActive('#/crm/admin')
-              ? 'border-amber-400/50 bg-gradient-to-r from-amber-500/25 to-orange-500/25 text-amber-100'
-              : 'border-zinc-700/30 bg-zinc-800/30 px-3 py-2 text-xs font-medium text-zinc-500 transition hover:border-zinc-600/50 hover:text-zinc-400'
-          }`}
-        >
-          Admin →
-        </a>
+      <div className="mt-4 border-t border-zinc-700/40 pt-4 space-y-1">
+        {[
+          { label: 'Admin →', href: '#/crm/admin' },
+          { label: 'Service Health', href: '#/admin/health' },
+        ].map(item => (
+          <a
+            key={item.href}
+            href={item.href}
+            className={`block rounded-lg border px-3 py-2 text-xs font-medium leading-5 transition ${
+              isActive(item.href)
+                ? 'border-amber-400/50 bg-gradient-to-r from-amber-500/25 to-orange-500/25 text-amber-100'
+                : 'border-zinc-700/30 bg-zinc-800/30 text-zinc-500 hover:border-zinc-600/50 hover:text-zinc-400'
+            }`}
+          >
+            {item.label}
+          </a>
+        ))}
       </div>
     </aside>
   )
