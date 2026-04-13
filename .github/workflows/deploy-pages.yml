@@ -37,7 +37,6 @@ jobs:
         run: npm run build
         env:
           VITE_ADMIN_KEY: ${{ secrets.VITE_ADMIN_KEY }}
-          VITE_ADMIN_JWT: ${{ secrets.VITE_ADMIN_JWT }}
           VITE_MONITORING_URL: ${{ vars.VITE_MONITORING_URL }}
           VITE_AI_ORCHESTRATOR_URL: ${{ vars.VITE_AI_ORCHESTRATOR_URL }}
           VITE_AUTH_SERVICE_URL: ${{ vars.VITE_AUTH_SERVICE_URL }}
@@ -50,6 +49,7 @@ jobs:
           VITE_REPORTING_API_BASE_URL: ${{ vars.VITE_REPORTING_API_BASE_URL }}
           VITE_OBSERVABOARD_URL: ${{ vars.VITE_OBSERVABOARD_URL }}
           VITE_SPEND_API_BASE_URL: ${{ vars.VITE_SPEND_API_BASE_URL }}
+          VITE_PROJECTS_API_BASE_URL: ${{ vars.VITE_PROJECTS_API_BASE_URL }}
 
       - name: Configure Pages
         uses: actions/configure-pages@v5

@@ -1609,13 +1609,8 @@ const TABS: { id: Tab; label: string }[] = [
 ]
 
 export function CrmAdminPage() {
-  const [authed, setAuthed] = useState(() => sessionStorage.getItem('admin-authed') === '1')
   const [tab, setTab] = useState<Tab>('leads')
   const { token } = useAuth()
-
-  if (!authed) return (
-    <PageLayout><AuthGate onAuth={() => setAuthed(true)} /></PageLayout>
-  )
 
   if (!token && !resolveAdminToken()) return (
     <PageLayout><PortalLoginGate /></PageLayout>
