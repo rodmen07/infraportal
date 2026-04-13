@@ -1215,7 +1215,10 @@ function ProjectsTab() {
           <form onSubmit={createProject} className="space-y-3">
             <FormField label="Name"><input required value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} className={INPUT_CLS} /></FormField>
             <FormField label="Account ID"><input required value={form.account_id} onChange={e => setForm(f => ({ ...f, account_id: e.target.value }))} className={INPUT_CLS} placeholder="UUID from accounts-service" /></FormField>
-            <FormField label="Client user ID"><input value={form.client_user_id} onChange={e => setForm(f => ({ ...f, client_user_id: e.target.value }))} className={INPUT_CLS} placeholder="auth-service user ID (optional)" /></FormField>
+            <FormField label="Client user ID">
+              <input value={form.client_user_id} onChange={e => setForm(f => ({ ...f, client_user_id: e.target.value }))} className={INPUT_CLS} placeholder="Client's account ID from #/portal" />
+              <p className="mt-1 text-[10px] text-zinc-500">Ask the client to visit <span className="font-mono text-zinc-400">#/portal</span> and copy their Account ID from the &quot;no project&quot; screen.</p>
+            </FormField>
             <FormField label="Status">
               <select value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))} className={INPUT_CLS}>
                 {PROJECT_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}

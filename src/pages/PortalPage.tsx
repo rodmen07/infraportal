@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { PageLayout } from './PageLayout'
 import { useAuth } from '../features/auth/AuthContext'
-import { PROJECTS_API_BASE_URL } from '../config'
+import { PROJECTS_API_BASE_URL, AUTH_SERVICE_URL } from '../config'
 
 // --- Types ---
 
@@ -78,6 +78,100 @@ async function api<T>(path: string, token: string, opts: RequestInit = {}): Prom
   return res.json()
 }
 
+// --- Login gate (shown inline when not authenticated) ---
+
+function GithubIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current" aria-hidden="true">
+      <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12z" />
+    </svg>
+  )
+}
+
+function GoogleIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
+      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+      <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 12s.43 3.45 1.18 4.93l3.66-2.84z" />
+      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+    </svg>
+  )
+}
+
+function ClientLoginGate() {
+  const callback = encodeURIComponent(
+    `${window.location.origin}${window.location.pathname}?#/portal`
+  )
+  function oauthUrl(provider: 'github' | 'google') {
+    return `${AUTH_SERVICE_URL}/user/oauth/${provider}?scope=client_portal&redirect_uri=${callback}`
+  }
+
+  return (
+    <div className="flex min-h-[55vh] items-center justify-center px-4">
+      <div className="forge-panel surface-card-strong w-full max-w-sm rounded-3xl p-8 shadow-2xl shadow-black/50 space-y-6">
+        <div>
+          <h2 className="text-base font-semibold text-zinc-100">Client portal</h2>
+          <p className="mt-1 text-xs text-zinc-400">
+            Sign in with the account associated with your project to view your project status.
+          </p>
+        </div>
+        {AUTH_SERVICE_URL ? (
+          <div className="space-y-3">
+            <a
+              href={oauthUrl('github')}
+              className="flex w-full items-center justify-center gap-2 rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-4 py-2.5 text-sm font-medium text-zinc-100 transition hover:border-zinc-500/60 hover:bg-zinc-700/60"
+            >
+              <GithubIcon />
+              Continue with GitHub
+            </a>
+            <a
+              href={oauthUrl('google')}
+              className="flex w-full items-center justify-center gap-2 rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-4 py-2.5 text-sm font-medium text-zinc-100 transition hover:border-zinc-500/60 hover:bg-zinc-700/60"
+            >
+              <GoogleIcon />
+              Continue with Google
+            </a>
+          </div>
+        ) : (
+          <p className="text-xs text-amber-400">
+            Auth service not configured (VITE_AUTH_SERVICE_URL).
+          </p>
+        )}
+        <p className="text-center text-xs text-zinc-500">
+          Don't have access?{' '}
+          <a href="#/contact" className="text-amber-400 hover:text-amber-300">
+            Get in touch
+          </a>
+        </p>
+      </div>
+    </div>
+  )
+}
+
+// --- Client header bar ---
+
+function ClientHeader({ claims, onLogout }: { claims: { sub: string; email?: string; username?: string }; onLogout: () => void }) {
+  const display = claims.email ?? claims.username ?? claims.sub.slice(0, 12) + '…'
+  return (
+    <div className="mb-5 flex items-center justify-between gap-3">
+      <div className="flex items-center gap-2">
+        <span className="h-7 w-7 shrink-0 rounded-full bg-amber-500/20 text-center text-xs font-semibold leading-7 text-amber-300">
+          {display[0]?.toUpperCase() ?? 'C'}
+        </span>
+        <span className="text-sm text-zinc-300">{display}</span>
+      </div>
+      <button
+        type="button"
+        onClick={onLogout}
+        className="text-xs text-zinc-500 transition hover:text-zinc-300"
+      >
+        Sign out
+      </button>
+    </div>
+  )
+}
+
 // --- Sub-components ---
 
 const STATUS_STYLES: Record<string, string> = {
@@ -136,7 +230,6 @@ function ProjectSummaryCard({
         <StatusBadge status={project.status} />
       </div>
 
-      {/* Progress bar */}
       {total > 0 && (
         <div className="space-y-1">
           <div className="flex justify-between text-xs text-zinc-400">
@@ -152,7 +245,6 @@ function ProjectSummaryCard({
         </div>
       )}
 
-      {/* Stats row */}
       <div className="flex flex-wrap gap-4 text-xs text-zinc-500">
         {project.start_date && (
           <span>Started <span className="text-zinc-300">{project.start_date.slice(0, 10)}</span></span>
@@ -179,11 +271,11 @@ function ProjectSummaryCard({
 }
 
 const LINK_TYPE_ICONS: Record<string, string> = {
-  upwork:  '💼',
-  drive:   '📁',
-  github:  '⚙',
-  figma:   '🎨',
-  other:   '🔗',
+  upwork: '💼',
+  drive:  '📁',
+  github: '⚙',
+  figma:  '🎨',
+  other:  '🔗',
 }
 
 function LinksSection({ links }: { links: ProjectLink[] }) {
@@ -285,7 +377,6 @@ function MilestoneCard({ milestone, deliverables }: { milestone: Milestone; deli
   const [open, setOpen] = useState(true)
   const total = deliverables.length
   const done = deliverables.filter((d) => d.status === 'completed' || d.status === 'done').length
-
   const totalHours = deliverables.reduce((s, d) => s + (d.estimated_hours ?? 0), 0)
   const doneHours = deliverables
     .filter((d) => d.status === 'completed' || d.status === 'done')
@@ -306,9 +397,7 @@ function MilestoneCard({ milestone, deliverables }: { milestone: Milestone; deli
           {milestone.due_date && (
             <span className="text-xs text-zinc-500">Due {milestone.due_date.slice(0, 10)}</span>
           )}
-          {total > 0 && (
-            <span className="text-xs text-zinc-400">{done}/{total}</span>
-          )}
+          {total > 0 && <span className="text-xs text-zinc-400">{done}/{total}</span>}
           {totalHours > 0 && (
             <span className="text-xs text-zinc-500">{doneHours.toFixed(1)}/{totalHours.toFixed(1)}h</span>
           )}
@@ -336,9 +425,7 @@ function MilestoneCard({ milestone, deliverables }: { milestone: Milestone; deli
               </div>
             </>
           )}
-          {total === 0 && (
-            <p className="py-2 text-xs text-zinc-500">No deliverables yet.</p>
-          )}
+          {total === 0 && <p className="py-2 text-xs text-zinc-500">No deliverables yet.</p>}
         </div>
       )}
     </div>
@@ -393,9 +480,7 @@ function MessageThread({
                 {m.author_role === 'admin' ? 'A' : 'C'}
               </span>
               <div className={`max-w-[75%] rounded-xl px-3 py-2 text-sm ${
-                isMe
-                  ? 'bg-amber-500/15 text-zinc-100'
-                  : 'bg-zinc-800/60 text-zinc-200'
+                isMe ? 'bg-amber-500/15 text-zinc-100' : 'bg-zinc-800/60 text-zinc-200'
               }`}>
                 {m.body}
                 <p className="mt-1 text-[10px] text-zinc-500">{m.created_at.slice(0, 16).replace('T', ' ')}</p>
@@ -426,10 +511,53 @@ function MessageThread({
   )
 }
 
+// --- No-project state — shows client ID so admin can provision ---
+
+function NoProjectPanel({ sub }: { sub: string }) {
+  const [copied, setCopied] = useState(false)
+
+  const copy = () => {
+    navigator.clipboard.writeText(sub).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    })
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="forge-panel surface-card-strong p-6 text-center">
+        <p className="text-sm text-zinc-300">No project has been linked to your account yet.</p>
+        <p className="mt-1 text-xs text-zinc-500">
+          Once a project is assigned you'll see the full dashboard here.
+        </p>
+      </div>
+
+      <div className="forge-panel surface-card-strong p-4 space-y-2">
+        <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400">Your account ID</p>
+        <p className="text-xs text-zinc-500">
+          Share this with your account manager to link your project.
+        </p>
+        <div className="flex items-center gap-2">
+          <code className="min-w-0 flex-1 truncate rounded-lg bg-zinc-800/60 px-3 py-2 font-mono text-xs text-zinc-200">
+            {sub}
+          </code>
+          <button
+            type="button"
+            onClick={copy}
+            className="shrink-0 rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-xs text-zinc-300 transition hover:border-zinc-500/60 hover:text-zinc-100"
+          >
+            {copied ? 'Copied!' : 'Copy'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // --- Main page ---
 
 export function PortalPage() {
-  const { token, claims } = useAuth()
+  const { token, claims, logout } = useAuth()
 
   const [project, setProject] = useState<Project | null>(null)
   const [milestones, setMilestones] = useState<Milestone[]>([])
@@ -440,13 +568,6 @@ export function PortalPage() {
   const [status, setStatus] = useState<'idle' | 'loading' | 'error' | 'no_project'>('idle')
   const [error, setError] = useState<string | null>(null)
   const [sending, setSending] = useState(false)
-
-  // Redirect if not authenticated
-  useEffect(() => {
-    if (!token) {
-      window.location.hash = '#/portal/login'
-    }
-  }, [token])
 
   const load = useCallback(async () => {
     if (!token) return
@@ -487,7 +608,6 @@ export function PortalPage() {
       const byId: Record<string, Deliverable[]> = {}
       deliverables.forEach(({ id, ds }) => { byId[id] = ds })
       setDeliverablesByMilestone(byId)
-
       setStatus('idle')
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to load project data')
@@ -510,13 +630,11 @@ export function PortalPage() {
       )
       setMessages((prev) => [...prev, msg])
     } catch {
-      // silently fail — user still sees their draft cleared
+      // silently fail
     } finally {
       setSending(false)
     }
   }
-
-  if (!token) return null
 
   if (!PROJECTS_API_BASE_URL) {
     return (
@@ -526,8 +644,19 @@ export function PortalPage() {
     )
   }
 
+  // Not authenticated — show inline login gate
+  if (!token) {
+    return (
+      <PageLayout title="Client portal">
+        <ClientLoginGate />
+      </PageLayout>
+    )
+  }
+
   return (
     <PageLayout title="Client portal">
+      <ClientHeader claims={claims!} onLogout={logout} />
+
       {status === 'loading' && (
         <p className="text-sm text-zinc-400">Loading your project…</p>
       )}
@@ -539,27 +668,18 @@ export function PortalPage() {
         </div>
       )}
 
-      {status === 'no_project' && (
-        <div className="forge-panel surface-card-strong p-6 text-center">
-          <p className="text-sm text-zinc-300">No project has been assigned to your account yet.</p>
-          <p className="mt-1 text-xs text-zinc-500">
-            Reach out via the <a href="#/contact" className="text-amber-400 hover:text-amber-300">contact page</a> if you think this is a mistake.
-          </p>
-        </div>
+      {status === 'no_project' && claims && (
+        <NoProjectPanel sub={claims.sub} />
       )}
 
       {status === 'idle' && project && (
         <div className="space-y-5">
-          {/* Project summary — progress, hours, timeline */}
           <ProjectSummaryCard
             project={project}
             deliverablesByMilestone={deliverablesByMilestone}
           />
-
-          {/* Quick links */}
           <LinksSection links={links} />
 
-          {/* Milestones */}
           {milestones.length > 0 ? (
             <div className="space-y-3">
               <h3 className="text-xs font-semibold uppercase tracking-widest text-zinc-400">Timeline</h3>
@@ -575,10 +695,8 @@ export function PortalPage() {
             <p className="text-sm text-zinc-500">No milestones have been set yet.</p>
           )}
 
-          {/* Email threads */}
           <EmailsSection emails={emails} />
 
-          {/* Messages */}
           <MessageThread
             messages={messages}
             onSend={sendMessage}
