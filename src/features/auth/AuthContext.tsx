@@ -62,18 +62,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [claims, setClaims] = useState<AuthClaims | null>(null)
 
   useEffect(() => {
-    // Check URL for token delivered by OAuth callback
+    // Check URL search params for token (e.g. ?token=...)
     const params = new URLSearchParams(window.location.search)
-    const urlToken = params.get('token')
+    let urlToken = params.get('token')
+
+    // Also check hash fragment — the auth service appends #token=... to hash-based
+    // redirect URIs, producing patterns like #/some-route#token=...
+    if (!urlToken) {
+      const tokenMatch = window.location.hash.match(/#token=([^&#]+)/)
+      if (tokenMatch) urlToken = tokenMatch[1]
+    }
+
     if (urlToken) {
       const decoded = decodeJwt(urlToken)
       if (decoded) {
         localStorage.setItem(STORAGE_KEY, urlToken)
         setToken(urlToken)
         setClaims(decoded)
-        // Clean token from URL without triggering a navigation
-        const clean = window.location.href.replace(/[?&]token=[^&#]+/, '')
-        window.history.replaceState(null, '', clean)
+        // Remove the token from the URL, preserving the hash route
+        const cleanHash = window.location.hash.replace(/#token=[^&#]+/, '')
+        const cleanSearch = window.location.search.replace(/[?&]token=[^&#]+/, '')
+        const cleanUrl = `${window.location.pathname}${cleanSearch}${cleanHash}`
+        window.history.replaceState(null, '', cleanUrl)
+        // Re-fire hashchange so the hash router re-reads the cleaned hash
+        window.dispatchEvent(new Event('hashchange'))
         return
       }
     }
