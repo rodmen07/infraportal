@@ -45,6 +45,7 @@ interface PagedResponse<T> { data: T[]; total: number; limit: number; offset: nu
 interface Project {
   id: string; account_id: string; client_user_id: string | null
   name: string; description: string | null; status: string
+  budget: number | null
   start_date: string | null; target_end_date: string | null
   created_at: string; updated_at: string
 }
@@ -65,6 +66,13 @@ interface ProjectLink {
 interface PMessage {
   id: string; project_id: string; author_id: string
   author_role: string; body: string; created_at: string
+}
+interface Collaborator {
+  id: string; project_id: string; name: string; role: string
+  avatar_url: string | null; created_at: string
+}
+interface ProgressUpdate {
+  id: string; project_id: string; content: string; created_at: string
 }
 
 interface SpendRecord {
@@ -930,7 +938,7 @@ function ProjectsTab() {
 
   // project create form
   const [showCreate, setShowCreate] = useState(false)
-  const [form, setForm] = useState({ name: '', account_id: '', client_user_id: '', status: 'planning', start_date: '', target_end_date: '', description: '' })
+  const [form, setForm] = useState({ name: '', account_id: '', client_user_id: '', status: 'planning', start_date: '', target_end_date: '', description: '', budget: '' })
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
 
@@ -947,6 +955,19 @@ function ProjectsTab() {
   const [linkForm, setLinkForm] = useState({ link_type: 'other', label: '', url: '' })
   const [savingLink, setSavingLink] = useState(false)
 
+  // collaborators
+  const [collaborators, setCollaborators] = useState<Collaborator[]>([])
+  const [collabForm, setCollabForm] = useState({ name: '', role: 'contributor' })
+  const [savingCollab, setSavingCollab] = useState(false)
+
+  // progress updates
+  const [progressUpdates, setProgressUpdates] = useState<ProgressUpdate[]>([])
+  const [updateContent, setUpdateContent] = useState('')
+  const [savingUpdate, setSavingUpdate] = useState(false)
+
+  // message send error
+  const [sendError, setSendError] = useState<string | null>(null)
+
   const loadProjects = useCallback(async () => {
     if (!PROJECTS_URL) return
     setLoading(true); setError(null)
@@ -962,16 +983,21 @@ function ProjectsTab() {
 
   const loadProject = useCallback(async (p: Project) => {
     setSelected(p); setMilestones([]); setDeliverables({}); setMessages([]); setLinks([])
+    setCollaborators([]); setProgressUpdates([])
     try {
-      const [ms, msgs, lnks] = await Promise.all([
+      const [ms, msgs, lnks, collabs, updates] = await Promise.all([
         api<Milestone[]>(`${PROJECTS_URL}/api/v1/projects/${p.id}/milestones`),
         api<PMessage[]>(`${PROJECTS_URL}/api/v1/projects/${p.id}/messages`),
         api<ProjectLink[]>(`${PROJECTS_URL}/api/v1/projects/${p.id}/links`).catch(() => [] as ProjectLink[]),
+        api<Collaborator[]>(`${PROJECTS_URL}/api/v1/projects/${p.id}/collaborators`).catch(() => [] as Collaborator[]),
+        api<ProgressUpdate[]>(`${PROJECTS_URL}/api/v1/projects/${p.id}/progress-updates`).catch(() => [] as ProgressUpdate[]),
       ])
       const sorted = [...ms].sort((a, b) => a.sort_order - b.sort_order)
       setMilestones(sorted)
       setMessages(msgs)
       setLinks(lnks)
+      setCollaborators(collabs)
+      setProgressUpdates(updates)
       const dlMap: Record<string, Deliverable[]> = {}
       await Promise.all(sorted.map(async (m) => {
         const ds = await api<Deliverable[]>(`${PROJECTS_URL}/api/v1/milestones/${m.id}/deliverables`).catch(() => [])
@@ -990,12 +1016,13 @@ function ProjectsTab() {
         name: form.name, account_id: form.account_id,
         client_user_id: form.client_user_id || null,
         status: form.status,
+        budget: form.budget ? parseFloat(form.budget) : null,
         start_date: form.start_date || null,
         target_end_date: form.target_end_date || null,
         description: form.description || null,
       })})
       setShowCreate(false)
-      setForm({ name: '', account_id: '', client_user_id: '', status: 'planning', start_date: '', target_end_date: '', description: '' })
+      setForm({ name: '', account_id: '', client_user_id: '', status: 'planning', start_date: '', target_end_date: '', description: '', budget: '' })
       loadProjects()
     } catch (e) {
       setSaveError(e instanceof Error ? e.message : 'Save failed')
@@ -1066,19 +1093,49 @@ function ProjectsTab() {
     } catch { /* silent */ }
   }
 
+  const createCollaborator = async (e: React.FormEvent) => {
+    if (!selected) return
+    e.preventDefault(); setSavingCollab(true)
+    try {
+      const c = await api<Collaborator>(`${PROJECTS_URL}/api/v1/projects/${selected.id}/collaborators`, {
+        method: 'POST', body: JSON.stringify({ name: collabForm.name.trim(), role: collabForm.role }),
+      })
+      setCollaborators(prev => [...prev, c])
+      setCollabForm({ name: '', role: 'contributor' })
+    } catch { /* silent */ } finally {
+      setSavingCollab(false)
+    }
+  }
+
+  const createProgressUpdate = async (e: React.FormEvent) => {
+    if (!selected || !updateContent.trim()) return
+    e.preventDefault(); setSavingUpdate(true)
+    try {
+      const u = await api<ProgressUpdate>(`${PROJECTS_URL}/api/v1/projects/${selected.id}/progress-updates`, {
+        method: 'POST', body: JSON.stringify({ content: updateContent.trim() }),
+      })
+      setProgressUpdates(prev => [u, ...prev])
+      setUpdateContent('')
+    } catch { /* silent */ } finally {
+      setSavingUpdate(false)
+    }
+  }
+
   const sendReply = async (e: React.FormEvent) => {
     if (!selected) return
     e.preventDefault()
     const body = reply.trim()
     if (!body) return
-    setSending(true)
+    setSending(true); setSendError(null)
     try {
       const msg = await api<PMessage>(`${PROJECTS_URL}/api/v1/projects/${selected.id}/messages`, {
         method: 'POST', body: JSON.stringify({ body }),
       })
       setMessages(prev => [...prev, msg])
       setReply('')
-    } catch { /* silent */ } finally {
+    } catch (e) {
+      setSendError(e instanceof Error ? e.message : 'Failed to send message')
+    } finally {
       setSending(false)
     }
   }
@@ -1128,6 +1185,9 @@ function ProjectsTab() {
               <h4 className="text-sm font-semibold text-zinc-100">{selected.name}</h4>
               {selected.client_user_id && (
                 <p className="mt-0.5 font-mono text-xs text-zinc-500">client: {selected.client_user_id}</p>
+              )}
+              {selected.budget != null && (
+                <p className="mt-0.5 text-xs text-zinc-400">Budget: <span className="text-zinc-200">${selected.budget.toLocaleString()}</span></p>
               )}
             </div>
             <button className="btn-neutral btn-sm" onClick={() => setShowMilestone(true)}>+ Milestone</button>
@@ -1190,6 +1250,47 @@ function ProjectsTab() {
             </form>
           </div>
 
+          {/* Collaborators */}
+          <div className="space-y-2">
+            <h5 className="text-xs font-semibold uppercase tracking-widest text-zinc-400">Collaborators</h5>
+            {collaborators.length === 0 && <p className="text-xs text-zinc-500">No collaborators yet.</p>}
+            {collaborators.map(c => (
+              <div key={c.id} className="flex items-center gap-3 rounded-lg bg-zinc-900/40 px-3 py-1.5 text-xs">
+                <span className="h-5 w-5 shrink-0 rounded-full bg-amber-500/20 text-center text-[10px] leading-5 text-amber-300">
+                  {c.name[0]?.toUpperCase() ?? '?'}
+                </span>
+                <span className="flex-1 text-zinc-200">{c.name}</span>
+                <span className="text-zinc-500">{c.role}</span>
+              </div>
+            ))}
+            <form onSubmit={createCollaborator} className="flex gap-2 pt-1">
+              <input placeholder="Name" value={collabForm.name} onChange={e => setCollabForm(f => ({ ...f, name: e.target.value }))} required
+                className="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-800/60 px-2 py-1.5 text-xs text-zinc-200 outline-none focus:border-amber-500/60 placeholder-zinc-500" />
+              <select value={collabForm.role} onChange={e => setCollabForm(f => ({ ...f, role: e.target.value }))}
+                className="rounded-lg border border-zinc-700 bg-zinc-800/60 px-2 py-1.5 text-xs text-zinc-200 outline-none focus:border-amber-500/60">
+                {['contributor', 'designer', 'developer', 'manager', 'reviewer'].map(r => <option key={r} value={r}>{r}</option>)}
+              </select>
+              <button type="submit" disabled={savingCollab || !collabForm.name.trim()} className="btn-accent btn-sm disabled:opacity-50">Add</button>
+            </form>
+          </div>
+
+          {/* Progress updates */}
+          <div className="space-y-2">
+            <h5 className="text-xs font-semibold uppercase tracking-widest text-zinc-400">Progress updates</h5>
+            {progressUpdates.length === 0 && <p className="text-xs text-zinc-500">No updates yet.</p>}
+            {progressUpdates.map(u => (
+              <div key={u.id} className="rounded-xl bg-zinc-900/40 px-3 py-2 text-xs">
+                <p className="text-zinc-200">{u.content}</p>
+                <p className="mt-0.5 text-zinc-500">{u.created_at.slice(0, 16).replace('T', ' ')}</p>
+              </div>
+            ))}
+            <form onSubmit={createProgressUpdate} className="flex gap-2 pt-1">
+              <input placeholder="Post an update…" value={updateContent} onChange={e => setUpdateContent(e.target.value)} required
+                className="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-800/60 px-2 py-1.5 text-xs text-zinc-200 outline-none focus:border-amber-500/60 placeholder-zinc-500" />
+              <button type="submit" disabled={savingUpdate || !updateContent.trim()} className="btn-accent btn-sm disabled:opacity-50">Post</button>
+            </form>
+          </div>
+
           {/* Messages */}
           <div className="space-y-2">
             <h5 className="text-xs font-semibold uppercase tracking-widest text-zinc-400">Messages</h5>
@@ -1200,10 +1301,13 @@ function ProjectsTab() {
                 <p className="mt-0.5 text-[10px] text-zinc-500">{m.author_role} · {m.created_at.slice(0, 16).replace('T', ' ')}</p>
               </div>
             ))}
-            <form onSubmit={sendReply} className="flex gap-2 pt-1">
-              <input value={reply} onChange={e => setReply(e.target.value)} placeholder="Reply to client…"
-                className="min-w-0 flex-1 rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none" />
-              <button type="submit" disabled={!reply.trim() || sending} className="btn-accent btn-sm disabled:opacity-50">Send</button>
+            <form onSubmit={sendReply} className="flex flex-col gap-2 pt-1">
+              {sendError && <p className="rounded-lg bg-red-500/10 px-3 py-1.5 text-xs text-red-400">{sendError}</p>}
+              <div className="flex gap-2">
+                <input value={reply} onChange={e => setReply(e.target.value)} placeholder="Reply to client…"
+                  className="min-w-0 flex-1 rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none" />
+                <button type="submit" disabled={!reply.trim() || sending} className="btn-accent btn-sm disabled:opacity-50">Send</button>
+              </div>
             </form>
           </div>
         </div>
@@ -1227,6 +1331,7 @@ function ProjectsTab() {
             <FormField label="Start date"><input type="date" value={form.start_date} onChange={e => setForm(f => ({ ...f, start_date: e.target.value }))} className={INPUT_CLS} /></FormField>
             <FormField label="Target end date"><input type="date" value={form.target_end_date} onChange={e => setForm(f => ({ ...f, target_end_date: e.target.value }))} className={INPUT_CLS} /></FormField>
             <FormField label="Description"><textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} rows={2} className={INPUT_CLS} /></FormField>
+            <FormField label="Budget (USD)"><input type="number" min="0" step="0.01" placeholder="e.g. 5000" value={form.budget} onChange={e => setForm(f => ({ ...f, budget: e.target.value }))} className={INPUT_CLS} /></FormField>
             {saveError && <SaveError message={saveError} />}
             <div className="flex justify-end gap-2 pt-1">
               <button type="button" className="btn-neutral btn-sm" onClick={() => setShowCreate(false)}>Cancel</button>

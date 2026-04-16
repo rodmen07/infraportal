@@ -96,6 +96,20 @@ async function api<T>(path: string, token: string, opts: RequestInit = {}): Prom
   return res.json()
 }
 
+// --- Spinner ---
+
+function Spinner() {
+  return (
+    <div className="flex items-center gap-2 py-8 text-sm text-zinc-400">
+      <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+      </svg>
+      Loading your project…
+    </div>
+  )
+}
+
 // --- Login gate (shown inline when not authenticated) ---
 
 function GithubIcon() {
@@ -605,11 +619,13 @@ function MessageThread({
   onSend,
   currentUserId,
   sending,
+  sendError,
 }: {
   messages: Message[]
   onSend: (body: string) => Promise<void>
   currentUserId: string
   sending: boolean
+  sendError?: string | null
 }) {
   const [draft, setDraft] = useState('')
   const bottomRef = useRef<HTMLDivElement>(null)
@@ -659,21 +675,24 @@ function MessageThread({
         <div ref={bottomRef} />
       </div>
 
-      <form onSubmit={submit} className="border-t border-zinc-700/40 p-3 flex gap-2">
-        <input
-          type="text"
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          placeholder="Ask a question or request an update…"
-          className="min-w-0 flex-1 rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
-        />
-        <button
-          type="submit"
-          disabled={!draft.trim() || sending}
-          className="btn-accent btn-sm shrink-0 disabled:opacity-50"
-        >
-          Send
-        </button>
+      <form onSubmit={submit} className="border-t border-zinc-700/40 p-3 flex flex-col gap-2">
+        {sendError && <p className="rounded-lg bg-red-500/10 px-3 py-1.5 text-xs text-red-400">{sendError}</p>}
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            placeholder="Ask a question or request an update…"
+            className="min-w-0 flex-1 rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
+          />
+          <button
+            type="submit"
+            disabled={!draft.trim() || sending}
+            className="btn-accent btn-sm shrink-0 disabled:opacity-50"
+          >
+            Send
+          </button>
+        </div>
       </form>
     </div>
   )
@@ -725,7 +744,7 @@ function NoProjectPanel({ sub }: { sub: string }) {
 // --- Main page ---
 
 export function PortalPage() {
-  const { token, claims, logout } = useAuth()
+  const { token, claims, login, logout } = useAuth()
 
   const [project, setProject] = useState<Project | null>(null)
   const [milestones, setMilestones] = useState<Milestone[]>([])
@@ -738,6 +757,24 @@ export function PortalPage() {
   const [status, setStatus] = useState<'idle' | 'loading' | 'error' | 'no_project'>('idle')
   const [error, setError] = useState<string | null>(null)
   const [sending, setSending] = useState(false)
+  const [sendError, setSendError] = useState<string | null>(null)
+
+  const tryRefresh = useCallback(async (): Promise<string | null> => {
+    if (!AUTH_SERVICE_URL) return null
+    try {
+      const res = await fetch(`${AUTH_SERVICE_URL}/auth/refresh`, {
+        method: 'POST',
+        credentials: 'include',
+      })
+      if (!res.ok) { logout(); return null }
+      const { access_token } = await res.json() as { access_token: string }
+      login(access_token)
+      return access_token
+    } catch {
+      logout()
+      return null
+    }
+  }, [login, logout])
 
   const load = useCallback(async () => {
     if (!token) return
@@ -784,10 +821,15 @@ export function PortalPage() {
       setDeliverablesByMilestone(byId)
       setStatus('idle')
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load project data')
+      const errMsg = e instanceof Error ? e.message : 'Failed to load project data'
+      if (errMsg.includes('401')) {
+        await tryRefresh() // on success, token state changes → useEffect re-runs load()
+        return
+      }
+      setError(errMsg)
       setStatus('error')
     }
-  }, [token])
+  }, [token, tryRefresh])
 
   useEffect(() => {
     if (token) load()
@@ -796,6 +838,7 @@ export function PortalPage() {
   const sendMessage = async (body: string) => {
     if (!token || !project) return
     setSending(true)
+    setSendError(null)
     try {
       const msg = await api<Message>(
         `/api/v1/projects/${project.id}/messages`,
@@ -803,8 +846,25 @@ export function PortalPage() {
         { method: 'POST', body: JSON.stringify({ body }) }
       )
       setMessages((prev) => [...prev, msg])
-    } catch {
-      // silently fail
+    } catch (e) {
+      const errMsg = e instanceof Error ? e.message : ''
+      if (errMsg.includes('401')) {
+        const newToken = await tryRefresh()
+        if (newToken) {
+          try {
+            const retryMsg = await api<Message>(
+              `/api/v1/projects/${project.id}/messages`,
+              newToken,
+              { method: 'POST', body: JSON.stringify({ body }) }
+            )
+            setMessages((prev) => [...prev, retryMsg])
+            return
+          } catch { /* fall through to set error */ }
+        } else {
+          return // logout triggered, login gate will appear
+        }
+      }
+      setSendError(errMsg || 'Failed to send message.')
     } finally {
       setSending(false)
     }
@@ -831,9 +891,7 @@ export function PortalPage() {
     <PageLayout title="Client portal">
       <ClientHeader claims={claims!} onLogout={logout} />
 
-      {status === 'loading' && (
-        <p className="text-sm text-zinc-400">Loading your project…</p>
-      )}
+      {status === 'loading' && <Spinner />}
 
       {status === 'error' && (
         <div className="forge-panel surface-card-strong p-4">
@@ -878,6 +936,7 @@ export function PortalPage() {
             onSend={sendMessage}
             currentUserId={claims?.sub ?? ''}
             sending={sending}
+            sendError={sendError}
           />
         </div>
       )}
