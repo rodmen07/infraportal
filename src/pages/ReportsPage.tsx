@@ -91,8 +91,16 @@ async function api<T>(url: string, opts: RequestInit = {}): Promise<T> {
   return res.json()
 }
 
-function EmptyState({ message }: { message: string }) {
-  return <p className="py-12 text-center text-sm text-zinc-500">{message}</p>
+function EmptyReportsState() {
+  return (
+    <div className="flex flex-col items-center justify-center py-16 gap-3">
+      <svg className="h-8 w-8 text-zinc-600" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75M6.75 3H5.25A2.25 2.25 0 003 5.25v13.5A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V5.25A2.25 2.25 0 0018.75 3H6.75z" />
+      </svg>
+      <p className="text-sm font-medium text-zinc-400">No saved reports yet</p>
+      <p className="text-xs text-zinc-600">Create new reports to see them listed here.</p>
+    </div>
+  )
 }
 
 function SaveError({ message }: { message: string }) {
@@ -457,7 +465,7 @@ function ReportsView() {
 
       {/* Reports table */}
       {reports.length === 0 ? (
-        <EmptyState message="No saved reports. Create one above." />
+        <EmptyReportsState />
       ) : (
         <div className="overflow-x-auto rounded-xl border border-zinc-700/40">
           <table className="w-full text-sm">
