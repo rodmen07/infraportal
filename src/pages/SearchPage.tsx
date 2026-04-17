@@ -60,8 +60,31 @@ function AuthGate({ children }: { children: React.ReactNode }) {
 // ---------------------------------------------------------------------------
 // Shared helpers
 // ---------------------------------------------------------------------------
-function EmptyState({ message }: { message: string }) {
-  return <p className="py-12 text-center text-sm text-zinc-500">{message}</p>
+function SearchEmptyState({ type }: { type: 'no-query' | 'no-results' }) {
+  const icon = (
+    <svg className="h-8 w-8 text-zinc-600" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+    </svg>
+  );
+
+  let heading: string;
+  let description: string;
+
+  if (type === 'no-query') {
+    heading = 'Start your search';
+    description = 'Type in the search bar above to find accounts, contacts, and more.';
+  } else { // type === 'no-results'
+    heading = 'No results found';
+    description = 'Try a different search query or broaden your terms.';
+  }
+
+  return (
+    <div className="flex flex-col items-center justify-center py-16 gap-3">
+      {icon}
+      <p className="text-sm font-medium text-zinc-400">{heading}</p>
+      <p className="text-xs text-zinc-600">{description}</p>
+    </div>
+  );
 }
 
 const ENTITY_COLORS: Record<string, string> = {
@@ -214,19 +237,19 @@ function SearchView() {
           {error}
         </div>
       )}
-
+      
       {/* Loading Skeleton */}
       {loading && query && !error && (
         <SearchResultsSkeleton />
       )}
 
-      {/* Results */}
+      {/* Empty States */}
       {!loading && !error && query && results.length === 0 && (
-        <EmptyState message={`No results for "${query}"`} />
+        <SearchEmptyState type="no-results" />
       )}
 
       {!query && !loading && (
-        <EmptyState message="Type to search across all entity types" />
+        <SearchEmptyState type="no-query" />
       )}
 
       {!loading && !error && query && results.length > 0 && groupKeys.map(entityType => (
