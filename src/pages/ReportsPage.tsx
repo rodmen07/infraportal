@@ -2,15 +2,15 @@ import { useState, useEffect, useCallback } from 'react'
 import { PageLayout } from './PageLayout'
 import { resolveAdminToken } from '../config'
 
-// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------\
 // Config
-// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------\
 const ADMIN_KEY     = import.meta.env.VITE_ADMIN_KEY ?? 'dev-admin'
-const REPORTING_URL = (import.meta.env.VITE_REPORTING_API_BASE_URL ?? '').replace(/\/$/, '')
+const REPORTING_URL = (import.meta.env.VITE_REPORTING_API_BASE_URL ?? '').replace(/\/?$/, '')
 
-// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------\
 // Types
-// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------\
 interface SavedReport {
   id: string
   name: string
@@ -33,9 +33,9 @@ type ModalMode =
   | { mode: 'delete'; id: string; label: string }
   | { mode: 'export' }
 
-// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------\
 // Auth gate
-// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------\
 function AuthGate({ children }: { children: React.ReactNode }) {
   const [key, setKey] = useState(() => sessionStorage.getItem('admin_key') ?? '')
   const [input, setInput] = useState('')
@@ -71,9 +71,9 @@ function AuthGate({ children }: { children: React.ReactNode }) {
   )
 }
 
-// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------\
 // Shared helpers
-// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------\
 async function api<T>(url: string, opts: RequestInit = {}): Promise<T> {
   const res = await fetch(url, {
     ...opts,
@@ -89,14 +89,6 @@ async function api<T>(url: string, opts: RequestInit = {}): Promise<T> {
     throw new Error(body.message ?? `${res.status} ${res.statusText}`)
   }
   return res.json()
-}
-
-function Spinner() {
-  return (
-    <div className="flex items-center justify-center py-12">
-      <div className="h-6 w-6 animate-spin rounded-full border-2 border-amber-400 border-t-transparent" />
-    </div>
-  )
 }
 
 function EmptyState({ message }: { message: string }) {
@@ -118,9 +110,90 @@ function FormField({ label, children }: { label: string; children: React.ReactNo
 
 const INPUT = 'w-full rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none'
 
-// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------\
+// Skeleton components
+// ---------------------------------------------------------------------------\
+function DashboardCardSkeleton() {
+  return (
+    <div className="forge-panel surface-card-strong p-5 animate-pulse">
+      <div className="flex items-center gap-6">
+        <div className="text-center space-y-1">
+          <div className="h-8 w-16 rounded bg-zinc-800" />
+          <div className="h-3 w-24 rounded bg-zinc-800" />
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <div className="h-6 w-20 rounded-full bg-zinc-800" />
+          <div className="h-6 w-24 rounded-full bg-zinc-800" />
+          <div className="h-6 w-16 rounded-full bg-zinc-800" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function ReportTableRowSkeleton() {
+  return (
+    <tr className="border-b border-zinc-700/20">
+      <td className="px-4 py-3"><div className="h-4 w-32 rounded bg-zinc-800" /></td>
+      <td className="px-4 py-3"><div className="h-4 w-40 rounded bg-zinc-800" /></td>
+      <td className="px-4 py-3"><div className="h-4 w-24 rounded bg-zinc-800" /></td>
+      <td className="px-4 py-3"><div className="h-4 w-20 rounded bg-zinc-800" /></td>
+      <td className="px-4 py-3">
+        <div className="flex gap-2 justify-end">
+          <div className="h-4 w-8 rounded bg-zinc-800" />
+          <div className="h-4 w-10 rounded bg-zinc-800" />
+        </div>
+      </td>
+    </tr>
+  )
+}
+
+function ReportTableSkeleton() {
+  return (
+    <div className="overflow-x-auto rounded-xl border border-zinc-700/40 animate-pulse">
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="border-b border-zinc-700/40 bg-zinc-800/40 text-left text-xs text-zinc-400">
+            <th className="px-4 py-2.5 font-medium">Name</th>
+            <th className="px-4 py-2.5 font-medium">Metric</th>
+            <th className="px-4 py-2.5 font-medium">Dimension</th>
+            <th className="px-4 py-2.5 font-medium">Created</th>
+            <th className="px-4 py-2.5 font-medium" />
+          </tr>
+        </thead>
+        <tbody>
+          <ReportTableRowSkeleton />
+          <ReportTableRowSkeleton />
+          <ReportTableRowSkeleton />
+          <ReportTableRowSkeleton />
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+function ReportsViewSkeleton() {
+  return (
+    <div className="space-y-6 animate-pulse">
+      <DashboardCardSkeleton />
+
+      {/* Table header skeleton */}
+      <div className="flex items-center justify-between">
+        <div className="h-4 w-36 rounded bg-zinc-800" /> {/* For "Saved Reports" title */}
+        <div className="flex gap-2">
+          <div className="h-7 w-20 rounded-lg bg-zinc-800" /> {/* For "Export" button */}
+          <div className="h-7 w-28 rounded-lg bg-zinc-800" /> {/* For "+ New Report" button */}
+        </div>
+      </div>
+
+      <ReportTableSkeleton />
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------\
 // Modal
-// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------\
 function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
@@ -141,9 +214,9 @@ function Modal({ title, onClose, children }: { title: string; onClose: () => voi
   )
 }
 
-// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------\
 // Report form (create / edit)
-// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------\
 interface ReportFormData { name: string; metric: string; dimension: string; description: string }
 
 function ReportForm({
@@ -199,9 +272,9 @@ function ReportForm({
   )
 }
 
-// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------\
 // Export form
-// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------\
 function ExportForm({ onClose, metrics }: { onClose: () => void; metrics: string[] }) {
   const [format, setFormat] = useState<'csv' | 'json'>('csv')
   const [metric, setMetric] = useState('')
@@ -278,9 +351,9 @@ function ExportForm({ onClose, metrics }: { onClose: () => void; metrics: string
   )
 }
 
-// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------\
 // Dashboard summary card
-// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------\
 function DashboardCard({ summary }: { summary: DashboardSummary }) {
   return (
     <div className="forge-panel surface-card-strong p-5">
@@ -301,9 +374,9 @@ function DashboardCard({ summary }: { summary: DashboardSummary }) {
   )
 }
 
-// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------\
 // Reports view
-// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------\
 function ReportsView() {
   const [summary, setSummary]   = useState<DashboardSummary | null>(null)
   const [reports, setReports]   = useState<SavedReport[]>([])
@@ -361,7 +434,7 @@ function ReportsView() {
     }
   }
 
-  if (loading) return <Spinner />
+  if (loading) return <ReportsViewSkeleton />
   if (error) return (
     <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
       {error} <button className="ml-2 underline" onClick={load}>Retry</button>
@@ -454,9 +527,9 @@ function ReportsView() {
   )
 }
 
-// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------\
 // Page
-// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------\
 export function ReportsPage() {
   return (
     <PageLayout title="Reports" subtitle="Saved reports and dashboard metrics">
