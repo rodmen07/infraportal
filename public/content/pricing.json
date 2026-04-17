@@ -31,8 +31,8 @@
     },
     {
       "tier": "Project",
-      "price": "$9,500/month · 4-week minimum",
-      "description": "Fixed-scope delivery billed as a monthly project fee. CI/CD pipelines, IaC, containerisation, cloud migrations, and compliance readiness. (~$60/hr — 29% off hourly)",
+      "price": "$2,400/month · 4-week minimum",
+      "description": "Fixed-scope delivery billed as a monthly retainer. CI/CD pipelines, IaC, containerisation, cloud migrations, and compliance readiness. 10–15 hrs/week dedicated capacity. (~$60/hr — 29% off hourly)",
       "features": [
         "Scoped proposal with timeline",
         "All code delivered via pull request",
