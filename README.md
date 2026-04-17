@@ -138,7 +138,7 @@ Vite production base path is configured for this repo path (`/infraportal/`) in 
 - Remaining audit findings are tied to Vite major upgrades and should be addressed in a coordinated framework upgrade.
 
 
-| `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |<!-- PRODUCTIONIZER:START -->
+| `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |<!-- PRODUCTIONIZER:START -->
 ## Productionizer Agent
 
 Near-autonomous UI/UX improvement agent powered by **Gemini 2.5 Flash**. Each workflow run picks the next pending task from the matrix below, applies the fix, verifies with `tsc` + `eslint`, and opens a PR against this repo.
@@ -149,9 +149,9 @@ Near-autonomous UI/UX improvement agent powered by **Gemini 2.5 Flash**. Each wo
 
 ### Progress
 
-**4 / 30 tasks complete** (13%)
+**5 / 30 tasks complete** (16%)
 
-`███░░░░░░░░░░░░░░░░░░░░░░░░░░░`
+`████░░░░░░░░░░░░░░░░░░░░░░░░░░`
 
 ### Task Matrix
 
@@ -169,9 +169,9 @@ Near-autonomous UI/UX improvement agent powered by **Gemini 2.5 Flash**. Each wo
 
 ### Progress
 
-**4 / 30 tasks complete** (13%)
+**5 / 30 tasks complete** (16%)
 
-`███░░░░░░░░░░░░░░░░░░░░░░░░░░░`
+`████░░░░░░░░░░░░░░░░░░░░░░░░░░`
 
 ### Task Matrix
 
@@ -184,10 +184,11 @@ Near-autonomous UI/UX improvement agent powered by **Gemini 2.5 Flash**. Each wo
 
 ### Next task
 
-`ObservaboardPage` / `loading-skeleton`
+`SearchPage` / `loading-skeleton`
 
 ### Recently completed
 
+- **ObservaboardPage** / `loading-skeleton` — ObservaboardPage: replaced `Spinner` with `ObservaboardTableSkeleton` — matches table layout, eliminates layout shift and provides a better loading experience.
 - **ReportsPage** / `loading-skeleton` — ReportsPage: replaced loading spinner with ReportsViewSkeleton, DashboardCardSkeleton, and ReportTableSkeleton components — provides a visual preview of the page layout during loading.
 - **AuditPage** / `loading-skeleton` — AuditPage: replaced `Spinner` with `AuditTableSkeleton` and `TableRowSkeleton` components — matches table layout including summary row, eliminates layout shift.
 - **PortalPage** / `loading-skeleton` — PortalPage: replaced the generic loading spinner with a comprehensive PageSkeleton, composed of several section-specific skeleton components, to provide a structured preview of the page layout during loading. An existing `react-hooks/purity` ESLint error was also resolved by managing `Date.now()` with a `currentLoadTimestamp` state for stable "days left" calculation.
@@ -201,7 +202,7 @@ The agent pauses automatically when:
 
 ### Last run
 
-2026-04-17 13:33 UTC
+2026-04-17 13:34 UTC
 
 *Updated automatically by productionizer-bot · Do not edit between these markers*
 <!-- PRODUCTIONIZER:END -->
