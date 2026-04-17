@@ -138,7 +138,7 @@ Vite production base path is configured for this repo path (`/infraportal/`) in 
 - Remaining audit findings are tied to Vite major upgrades and should be addressed in a coordinated framework upgrade.
 
 
-<!-- PRODUCTIONIZER:START -->
+| `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |<!-- PRODUCTIONIZER:START -->
 ## Productionizer Agent
 
 Near-autonomous UI/UX improvement agent powered by **Gemini 2.5 Flash**. Each workflow run picks the next pending task from the matrix below, applies the fix, verifies with `tsc` + `eslint`, and opens a PR against this repo.
@@ -149,27 +149,48 @@ Near-autonomous UI/UX improvement agent powered by **Gemini 2.5 Flash**. Each wo
 
 ### Progress
 
-**0 / 30 tasks complete** (0%)
+**4 / 30 tasks complete** (13%)
 
-`░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░`
+`███░░░░░░░░░░░░░░░░░░░░░░░░░░░`
 
 ### Task Matrix
 
-| Gap | Audit | CrmAdmin | EventLog | PageFrame | SearchPage | ServiceHealth | Settings | SiteHome | UserDashboard | UserProfile |
+| Gap | Portal | CrmAdmin | Audit | Reports | Observaboard | Search | ServiceHealth | UserDashboard | PortalLogin | Contact |
 |-----|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| `loading-skeleton` | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
-| `empty-state` | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
+
+| `empty-state` | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |<!-- PRODUCTIONIZER:START -->
+## Productionizer Agent
+
+Near-autonomous UI/UX improvement agent powered by **Gemini 2.5 Flash**. Each workflow run picks the next pending task from the matrix below, applies the fix, verifies with `tsc` + `eslint`, and opens a PR against this repo.
+
+**Source**: [rodmen07/portfolio — agents/productionizer](https://github.com/rodmen07/portfolio/tree/main/agents/productionizer) · Triggered manually via `workflow_dispatch` · Runs in 15–60 min windows
+
+---
+
+### Progress
+
+**4 / 30 tasks complete** (13%)
+
+`███░░░░░░░░░░░░░░░░░░░░░░░░░░░`
+
+### Task Matrix
+
+| Gap | Portal | CrmAdmin | Audit | Reports | Observaboard | Search | ServiceHealth | UserDashboard | PortalLogin | Contact |
+|-----|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+
 | `error-ux` | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
 
 > ✅ = PR opened (or task already satisfied) · ⬜ = pending
 
 ### Next task
 
-`AuditPage` / `loading-skeleton`
+`ObservaboardPage` / `loading-skeleton`
 
 ### Recently completed
 
-*(none yet)*
+- **ReportsPage** / `loading-skeleton` — ReportsPage: replaced loading spinner with ReportsViewSkeleton, DashboardCardSkeleton, and ReportTableSkeleton components — provides a visual preview of the page layout during loading.
+- **AuditPage** / `loading-skeleton` — AuditPage: replaced `Spinner` with `AuditTableSkeleton` and `TableRowSkeleton` components — matches table layout including summary row, eliminates layout shift.
+- **PortalPage** / `loading-skeleton` — PortalPage: replaced the generic loading spinner with a comprehensive PageSkeleton, composed of several section-specific skeleton components, to provide a structured preview of the page layout during loading. An existing `react-hooks/purity` ESLint error was also resolved by managing `Date.now()` with a `currentLoadTimestamp` state for stable "days left" calculation.
 
 ### Stop conditions
 
@@ -180,7 +201,7 @@ The agent pauses automatically when:
 
 ### Last run
 
-never
+2026-04-17 13:33 UTC
 
 *Updated automatically by productionizer-bot · Do not edit between these markers*
 <!-- PRODUCTIONIZER:END -->
