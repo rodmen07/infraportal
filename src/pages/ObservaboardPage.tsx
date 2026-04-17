@@ -82,14 +82,6 @@ async function apiFetch<T>(url: string): Promise<T> {
   return res.json()
 }
 
-function Spinner() {
-  return (
-    <div className="flex items-center justify-center py-12">
-      <div className="h-6 w-6 animate-spin rounded-full border-2 border-amber-400 border-t-transparent" />
-    </div>
-  )
-}
-
 function EmptyState({ message }: { message: string }) {
   return <p className="py-12 text-center text-sm text-zinc-500">{message}</p>
 }
@@ -157,6 +149,49 @@ function EventRow({ event }: { event: ObservaEvent }) {
 }
 
 // ---------------------------------------------------------------------------
+// Observaboard Table Skeleton
+// ---------------------------------------------------------------------------
+function ObservaboardTableSkeleton() {
+  return (
+    <div className="overflow-x-auto rounded-xl border border-zinc-700/40 animate-pulse">
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="border-b border-zinc-700/40 bg-zinc-800/40 text-left text-xs text-zinc-400">
+            <th className="px-4 py-2.5 font-medium"><div className="h-3 w-16 rounded bg-zinc-800" /></th>
+            <th className="px-4 py-2.5 font-medium"><div className="h-3 w-20 rounded bg-zinc-800" /></th>
+            <th className="px-4 py-2.5 font-medium"><div className="h-3 w-16 rounded bg-zinc-800" /></th>
+            <th className="px-4 py-2.5 font-medium"><div className="h-3 w-24 rounded bg-zinc-800" /></th>
+            <th className="px-4 py-2.5 font-medium"><div className="h-3 w-20 rounded bg-zinc-800" /></th>
+            <th className="px-4 py-2.5 font-medium"><div className="h-3 w-32 rounded bg-zinc-800" /></th>
+            <th className="px-4 py-2.5 font-medium"><div className="h-3 w-20 rounded bg-zinc-800" /></th>
+          </tr>
+        </thead>
+        <tbody>
+          {Array.from({ length: 5 }).map((_, i) => (
+            <tr key={i} className="border-b border-zinc-700/20">
+              <td className="px-4 py-3"><div className="h-3 w-28 rounded bg-zinc-800" /></td>
+              <td className="px-4 py-3"><div className="h-3 w-20 rounded bg-zinc-800" /></td>
+              <td className="px-4 py-3"><div className="h-3 w-24 rounded bg-zinc-800" /></td>
+              <td className="px-4 py-3"><div className="h-3 w-20 rounded bg-zinc-800" /></td>
+              <td className="px-4 py-3"><div className="h-3 w-16 rounded bg-zinc-800" /></td>
+              <td className="px-4 py-3"><div className="h-3 w-48 rounded bg-zinc-800" /></td>
+              <td className="px-4 py-3"><div className="h-3 w-8 rounded bg-zinc-800" /></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <div className="flex items-center justify-between text-xs text-zinc-500 py-3 px-4">
+        <div className="h-3 w-24 rounded bg-zinc-800" />
+        <div className="flex gap-2">
+          <div className="h-7 w-20 rounded-lg bg-zinc-800" />
+          <div className="h-7 w-20 rounded-lg bg-zinc-800" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
 // Observaboard view
 // ---------------------------------------------------------------------------
 function ObservaboardView() {
@@ -190,7 +225,8 @@ function ObservaboardView() {
       setCurrentUrl(url)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Load failed')
-    } finally {
+    }
+    finally {
       setLoading(false)
     }
   }, [])
@@ -249,7 +285,7 @@ function ObservaboardView() {
       )}
 
       {/* Table */}
-      {loading ? <Spinner /> : !page || page.results.length === 0 ? (
+      {loading ? <ObservaboardTableSkeleton /> : !page || page.results.length === 0 ? (
         <EmptyState message="No events found." />
       ) : (
         <>
