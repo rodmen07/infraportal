@@ -138,7 +138,7 @@ Vite production base path is configured for this repo path (`/infraportal/`) in 
 - Remaining audit findings are tied to Vite major upgrades and should be addressed in a coordinated framework upgrade.
 
 
-| `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |<!-- PRODUCTIONIZER:START -->
+| `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ |<!-- PRODUCTIONIZER:START -->
 ## Productionizer Agent
 
 Near-autonomous UI/UX improvement agent powered by **Gemini 2.5 Flash**. Each workflow run picks the next pending task from the matrix below, applies the fix, verifies with `tsc` + `eslint`, and opens a PR against this repo.
@@ -149,9 +149,9 @@ Near-autonomous UI/UX improvement agent powered by **Gemini 2.5 Flash**. Each wo
 
 ### Progress
 
-**5 / 30 tasks complete** (16%)
+**6 / 30 tasks complete** (20%)
 
-`████░░░░░░░░░░░░░░░░░░░░░░░░░░`
+`██████░░░░░░░░░░░░░░░░░░░░░░░░`
 
 ### Task Matrix
 
@@ -169,9 +169,9 @@ Near-autonomous UI/UX improvement agent powered by **Gemini 2.5 Flash**. Each wo
 
 ### Progress
 
-**5 / 30 tasks complete** (16%)
+**6 / 30 tasks complete** (20%)
 
-`████░░░░░░░░░░░░░░░░░░░░░░░░░░`
+`██████░░░░░░░░░░░░░░░░░░░░░░░░`
 
 ### Task Matrix
 
@@ -184,10 +184,11 @@ Near-autonomous UI/UX improvement agent powered by **Gemini 2.5 Flash**. Each wo
 
 ### Next task
 
-`SearchPage` / `loading-skeleton`
+`ServiceHealthPage` / `loading-skeleton`
 
 ### Recently completed
 
+- **SearchPage** / `loading-skeleton` — SearchPage: replaced the search input spinner with a pulsing search icon and added a `SearchResultsSkeleton` for displaying during search result loading — provides a better visual cue for ongoing searches and previews content layout.
 - **ObservaboardPage** / `loading-skeleton` — ObservaboardPage: replaced `Spinner` with `ObservaboardTableSkeleton` — matches table layout, eliminates layout shift and provides a better loading experience.
 - **ReportsPage** / `loading-skeleton` — ReportsPage: replaced loading spinner with ReportsViewSkeleton, DashboardCardSkeleton, and ReportTableSkeleton components — provides a visual preview of the page layout during loading.
 - **AuditPage** / `loading-skeleton` — AuditPage: replaced `Spinner` with `AuditTableSkeleton` and `TableRowSkeleton` components — matches table layout including summary row, eliminates layout shift.
@@ -202,7 +203,7 @@ The agent pauses automatically when:
 
 ### Last run
 
-2026-04-17 13:34 UTC
+2026-04-17 13:35 UTC
 
 *Updated automatically by productionizer-bot · Do not edit between these markers*
 <!-- PRODUCTIONIZER:END -->
