@@ -6,7 +6,6 @@ import { useAuth } from '../features/auth/AuthContext'
 // ---------------------------------------------------------------------------
 // Config
 // ---------------------------------------------------------------------------
-const ADMIN_KEY      = import.meta.env.VITE_ADMIN_KEY                  ?? 'dev-admin'
 const CONTACTS_URL   = (import.meta.env.VITE_CONTACTS_API_BASE_URL      ?? '').replace(/\/$/, '')
 const ACCOUNTS_URL   = (import.meta.env.VITE_ACCOUNTS_API_BASE_URL      ?? '').replace(/\/$/, '')
 const OPPS_URL       = (import.meta.env.VITE_OPPORTUNITIES_API_BASE_URL  ?? '').replace(/\/$/, '')
@@ -206,34 +205,6 @@ function DeleteModal({ label, onConfirm, onClose, saving, error }: {
         </button>
       </div>
     </Modal>
-  )
-}
-
-// ---------------------------------------------------------------------------
-// Auth gate
-// ---------------------------------------------------------------------------
-function AuthGate({ onAuth }: { onAuth: () => void }) {
-  const [input, setInput] = useState('')
-  const [error, setError] = useState(false)
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    if (input === ADMIN_KEY) { sessionStorage.setItem('admin-authed', '1'); onAuth() }
-    else setError(true)
-  }
-  return (
-    <div className="flex min-h-[60vh] items-center justify-center px-4">
-      <div className="forge-panel surface-card-strong w-full max-w-sm rounded-3xl p-8 shadow-2xl shadow-black/50">
-        <h2 className="text-lg font-bold text-white">Admin access</h2>
-        <p className="mt-1 text-sm text-zinc-400">Enter your admin key to continue.</p>
-        <form onSubmit={handleSubmit} className="mt-5 space-y-3">
-          <input type="password" autoComplete="off" value={input}
-            onChange={e => { setInput(e.target.value); setError(false) }}
-            placeholder="Admin key" className={INPUT_CLS} />
-          {error && <p className="text-xs text-red-400">Incorrect key.</p>}
-          <button type="submit" className="btn-accent w-full py-2.5 text-sm">Unlock</button>
-        </form>
-      </div>
-    </div>
   )
 }
 
@@ -899,7 +870,7 @@ function LiveFeedTab() {
                 <span className="text-xs font-medium text-zinc-200">{ev.type}</span>
                 <span className="ml-auto font-mono text-[11px] text-zinc-500">{new Date(ev.timestamp).toLocaleTimeString()}</span>
               </div>
-              {ev.payload && (
+              {Boolean(ev.payload) && (
                 <details className="mt-2">
                   <summary className="cursor-pointer text-[11px] text-zinc-500 hover:text-zinc-300">payload</summary>
                   <pre className="mt-1 overflow-x-auto rounded-lg bg-zinc-900/60 p-2 text-[11px] text-zinc-300">{JSON.stringify(ev.payload, null, 2)}</pre>
@@ -1210,7 +1181,7 @@ function ProjectsTab() {
                   <span className={`rounded-full px-2 py-0.5 text-xs ${STATUS_PILL[m.status] ?? 'bg-zinc-700/40 text-zinc-400'}`}>
                     {m.status.replace('_', ' ')}
                   </span>
-                  <button className="text-xs text-zinc-500 hover:text-zinc-300" onClick={() => { setShowDeliverable(m.id); setDlForm({ name: '', description: '', status: 'pending' }) }}>
+                  <button className="text-xs text-zinc-500 hover:text-zinc-300" onClick={() => { setShowDeliverable(m.id); setDlForm({ name: '', description: '', status: 'pending', estimated_hours: '' }) }}>
                     + Deliverable
                   </button>
                 </div>

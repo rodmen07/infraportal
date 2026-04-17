@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useRef } from 'react'
 import { PageLayout } from './PageLayout'
 import { resolveAdminToken } from '../config'
 
@@ -60,14 +60,6 @@ function AuthGate({ children }: { children: React.ReactNode }) {
 // ---------------------------------------------------------------------------
 // Shared helpers
 // ---------------------------------------------------------------------------
-function Spinner() {
-  return (
-    <div className="flex items-center justify-center py-12">
-      <div className="h-6 w-6 animate-spin rounded-full border-2 border-amber-400 border-t-transparent" />
-    </div>
-  )
-}
-
 function EmptyState({ message }: { message: string }) {
   return <p className="py-12 text-center text-sm text-zinc-500">{message}</p>
 }

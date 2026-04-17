@@ -7,7 +7,7 @@ interface PageLayoutProps {
   children: React.ReactNode
 }
 
-export function PageLayout({ title, subtitle, children }: PageLayoutProps) {
+export function PageLayout({ children }: PageLayoutProps) {
   return (
     <main className="forge-grid relative min-h-screen bg-zinc-950 px-2 py-6 text-zinc-100 sm:px-4 sm:py-8 lg:px-8 lg:pl-64 xl:px-10">
       <SideNav />

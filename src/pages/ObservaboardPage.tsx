@@ -163,7 +163,7 @@ function ObservaboardView() {
   const [page, setPage]         = useState<DRFPage | null>(null)
   const [loading, setLoading]   = useState(true)
   const [error, setError]       = useState<string | null>(null)
-  const [currentUrl, setCurrentUrl] = useState<string | null>(null)
+  const [, setCurrentUrl] = useState<string | null>(null)
 
   // Filters
   const [search, setSearch]     = useState('')
