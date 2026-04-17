@@ -11,7 +11,7 @@
         "Follow-up questions via email",
         "No minimum commitment"
       ],
-      "highlighted": true,
+      "highlighted": false,
       "ctaLabel": "Book a call",
       "ctaHref": "#/contact"
     },

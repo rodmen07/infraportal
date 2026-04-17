@@ -18,8 +18,8 @@ export function PricingPage() {
 
           {tiers.length > 0 && (
             <div className="mt-6 grid gap-5 sm:grid-cols-3">
-              {tiers.map((tier) => (
-                <PricingCard key={tier.tier} {...tier} />
+              {tiers.map((tier, index) => (
+                <PricingCard key={tier.tier} {...tier} highlightLevel={index as 0 | 1 | 2} />
               ))}
             </div>
           )}
