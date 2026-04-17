@@ -58,6 +58,58 @@ interface ServiceHealth {
 }
 
 // ---------------------------------------------------------------------------
+// Skeleton Components
+// ---------------------------------------------------------------------------
+
+function ServiceHealthCardSkeleton() {
+  return (
+    <div className="forge-panel surface-card-strong flex flex-col gap-3 p-4 animate-pulse">
+      <div className="flex items-start justify-between gap-2">
+        <div>
+          <div className="h-4 w-32 rounded bg-zinc-800" />
+          <div className="h-3 w-20 rounded bg-zinc-800 mt-2" />
+        </div>
+        <div className="h-2.5 w-2.5 rounded-full bg-zinc-800 flex-shrink-0 mt-1" />
+      </div>
+
+      <div className="border-t border-zinc-700/30 pt-2 space-y-2">
+        <div className="flex items-center justify-between text-xs">
+          <div className="h-3 w-16 rounded bg-zinc-800" />
+          <div className="h-3 w-12 rounded bg-zinc-800" />
+        </div>
+        <div className="flex items-center justify-between text-xs">
+          <div className="h-3 w-16 rounded bg-zinc-800" />
+          <div className="h-3 w-24 rounded bg-zinc-800" />
+        </div>
+        <div className="flex items-center justify-between text-xs">
+          <div className="h-3 w-16 rounded bg-zinc-800" />
+          <div className="h-3 w-16 rounded bg-zinc-800" />
+        </div>
+        <div className="flex items-center justify-between text-xs">
+          <div className="h-3 w-16 rounded bg-zinc-800" />
+          <div className="h-3 w-28 rounded bg-zinc-800" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function SummaryBarSkeleton() {
+  return (
+    <div className="forge-panel surface-card-strong flex flex-wrap items-center gap-4 p-4 animate-pulse">
+      <div className="flex items-center gap-2">
+        <div className="inline-block h-3 w-3 rounded-full bg-zinc-800" />
+        <div className="h-4 w-48 rounded bg-zinc-800" />
+      </div>
+      <div className="ml-auto flex gap-4 text-xs">
+        <div className="h-3 w-24 rounded bg-zinc-800" />
+        <div className="h-3 w-24 rounded bg-zinc-800" />
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
 // Auth gate
 // ---------------------------------------------------------------------------
 function AuthGate({ children }: { children: React.ReactNode }) {
@@ -207,6 +259,10 @@ function SummaryBar({ results }: { results: ServiceHealth[] }) {
 // Service card
 // ---------------------------------------------------------------------------
 function ServiceCard({ svc }: { svc: ServiceHealth }) {
+  if (svc.status === 'checking') {
+    return <ServiceHealthCardSkeleton />
+  }
+
   return (
     <div className="forge-panel surface-card-strong flex flex-col gap-3 p-4">
       <div className="flex items-start justify-between gap-2">
@@ -224,7 +280,7 @@ function ServiceCard({ svc }: { svc: ServiceHealth }) {
           <span className="text-zinc-500">Status</span>
           <span className={`font-medium ${statusText(svc.status)}`}>{statusLabel(svc.status)}</span>
         </div>
-        {svc.status !== 'unconfigured' && svc.status !== 'checking' && (
+        {svc.status !== 'unconfigured' && (
           <div className="flex items-center justify-between text-xs">
             <span className="text-zinc-500">Detail</span>
             <span className="text-zinc-400 max-w-[160px] truncate text-right" title={svc.detail}>{svc.detail}</span>
@@ -281,23 +337,34 @@ function HealthView() {
   }, [])
 
   useEffect(() => {
-    void refresh()
-    const id = setInterval(refresh, REFRESH_MS)
-    return () => clearInterval(id)
+    // Schedule the initial refresh to happen asynchronously after the current render cycle.
+    // This prevents the linter error regarding synchronous setState calls within the effect.
+    const initialRefreshTimer = setTimeout(() => {
+      void refresh()
+    }, 0)
+
+    const intervalId = setInterval(refresh, REFRESH_MS)
+
+    return () => {
+      clearTimeout(initialRefreshTimer)
+      clearInterval(intervalId)
+    }
   }, [refresh])
 
   const groups: ServiceDef['group'][] = ['CRM', 'Platform', 'External']
+  const allServicesChecking = results.every(r => r.status === 'checking')
 
   return (
     <div className="space-y-6">
-      <SummaryBar results={results} />
+      {allServicesChecking || refreshing ? <SummaryBarSkeleton /> : <SummaryBar results={results} />}
 
       {/* Controls row */}
       <div className="flex items-center justify-between">
         <p className="text-xs text-zinc-500">
           {lastChecked
             ? `Last checked ${lastChecked.toLocaleTimeString()} · auto-refreshes every 30 s`
-            : 'Checking…'}
+            : <span className="inline-block h-3 w-48 rounded bg-zinc-800 animate-pulse" /> // Skeleton for 'Checking...'
+          }
         </p>
         <button
           className="btn-neutral text-xs"
