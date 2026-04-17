@@ -101,6 +101,43 @@ function RecentActivitiesSkeleton() {
   )
 }
 
+function EmptyOpportunityStagesState() {
+  return (
+    <div className="flex flex-col items-center justify-center py-16 gap-3">
+      <svg className="h-8 w-8 text-zinc-600" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75H6A2.25 2.25 0 003.75 6v12A2.25 2.25 0 006 20.25z" />
+      </svg>
+      <p className="text-sm font-medium text-zinc-400">No opportunity stages yet</p>
+      <p className="text-xs text-zinc-600">Opportunity stages will appear here as you create and update opportunities.</p>
+    </div>
+  )
+}
+
+function EmptyRecentActivitiesState() {
+  return (
+    <div className="flex flex-col items-center justify-center py-16 gap-3">
+      <svg className="h-8 w-8 text-zinc-600" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+      </svg>
+      <p className="text-sm font-medium text-zinc-400">No recent activities</p>
+      <p className="text-xs text-zinc-600">Recent activities will be shown here as they are recorded in the system.</p>
+    </div>
+  )
+}
+
+function EmptyCoreMetricsState() {
+  return (
+    <div className="flex flex-col items-center justify-center py-16 gap-3">
+      <svg className="h-8 w-8 text-zinc-600" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75M6.75 3H5.25A2.25 2.25 0 003 5.25v13.5A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V5.25A2.25 2.25 0 0018.75 3H6.75z" />
+      </svg>
+      <p className="text-sm font-medium text-zinc-400">No core metrics available</p>
+      <p className="text-xs text-zinc-600">Core metrics are configured by administrators and will appear here.</p>
+    </div>
+  )
+}
+
+
 function AuthGate({ children }: { children: React.ReactNode }) {
   const [key, setKey] = useState(() => sessionStorage.getItem('admin_key') ?? '')
   const [input, setInput] = useState('')
@@ -175,7 +212,7 @@ function StageDistribution({ stages }: { stages: Record<string, number> }) {
   const total = entries.reduce((sum, [, count]) => sum + count, 0)
 
   if (!entries.length) {
-    return <p className="text-sm text-zinc-500">No opportunity stages yet.</p>
+    return <EmptyOpportunityStagesState />
   }
 
   return (
@@ -203,7 +240,7 @@ function StageDistribution({ stages }: { stages: Record<string, number> }) {
 
 function RecentActivities({ rows }: { rows: Activity[] }) {
   if (!rows.length) {
-    return <p className="text-sm text-zinc-500">No recent activities.</p>
+    return <EmptyRecentActivitiesState />
   }
 
   return (
@@ -385,7 +422,7 @@ export function UserDashboardPage() {
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-zinc-500">No core metrics available.</p>
+              <EmptyCoreMetricsState />
             )}
           </div>
 
