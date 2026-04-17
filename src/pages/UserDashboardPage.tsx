@@ -36,6 +36,71 @@ interface Activity {
 
 type FetchStatus = 'idle' | 'loading' | 'success' | 'error'
 
+function CardSkeleton() {
+  return (
+    <div className="forge-panel surface-card-strong p-4 animate-pulse space-y-2">
+      <div className="h-3 w-20 rounded bg-zinc-800" />
+      <div className="h-8 w-16 rounded bg-zinc-800" />
+    </div>
+  )
+}
+
+function CoreMetricsSkeleton() {
+  return (
+    <div className="mt-2 flex flex-wrap gap-2 animate-pulse">
+      <div className="h-6 w-24 rounded-full bg-zinc-800" />
+      <div className="h-6 w-20 rounded-full bg-zinc-800" />
+      <div className="h-6 w-28 rounded-full bg-zinc-800" />
+    </div>
+  )
+}
+
+function OpportunityStageDistributionSkeleton() {
+  return (
+    <div className="space-y-3 animate-pulse">
+      <div className="space-y-1">
+        <div className="h-3 w-3/4 rounded bg-zinc-800" />
+        <div className="h-2 w-full rounded bg-zinc-800" />
+      </div>
+      <div className="space-y-1">
+        <div className="h-3 w-2/3 rounded bg-zinc-800" />
+        <div className="h-2 w-full rounded bg-zinc-800" />
+      </div>
+      <div className="space-y-1">
+        <div className="h-3 w-1/2 rounded bg-zinc-800" />
+        <div className="h-2 w-full rounded bg-zinc-800" />
+      </div>
+    </div>
+  )
+}
+
+function RecentActivitiesSkeleton() {
+  return (
+    <div className="overflow-x-auto rounded-xl border border-zinc-700/40 animate-pulse">
+      <table className="min-w-full text-sm">
+        <thead>
+          <tr className="border-b border-zinc-700/40 bg-zinc-800/40 text-left text-xs text-zinc-400">
+            <th className="px-3 py-2"><div className="h-3 w-16 rounded bg-zinc-700" /></th>
+            <th className="px-3 py-2"><div className="h-3 w-24 rounded bg-zinc-700" /></th>
+            <th className="px-3 py-2"><div className="h-3 w-20 rounded bg-zinc-700" /></th>
+            <th className="px-3 py-2"><div className="h-3 w-12 rounded bg-zinc-700" /></th>
+          </tr>
+        </thead>
+        <tbody>
+          {[...Array(3)].map((_, i) => (
+            <tr key={i} className="border-b border-zinc-700/20">
+              <td className="px-3 py-2"><div className="h-4 w-20 rounded bg-zinc-800" /></td>
+              <td className="px-3 py-2"><div className="h-4 w-32 rounded bg-zinc-800" /></td>
+              <td className="px-3 py-2"><div className="h-4 w-24 rounded bg-zinc-800" /></td>
+              <td className="px-3 py-2"><div className="h-4 w-16 rounded bg-zinc-800" /></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
 function AuthGate({ children }: { children: React.ReactNode }) {
   const [key, setKey] = useState(() => sessionStorage.getItem('admin_key') ?? '')
   const [input, setInput] = useState('')
@@ -288,18 +353,32 @@ export function UserDashboardPage() {
           </div>
 
           <div className="flex flex-wrap gap-3">
-            <Card label="Accounts" value={counts?.accounts ?? '–'} />
-            <Card label="Contacts" value={counts?.contacts ?? '–'} />
-            <Card label="Opportunities" value={counts?.opportunities ?? '–'} />
-            <Card label="Activities" value={counts?.activities ?? '–'} />
-            <Card label="Saved reports" value={counts?.reports ?? '–'} />
+            {status === 'loading' ? (
+              <>
+                <CardSkeleton />
+                <CardSkeleton />
+                <CardSkeleton />
+                <CardSkeleton />
+                <CardSkeleton />
+              </>
+            ) : (
+              <>
+                <Card label="Accounts" value={counts?.accounts ?? '–'} />
+                <Card label="Contacts" value={counts?.contacts ?? '–'} />
+                <Card label="Opportunities" value={counts?.opportunities ?? '–'} />
+                <Card label="Activities" value={counts?.activities ?? '–'} />
+                <Card label="Saved reports" value={counts?.reports ?? '–'} />
+              </>
+            )}
           </div>
 
           <div className="forge-panel surface-card-strong p-4">
             <h3 className="text-sm font-semibold text-zinc-200">Core report metrics</h3>
-            {status === 'loading' && <p className="text-sm text-zinc-400">Loading...</p>}
-            {status === 'error' && <p className="text-sm text-red-400">{error}</p>}
-            {status === 'success' && counts?.core_metrics.length ? (
+            {status === 'loading' ? (
+              <CoreMetricsSkeleton />
+            ) : status === 'error' ? (
+              <p className="text-sm text-red-400">{error}</p>
+            ) : counts?.core_metrics.length ? (
               <div className="mt-2 flex flex-wrap gap-2">
                 {counts.core_metrics.map((m) => (
                   <span key={m} className="rounded-full border border-zinc-600/40 bg-zinc-800/60 px-2.5 py-1 text-xs text-zinc-300">{m}</span>
@@ -312,16 +391,24 @@ export function UserDashboardPage() {
 
           <div className="forge-panel surface-card-strong p-4">
             <h3 className="text-sm font-semibold text-zinc-200">Opportunity stage distribution</h3>
-            {status === 'loading' && <p className="text-sm text-zinc-400">Loading...</p>}
-            {status === 'error' && <p className="text-sm text-red-400">{error}</p>}
-            {status === 'success' && <StageDistribution stages={stageDistribution} />}
+            {status === 'loading' ? (
+              <OpportunityStageDistributionSkeleton />
+            ) : status === 'error' ? (
+              <p className="text-sm text-red-400">{error}</p>
+            ) : (
+              <StageDistribution stages={stageDistribution} />
+            )}
           </div>
 
           <div className="forge-panel surface-card-strong p-4">
             <h3 className="text-sm font-semibold text-zinc-200">Recent activities</h3>
-            {status === 'loading' && <p className="text-sm text-zinc-400">Loading...</p>}
-            {status === 'error' && <p className="text-sm text-red-400">{error}</p>}
-            {status === 'success' && <RecentActivities rows={recentActivities} />}
+            {status === 'loading' ? (
+              <RecentActivitiesSkeleton />
+            ) : status === 'error' ? (
+              <p className="text-sm text-red-400">{error}</p>
+            ) : (
+              <RecentActivities rows={recentActivities} />
+            )}
           </div>
 
           <div className="flex gap-2">
