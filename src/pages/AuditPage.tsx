@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { PageLayout } from './PageLayout'
 import { resolveAdminToken } from '../config'
+import { countActiveAuditFilters, getAuditEmptyState } from '../utils/auditUi'
 
 // ---------------------------------------------------------------------------
 // Config
@@ -90,16 +91,71 @@ async function api<T>(url: string, opts: RequestInit = {}): Promise<T> {
   return res.json()
 }
 
-function Spinner() {
+function AuditTableSkeleton() {
   return (
-    <div className="flex items-center justify-center py-12">
-      <div className="h-6 w-6 animate-spin rounded-full border-2 border-amber-400 border-t-transparent" />
+    <div className="overflow-hidden rounded-2xl border border-zinc-700/40 bg-zinc-900/55">
+      <div className="grid grid-cols-2 gap-3 border-b border-zinc-700/40 px-4 py-3 sm:grid-cols-6">
+        {Array.from({ length: 6 }).map((_, idx) => (
+          <div key={idx} className="h-3 animate-pulse rounded bg-zinc-800/80" />
+        ))}
+      </div>
+      <div className="space-y-3 p-4">
+        {Array.from({ length: 5 }).map((_, row) => (
+          <div key={row} className="grid grid-cols-2 gap-3 sm:grid-cols-6">
+            {Array.from({ length: 6 }).map((__, col) => (
+              <div
+                key={`${row}-${col}`}
+                className={`animate-pulse rounded bg-zinc-800/70 ${col === 1 ? 'h-6 w-20 rounded-full' : 'h-4 w-full'}`}
+              />
+            ))}
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
 
-function EmptyState({ message }: { message: string }) {
-  return <p className="py-12 text-center text-sm text-zinc-500">{message}</p>
+function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
+  return (
+    <div className="forge-panel surface-card-strong flex flex-col gap-3 border border-red-500/30 bg-red-500/10 p-4 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <p className="text-sm font-semibold text-red-200">Unable to load audit events</p>
+        <p className="mt-1 text-sm text-red-100/90">{message}</p>
+      </div>
+      <button className="btn-accent px-3 py-2 text-sm" onClick={onRetry}>Retry</button>
+    </div>
+  )
+}
+
+function EmptyState({
+  badge,
+  title,
+  message,
+  actionLabel,
+  onAction,
+}: {
+  badge: string
+  title: string
+  message: string
+  actionLabel: string
+  onAction: () => void
+}) {
+  return (
+    <div className="forge-panel surface-card-strong p-6 text-center sm:p-8">
+      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-amber-400/25 bg-amber-500/10 text-amber-300">
+        <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth="1.8">
+          <path d="M4 7h16M7 4h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z" />
+          <path d="M8 11h8M8 15h5" />
+        </svg>
+      </div>
+      <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.24em] text-amber-300/90">{badge}</p>
+      <h3 className="mt-2 text-xl font-semibold text-zinc-50">{title}</h3>
+      <p className="mx-auto mt-2 max-w-2xl text-sm text-zinc-400">{message}</p>
+      <div className="mt-5 flex justify-center">
+        <button className="btn-accent px-4 py-2 text-sm" onClick={onAction}>{actionLabel}</button>
+      </div>
+    </div>
+  )
 }
 
 const SELECT = 'rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-zinc-100 focus:border-amber-400/50 focus:outline-none'
@@ -126,10 +182,12 @@ function FilterBar({
   filters,
   onChange,
   onReset,
+  activeFilterCount,
 }: {
   filters: Filters
   onChange: (k: keyof Filters, v: string) => void
   onReset: () => void
+  activeFilterCount: number
 }) {
   return (
     <div className="forge-panel surface-card-strong p-4">
@@ -174,8 +232,13 @@ function FilterBar({
           />
         </div>
       </div>
-      <div className="mt-3 flex justify-end">
-        <button className="btn-neutral text-xs" onClick={onReset}>Clear filters</button>
+      <div className="mt-3 flex items-center justify-between gap-3">
+        <p className="text-xs text-zinc-500">
+          {activeFilterCount > 0 ? `${activeFilterCount} filter${activeFilterCount === 1 ? '' : 's'} active` : 'Showing all audit events'}
+        </p>
+        <button className="btn-neutral px-3 py-2 text-xs" onClick={onReset} disabled={activeFilterCount === 0}>
+          Clear filters
+        </button>
       </div>
     </div>
   )
@@ -198,6 +261,8 @@ function AuditView() {
   const [result, setResult]   = useState<AuditEventsResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError]     = useState<string | null>(null)
+  const activeFilterCount     = countActiveAuditFilters(filters)
+  const emptyState            = getAuditEmptyState(filters)
 
   const load = useCallback(async () => {
     if (!AUDIT_URL) { setError('VITE_AUDIT_API_BASE_URL is not configured'); setLoading(false); return }
@@ -234,15 +299,23 @@ function AuditView() {
 
   return (
     <div className="space-y-6">
-      <FilterBar filters={filters} onChange={changeFilter} onReset={resetFilters} />
+      <FilterBar
+        filters={filters}
+        onChange={changeFilter}
+        onReset={resetFilters}
+        activeFilterCount={activeFilterCount}
+      />
 
       {/* Summary row */}
       {result && (
-        <div className="flex items-center justify-between">
-          <p className="text-xs text-zinc-500">
-            {result.total} event{result.total !== 1 ? 's' : ''} total
-            {totalPages > 1 && ` · page ${page + 1} of ${totalPages}`}
-          </p>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-wrap items-center gap-2 text-xs text-zinc-500">
+            <span>
+              {result.total} event{result.total !== 1 ? 's' : ''} total
+              {totalPages > 1 && ` · page ${page + 1} of ${totalPages}`}
+            </span>
+            {activeFilterCount > 0 && <span className="fx-chip">{activeFilterCount} filter{activeFilterCount === 1 ? '' : 's'} active</span>}
+          </div>
           <div className="flex gap-2">
             <button
               className="btn-neutral text-xs"
@@ -259,17 +332,19 @@ function AuditView() {
       )}
 
       {/* Error state */}
-      {error && (
-        <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
-          {error} <button className="ml-2 underline" onClick={load}>Retry</button>
-        </div>
-      )}
+      {error && <ErrorState message={error} onRetry={load} />}
 
       {/* Table */}
       {loading ? (
-        <Spinner />
+        <AuditTableSkeleton />
       ) : result?.data.length === 0 ? (
-        <EmptyState message="No audit events match the current filters." />
+        <EmptyState
+          badge={emptyState.badge}
+          title={emptyState.title}
+          message={emptyState.description}
+          actionLabel={emptyState.actionLabel}
+          onAction={activeFilterCount > 0 ? resetFilters : load}
+        />
       ) : result ? (
         <div className="overflow-x-auto rounded-xl border border-zinc-700/40">
           <table className="w-full text-sm">
