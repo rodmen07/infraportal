@@ -195,21 +195,32 @@ function SearchView() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const clearDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const searchCopy = getSearchStateCopy(query, results.length)
   const sampleQueries = ['acme', 'renewal', 'onboarding']
 
   const doSearch = async (q: string) => {
-    if (!q.trim()) {
-      setResults([])
-      setError(null)
-      setLoading(false)
+    const trimmedQuery = q.trim()
+
+    if (clearDebounceRef.current) {
+      clearTimeout(clearDebounceRef.current)
+      clearDebounceRef.current = null
+    }
+
+    if (!trimmedQuery) {
+      clearDebounceRef.current = setTimeout(() => {
+        setResults([])
+        setError(null)
+        setLoading(false)
+        clearDebounceRef.current = null
+      }, 150)
       return
     }
     if (!SEARCH_URL) { setError('VITE_SEARCH_API_BASE_URL is not configured'); return }
     setLoading(true)
     setError(null)
     try {
-      const res = await fetch(`${SEARCH_URL}/api/v1/search?q=${encodeURIComponent(q.trim())}`, {
+      const res = await fetch(`${SEARCH_URL}/api/v1/search?q=${encodeURIComponent(trimmedQuery)}`, {
         headers: { Authorization: `Bearer ${resolveAdminToken()}` },
       })
       if (!res.ok) throw new Error(`${res.status} ${res.statusText}`)
