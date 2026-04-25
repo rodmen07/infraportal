@@ -155,7 +155,7 @@ The latest infraportal polish pass improved the client-facing experience in a fe
 - Remaining audit findings are tied to Vite major upgrades and should be addressed in a coordinated framework upgrade.
 
 
-| `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ⬜ | ⬜ | ⬜ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ⬜ | ⬜ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ⬜ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |<!-- PRODUCTIONIZER:START -->
+| `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ⬜ | ⬜ | ⬜ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ⬜ | ⬜ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ⬜ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |<!-- PRODUCTIONIZER:START -->
 ## Productionizer Agent
 
 Near-autonomous UI/UX improvement agent powered by **Gemini 2.5 Flash**. Each workflow run picks the next pending task from the matrix below, applies the fix, verifies with `tsc` + `eslint`, and opens a PR against this repo.
@@ -166,7 +166,7 @@ Near-autonomous UI/UX improvement agent powered by **Gemini 2.5 Flash**. Each wo
 
 ### Progress
 
-**12 / 30 tasks complete** (40%)
+**13 / 30 tasks complete** (43%)
 
 `████████████░░░░░░░░░░░░░░░░░░`
 
@@ -175,7 +175,7 @@ Near-autonomous UI/UX improvement agent powered by **Gemini 2.5 Flash**. Each wo
 | Gap | Portal | CrmAdmin | Audit | Reports | Observaboard | Search | ServiceHealth | UserDashboard | PortalLogin | Contact |
 |-----|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
 
-| `empty-state` | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |<!-- PRODUCTIONIZER:START -->
+| `empty-state` | ✅ | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |<!-- PRODUCTIONIZER:START -->
 ## Productionizer Agent
 
 Near-autonomous UI/UX improvement agent powered by **Gemini 2.5 Flash**. Each workflow run picks the next pending task from the matrix below, applies the fix, verifies with `tsc` + `eslint`, and opens a PR against this repo.
@@ -186,7 +186,7 @@ Near-autonomous UI/UX improvement agent powered by **Gemini 2.5 Flash**. Each wo
 
 ### Progress
 
-**12 / 30 tasks complete** (40%)
+**13 / 30 tasks complete** (43%)
 
 `████████████░░░░░░░░░░░░░░░░░░`
 
@@ -201,7 +201,7 @@ Near-autonomous UI/UX improvement agent powered by **Gemini 2.5 Flash**. Each wo
 
 ### Next task
 
-`AuditPage` / `empty-state`
+`ReportsPage` / `empty-state`
 
 ### Recently completed
 
