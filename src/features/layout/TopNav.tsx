@@ -77,15 +77,17 @@ function TopNavComponent() {
           </div>
         </div>
 
-        <div className="overflow-x-auto pb-1 [scrollbar-width:none]">
-          <div className="mb-1 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500">
-            <span>Workspace</span>
-            <div className="h-px flex-1 bg-zinc-800" />
+        {ADMIN_NAV_ITEMS.length > 0 && (
+          <div className="overflow-x-auto pb-1 [scrollbar-width:none]">
+            <div className="mb-1 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500">
+              <span>Admin</span>
+              <div className="h-px flex-1 bg-zinc-800" />
+            </div>
+            <div className="flex min-w-max items-center gap-2">
+              {renderItems(ADMIN_NAV_ITEMS)}
+            </div>
           </div>
-          <div className="flex min-w-max items-center gap-2">
-            {renderItems([...WORKSPACE_NAV_ITEMS, ...ADMIN_NAV_ITEMS])}
-          </div>
-        </div>
+        )}
       </div>
 
       <div className="mt-2.5 h-0.5 overflow-hidden rounded-full bg-zinc-800/90">
