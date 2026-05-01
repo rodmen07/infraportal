@@ -22,16 +22,16 @@ export function CaseStudiesPage() {
 
             <div className="grid w-full max-w-md grid-cols-3 gap-2 text-center sm:w-auto">
               <div className="surface-card rounded-xl px-3 py-2">
-                <div className="text-base font-bold text-white">9</div>
-                <div className="text-[11px] text-zinc-400">Services</div>
+                <div className="text-base font-bold text-white">16</div>
+                <div className="text-[11px] text-zinc-400">Microservices</div>
               </div>
               <div className="surface-card rounded-xl px-3 py-2">
-                <div className="text-base font-bold text-white">GCP</div>
-                <div className="text-[11px] text-zinc-400">Deployed</div>
+                <div className="text-base font-bold text-white">4+</div>
+                <div className="text-[11px] text-zinc-400">Languages</div>
               </div>
               <div className="surface-card rounded-xl px-3 py-2">
-                <div className="text-base font-bold text-white">CI/CD</div>
-                <div className="text-[11px] text-zinc-400">Active</div>
+                <div className="text-base font-bold text-white">Multi</div>
+                <div className="text-[11px] text-zinc-400">Cloud</div>
               </div>
             </div>
           </div>

@@ -1,18 +1,18 @@
 {
   "intro": "Production systems. Real deployments. Practical architecture.",
   "featured": {
-    "title": "Microservices Platform — 9 Services, Solo-Built",
-    "subtitle": "Cloud architecture · Rust · Python · React · Terraform-first IaC · Google Cloud Run",
-    "description": "9-service Rust/Python/React platform — independently deployed on Cloud Run with Terraform IaC, JWT auth, and full CI/CD.",
-    "techStack": ["Rust", "Axum", "Python", "FastAPI", "React 19", "Vite", "Tailwind", "PostgreSQL", "Terraform", "Google Cloud Run", "Cloud SQL", "Secret Manager", "Artifact Registry", "GitHub Actions", "Docker"],
+    "title": "Microservices Platform — 16 Services, Full Stack",
+    "subtitle": "Rust · Python · Go · TypeScript · Multi-Cloud · Terraform IaC · GitHub Actions CI/CD",
+    "description": "16-service distributed platform spanning Rust/Axum, Python/FastAPI, Go, and TypeScript — deployed across GCP Cloud Run and Fly.io with event streaming, multi-language orchestration, and security-hardened CI/CD.",
+    "techStack": ["Rust", "Axum", "Python", "FastAPI", "Go", "TypeScript", "React 19", "Vite", "Tailwind", "PostgreSQL", "Cloud SQL", "DynamoDB", "Terraform", "Google Cloud Run", "Fly.io", "Secret Manager", "Artifact Registry", "GitHub Actions", "Docker", "OIDC", "Workload Identity"],
     "highlights": [
-      "9 independently deployed services on Google Cloud Run",
-      "JWT authentication with cross-service token validation",
-      "Claude API integration via a dedicated Python/FastAPI orchestrator",
-      "GitHub Actions CI: per-service Docker builds and automated deploys",
-      "Terraform-managed GCP baseline: Cloud Run + Cloud SQL + Artifact Registry + Secret Manager",
-      "IaC foundation designed for Databricks-backed analytics pipelines",
-      "Security-hardened post-audit: JWT fail-fast, CORS enforcement, non-root Docker, OIDC CI, Terraform secrets purged"
+      "16 independently deployed services: 10 Rust microservices, 1 Python orchestrator, 1 Go gateway, 4 TS/React frontends",
+      "Multi-cloud deployment: GCP Cloud Run (primary) + Fly.io (secondary), OIDC-secured CI/CD pipelines",
+      "Event-driven architecture with Go SSE service, DynamoDB medallion pipeline (Bronze/Silver/Gold), Celery async tasks",
+      "AI integration: Claude 3.5 + Gemini via dedicated Python/FastAPI orchestrator with streaming responses",
+      "Cross-service JWT auth, rate limiting, CORS enforcement, encrypted secrets management",
+      "Terraform-managed infrastructure: IaC for Cloud Run, Cloud SQL, Artifact Registry, VPC, IAM, SOC 2 controls",
+      "9 SOC 2 Type II compliance controls: audit logging, non-root containers, least-privilege IAM, secrets purging"
     ],
     "githubUrl": "https://github.com/rodmen07",
     "detailUrl": "#/case-studies/microservices-platform"
