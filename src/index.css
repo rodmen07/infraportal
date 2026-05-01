@@ -54,6 +54,18 @@ body {
 @keyframes overlay-fade { from { opacity: 0 } to { opacity: 1 } }
 .overlay-fade { animation: overlay-fade 260ms ease forwards; }
 
+/* Skeleton shimmer animation - subtle left-to-right gradient sweep */
+@keyframes shimmer {
+  0% { background-position: -100% 0%; }
+  100% { background-position: 100% 0%; }
+}
+
+.bg-shimmer {
+  background: linear-gradient(90deg, #3f3f46 0%, #52525b 30%, #3f3f46 60%, #3f3f46 100%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
 .glow-ring { box-shadow: 0 6px 26px rgba(245,158,11,0.12), 0 0 0 6px rgba(245,158,11,0.06); transition: box-shadow 220ms ease; }
 
 @media (prefers-reduced-motion: reduce) {
@@ -72,7 +84,8 @@ body {
   .animate-wiggle,
   .animate-pop,
   .slide-over-enter,
-  .overlay-fade {
+  .overlay-fade,
+  .bg-shimmer {
     animation: none !important;
     transition: none !important;
     opacity: 1 !important;
@@ -216,7 +229,7 @@ textarea:disabled {
   color-scheme: light;
   --fx-border-soft: rgba(0, 0, 0, 0.13);
   --fx-border-strong: rgba(180, 100, 10, 0.55);
-  --fx-text-muted: rgb(82, 82, 91);          /* zinc-600 — 6.6:1 on white */
+  --fx-text-muted: rgb(82, 82, 91);          /* zinc-600 - 6.6:1 on white */
   --fx-bg-surface: rgba(255, 255, 255, 0.9);
   --fx-bg-surface-strong: rgba(248, 248, 248, 0.97);
 }
@@ -289,13 +302,13 @@ textarea:disabled {
   color: #3f3f46;
 }
 
-/* About page fact cards — warm amber tint in light mode */
+/* About page fact cards - warm amber tint in light mode */
 [data-theme="light"] .about-fact-card {
   background-color: rgba(251, 191, 36, 0.08) !important;
   border-color: rgba(180, 83, 9, 0.18) !important;
 }
 
-/* HomeSections interactive cards — soft sky tint in light mode for contrast with amber fact cards */
+/* HomeSections interactive cards - soft sky tint in light mode for contrast with amber fact cards */
 [data-theme="light"] .interactive-card {
   background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(224, 242, 254, 0.6)) !important;
   border-color: rgba(56, 189, 248, 0.25) !important;
@@ -306,7 +319,7 @@ textarea:disabled {
 }
 
 /* ---------------------------------------------------------------------------
-   Text overrides — Tailwind hardcoded classes
+   Text overrides - Tailwind hardcoded classes
    [data-theme="light"] adds specificity without !important where possible.
    --------------------------------------------------------------------------- */
 
@@ -318,7 +331,7 @@ textarea:disabled {
 [data-theme="light"] .text-zinc-400 { color: #3f3f46 !important; }
 [data-theme="light"] .text-zinc-500 { color: #52525b !important; }
 
-/* Amber on white needs darkening for contrast — amber-300 (#fcd34d) on white = 1.3:1 (fails) */
+/* Amber on white needs darkening for contrast - amber-300 (#fcd34d) on white = 1.3:1 (fails) */
 [data-theme="light"] .text-amber-100,
 [data-theme="light"] .text-amber-200,
 [data-theme="light"] .text-amber-300 { color: #b45309 !important; } /* amber-700: 5.2:1 on white */
@@ -351,7 +364,7 @@ textarea:disabled {
 [data-theme="light"] .border-amber-400\/40 { border-color: rgba(180,100,10,0.45) !important; }
 [data-theme="light"] .border-emerald-500\/30 { border-color: rgba(6,95,70,0.3) !important; }
 
-/* Code blocks — keep dark regardless of theme for readability */
+/* Code blocks - keep dark regardless of theme for readability */
 [data-theme="light"] pre,
 [data-theme="light"] code { background: #1e1e2e !important; color: #cdd6f4 !important; }
 
@@ -363,7 +376,7 @@ textarea:disabled {
 [data-theme="light"] .to-orange-500\/25 { --tw-gradient-to: rgba(251,146,60,0.15) !important; }
 [data-theme="light"] .text-amber-100 { color: #92400e !important; }
 
-/* Pricing card highlight — light mode */
+/* Pricing card highlight - light mode */
 [data-theme="light"] .from-amber-400\/10 { --tw-gradient-from: rgba(245,158,11,0.07) !important; }
 [data-theme="light"] .via-orange-300\/6 { --tw-gradient-via: rgba(253,186,116,0.04) !important; }
 [data-theme="light"] .to-amber-200\/8 { --tw-gradient-to: rgba(253,230,138,0.06) !important; }
@@ -371,7 +384,7 @@ textarea:disabled {
 [data-theme="light"] .text-amber-200 { color: #92400e !important; }
 
 /* Dark theme contrast fix: bump zinc-500 callouts to zinc-400 for WCAG AA */
-/* Note: zinc-500 (#71717a) on zinc-900 (#18181b) = 3.5:1 — fails AA for body text.
+/* Note: zinc-500 (#71717a) on zinc-900 (#18181b) = 3.5:1 - fails AA for body text.
    Components should use text-zinc-400 (#a1a1aa) for muted body text on dark.
    This rule won't fire in light mode (overridden above). */
 
@@ -422,6 +435,13 @@ textarea:disabled {
 [data-theme="light"] .animate-pulse.bg-zinc-800\/50,
 [data-theme="light"] .animate-pulse.bg-zinc-800\/40,
 [data-theme="light"] .animate-pulse.bg-zinc-800 { background-color: rgba(0,0,0,0.1) !important; }
+
+/* Light theme shimmer skeleton loaders */
+[data-theme="light"] .bg-shimmer {
+  background: linear-gradient(90deg, #e4e4e7 0%, #f4f4f5 30%, #e4e4e7 60%, #e4e4e7 100%) !important;
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
 
 /* Border: missing dark border overrides */
 [data-theme="light"] .border-zinc-800\/60  { border-color: rgba(0,0,0,0.08) !important; }
