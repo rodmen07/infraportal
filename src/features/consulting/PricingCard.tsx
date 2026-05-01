@@ -1,4 +1,4 @@
-import { useTheme } from '../layout/ThemeContext'
+import { useTheme } from '../layout/useTheme'
 import type { PricingTier } from '../../types'
 
 type HighlightLevel = 0 | 1 | 2

@@ -9,6 +9,8 @@ interface ThemeContextValue {
 
 const ThemeContext = createContext<ThemeContextValue>({ theme: 'light', toggle: () => {} })
 
+export { ThemeContext }
+
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<Theme>(() => {
     return (localStorage.getItem('theme') as Theme | null) ?? 'light'

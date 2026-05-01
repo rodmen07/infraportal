@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { PageLayout } from './PageLayout'
-import { useAuth } from '../features/auth/AuthContext'
+import { useAuth } from '../features/auth/useAuth'
 import { AUTH_SERVICE_URL } from '../config'
 
 export function PortalRegisterPage() {

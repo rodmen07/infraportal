@@ -1,6 +1,6 @@
 import { PageLayout } from './PageLayout'
 import { resolveAdminToken, AUTH_SERVICE_URL } from '../config'
-import { useAuth } from '../features/auth/AuthContext'
+import { useAuth } from '../features/auth/useAuth'
 import { HealthView } from './ServiceHealthPage'
 
 // ---------------------------------------------------------------------------

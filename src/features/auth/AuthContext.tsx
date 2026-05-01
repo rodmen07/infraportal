@@ -57,6 +57,8 @@ const AuthContext = createContext<AuthContextValue>({
   isAdmin: false,
 })
 
+export { AuthContext }
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null)
   const [claims, setClaims] = useState<AuthClaims | null>(null)

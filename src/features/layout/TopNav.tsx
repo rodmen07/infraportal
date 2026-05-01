@@ -1,5 +1,5 @@
-import { useTheme } from './ThemeContext'
-import { useAuth } from '../auth/AuthContext'
+import { useTheme } from './useTheme'
+import { useAuth } from '../auth/useAuth'
 import { ADMIN_NAV_ITEMS, PRIMARY_NAV_ITEMS, WORKSPACE_NAV_ITEMS, type NavItem } from './navItems'
 
 function TopNavComponent() {

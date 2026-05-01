@@ -1,6 +1,6 @@
 import type React from 'react'
 import { PageLayout } from './PageLayout'
-import { useAuth } from '../features/auth/AuthContext'
+import { useAuth } from '../features/auth/useAuth'
 import { PROJECTS_API_BASE_URL, AUTH_SERVICE_URL } from '../config'
 import { useGitHubBuildStatus, type GhBuildItem } from '../features/site/useGitHubBuildStatus'
 import { formatRelativeTime } from '../utils/time'

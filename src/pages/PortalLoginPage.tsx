@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { PageLayout } from './PageLayout'
-import { useAuth } from '../features/auth/AuthContext'
+import { useAuth } from '../features/auth/useAuth'
 import { AUTH_SERVICE_URL } from '../config'
 
 const PORTAL_CALLBACK_URL = `${window.location.origin}${window.location.pathname}?#/portal`
