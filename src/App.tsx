@@ -13,7 +13,7 @@ function App() {
   const content = useSiteContent(baseUrl)
 
   return (
-    <main className="forge-grid relative bg-zinc-950 px-2 text-zinc-100 sm:px-4 lg:px-8 lg:pl-64 xl:px-10 2xl:px-14">
+    <main className="relative flex min-h-screen bg-zinc-950 text-zinc-100 lg:pl-64">
       <SideNav />
 
       <div className="pointer-events-none fixed inset-0 overflow-clip">
@@ -22,7 +22,7 @@ function App() {
         <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-amber-500/10 to-transparent" />
       </div>
 
-      <div className="relative mx-auto flex w-full max-w-5xl flex-col">
+      <div className="relative mx-auto w-full max-w-5xl flex-1 px-2 py-4 sm:px-4 lg:px-8 xl:px-10 2xl:px-14">
         <div className="lg:hidden py-4">
           <TopNav />
         </div>
