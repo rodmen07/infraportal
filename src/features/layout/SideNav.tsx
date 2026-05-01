@@ -87,38 +87,33 @@ function SideNavComponent() {
 
   return (
     <>
-      {/* Mobile hamburger button */}
+      {/* Hamburger button - all screen sizes */}
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         aria-label="Toggle navigation"
-        className="fixed left-4 top-4 z-50 rounded-lg border border-zinc-600/40 bg-zinc-800/60 p-2 text-zinc-300 transition hover:border-zinc-500/50 hover:bg-zinc-700/60 lg:hidden"
+        className="fixed left-4 top-4 z-50 rounded-lg border border-zinc-600/40 bg-zinc-800/60 p-2 text-zinc-300 transition hover:border-zinc-500/50 hover:bg-zinc-700/60"
       >
         <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isOpen ? 'M6 18L18 6M6 6l12 12' : 'M4 6h16M4 12h16M4 18h16'} />
         </svg>
       </button>
 
-      {/* Mobile drawer overlay */}
+      {/* Drawer overlay - all screen sizes */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-30 bg-black/50 backdrop-blur-sm lg:hidden"
+          className="fixed inset-0 z-30 bg-black/50 backdrop-blur-sm"
           onClick={() => setIsOpen(false)}
         />
       )}
 
-      {/* Mobile drawer */}
-      <aside className={`fixed left-0 top-0 z-40 h-screen w-64 transform rounded-r-2xl border border-r border-zinc-500/30 bg-zinc-900/95 p-4 shadow-xl shadow-black/40 backdrop-blur-xl transition-transform duration-300 ease-in-out lg:hidden ${
+      {/* Drawer popout - all screen sizes */}
+      <aside className={`fixed left-0 top-0 z-40 h-screen w-64 transform rounded-r-2xl border border-r border-zinc-500/30 bg-zinc-900/95 p-4 shadow-xl shadow-black/40 backdrop-blur-xl transition-transform duration-300 ease-in-out ${
         isOpen ? 'translate-x-0' : '-translate-x-full'
       }`}>
         <div className="mb-4 pt-12">
           {navContent}
         </div>
-      </aside>
-
-      {/* Desktop sidebar */}
-      <aside className="fixed left-0 top-0 z-40 hidden h-screen w-64 border-r border-zinc-500/30 bg-zinc-900/75 p-4 shadow-xl shadow-black/40 backdrop-blur-xl lg:block">
-        {navContent}
       </aside>
     </>
   )
