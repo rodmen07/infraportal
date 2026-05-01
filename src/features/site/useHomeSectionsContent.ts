@@ -56,6 +56,7 @@ export function useHomeSectionsContent(baseUrl: string): HomeSectionsContent {
             : DEFAULT_HOME_SECTIONS.cards,
         })
       } catch {
+        // noop - error loading home sections
       }
     }
 

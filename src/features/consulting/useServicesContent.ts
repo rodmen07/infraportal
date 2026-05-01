@@ -17,6 +17,7 @@ export function useServicesContent(baseUrl: string): ServicesContent {
         const payload = (await res.json()) as ServicesContent
         setContent(payload)
       } catch {
+        // noop - error loading services
       }
     }
     void load()

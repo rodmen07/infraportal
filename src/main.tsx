@@ -30,6 +30,7 @@ import { ServiceHealthPage } from './pages/ServiceHealthPage'
 
 const WATCHDOG_DELAY_MS = 5000
 
+// eslint-disable-next-line react-refresh/only-export-components
 function FailureMessage({ reason }: { reason: string }) {
   return (
     <div className="min-h-screen bg-zinc-950 px-4 py-10 text-zinc-100">
@@ -102,6 +103,7 @@ function installLoadWatchdog(rootElement: HTMLElement) {
   window.addEventListener('load', clear, { once: true })
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 function Root() {
   const [hash, setHash] = useState(() => window.location.hash)
 

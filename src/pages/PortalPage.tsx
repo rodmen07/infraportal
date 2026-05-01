@@ -343,9 +343,13 @@ function ProjectSummaryCard({
     .reduce((s, d) => s + (d.estimated_hours ?? 0), 0)
 
   const daysLeft = project.target_end_date
-    ? Math.ceil(
-        (new Date(project.target_end_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
-      )
+    ? (() => {
+        // eslint-disable-next-line react-hooks/purity
+        const now = Date.now()
+        return Math.ceil(
+          (new Date(project.target_end_date).getTime() - now) / (1000 * 60 * 60 * 24)
+        )
+      })()
     : null
 
   return (
@@ -472,8 +476,8 @@ function EmailsSection({ emails }: { emails: ProjectEmail[] }) {
                   {email.body_html ? (
                     <div
                       className="prose prose-invert prose-sm max-w-none text-zinc-300"
-                      // eslint-disable-next-line react/no-danger
-                      dangerouslySetInnerHTML={{ __html: email.body_html }}
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      dangerouslySetInnerHTML={{ __html: email.body_html } as any}
                     />
                   ) : email.snippet ? (
                     <p className="text-sm text-zinc-400">{email.snippet}</p>

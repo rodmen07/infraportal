@@ -59,13 +59,13 @@ SERVICE_URL="\${SERVICE_URL:?SERVICE_URL must be set}"
 MAX_WAIT="\${MAX_WAIT:-90}"
 elapsed=0
 
-while [ "\$elapsed" -lt "\$MAX_WAIT" ]; do
+while [ "$elapsed" -lt "$MAX_WAIT" ]; do
   STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 5 "\${SERVICE_URL}/health")
-  if [ "\$STATUS" = "200" ]; then
+  if [ "$STATUS" = "200" ]; then
     echo "Health check passed (\${elapsed}s)"
     exit 0
   fi
-  echo "  HTTP \${STATUS} — retrying in 10s"
+  echo "  HTTP $STATUS — retrying in 10s"
   sleep 10 && elapsed=$((elapsed + 10))
 done
 
@@ -79,16 +79,16 @@ echo "Health check FAILED after \${MAX_WAIT}s" && exit 1`,
     code: `#!/usr/bin/env bash
 # Finds the revision before the current one and routes 100% traffic to it
 PREVIOUS=$(gcloud run revisions list \\
-  --service="\$SERVICE" \\
-  --region="\$REGION" \\
+  --service="$SERVICE" \\
+  --region="$REGION" \\
   --format="value(metadata.name)" \\
   --sort-by="~metadata.creationTimestamp" \\
   --limit=2 | tail -1)
 
 echo "Rolling back to revision: \${PREVIOUS}"
 
-gcloud run services update-traffic "\$SERVICE" \\
-  --region="\$REGION" \\
+gcloud run services update-traffic "$SERVICE" \\
+  --region="$REGION" \\
   --to-revisions="\${PREVIOUS}=100"
 
 # Instantaneous — no new containers, just traffic routing`,
@@ -101,19 +101,19 @@ gcloud run services update-traffic "\$SERVICE" \\
     code: `#!/usr/bin/env bash
 # Gets the previous task definition from the deployments list and restores it
 PREVIOUS_TD=$(aws ecs describe-services \\
-  --cluster "\$CLUSTER" \\
-  --services "\$SERVICE" \\
-  --region "\$REGION" \\
+  --cluster "$CLUSTER" \\
+  --services "$SERVICE" \\
+  --region "$REGION" \\
   --query 'services[0].deployments | sort_by(@, &createdAt) | [-2].taskDefinition' \\
   --output text)
 
 echo "Rolling back to: \${PREVIOUS_TD}"
 
 aws ecs update-service \\
-  --cluster "\$CLUSTER" \\
-  --service "\$SERVICE" \\
-  --task-definition "\$PREVIOUS_TD" \\
-  --region "\$REGION"`,
+  --cluster "$CLUSTER" \\
+  --service "$SERVICE" \\
+  --task-definition "$PREVIOUS_TD" \\
+  --region "$REGION"`,
     language: 'bash',
   },
   {
@@ -123,11 +123,11 @@ aws ecs update-service \\
     code: `- name: Dockerfile lint (non-root enforcement)
   run: |
     for f in $(find . -name Dockerfile -not -path "*/target/*"); do
-      if ! grep -q "^USER " "\$f"; then
-        echo "FAIL: \$f is missing a USER directive (CC6.8 non-root requirement)"
+      if ! grep -q "^USER " "$f"; then
+        echo "FAIL: $f is missing a USER directive (CC6.8 non-root requirement)"
         exit 1
       fi
-      echo "OK: \$f"
+      echo "OK: $f"
     done
 # If this fails, the deploy-staging and deploy-prod jobs never run.
 # Pairs with terraform-soc2-baseline which enforces user: "65534" at the ECS layer.`,

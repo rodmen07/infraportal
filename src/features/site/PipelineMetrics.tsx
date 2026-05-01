@@ -16,7 +16,6 @@ export function PipelineMetrics() {
     if (!MONITORING_URL) return
 
     const controller = new AbortController()
-    let interval: ReturnType<typeof setInterval>
 
     async function load() {
       try {
@@ -34,7 +33,7 @@ export function PipelineMetrics() {
     }
 
     load()
-    interval = setInterval(load, 60_000)
+    const interval = setInterval(load, 60_000)
 
     return () => {
       clearInterval(interval)

@@ -12,14 +12,14 @@ export function HeroSection({ content }: HeroSectionProps) {
   const [motionEnabled, setMotionEnabled] = useState<boolean>(false)
 
   useEffect(() => {
-    const saved = typeof window !== 'undefined' ? localStorage.getItem('motionEnabled') : null
+    if (typeof window === 'undefined' || typeof document === 'undefined') return
+    const saved = localStorage.getItem('motionEnabled')
     const enabled = saved === '1'
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMotionEnabled(enabled)
-    if (typeof document !== 'undefined') {
-      if (enabled) document.documentElement.setAttribute('data-motion', 'full')
-      else document.documentElement.removeAttribute('data-motion')
-    }
-  }, [])
+    if (enabled) document.documentElement.setAttribute('data-motion', 'full')
+    else document.documentElement.removeAttribute('data-motion')
+  }, [setMotionEnabled])
 
   useEffect(() => {
     try {
@@ -43,8 +43,8 @@ export function HeroSection({ content }: HeroSectionProps) {
         el.offsetWidth
         el.classList.add(...present)
       })
-    } catch (e) {
-      // noop
+    } catch {
+      // noop - error triggering reflow animation
     }
   }, [motionEnabled])
 

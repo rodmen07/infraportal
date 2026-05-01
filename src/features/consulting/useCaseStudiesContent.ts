@@ -24,6 +24,7 @@ export function useCaseStudiesContent(baseUrl: string): CaseStudiesContent {
         const payload = (await res.json()) as CaseStudiesContent
         setContent(payload)
       } catch {
+        // noop - error loading case studies
       }
     }
     void load()

@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
+import { createContext, useEffect, useState, type ReactNode } from 'react'
 
 export interface AuthClaims {
   sub: string
@@ -77,6 +77,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const decoded = decodeJwt(urlToken)
       if (decoded) {
         localStorage.setItem(STORAGE_KEY, urlToken)
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setToken(urlToken)
         setClaims(decoded)
         // Remove the token from the URL, preserving the hash route
@@ -129,5 +130,3 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     </AuthContext.Provider>
   )
 }
-
-export const useAuth = () => useContext(AuthContext)

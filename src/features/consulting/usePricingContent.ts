@@ -17,6 +17,7 @@ export function usePricingContent(baseUrl: string): PricingContent {
         const payload = (await res.json()) as PricingContent
         setContent(payload)
       } catch {
+        // noop - error loading pricing
       }
     }
     void load()

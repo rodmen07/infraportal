@@ -21,6 +21,7 @@ export function useSiteContent(baseUrl: string): SiteContent {
           heroTagline: payload.heroTagline || 'AI + Cloud Launchpad',
         })
       } catch {
+        // noop - error loading site content
       }
     }
 
