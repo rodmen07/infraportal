@@ -1,6 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNotifications } from './NotificationContext'
 
+const SOURCE_COLORS: Record<string, string> = {
+  accounts: 'bg-blue-500/20 text-blue-300',
+  contacts: 'bg-green-500/20 text-green-300',
+  opportunities: 'bg-amber-500/20 text-amber-300',
+  activities: 'bg-purple-500/20 text-purple-300',
+  automation: 'bg-orange-500/20 text-orange-300',
+  integrations: 'bg-cyan-500/20 text-cyan-300',
+}
+
 function BellIcon() {
   return (
     <svg
@@ -110,7 +119,7 @@ export function NotificationBell() {
                 >
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
-                      <span className="rounded bg-zinc-700/60 px-1.5 py-0.5 text-[10px] font-medium text-amber-300">
+                      <span className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${SOURCE_COLORS[n.type] ?? 'bg-zinc-700/60 text-zinc-300'}`}>
                         {n.type}
                       </span>
                       <span className="text-[10px] text-zinc-500">{formatAge(now - n.receivedAt)}</span>

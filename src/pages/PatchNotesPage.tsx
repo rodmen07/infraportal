@@ -39,7 +39,8 @@ const COMPLETION_STYLES: Record<CompletionState, { badge: string; label: string 
 
 // Groups for section headers
 const GROUP_META: Record<string, { label: string; status: string }> = {
-  'v1.6': { label: 'Observability & Compliance',       status: 'In Progress' },
+  'v1.7': { label: 'CRM Event Pipeline',               status: 'In Progress' },
+  'v1.6': { label: 'Observability & Compliance',       status: 'Complete' },
   'v1.5': { label: 'DB Migration & Live Events',      status: 'Complete' },
   'v1.4': { label: 'Cloud Consolidation',             status: 'Complete' },
   'v1.3': { label: 'Autonomous Operations',           status: 'Complete' },
@@ -51,6 +52,41 @@ const GROUP_META: Record<string, { label: string; status: string }> = {
 }
 
 const VERSIONS: Version[] = [
+  {
+    tag: 'v1.7.0',
+    date: '2026-05-07',
+    label: 'CRM Event Pipeline - Gateway Observer & Live Bell',
+    completionState: 'published',
+    group: 'v1.7',
+    summary:
+      'Wires the notification bell to real CRM data. The go-gateway now intercepts successful mutations (POST/PATCH/DELETE → 2xx) on CRM routes and fires a fire-and-forget event to observaboard. Adds a management command for idempotent API key provisioning. The notification bell badge is now source-colored.',
+    highlights: [
+      {
+        heading: 'go-gateway: mutation observer',
+        items: [
+          'New internal/observer package: Observer struct with configurable HTTP client (5 s timeout), source-map derived from path prefix, and event_type built as source.action (e.g. accounts.created).',
+          'proxy.New() extended with optional *observer.Observer param; ModifyResponse hook fires Observe() on 2xx mutation responses only. Non-CRM routes pass nil - zero overhead.',
+          'Config gains ObservaboardURL and ObservaboardAPIKey (env: OBSERVABOARD_URL, OBSERVABOARD_API_KEY). Defaults to the Cloud Run URL already in use for the events proxy.',
+          'deploy-cloud-run.yml: OBSERVABOARD_URL resolved via gcloud run services describe; OBSERVABOARD_API_KEY injected via --set-secrets from Secret Manager.',
+        ],
+      },
+      {
+        heading: 'observaboard: API key management',
+        items: [
+          'create_gateway_api_key management command: creates a named API key and prints the raw key once to stdout.',
+          '--idempotent flag: if a key with the given name exists, prints its prefix and exits cleanly - safe for CI/CD re-runs.',
+          'Includes a warning to store the key in Secret Manager immediately.',
+        ],
+      },
+      {
+        heading: 'infraportal: notification bell polish',
+        items: [
+          'SOURCE_COLORS map: each CRM source gets a distinct badge color (accounts=blue, contacts=green, opportunities=amber, activities=purple, automation=orange, integrations=cyan).',
+          'Unknown sources fall back to neutral zinc badge, keeping the bell readable for any ingest source.',
+        ],
+      },
+    ],
+  },
   {
     tag: 'v1.6.0',
     date: '2026-05-08',
