@@ -67,6 +67,22 @@
       "detailUrl": "#/case-studies/cicd-pipeline-template"
     },
     {
+      "title": "Fly.io to GCP Cloud Run Migration",
+      "subtitle": "Python · Go · Cloud Run · OIDC · Workload Identity · Secret Manager",
+      "description": "Migrated two stateless services (Python/FastAPI AI orchestrator and Go SSE hub) from Fly.io to GCP Cloud Run — consolidating onto one cloud provider, replacing static tokens with keyless OIDC, and standardising port and image-tag conventions.",
+      "techStack": ["GCP Cloud Run", "GitHub Actions", "OIDC", "Workload Identity Federation", "Artifact Registry", "Docker", "Fly.io", "Python", "FastAPI", "Go", "Secret Manager"],
+      "highlights": [
+        "Zero static credentials — Workload Identity Federation replaces all Fly API tokens",
+        "SHA-pinned image tags in Artifact Registry — every deploy reproducible and rollback-safe",
+        "Port normalisation: both services standardised to 8080 for Cloud Run $PORT compatibility",
+        "3-attempt retry loop with exponential back-off guards against transient deploy failures",
+        "pytest and go test gates run before every deploy — regressions blocked at CI",
+        "fly.toml files annotated and retained for reference; active CI/CD fully migrated"
+      ],
+      "githubUrl": "https://github.com/rodmen07/microservices",
+      "detailUrl": "#/case-studies/fly-to-gcp-migration"
+    },
+    {
       "title": "DynamoDB Idempotency Prototype",
       "subtitle": "AWS + GCP focus · Rust · DynamoDB · CloudTrail/Cloud Logging · Splunk HEC",
       "description": "Rust prototype for exactly-once cloud audit log delivery to Splunk HEC via DynamoDB conditional writes with TTL expiry.",

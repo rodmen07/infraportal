@@ -39,6 +39,7 @@ const COMPLETION_STYLES: Record<CompletionState, { badge: string; label: string 
 
 // Groups for section headers
 const GROUP_META: Record<string, { label: string; status: string }> = {
+  'v1.4': { label: 'Cloud Consolidation',         status: 'In Progress' },
   'v1.3': { label: 'Autonomous Operations',       status: 'Complete' },
   'v1.2': { label: 'Operational Maturity',        status: 'Complete' },
   'v1.1': { label: 'Developer Experience & AI Research', status: 'Complete' },
@@ -49,7 +50,42 @@ const GROUP_META: Record<string, { label: string; status: string }> = {
 
 const VERSIONS: Version[] = [
   {
-    tag: 'v1.3.2',
+    tag: 'v1.4.0',
+    date: '2026-05-07',
+    label: 'Fly.io to GCP Cloud Run Migration',
+    completionState: 'published',
+    group: 'v1.4',
+    summary:
+      'Migrates two stateless services - the Python/FastAPI AI orchestrator and the Go SSE event hub - from Fly.io to GCP Cloud Run. Both services are consolidated onto a single cloud provider, static Fly API tokens are replaced with keyless OIDC via Workload Identity Federation, and all services are standardised on port 8080 with SHA-pinned image tags.',
+    highlights: [
+      {
+        heading: 'ai-orchestrator-service migration',
+        items: [
+          'Dockerfile updated: ENV APP_PORT=8080 and EXPOSE 8080 (was 8081).',
+          'deploy-cloud-run.yml created: pytest gate + OIDC auth + Artifact Registry build + Cloud Run deploy with 3-attempt retry loop.',
+          'Secrets (ANTHROPIC_API_KEY, OPENROUTER_API_KEY) mounted via Secret Manager --set-secrets, not env files.',
+          'fly.toml annotated with migration comment; Fly deployment retired.',
+        ],
+      },
+      {
+        heading: 'event-stream-service migration',
+        items: [
+          'Dockerfile updated: EXPOSE 8080 (was 8085); app already reads $PORT from env, no code change needed.',
+          'deploy-cloud-run.yml created: go test gate + OIDC auth + Artifact Registry build + Cloud Run deploy.',
+          'AUTH_JWT_SECRET mounted via Secret Manager.',
+          'fly.toml annotated with migration comment; Fly deployment retired.',
+        ],
+      },
+      {
+        heading: 'Infrastructure improvements',
+        items: [
+          'EVENT_STREAM_URL constant added to infraportal config.ts for use by the upcoming notification bell (v1.5).',
+          'All 12 platform services now run on GCP Cloud Run us-central1 — single cloud provider, unified observability.',
+          'Cloud Migration case study published at #/case-studies/fly-to-gcp-migration.',
+        ],
+      },
+    ],
+  },
     date: '2026-05-06',
     label: 'Client Portal Dashboard',
     completionState: 'published',

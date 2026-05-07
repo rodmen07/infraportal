@@ -4,6 +4,9 @@ export const MONITORING_URL: string =
 export const AI_ORCHESTRATOR_URL: string =
   (import.meta.env.VITE_AI_ORCHESTRATOR_URL as string | undefined) ?? ''
 
+export const EVENT_STREAM_URL: string =
+  (import.meta.env.VITE_EVENT_STREAM_URL as string | undefined) ?? ''
+
 export const AUTH_SERVICE_URL: string =
   (import.meta.env.VITE_AUTH_SERVICE_URL as string | undefined) ?? ''
 
