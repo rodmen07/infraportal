@@ -39,7 +39,7 @@ const COMPLETION_STYLES: Record<CompletionState, { badge: string; label: string 
 
 // Groups for section headers
 const GROUP_META: Record<string, { label: string; status: string }> = {
-  'v1.3': { label: 'Autonomous Operations',       status: 'In Progress' },
+  'v1.3': { label: 'Autonomous Operations',       status: 'Complete' },
   'v1.2': { label: 'Operational Maturity',        status: 'Complete' },
   'v1.1': { label: 'Developer Experience & AI Research', status: 'Complete' },
   'v1.0': { label: 'Client Portal',              status: 'Complete' },
@@ -48,6 +48,49 @@ const GROUP_META: Record<string, { label: string; status: string }> = {
 }
 
 const VERSIONS: Version[] = [
+  {
+    tag: 'v1.3.2',
+    date: '2026-05-06',
+    label: 'Client Portal Dashboard',
+    completionState: 'published',
+    group: 'v1.3',
+    summary:
+      'Enriches the client-facing project portal with three new capabilities: deliverable effort tracking with hours-based progress, admin-curated project links (Figma, GitHub, Notion, Loom, and custom), and a project update feed. A companion Gmail sync agent fetches Gmail threads tagged per project and upserts them into projects-service via a new sync endpoint.',
+    highlights: [
+      {
+        heading: 'Effort tracking',
+        items: [
+          'estimated_hours field added to each deliverable in the portal UI.',
+          'ProjectSummaryCard now shows total estimated hours alongside deliverable count, and displays hours-based completion alongside item-count progress.',
+          'Hours roll up from completed deliverables to give clients a real burn-down view.',
+        ],
+      },
+      {
+        heading: 'Project links',
+        items: [
+          'ProjectLink interface: id, link_type, label, url, sort_order stored in projects-service.',
+          'LinksSection component renders typed link chips with icons for Figma, GitHub, Notion, Loom, Google Doc, Jira, Slack, and generic external links.',
+          'Links section is hidden when no links exist (admin-only create via API).',
+        ],
+      },
+      {
+        heading: 'Progress update feed',
+        items: [
+          'ProgressUpdate resource: project_id, content, created_at — posted by admin, visible to client.',
+          'ProgressUpdatesSection renders a reverse-chronological timeline with relative timestamps.',
+          'Updates pulled alongside project data on portal load — no separate client action required.',
+        ],
+      },
+      {
+        heading: 'Gmail sync agent',
+        items: [
+          'agents/gmail-sync/sync_project_emails.py — Python script using Gmail MCP tools (search_threads, get_thread).',
+          'Searches Gmail for threads referencing each active project by name, fetches full thread content, and upserts to POST /api/v1/projects/{id}/emails/sync.',
+          'Intended to run in a Claude Code session with Gmail MCP configured, or on a cron schedule.',
+        ],
+      },
+    ],
+  },
   {
     tag: 'v1.3.1',
     date: '2026-04-15',
