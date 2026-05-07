@@ -39,7 +39,8 @@ const COMPLETION_STYLES: Record<CompletionState, { badge: string; label: string 
 
 // Groups for section headers
 const GROUP_META: Record<string, { label: string; status: string }> = {
-  'v1.5': { label: 'DB Migration & Live Events',      status: 'In Progress' },
+  'v1.6': { label: 'Observability & Compliance',       status: 'In Progress' },
+  'v1.5': { label: 'DB Migration & Live Events',      status: 'Complete' },
   'v1.4': { label: 'Cloud Consolidation',             status: 'Complete' },
   'v1.3': { label: 'Autonomous Operations',           status: 'Complete' },
   'v1.2': { label: 'Operational Maturity',            status: 'Complete' },
@@ -50,6 +51,48 @@ const GROUP_META: Record<string, { label: string; status: string }> = {
 }
 
 const VERSIONS: Version[] = [
+  {
+    tag: 'v1.6.0',
+    date: '2026-05-08',
+    label: 'observaboard Cloud Run + SOC 2 CC9.2 + Portfolio Polish',
+    completionState: 'published',
+    group: 'v1.6',
+    summary:
+      'Migrates observaboard (Django/DRF event ingestion service) from Fly.io to GCP Cloud Run, removing Celery and Redis by running classification synchronously. Adds the SOC 2 CC9.2 Terraform module for vendor risk management. Updates the MicroservicesCaseStudyPage to reflect the current all-Cloud-Run, all-PostgreSQL architecture.',
+    highlights: [
+      {
+        heading: 'observaboard: Cloud Run migration',
+        items: [
+          'Celery, Redis, and django-celery-results removed from requirements. Event classification now runs synchronously in the request cycle (pure Python keyword matching, microseconds).',
+          'INSTALLED_APPS and settings.py cleaned of all CELERY_* config and django_celery_results.',
+          'Dockerfile updated: EXPOSE and gunicorn --bind changed from port 8000 to 8080 for Cloud Run.',
+          'deploy-cloud-run.yml created: ruff lint + pytest gate, OIDC WIF, Artifact Registry push, Cloud SQL sidecar, migrate job, and unauthenticated invoker binding.',
+          'ci.yml updated: Redis service and REDIS_URL removed from test matrix.',
+          'go-gateway EventsURL default updated from Fly URL to Cloud Run URL.',
+          'fly.toml annotated with deprecation comment.',
+        ],
+      },
+      {
+        heading: 'SOC 2 CC9.2 - Vendor risk management',
+        items: [
+          'cc9_2_vendor_risk.tf added to terraform-soc2-baseline/modules/gcp/.',
+          'Secret Manager vendor inventory: labels vendor name, tier (critical/standard/low), and review date on every third-party secret.',
+          'Cloud Run service labels: attestation labels (soc2_vendor_reviewed, soc2_last_reviewed, soc2_reviewer) applied to vendor-integrated services.',
+          'Cloud Monitoring alert: fires when any Cloud Run service exceeds configurable 5xx rate threshold, with documented incident response steps.',
+          'variables.tf extended with vendor_secrets, vendor_services, vendor_review_date, reviewer_email_hash, error_rate_threshold, and notification_channel_ids.',
+        ],
+      },
+      {
+        heading: 'Portfolio polish',
+        items: [
+          'MicroservicesCaseStudyPage TECH_STACK updated: SQLite, Celery, Fly.io replaced with Cloud SQL.',
+          'Header description updated to reflect current Django/DRF observability service (not FastAPI).',
+          'Baseline note updated to describe full Cloud Run + PostgreSQL + SOC 2 state.',
+          'observaboard added to BuildStatusBadges repo list.',
+        ],
+      },
+    ],
+  },
   {
     tag: 'v1.5.0',
     date: '2026-05-08',

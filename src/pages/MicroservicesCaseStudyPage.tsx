@@ -4,7 +4,7 @@ import { CodeBlock } from '../features/consulting/CodeBlock'
 import { BuildStatusBadges } from '../features/site/BuildStatusBadges'
 
 
-const TECH_STACK = ['Rust', 'Axum', 'Python', 'FastAPI', 'Django', 'DRF', 'Celery', 'React 19', 'Vite', 'Tailwind', 'PostgreSQL', 'SQLite', 'Terraform', 'Google Cloud Run', 'Fly.io', 'Secret Manager', 'GitHub Actions', 'Docker']
+const TECH_STACK = ['Rust', 'Axum', 'Python', 'Django', 'DRF', 'React 19', 'Vite', 'Tailwind', 'PostgreSQL', 'Cloud SQL', 'Terraform', 'Google Cloud Run', 'Secret Manager', 'GitHub Actions', 'Docker']
 
 const HIGHLIGHTS: { label: string; detail: string; file: string; code: string; language?: string }[] = [
   {
@@ -293,9 +293,9 @@ export function MicroservicesCaseStudyPage() {
         </div>
         <p className="mt-4 text-sm leading-relaxed text-zinc-300">
           Designed and built a full microservices platform from scratch: 7 Rust/Axum services, 1
-          Python/FastAPI AI orchestrator, and a React 19 frontend — independently deployable with
-          JWT auth across services and a complete GitHub Actions CI/CD pipeline targeting Google
-          Cloud Run.
+          Python/Django observability service, and a React 19 frontend - independently deployable
+          with JWT auth across services, PostgreSQL via Cloud SQL, and a complete GitHub Actions
+          CI/CD pipeline targeting Google Cloud Run.
         </p>
       </section>
 
@@ -315,13 +315,14 @@ export function MicroservicesCaseStudyPage() {
       <section className="forge-panel rounded-2xl border border-emerald-500/30 bg-emerald-950/20 p-5 backdrop-blur-xl">
         <h2 className="text-base font-semibold text-emerald-200">Current baseline</h2>
         <p className="mt-2 text-sm leading-relaxed text-emerald-100/85">
-          Infrastructure migration and deployment are now stable enough to serve as the foundation
-          for future product development. Next work can prioritize UX depth and feature quality on
-          top of this Cloud Run + Terraform base, instead of reworking platform fundamentals.
+          All services are now on Cloud Run with PostgreSQL via Cloud SQL. The platform is fully
+          observable (real-time event stream + CRM notification bell), SOC 2 CC6/CC9 controls are
+          codified in Terraform, and CI/CD enforces tests, formatting, and staged deploys across
+          every repo.
         </p>
       </section>
 
-      <BuildStatusBadges repos={['microservices', 'backend-service', 'infraportal', 'auth-service', 'ai-orchestrator-service', 'dynamodb_prototype']} />
+      <BuildStatusBadges repos={['microservices', 'backend-service', 'infraportal', 'auth-service', 'ai-orchestrator-service', 'observaboard', 'dynamodb_prototype']} />
 
       {/* Expandable highlights */}
       <section className="forge-panel overflow-hidden rounded-2xl border border-zinc-500/30 bg-zinc-900/80 backdrop-blur-xl">
