@@ -71,9 +71,8 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     })
   }, [])
 
-  connectRef.current = connect
-
   useEffect(() => {
+    connectRef.current = connect
     mountedRef.current = true
     connect()
     return () => {
