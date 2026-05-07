@@ -39,7 +39,8 @@ const COMPLETION_STYLES: Record<CompletionState, { badge: string; label: string 
 
 // Groups for section headers
 const GROUP_META: Record<string, { label: string; status: string }> = {
-  'v1.8': { label: 'Real-Time Feedback Loop',           status: 'In Progress' },
+  'v1.9': { label: 'Distributed Tracing & Observability', status: 'Complete' },
+  'v1.8': { label: 'Real-Time Feedback Loop',           status: 'Complete' },
   'v1.7': { label: 'CRM Event Pipeline',               status: 'Complete' },
   'v1.6': { label: 'Observability & Compliance',       status: 'Complete' },
   'v1.5': { label: 'DB Migration & Live Events',      status: 'Complete' },
@@ -53,6 +54,57 @@ const GROUP_META: Record<string, { label: string; status: string }> = {
 }
 
 const VERSIONS: Version[] = [
+  {
+    tag: 'v1.9.0',
+    date: '2026-05-07',
+    label: 'Distributed Tracing & Observability - End-to-End Request Traces',
+    completionState: 'published',
+    group: 'v1.9',
+    summary:
+      'Adds end-to-end distributed tracing across all services using OpenTelemetry and GCP Cloud Trace. Every request from go-gateway propagates a W3C traceparent header through all downstream services (Rust, Go, Python), creating a complete trace visible in Cloud Trace console. Security: rustls-webpki upgraded to 0.103.13 (RUSTSEC-2026-0104 fix).',
+    highlights: [
+      {
+        heading: 'go-gateway: W3C traceparent middleware',
+        items: [
+          'New internal/middleware/traceparent.go: generates W3C-compliant traceparent headers (v00-<traceID>-<spanID>-01 format) for each incoming request.',
+          'Middleware propagates header to all forwarded requests, enabling end-to-end trace correlation.',
+        ],
+      },
+      {
+        heading: 'All 11 Rust services: Cloud Trace exporter',
+        items: [
+          'All services updated: accounts, contacts, activities, automation, integrations, search, projects, opportunities, reporting, spend, audit.',
+          'Cargo.toml: added opentelemetry (0.23), opentelemetry-gcp (0.23), tracing-opentelemetry (0.24).',
+          'main.rs: Cloud Trace exporter initialization with graceful fallback to stdout if initialization fails.',
+          'Spans automatically created for each request; traceparent header automatically extracted and propagated.',
+        ],
+      },
+      {
+        heading: 'event-stream-service (Go): traceparent extraction',
+        items: [
+          'Extract traceparent from incoming request headers; preserve in Event struct for propagation through event pipeline.',
+          'Enable tracing of events through the streaming system.',
+        ],
+      },
+      {
+        heading: 'ai-orchestrator-service (Python): OpenTelemetry instrumentation',
+        items: [
+          'OpenTelemetry SDK with GCP Cloud Trace exporter.',
+          'FastAPIInstrumentor: automatic tracing for all endpoints.',
+          'HTTPXClientInstrumentor: automatic tracing for outgoing HTTP requests.',
+          'Graceful fallback if Cloud Trace initialization fails.',
+        ],
+      },
+      {
+        heading: 'Security: rustls-webpki upgrade',
+        items: [
+          'Workspace.dependencies constraint: rustls-webpki >= 0.103.13 (fixes RUSTSEC-2026-0104 reachable panic).',
+          'All services use workspace.dependencies.reqwest to enforce constraint.',
+          'Unblocks CI cargo audit checks.',
+        ],
+      },
+    ],
+  },
   {
     tag: 'v1.8.0',
     date: '2026-05-07',
