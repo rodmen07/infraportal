@@ -27,6 +27,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   const reconnectDelay = useRef(RECONNECT_BASE_MS)
   const esRef = useRef<EventSource | null>(null)
   const mountedRef = useRef(true)
+  const connectRef = useRef<() => void>(() => {})
 
   const connect = useCallback(() => {
     if (!EVENT_STREAM_URL || esRef.current) return
@@ -61,7 +62,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       const delay = reconnectDelay.current
       reconnectDelay.current = Math.min(delay * 2, RECONNECT_MAX_MS)
       setTimeout(() => {
-        if (mountedRef.current) connect()
+        if (mountedRef.current) connectRef.current()
       }, delay)
     }
 
@@ -69,6 +70,8 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       reconnectDelay.current = RECONNECT_BASE_MS
     })
   }, [])
+
+  connectRef.current = connect
 
   useEffect(() => {
     mountedRef.current = true
@@ -102,6 +105,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   )
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useNotifications(): NotificationContextValue {
   const ctx = useContext(NotificationContext)
   if (!ctx) throw new Error('useNotifications must be used inside NotificationProvider')
