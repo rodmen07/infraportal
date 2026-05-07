@@ -39,7 +39,8 @@ const COMPLETION_STYLES: Record<CompletionState, { badge: string; label: string 
 
 // Groups for section headers
 const GROUP_META: Record<string, { label: string; status: string }> = {
-  'v1.7': { label: 'CRM Event Pipeline',               status: 'In Progress' },
+  'v1.8': { label: 'Real-Time Feedback Loop',           status: 'In Progress' },
+  'v1.7': { label: 'CRM Event Pipeline',               status: 'Complete' },
   'v1.6': { label: 'Observability & Compliance',       status: 'Complete' },
   'v1.5': { label: 'DB Migration & Live Events',      status: 'Complete' },
   'v1.4': { label: 'Cloud Consolidation',             status: 'Complete' },
@@ -52,6 +53,39 @@ const GROUP_META: Record<string, { label: string; status: string }> = {
 }
 
 const VERSIONS: Version[] = [
+  {
+    tag: 'v1.8.0',
+    date: '2026-05-07',
+    label: 'Real-Time Feedback Loop - Observaboard to Event Stream',
+    completionState: 'published',
+    group: 'v1.8',
+    summary:
+      'Closes the end-to-end pipeline: after classifying a CRM ingest event, observaboard now publishes it to event-stream-service via a short-lived HS256 JWT. The notification bell finally rings from real CRM mutations. Fixes the create_gateway_api_key management command bug and the badge color source-derivation.',
+    highlights: [
+      {
+        heading: 'observaboard: stream publisher',
+        items: [
+          'New events/stream_publisher.py: generates a 60-second HS256 JWT (stdlib only, no extra deps), POSTs classified event to event-stream-service /events/publish with a 2-second timeout. All exceptions are swallowed - publish failure never affects the ingest response.',
+          'IngestView.post wired: after classify_event(), calls event.refresh_from_db() then publish_to_stream() when EVENT_STREAM_URL is set.',
+          'settings.py: EVENT_STREAM_URL and EVENT_STREAM_JWT_SECRET added (decouple config, empty defaults).',
+          'deploy-cloud-run.yml: Resolve event-stream-service URL step added; EVENT_STREAM_JWT_SECRET injected from Secret Manager; EVENT_STREAM_URL injected as env var.',
+          'requirements.txt: PyJWT>=2.9 added (used only for type clarity; stdlib hmac handles JWT generation).',
+        ],
+      },
+      {
+        heading: 'observaboard: management command fix',
+        items: [
+          'create_gateway_api_key: replaced non-existent ApiKey.objects.create_key() with ApiKey.objects.create(); replaced existing.prefix (no such field) with existing.pk.',
+        ],
+      },
+      {
+        heading: 'infraportal: bell badge fix',
+        items: [
+          'SOURCE_COLORS lookup now uses n.type.split(".")[0] - so event type "accounts.created" correctly maps to the blue accounts badge instead of falling through to the zinc fallback.',
+        ],
+      },
+    ],
+  },
   {
     tag: 'v1.7.0',
     date: '2026-05-07',

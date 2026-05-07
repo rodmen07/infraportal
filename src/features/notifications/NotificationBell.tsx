@@ -119,7 +119,7 @@ export function NotificationBell() {
                 >
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
-                      <span className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${SOURCE_COLORS[n.type] ?? 'bg-zinc-700/60 text-zinc-300'}`}>
+                      <span className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${SOURCE_COLORS[n.type.split('.')[0]] ?? 'bg-zinc-700/60 text-zinc-300'}`}>
                         {n.type}
                       </span>
                       <span className="text-[10px] text-zinc-500">{formatAge(now - n.receivedAt)}</span>
