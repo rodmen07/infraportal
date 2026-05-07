@@ -2,6 +2,7 @@ import { Component, StrictMode, useEffect, useState, type ReactNode } from 'reac
 import { createRoot } from 'react-dom/client'
 import { ThemeProvider } from './features/layout/ThemeContext'
 import { AuthProvider } from './features/auth/AuthContext'
+import { NotificationProvider } from './features/notifications/NotificationContext'
 import './index.css'
 import 'highlight.js/styles/github-dark.css'
 import App from './App'
@@ -160,7 +161,9 @@ createRoot(rootElement).render(
     <RootBoundary>
       <ThemeProvider>
         <AuthProvider>
-          <Root />
+          <NotificationProvider>
+            <Root />
+          </NotificationProvider>
         </AuthProvider>
       </ThemeProvider>
     </RootBoundary>

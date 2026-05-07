@@ -39,16 +39,58 @@ const COMPLETION_STYLES: Record<CompletionState, { badge: string; label: string 
 
 // Groups for section headers
 const GROUP_META: Record<string, { label: string; status: string }> = {
-  'v1.4': { label: 'Cloud Consolidation',         status: 'In Progress' },
-  'v1.3': { label: 'Autonomous Operations',       status: 'Complete' },
-  'v1.2': { label: 'Operational Maturity',        status: 'Complete' },
+  'v1.5': { label: 'DB Migration & Live Events',      status: 'In Progress' },
+  'v1.4': { label: 'Cloud Consolidation',             status: 'Complete' },
+  'v1.3': { label: 'Autonomous Operations',           status: 'Complete' },
+  'v1.2': { label: 'Operational Maturity',            status: 'Complete' },
   'v1.1': { label: 'Developer Experience & AI Research', status: 'Complete' },
-  'v1.0': { label: 'Client Portal',              status: 'Complete' },
-  'v0.5': { label: 'Platform Completeness',       status: 'Complete' },
-  'v0.4': { label: 'Language Breadth & AI Depth', status: 'Complete' },
+  'v1.0': { label: 'Client Portal',                  status: 'Complete' },
+  'v0.5': { label: 'Platform Completeness',           status: 'Complete' },
+  'v0.4': { label: 'Language Breadth & AI Depth',     status: 'Complete' },
 }
 
 const VERSIONS: Version[] = [
+  {
+    tag: 'v1.5.0',
+    date: '2026-05-08',
+    label: 'backend-service PostgreSQL Migration + CRM Notification Bell',
+    completionState: 'published',
+    group: 'v1.5',
+    summary:
+      'Migrates backend-service (Rust/Axum task API) from SQLite on Fly.io to PostgreSQL on GCP Cloud Run with Cloud SQL, completing the full cloud consolidation to a single provider. Adds a real-time CRM notification bell in the InfraPortal top nav that streams live events from the event-stream-service via SSE.',
+    highlights: [
+      {
+        heading: 'backend-service: SQLite to PostgreSQL',
+        items: [
+          'sqlx feature flag changed from sqlite to postgres; PgPool replaces SqlitePool; max_connections raised to 10.',
+          'All 10 migration files rewritten in PostgreSQL dialect: BIGSERIAL PKs, BOOLEAN columns, TIMESTAMPTZ timestamps, CONSTRAINT-based CHECK expansion replacing table rebuild.',
+          'All SQL placeholders updated from ? to $N positional parameters throughout handlers, router, and admin.',
+          'INSERT ... RETURNING used for create_task and create_comment, eliminating last_insert_rowid() calls.',
+          'admin_backup stubbed with 501 response - Cloud SQL automated backups replace VACUUM INTO.',
+          'Timestamp model fields changed from String to DateTime<Utc> for correct TIMESTAMPTZ decoding.',
+        ],
+      },
+      {
+        heading: 'backend-service: Cloud Run deployment',
+        items: [
+          'Dockerfile updated: sqlite3 removed from apt-get, CMD simplified to direct binary invocation.',
+          'deploy-cloud-run.yml created: cargo test gate + OIDC WIF auth + Artifact Registry + Cloud SQL sidecar via --add-cloudsql-instances.',
+          'DATABASE_URL and AUTH_JWT_SECRET injected at deploy time via Secret Manager --set-secrets.',
+          'fly.toml annotated with migration comment; Fly deployment retired.',
+          'go-gateway TasksURL default updated to Cloud Run URL.',
+        ],
+      },
+      {
+        heading: 'CRM notification bell',
+        items: [
+          'NotificationContext.tsx: EventSource connection to event-stream-service /events/stream with exponential-backoff auto-reconnect.',
+          'NotificationBell.tsx: bell icon with unread badge, dropdown panel with event type tags, relative timestamps, per-item dismiss, and clear all.',
+          'NotificationProvider wraps Root in main.tsx; bell inserted between theme toggle and sign-out in TopNav.',
+          'Notifications capped at 50 items; unread count resets on panel open.',
+        ],
+      },
+    ],
+  },
   {
     tag: 'v1.4.0',
     date: '2026-05-07',
@@ -86,6 +128,7 @@ const VERSIONS: Version[] = [
       },
     ],
   },
+  {
     date: '2026-05-06',
     label: 'Client Portal Dashboard',
     completionState: 'published',
