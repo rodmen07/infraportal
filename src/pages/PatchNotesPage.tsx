@@ -39,6 +39,7 @@ const COMPLETION_STYLES: Record<CompletionState, { badge: string; label: string 
 
 // Groups for section headers
 const GROUP_META: Record<string, { label: string; status: string }> = {
+  'v1.10': { label: 'Gateway Rate Limiting',              status: 'Complete' },
   'v1.9': { label: 'Distributed Tracing & Observability', status: 'Complete' },
   'v1.8': { label: 'Real-Time Feedback Loop',           status: 'Complete' },
   'v1.7': { label: 'CRM Event Pipeline',               status: 'Complete' },
@@ -54,6 +55,45 @@ const GROUP_META: Record<string, { label: string; status: string }> = {
 }
 
 const VERSIONS: Version[] = [
+  {
+    tag: 'v1.10.0',
+    date: '2026-05-16',
+    label: 'Gateway Rate Limiting - Per-Client IP Tiers with Standard Headers',
+    completionState: 'published',
+    group: 'v1.10',
+    summary:
+      'Upgrades go-gateway from a single shared per-route token bucket to per-client-IP rate limiting with route-tier overrides. Every response now carries X-RateLimit-Limit, X-RateLimit-Remaining, and X-RateLimit-Reset headers. Auth routes are capped at 5 rps to slow credential-stuffing; CRM write routes at 30 rps; read/reporting routes at 60 rps. A background goroutine evicts stale client entries on a 5-minute interval. Nine unit tests cover headers, 429 enforcement, client isolation, tier routing, and X-Forwarded-For handling.',
+    highlights: [
+      {
+        heading: 'go-gateway: per-client rate limiting',
+        items: [
+          'internal/middleware/ratelimit.go rewritten: key changed from routeKey to clientIP|routeKey; burst = 2x configured RPS; idle entries evicted every 5 min.',
+          'X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset headers set on every proxied response.',
+          'Retry-After header added on 429 responses; error body includes per-route limit and seconds to retry.',
+          'extractIP(): prefers leftmost IP from X-Forwarded-For (Cloud Run load balancer) over TCP RemoteAddr.',
+          'routeRPS(): looks up path prefix in routeLimits map before falling back to defaultRPS.',
+          'RateLimiter() signature updated to accept routeLimits map[string]float64.',
+        ],
+      },
+      {
+        heading: 'go-gateway: tiered config and wiring',
+        items: [
+          'internal/config/config.go: added AuthRateLimitRPS (default 5), WriteRateLimitRPS (default 30), ReadRateLimitRPS (default 60); RateLimitRPS default raised from 10 to 15.',
+          'RATE_LIMIT_AUTH_RPS, RATE_LIMIT_WRITE_RPS, RATE_LIMIT_READ_RPS env vars supported.',
+          'cmd/gateway/main.go: routeLimits map wired — /api/auth=auth, CRM routes=write, /api/reporting+search+events=read.',
+          'Startup log updated to print all four tier values.',
+          '.env.example updated with all four rate limit vars and inline comments.',
+        ],
+      },
+      {
+        heading: 'Tests',
+        items: [
+          'internal/middleware/ratelimit_test.go: 9 tests added (first tests in repo).',
+          'Covers: headers set on 200, Limit header matches config, 429 on burst exceeded, per-client isolation, route tiers applied, X-Forwarded-For as client key, extractIP XFF, extractIP RemoteAddr, routeKey segments.',
+        ],
+      },
+    ],
+  },
   {
     tag: 'v1.9.0',
     date: '2026-05-07',
