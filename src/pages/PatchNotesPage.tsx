@@ -39,7 +39,8 @@ const COMPLETION_STYLES: Record<CompletionState, { badge: string; label: string 
 
 // Groups for section headers
 const GROUP_META: Record<string, { label: string; status: string }> = {
-  'v1.10': { label: 'Gateway Rate Limiting',              status: 'Complete' },
+  'v1.11': { label: 'Multi-Region HA & Event-Driven Batch',   status: 'Complete' },
+  'v1.10': { label: 'Gateway Rate Limiting',                  status: 'Complete' },
   'v1.9': { label: 'Distributed Tracing & Observability', status: 'Complete' },
   'v1.8': { label: 'Real-Time Feedback Loop',           status: 'Complete' },
   'v1.7': { label: 'CRM Event Pipeline',               status: 'Complete' },
@@ -55,6 +56,94 @@ const GROUP_META: Record<string, { label: string; status: string }> = {
 }
 
 const VERSIONS: Version[] = [
+  {
+    tag: 'v1.11.3',
+    date: '2026-05-16',
+    label: 'Event-Driven Batch Path - Pub/Sub Async Ingest for CRM Mutations',
+    completionState: 'published',
+    group: 'v1.11',
+    summary:
+      'Replaces the go-gateway mutation observer\'s synchronous HTTP POST to observaboard with an async Pub/Sub publish path. When PUBSUB_PROJECT and PUBSUB_TOPIC are set, the observer publishes a base64-encoded JSON message to the crm-mutation-ingest topic via the Pub/Sub REST API, using a cached metadata-server OIDC token. A Terraform module provisions the topic, a push subscription (with OIDC delivery to observaboard /api/ingest/), a dead-letter topic, and an IAM publisher binding. The HTTP direct path remains as a fallback for local dev and non-Cloud Run environments.',
+    highlights: [
+      {
+        heading: 'go-gateway: Pub/Sub observer path',
+        items: [
+          'internal/observer/observer.go: Observer gains pubsubProject, pubsubTopic, and a token cache (tokenMu, cachedToken, tokenExpiry).',
+          'New() signature updated to accept pubsubProject and pubsubTopic; returns nil only when both HTTP and Pub/Sub configs are absent.',
+          'Observe() dispatches publishToPubSub() goroutine when Pub/Sub is configured; falls back to postToObservaboard() otherwise.',
+          'publishToPubSub(): fetches metadata-server access token, base64-encodes the event JSON, POSTs to Pub/Sub REST API.',
+          'metadataToken(): caches the GCP access token with 5-minute early-expiry to prevent clock-skew races.',
+          'Falls back to direct HTTP post when metadata server is unreachable (local dev / non-GCP).',
+          'PUBSUB_PROJECT and PUBSUB_TOPIC env vars added to config.go and .env.example.',
+        ],
+      },
+      {
+        heading: 'terraform/pubsub-ingest module',
+        items: [
+          'google_pubsub_topic crm-mutation-ingest with configurable message retention (default 1 day).',
+          'google_pubsub_subscription push to observaboard /api/ingest/ with OIDC token, exponential retry (10s-300s), and dead-letter policy.',
+          'google_pubsub_topic + drain subscription for dead letters (7-day retention).',
+          'IAM binding: Pub/Sub SA granted publisher on dead-letter topic; gateway SA granted publisher on ingest topic.',
+        ],
+      },
+    ],
+  },
+  {
+    tag: 'v1.11.2',
+    date: '2026-05-16',
+    label: 'Cloud SQL Read Replica - Cross-Region Read Pool for Reporting and Search',
+    completionState: 'published',
+    group: 'v1.11',
+    summary:
+      'Adds Cloud SQL cross-region read replica support to reporting-service and search-service. Both services now accept a DATABASE_REPLICA_URL env var. When set, migrations run against the primary (DATABASE_URL) and the serving pool is opened against the replica, spreading read load geographically. search-service gains a separate write pool (pool) and read pool (read_pool) so indexing writes stay on the primary while search queries and document reads hit the replica. A new Terraform module provisions the replica instance.',
+    highlights: [
+      {
+        heading: 'reporting-service: replica-aware AppState',
+        items: [
+          'src/lib/app_state.rs: new with_read_replica(write_url, read_url) constructor. Runs migrations on write_url via a short-lived pool, then opens the serving pool against read_url (or write_url as fallback).',
+          'src/main.rs: reads DATABASE_REPLICA_URL env var; calls with_read_replica() instead of from_database_url().',
+        ],
+      },
+      {
+        heading: 'search-service: split write/read pools',
+        items: [
+          'src/lib/app_state.rs: AppState gains read_pool: PgPool field (write pool = pool, read pool = read_pool). with_read_replica() opens both pools.',
+          'src/lib/handlers/documents.rs: search_documents, list_documents, and get_document switched to &state.read_pool; index_document and delete/update mutations remain on &state.pool.',
+          'src/main.rs: reads DATABASE_REPLICA_URL; calls with_read_replica().',
+        ],
+      },
+      {
+        heading: 'terraform/cloud-sql-read-replica module',
+        items: [
+          'google_sql_database_instance replica: inherits from primary via master_instance_name, ZONAL availability, configurable tier and region.',
+          'Outputs: connection_name, public_ip, and a DATABASE_REPLICA_URL template string.',
+          'deletion_protection variable (default false) for safe teardown in dev.',
+        ],
+      },
+    ],
+  },
+  {
+    tag: 'v1.11.1',
+    date: '2026-05-16',
+    label: 'Multi-Region go-gateway - Global HTTPS Load Balancer with Serverless NEGs',
+    completionState: 'published',
+    group: 'v1.11',
+    summary:
+      'Fixes and completes the terraform/go-gateway-ha module. Removes an invalid health check (not supported for serverless NEGs — Cloud Run manages its own health). Adds optional HTTPS support via a Google-managed SSL certificate, a HTTPS target proxy, and a port-443 forwarding rule. When var.domain is set, the HTTP URL map issues a 301 redirect to HTTPS; without a domain, HTTP routes directly to the backend. Both the primary (us-south1) and failover (us-west1) Cloud Run deployments are backed by serverless NEGs behind a single global anycast IP.',
+    highlights: [
+      {
+        heading: 'terraform/go-gateway-ha fixes and additions',
+        items: [
+          'Removed google_compute_health_check and health_checks on the backend service — health checks are not applicable to serverless NEG backends.',
+          'Added var.domain (default empty): when set, provisions google_compute_managed_ssl_certificate, HTTPS target proxy, and port-443 forwarding rule.',
+          'HTTP URL map: redirects all traffic to HTTPS (301) when domain is set; routes to backend when no domain (dev/staging without a custom domain).',
+          'HTTPS URL map routes to the same backend service as the HTTP path.',
+          'outputs.tf: https_endpoint output added (null when no domain); http_endpoint description updated.',
+          'local.has_domain drives all conditional resource creation via count.',
+        ],
+      },
+    ],
+  },
   {
     tag: 'v1.10.0',
     date: '2026-05-16',
