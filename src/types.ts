@@ -73,3 +73,33 @@ export interface ShortcutsContextType {
   shortcuts: RegisteredShortcut[]
   registerShortcut: (shortcut: RegisteredShortcut) => () => void
 }
+
+// Toast notifications
+export type ToastVariant = 'success' | 'error' | 'info' | 'warning'
+
+export interface ToastAction {
+  label: string
+  onClick: () => void
+}
+
+export interface Toast {
+  id: string
+  message: string
+  variant: ToastVariant
+  duration?: number
+  action?: ToastAction
+  isLoading?: boolean
+}
+
+export interface ToastPromiseOptions {
+  loading: string
+  success: string
+  error: string
+}
+
+export interface ToastContextType {
+  toasts: Toast[]
+  addToast: (message: string, variant: ToastVariant, options?: { duration?: number; action?: ToastAction }) => void
+  removeToast: (id: string) => void
+  promise: <T>(promise: Promise<T>, messages: ToastPromiseOptions) => Promise<T>
+}
