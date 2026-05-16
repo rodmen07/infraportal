@@ -59,3 +59,17 @@ export interface PricingContent {
   note: string
   tiers: PricingTier[]
 }
+
+// Keyboard shortcuts
+export interface RegisteredShortcut {
+  keys: string
+  description: string
+  scope: string
+  callback: () => void
+  allowInInput?: boolean
+}
+
+export interface ShortcutsContextType {
+  shortcuts: RegisteredShortcut[]
+  registerShortcut: (shortcut: RegisteredShortcut) => () => void
+}
