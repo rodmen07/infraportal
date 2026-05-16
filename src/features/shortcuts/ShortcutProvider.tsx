@@ -1,8 +1,7 @@
-import { createContext, useState, useCallback, useRef, useEffect, ReactNode } from 'react'
+import { useState, useCallback, useRef, useEffect, ReactNode } from 'react'
+import { ShortcutsContext } from './ShortcutsContext'
 import { ShortcutsHelp } from './ShortcutsHelp'
 import type { RegisteredShortcut, ShortcutsContextType } from '../../types'
-
-export const ShortcutsContext = createContext<ShortcutsContextType | null>(null)
 
 interface ShortcutProviderProps {
   children: ReactNode
@@ -24,6 +23,11 @@ export function ShortcutProvider({ children }: ShortcutProviderProps) {
       setShortcuts([...shortcutsRef.current])
     }
   }, [])
+
+  const contextValue: ShortcutsContextType = {
+    shortcuts,
+    registerShortcut,
+  }
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -109,7 +113,7 @@ export function ShortcutProvider({ children }: ShortcutProviderProps) {
   }, [])
 
   return (
-    <ShortcutsContext.Provider value={{ shortcuts, registerShortcut }}>
+    <ShortcutsContext.Provider value={contextValue}>
       {children}
       {showHelp && <ShortcutsHelp onClose={() => setShowHelp(false)} shortcuts={shortcuts} />}
     </ShortcutsContext.Provider>

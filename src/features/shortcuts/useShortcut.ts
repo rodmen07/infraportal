@@ -1,5 +1,5 @@
 import { useContext, useEffect } from 'react'
-import { ShortcutsContext } from './ShortcutProvider'
+import { ShortcutsContext } from './ShortcutsContext'
 import type { RegisteredShortcut } from '../../types'
 
 export function useShortcut(
@@ -11,12 +11,12 @@ export function useShortcut(
 ): void {
   const context = useContext(ShortcutsContext)
 
-  if (!context) {
-    console.warn('useShortcut must be used within ShortcutProvider')
-    return
-  }
-
   useEffect(() => {
+    if (!context) {
+      console.warn('useShortcut must be used within ShortcutProvider')
+      return
+    }
+
     const shortcut: RegisteredShortcut = {
       keys,
       description,
@@ -32,3 +32,5 @@ export function useShortcut(
     }
   }, [keys, description, scope, callback, allowInInput, context])
 }
+
+

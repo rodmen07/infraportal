@@ -1,4 +1,3 @@
-import { useEffect } from 'react'
 import TopNav from './features/layout/TopNav'
 import { FocusCard } from './features/layout/FocusCard'
 import { HowItWorksSection } from './features/site/HowItWorksSection'
