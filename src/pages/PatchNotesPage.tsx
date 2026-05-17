@@ -39,6 +39,7 @@ const COMPLETION_STYLES: Record<CompletionState, { badge: string; label: string 
 
 // Groups for section headers
 const GROUP_META: Record<string, { label: string; status: string }> = {
+  'v1.15': { label: 'Deployment Safety, SLO Monitoring & Distributed State', status: 'Complete' },
   'v1.14': { label: 'Security Depth, Cost Efficiency & E2E Quality', status: 'Complete' },
   'v1.13': { label: 'Production Hardening, IaC Completeness & Observaboard Depth', status: 'Complete' },
   'v1.12': { label: 'IaC Root Module, JWT Auth & CI/CD',       status: 'Complete' },
@@ -59,6 +60,196 @@ const GROUP_META: Record<string, { label: string; status: string }> = {
 }
 
 const VERSIONS: Version[] = [
+  {
+    tag: 'v1.15.10',
+    date: '2026-05-17',
+    label: 'v1.15 Patch Notes, README & Final Commit',
+    completionState: 'published',
+    group: 'v1.15',
+    summary:
+      'Publishes v1.15 documentation across InfraPortal and Portfolio README, validates go-gateway and Terraform updates, and finalizes the rollout of deployment safety, SLO monitoring, and distributed state capabilities.',
+    highlights: [
+      {
+        heading: 'Documentation and release wrap-up',
+        items: [
+          'PatchNotesPage updated with v1.15 group metadata and sub-version entries.',
+          'Portfolio README updated with v1.15 section and status table.',
+          'Go and Terraform validations re-run before finalizing release notes.',
+        ],
+      },
+    ],
+  },
+  {
+    tag: 'v1.15.9',
+    date: '2026-05-17',
+    label: 'Gateway Response Cache for Read Endpoints',
+    completionState: 'published',
+    group: 'v1.15',
+    summary:
+      'Adds short-TTL in-process LRU response caching for read-heavy gateway routes. Cache keys include path, query, and authenticated subject to keep per-user responses isolated. Cacheable responses emit X-Cache MISS/HIT for visibility.',
+    highlights: [
+      {
+        heading: 'go-gateway middleware',
+        items: [
+          'New ResponseCache middleware with default TTL 5s and configurable max entries.',
+          'Cache applies to GET requests on reporting, search, events, and projects read routes.',
+          'Integration test verifies first request MISS, second request HIT, and single upstream call.',
+        ],
+      },
+    ],
+  },
+  {
+    tag: 'v1.15.8',
+    date: '2026-05-17',
+    label: 'Redis-backed Distributed Rate Limiting',
+    completionState: 'published',
+    group: 'v1.15',
+    summary:
+      'Introduces Redis-backed gateway rate limiting using INCR + EXPIRE fixed windows so limits are shared across all Cloud Run instances. Includes fail-open behavior when Redis is unreachable to avoid gateway-wide outages from transient dependency issues.',
+    highlights: [
+      {
+        heading: 'go-gateway middleware and config',
+        items: [
+          'New RedisRateLimiter middleware keyed by client IP + route + second.',
+          'New config support: REDIS_URL with redis:// parsing and host:port fallback.',
+          'Main wiring switches to distributed limiter automatically when REDIS_URL is set.',
+        ],
+      },
+    ],
+  },
+  {
+    tag: 'v1.15.7',
+    date: '2026-05-17',
+    label: 'Memorystore Terraform Module',
+    completionState: 'published',
+    group: 'v1.15',
+    summary:
+      'Adds a dedicated terraform/memorystore module to provision Redis for gateway distributed state. Module outputs host, port, redis_url, and optionally writes REDIS_URL to Secret Manager for CI/CD consumption.',
+    highlights: [
+      {
+        heading: 'terraform/memorystore',
+        items: [
+          'Provisioned google_redis_instance with configurable name, tier, memory, and region.',
+          'Optional Secret Manager write path for GO_GATEWAY_REDIS_URL.',
+          'Wired into terraform/envs/prod with enable_gateway_redis toggle and outputs.',
+        ],
+      },
+    ],
+  },
+  {
+    tag: 'v1.15.6',
+    date: '2026-05-17',
+    label: 'Uptime Checks Per Service',
+    completionState: 'published',
+    group: 'v1.15',
+    summary:
+      'Adds configurable per-service uptime checks with 60-second cadence and alert policies tied to the shared SLO notification channel. Uptime failures are detected as sustained check_passed drops over a 3-minute window.',
+    highlights: [
+      {
+        heading: 'terraform/slos uptime resources',
+        items: [
+          'google_monitoring_uptime_check_config resources generated from uptime_checks map.',
+          'Per-check alert policy creation when notification email is configured.',
+          'Env/prod variables and tfvars examples added for multi-service checks.',
+        ],
+      },
+    ],
+  },
+  {
+    tag: 'v1.15.5',
+    date: '2026-05-17',
+    label: 'Error Budget Burn Rate Alerts',
+    completionState: 'published',
+    group: 'v1.15',
+    summary:
+      'Adds fast-burn and slow-burn SLO alert policies for go-gateway using monitoring query language based burn-rate selectors. Alerts route to a dedicated email channel when configured in environment variables.',
+    highlights: [
+      {
+        heading: 'terraform/slos burn alerts',
+        items: [
+          'Fast burn alert policy for short-window error budget consumption.',
+          'Slow burn alert policy for sustained degradation detection.',
+          'Shared notification channel creation from slo_alert_email.',
+        ],
+      },
+    ],
+  },
+  {
+    tag: 'v1.15.4',
+    date: '2026-05-17',
+    label: 'SLO Terraform Module',
+    completionState: 'published',
+    group: 'v1.15',
+    summary:
+      'Adds terraform/slos module with custom monitoring service plus availability and latency SLO resources for go-gateway. Goals and latency thresholds are environment-configurable and exported as environment outputs.',
+    highlights: [
+      {
+        heading: 'terraform/slos core resources',
+        items: [
+          'google_monitoring_custom_service for gateway SLO ownership.',
+          'Availability SLO target default 99.9%.',
+          'Latency SLO target with default threshold under 2 seconds.',
+        ],
+      },
+    ],
+  },
+  {
+    tag: 'v1.15.3',
+    date: '2026-05-17',
+    label: 'Automated Rollback Composite Action',
+    completionState: 'published',
+    group: 'v1.15',
+    summary:
+      'Adds reusable GitHub composite action for Cloud Run rollback on canary smoke-test failure. The action restores 100% traffic to the stable revision and writes a rollback summary into job output for operator visibility.',
+    highlights: [
+      {
+        heading: '.github/actions/cloud-run-rollback/action.yml',
+        items: [
+          'Reusable rollback action parameterized by service, region, stable revision, and failed revision.',
+          'Deploy workflow updated to call action instead of inline rollback shell script.',
+          'Rollback summary rendered in GitHub job summary panel.',
+        ],
+      },
+    ],
+  },
+  {
+    tag: 'v1.15.2',
+    date: '2026-05-17',
+    label: 'Canary Smoke-test Script',
+    completionState: 'published',
+    group: 'v1.15',
+    summary:
+      'Adds scripts/smoke-test.sh as deployment gate for canary rollouts. Script validates /health payload and /health/upstreams reachability with retry support, strict failure exits, and deterministic pass/fail behavior for automation.',
+    highlights: [
+      {
+        heading: 'scripts/smoke-test.sh',
+        items: [
+          'Retries configurable by SMOKE_RETRIES and SMOKE_INTERVAL.',
+          'Validates status=ok contract for /health response body.',
+          'Accepts /health/upstreams HTTP 200 or HTTP 502 degraded during rollout, rejects gateway-level failures.',
+        ],
+      },
+    ],
+  },
+  {
+    tag: 'v1.15.1',
+    date: '2026-05-17',
+    label: 'Cloud Run Canary Traffic Splitting',
+    completionState: 'published',
+    group: 'v1.15',
+    summary:
+      'Upgrades go-gateway deployment workflow to no-traffic revision deploy, smoke verification, 10/90 canary split, and full promotion to latest on success. On smoke failure, traffic is automatically restored to the prior stable revision.',
+    highlights: [
+      {
+        heading: '.github/workflows/deploy-cloud-run.yml',
+        items: [
+          'Records stable revision before deployment and captures newly created revision after deploy.',
+          'Deploys with --no-traffic, runs smoke checks, then shifts to 10% canary before 100% promotion.',
+          'Uses rollback action on smoke failure and includes workflow trigger paths for smoke/action files.',
+        ],
+      },
+    ],
+  },
   {
     tag: 'v1.14.12',
     date: '2026-05-16',
