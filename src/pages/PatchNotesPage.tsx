@@ -39,6 +39,7 @@ const COMPLETION_STYLES: Record<CompletionState, { badge: string; label: string 
 
 // Groups for section headers
 const GROUP_META: Record<string, { label: string; status: string }> = {
+  'v1.12': { label: 'IaC Root Module, JWT Auth & CI/CD',       status: 'Complete' },
   'v1.11': { label: 'Multi-Region HA & Event-Driven Batch',   status: 'Complete' },
   'v1.10': { label: 'Gateway Rate Limiting',                  status: 'Complete' },
   'v1.9': { label: 'Distributed Tracing & Observability', status: 'Complete' },
@@ -56,6 +57,100 @@ const GROUP_META: Record<string, { label: string; status: string }> = {
 }
 
 const VERSIONS: Version[] = [
+  {
+    tag: 'v1.12.4',
+    date: '2026-05-16',
+    label: 'Dead-Letter Cloud Monitoring Alert',
+    completionState: 'published',
+    group: 'v1.12',
+    summary:
+      'Adds a Cloud Monitoring alert policy to the pubsub-ingest Terraform module that fires when messages accumulate in the dead-letter drain subscription. When alert_email is set, the module provisions an email notification channel and an alert policy that triggers after messages remain undelivered for 5 minutes. The alert documentation includes a step-by-step remediation guide covering log inspection, message sampling with gcloud, and replay instructions.',
+    highlights: [
+      {
+        heading: 'terraform/pubsub-ingest additions',
+        items: [
+          'New variable alert_email (default empty): set to enable alert creation.',
+          'google_monitoring_notification_channel (email type) provisioned when alert_email is set.',
+          'google_monitoring_alert_policy: monitors num_undelivered_messages on the dead-letter drain subscription, threshold = 0, duration = 300s, aligner = ALIGN_MAX.',
+          'Alert documentation includes gcloud pubsub subscriptions pull command and replay guidance.',
+        ],
+      },
+    ],
+  },
+  {
+    tag: 'v1.12.3',
+    date: '2026-05-16',
+    label: 'CI/CD - GitHub Actions for go-gateway and Terraform Modules',
+    completionState: 'published',
+    group: 'v1.12',
+    summary:
+      'Adds two GitHub Actions workflows: a CI workflow for the go-gateway repo that runs go vet, go build, and go test -race on every push/PR to non-main branches; and a Terraform lint workflow in the Portfolio repo that runs terraform fmt -check and terraform validate for every reusable module and the envs/prod environment on every push/PR touching terraform/. Both workflows are path-filtered to avoid unnecessary runs.',
+    highlights: [
+      {
+        heading: 'go-gateway/.github/workflows/ci.yml',
+        items: [
+          'Triggers on push to non-main branches and on PRs to main, path-filtered to cmd/, internal/, go.mod, go.sum.',
+          'Steps: actions/setup-go with go-version-file (module cache enabled), go vet ./..., go build ./..., go test -race -count=1 ./...',
+        ],
+      },
+      {
+        heading: 'Portfolio/.github/workflows/terraform-lint.yml',
+        items: [
+          'Triggers on push to non-main branches and on PRs to main, path-filtered to terraform/.',
+          'Steps: hashicorp/setup-terraform, terraform fmt -check -recursive terraform/, loop over terraform/*/ to init + validate each module, validate terraform/envs/prod.',
+          'All init steps use -backend=false to avoid requiring backend credentials in CI.',
+        ],
+      },
+    ],
+  },
+  {
+    tag: 'v1.12.2',
+    date: '2026-05-16',
+    label: 'go-gateway JWT Auth Middleware',
+    completionState: 'published',
+    group: 'v1.12',
+    summary:
+      'Adds a JWT validation layer to go-gateway that validates Bearer tokens on every request except /health and /api/auth/*. Uses HS256 (HMAC-SHA256) with a shared AUTH_JWT_SECRET matching the auth-service. On success, injects X-Auth-Subject and X-Auth-Roles headers so upstream services receive verified identity without re-validating. When AUTH_JWT_SECRET is empty the middleware is a no-op, preserving zero-config local development. Checks: signature, expiry, and issuer (AUTH_ISSUER, default "auth-service").',
+    highlights: [
+      {
+        heading: 'internal/middleware/auth.go (new)',
+        items: [
+          'JWTAuth(secret, issuer, skipPrefixes): returns a middleware that wraps the mux handler.',
+          'verifyHS256: parses token, verifies HMAC-SHA256 signature with hmac.Equal (constant-time), checks exp and iss claims.',
+          'Uses only Go stdlib (crypto/hmac, crypto/sha256, encoding/base64.RawURLEncoding, encoding/json).',
+          'On invalid/missing token returns 401 JSON {error, reason}; on success forwards X-Auth-Subject and X-Auth-Roles.',
+        ],
+      },
+      {
+        heading: 'Config and main updates',
+        items: [
+          'config.go: JWTSecret (AUTH_JWT_SECRET) and JWTIssuer (AUTH_ISSUER, default "auth-service") added.',
+          'cmd/gateway/main.go: mux wrapped with JWTAuth middleware; /health and /api/auth exempted.',
+          '.env.example: AUTH_JWT_SECRET and AUTH_ISSUER vars documented.',
+        ],
+      },
+    ],
+  },
+  {
+    tag: 'v1.12.1',
+    date: '2026-05-16',
+    label: 'Terraform envs/prod Root Module',
+    completionState: 'published',
+    group: 'v1.12',
+    summary:
+      'Creates terraform/envs/prod/ - a deployable environment that wires all four Portfolio Terraform modules (go-gateway-ha, cloud-sql-read-replica, pubsub-ingest, soc2-cc9-vendor-risk) into a single plan. Uses a GCS backend (configured via -backend-config at init time). Surfaces aggregated outputs for the LB endpoint, replica connection name, database URL template, and Pub/Sub topic name. A terraform.tfvars.example documents every required and optional variable with safe defaults and comments.',
+    highlights: [
+      {
+        heading: 'terraform/envs/prod/ (new)',
+        items: [
+          'versions.tf: TF >= 1.6, google >= 5.40, GCS backend stub (configured at init time via -backend-config).',
+          'variables.tf: all required variables for all four modules, grouped by module with descriptions.',
+          'main.tf: module blocks for go_gateway_ha, cloud_sql_replica, pubsub_ingest, soc2_cc9_vendor_risk; aggregated outputs.',
+          'terraform.tfvars.example: commented example values for every variable; clearly marks required vs optional.',
+        ],
+      },
+    ],
+  },
   {
     tag: 'v1.11.3',
     date: '2026-05-16',
