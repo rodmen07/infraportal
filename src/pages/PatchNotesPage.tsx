@@ -39,6 +39,7 @@ const COMPLETION_STYLES: Record<CompletionState, { badge: string; label: string 
 
 // Groups for section headers
 const GROUP_META: Record<string, { label: string; status: string }> = {
+  'v1.14': { label: 'Security Depth, Cost Efficiency & E2E Quality', status: 'Complete' },
   'v1.13': { label: 'Production Hardening, IaC Completeness & Observaboard Depth', status: 'Complete' },
   'v1.12': { label: 'IaC Root Module, JWT Auth & CI/CD',       status: 'Complete' },
   'v1.11': { label: 'Multi-Region HA & Event-Driven Batch',   status: 'Complete' },
@@ -58,6 +59,265 @@ const GROUP_META: Record<string, { label: string; status: string }> = {
 }
 
 const VERSIONS: Version[] = [
+  {
+    tag: 'v1.14.12',
+    date: '2026-05-16',
+    label: 'v1.14 Patch Notes, README & Final Commit',
+    completionState: 'published',
+    group: 'v1.14',
+    summary:
+      'Documents all 11 preceding v1.14 sub-versions in InfraPortal PatchNotesPage.tsx, updates Portfolio README.md with a v1.14 section, and commits all changed repositories: go-gateway (security headers, scanner block, circuit breaker, retry, /health/upstreams, gen2+concurrency, integration tests), auth-service (refresh token rotation + integration test suite), terraform (Cloud Armor WAF, BigQuery scheduled query, Infracost CI), and infraportal (patch notes).',
+    highlights: [
+      {
+        heading: 'Documentation',
+        items: [
+          'PatchNotesPage.tsx: GROUP_META entry for v1.14; 12 VERSIONS entries (v1.14.1 through v1.14.12).',
+          'README.md: v1.14 section added above v1.13 with all 12 sub-versions marked Published.',
+        ],
+      },
+    ],
+  },
+  {
+    tag: 'v1.14.11',
+    date: '2026-05-16',
+    label: 'go-gateway Integration Test Suite',
+    completionState: 'published',
+    group: 'v1.14',
+    summary:
+      'Adds cmd/gateway/gateway_test.go — a package-level integration test suite that builds the full gateway handler (SecurityHeaders, BlockScannerPaths, JWTAuth, circuit breaker, retry transport, CORS, Logger, Traceparent, RequestID) against in-process httptest stub upstreams. Tests cover: health 200, security header presence, scanner path 404, JWT missing-header 401, proxy forwarding, and circuit breaker opening after 3 consecutive 5xx responses. Tests run as part of the existing CI workflow (go test -race -count=1 ./...).',
+    highlights: [
+      {
+        heading: 'cmd/gateway/gateway_test.go (new)',
+        items: [
+          'stubOK/stub5xx helpers start in-process httptest servers; all cleaned up via t.Cleanup.',
+          'makeGateway helper mirrors main() construction: builds mux, wraps with full middleware chain.',
+          'TestGateway_HealthEndpoint: GET /health returns 200 + {"status":"ok"}.',
+          'TestGateway_SecurityHeadersPresent: X-Content-Type-Options, X-Frame-Options, Referrer-Policy.',
+          'TestGateway_ScannerPathsBlocked: /.env, /wp-admin, /phpinfo.php, /.git/config all return 404.',
+          'TestGateway_JWTRequired_MissingHeader: protected route returns 401 when Authorization header absent.',
+          'TestGateway_ProxyForwardsToUpstream: request forwarded to stub, 200 returned.',
+          'TestGateway_CircuitBreakerOpensAfterFailures: 3 × 502 → 4th request returns 503 + Retry-After.',
+        ],
+      },
+    ],
+  },
+  {
+    tag: 'v1.14.10',
+    date: '2026-05-16',
+    label: 'auth-service Integration Test Suite',
+    completionState: 'published',
+    group: 'v1.14',
+    summary:
+      'Adds tests/test_integration_flow.py covering the complete authentication lifecycle end-to-end using FastAPI TestClient backed by an isolated per-test SQLite database. Test classes cover registration/login, refresh token rotation (replay detection), access token revocation, logout, and the JWKS endpoint. The isolated DB fixture ensures tests never share state.',
+    highlights: [
+      {
+        heading: 'tests/test_integration_flow.py (new)',
+        items: [
+          'client fixture: monkeypatches DATABASE_URL, AUTH_JWT_SECRET, AUTH_JWT_ALGORITHM per test using tmp_path.',
+          'TestRegisterLogin: 201 with access_token, 409 on duplicate, login returns cookie, wrong password 401, verify active.',
+          'TestRefreshTokenRotation: new cookie issued, old token rejected after rotation (replay detection), new token works, missing cookie 401.',
+          'TestTokenRevocation: revoke → verify returns active=False; invalid token returns 400.',
+          'TestLogout: refresh rejected after logout.',
+          'TestJWKSEndpoint: 200 with keys array; HS256 returns empty keys (does not expose HMAC secret).',
+        ],
+      },
+    ],
+  },
+  {
+    tag: 'v1.14.9',
+    date: '2026-05-16',
+    label: 'Circuit Breaker + Retry Transport',
+    completionState: 'published',
+    group: 'v1.14',
+    summary:
+      'Adds per-route circuit breaker middleware and an idempotent retry transport to go-gateway. Each route gets its own CircuitBreaker (opens after 5 consecutive 5xx responses, half-open probe after 30 s). GET/HEAD requests are retried up to 2 times on transport errors with 50/100/200 ms exponential backoff. Non-idempotent methods are never retried. The circuit breaker returns 503 + Retry-After: 10 when open.',
+    highlights: [
+      {
+        heading: 'internal/proxy additions',
+        items: [
+          'circuitbreaker.go: CircuitBreaker{maxFailures, openTimeout}; states CLOSED/OPEN/HALF_OPEN; Allow/RecordSuccess/RecordFailure; WithCircuitBreaker middleware factory.',
+          'retry.go: RetryTransport implements http.RoundTripper; retries GET/HEAD on transport errors with exponential backoff (50 ms base); non-idempotent methods never retried.',
+          'proxy.go: ReverseProxy now uses RetryTransport{MaxRetries: 2} as its Transport.',
+          'main.go: per-route circuit breaker (5 failures, 30 s open timeout) injected into middleware chain innermost.',
+        ],
+      },
+    ],
+  },
+  {
+    tag: 'v1.14.8',
+    date: '2026-05-16',
+    label: 'Cloud Run Concurrency & gen2 Execution Environment',
+    completionState: 'published',
+    group: 'v1.14',
+    summary:
+      'Adds --concurrency 80 and --execution-environment gen2 to the go-gateway Cloud Run deploy command. Concurrency 80 limits simultaneous requests per instance for predictable memory usage. gen2 uses the second-generation sandbox (gVisor-less, faster cold starts, full Linux syscall surface — better for Go workloads).',
+    highlights: [
+      {
+        heading: '.github/workflows/deploy-cloud-run.yml',
+        items: [
+          '--concurrency 80 added: explicit cap on concurrent requests per instance.',
+          '--execution-environment gen2 added: second-gen sandbox with faster cold starts and full syscall compatibility for Go.',
+        ],
+      },
+    ],
+  },
+  {
+    tag: 'v1.14.7',
+    date: '2026-05-16',
+    label: '/health/upstreams Fan-Out Health Endpoint',
+    completionState: 'published',
+    group: 'v1.14',
+    summary:
+      'Adds GET /health/upstreams to go-gateway. The handler concurrently probes each upstream\'s /health endpoint with a 3-second timeout using goroutines + WaitGroup, sorts results deterministically, and returns an aggregated JSON response. Overall status is "ok" only when all upstreams report 2xx; any failure returns HTTP 502 with status "degraded". The endpoint is exempt from JWT auth (same skip-prefix as /health).',
+    highlights: [
+      {
+        heading: 'internal/health/upstreams.go (new)',
+        items: [
+          'UpstreamsHandler(upstreams map[string]string): fan-out via goroutines, mutex-protected results slice, deterministic sort.',
+          'probeUpstream: GET <baseURL>/health with 3 s context timeout; unreachable/degraded/ok classification.',
+          'Returns {"status":"ok"|"degraded","upstreams":[{name,url,status,code}]}.',
+          'HTTP 200 on ok, 502 on degraded.',
+        ],
+      },
+      {
+        heading: 'cmd/gateway/main.go',
+        items: [
+          'upstreamURLs map populated from all 12 cfg.*URL fields.',
+          'mux.HandleFunc("/health/upstreams", health.UpstreamsHandler(upstreamURLs)).',
+        ],
+      },
+    ],
+  },
+  {
+    tag: 'v1.14.6',
+    date: '2026-05-16',
+    label: 'BigQuery Daily CRM Aggregates Scheduled Query',
+    completionState: 'published',
+    group: 'v1.14',
+    summary:
+      'Extends the pubsub-ingest Terraform module with an optional BigQuery Data Transfer scheduled query that runs every 24 hours and produces a daily_crm_summary table. The query aggregates crm_mutations by day, resource_type, and HTTP method for the past 25 hours, writing results with WRITE_TRUNCATE. Controlled by new bq_enable_daily_aggregates variable (default false); also requires bigquery_dataset_id to be set.',
+    highlights: [
+      {
+        heading: 'terraform/pubsub-ingest additions',
+        items: [
+          'New variable bq_enable_daily_aggregates (default false): enables scheduled query when set with bigquery_dataset_id.',
+          'google_bigquery_data_transfer_config.daily_crm_agg: data_source_id = "scheduled_query", schedule = "every 24 hours".',
+          'Aggregation query: SELECT day, resource_type, method, COUNT(*) AS event_count FROM crm_mutations WHERE publish_time >= NOW() - 25h GROUP BY 1, 2, 3.',
+          'write_disposition = "WRITE_TRUNCATE", destination = daily_crm_summary table.',
+          'depends_on google_bigquery_table.crm_mutations to ensure table exists before transfer config.',
+        ],
+      },
+    ],
+  },
+  {
+    tag: 'v1.14.5',
+    date: '2026-05-16',
+    label: 'Infracost Cost Estimate on Terraform PRs',
+    completionState: 'published',
+    group: 'v1.14',
+    summary:
+      'Integrates Infracost into the terraform-apply workflow. On pull requests that modify Terraform files, three new steps run after the plan: infracost/actions/setup, infracost breakdown (JSON output), and infracost output (GitHub-comment format). The cost estimate is posted as a PR comment alongside the existing plan output. All three steps are guarded by secrets.INFRACOST_API_KEY != "" so the workflow degrades gracefully in forks or repos without the secret configured.',
+    highlights: [
+      {
+        heading: '.github/workflows/terraform-apply.yml additions',
+        items: [
+          'Setup Infracost step: uses infracost/actions/setup@v3 with api-key.',
+          'Generate Infracost cost estimate: infracost breakdown --path . --format json; infracost output --format github-comment.',
+          'Post cost estimate to PR: actions/github-script posts infracost-comment.md as a PR comment.',
+          'All three steps guarded: steps.config.outputs.enabled == "true" && github.event_name == "pull_request" && secrets.INFRACOST_API_KEY != "".',
+        ],
+      },
+    ],
+  },
+  {
+    tag: 'v1.14.4',
+    date: '2026-05-16',
+    label: 'Cloud Armor WAF Security Policy',
+    completionState: 'published',
+    group: 'v1.14',
+    summary:
+      'Extends the go-gateway-ha Terraform module with an optional Cloud Armor WAF security policy. When enable_cloud_armor = true, a google_compute_security_policy is created with five Google-managed preconfigured rule sets (XSS, SQLi, LFI, RFI, RCE) at priorities 1000-1004, each in deny(403) mode. The default allow rule is at priority 2147483647. The policy is attached to the backend service via security_policy.',
+    highlights: [
+      {
+        heading: 'terraform/go-gateway-ha additions',
+        items: [
+          'New variable enable_cloud_armor (default false): creates WAF policy when true.',
+          'google_compute_security_policy.waf: 5 OWASP CRS deny rules + default allow.',
+          'Rules: xss-v33-stable (1000), sqli-v33-stable (1001), lfi-v33-stable (1002), rfi-v33-stable (1003), rce-v33-stable (1004).',
+          'google_compute_backend_service.gateway: security_policy = ... waf[0].id when enabled, null otherwise.',
+        ],
+      },
+    ],
+  },
+  {
+    tag: 'v1.14.3',
+    date: '2026-05-16',
+    label: 'Scanner Path Blocking Middleware',
+    completionState: 'published',
+    group: 'v1.14',
+    summary:
+      'Adds BlockScannerPaths middleware to go-gateway that silently returns 404 for 20 well-known automated scanner and exploit probe paths (/.env, /.git, /wp-admin, /wp-login.php, /phpmyadmin, /actuator, /console, etc.). Match is case-insensitive prefix, computed at construction time. Wired as the second outermost middleware (immediately inside SecurityHeaders, outside JWTAuth) so scanner traffic is dropped before any authentication or rate-limiting logic runs.',
+    highlights: [
+      {
+        heading: 'internal/middleware/scanner_block.go (new)',
+        items: [
+          '20 scanner path prefixes lowercased at construction time for zero-cost matching.',
+          'Match: exact path equality OR HasPrefix(path, prefix + "/") OR HasPrefix(path, prefix + "?").',
+          'Returns http.NotFound (404) immediately; no upstream calls, no JWT checks, no rate-limit tokens consumed.',
+        ],
+      },
+      {
+        heading: 'cmd/gateway/main.go',
+        items: ['BlockScannerPaths wired between SecurityHeaders and JWTAuth in the outermost handler chain.'],
+      },
+    ],
+  },
+  {
+    tag: 'v1.14.2',
+    date: '2026-05-16',
+    label: 'Refresh Token Rotation',
+    completionState: 'published',
+    group: 'v1.14',
+    summary:
+      'Implements single-use refresh token rotation in auth-service. The /auth/refresh endpoint now revokes the consumed token immediately after validating it, then issues a brand-new refresh token and sets it as an HttpOnly cookie. Any replay of the old token returns 401. Combined with the existing revoked_at column in the refresh_tokens table, this prevents session hijacking via stolen refresh tokens.',
+    highlights: [
+      {
+        heading: 'app/main.py — /auth/refresh',
+        items: [
+          'After validate_and_get_refresh_token_user succeeds, immediately call revoke_refresh_token(old_token).',
+          'Issue new raw refresh token via create_refresh_token(user.id).',
+          'Attach new token as HttpOnly cookie via _set_refresh_cookie.',
+          'Replayed tokens are rejected by validate_and_get (revoked_at IS NOT NULL).',
+        ],
+      },
+    ],
+  },
+  {
+    tag: 'v1.14.1',
+    date: '2026-05-16',
+    label: 'Security Response Headers Middleware',
+    completionState: 'published',
+    group: 'v1.14',
+    summary:
+      'Adds SecurityHeaders middleware to go-gateway that sets six security-hardening HTTP response headers on every reply: Strict-Transport-Security (2-year max-age, includeSubDomains), X-Content-Type-Options (nosniff), X-Frame-Options (DENY), Referrer-Policy (strict-origin-when-cross-origin), Content-Security-Policy (restrictive default-src), and Permissions-Policy (disables geolocation, microphone, camera, payment). Wired as the outermost middleware so all responses — including 4xx from scanner blocking and 401 from JWT auth — carry the headers.',
+    highlights: [
+      {
+        heading: 'internal/middleware/security_headers.go (new)',
+        items: [
+          'Strict-Transport-Security: max-age=63072000; includeSubDomains (2-year HSTS preload candidate).',
+          'X-Content-Type-Options: nosniff — prevents MIME-type sniffing attacks.',
+          'X-Frame-Options: DENY — blocks clickjacking via iframe embedding.',
+          'Referrer-Policy: strict-origin-when-cross-origin — limits Referer leakage on cross-origin navigation.',
+          'Content-Security-Policy: default-src \'self\'; object-src \'none\'; base-uri \'none\'; frame-ancestors \'none\'.',
+          'Permissions-Policy: disables geolocation, microphone, camera, payment browser APIs.',
+        ],
+      },
+      {
+        heading: 'cmd/gateway/main.go',
+        items: ['SecurityHeaders is outermost handler: SecurityHeaders(BlockScannerPaths(JWTAuth(mux))).'],
+      },
+    ],
+  },
   {
     tag: 'v1.13.9',
     date: '2026-05-18',
