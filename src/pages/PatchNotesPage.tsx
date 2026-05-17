@@ -39,6 +39,7 @@ const COMPLETION_STYLES: Record<CompletionState, { badge: string; label: string 
 
 // Groups for section headers
 const GROUP_META: Record<string, { label: string; status: string }> = {
+  'v1.13': { label: 'Production Hardening, IaC Completeness & Observaboard Depth', status: 'Complete' },
   'v1.12': { label: 'IaC Root Module, JWT Auth & CI/CD',       status: 'Complete' },
   'v1.11': { label: 'Multi-Region HA & Event-Driven Batch',   status: 'Complete' },
   'v1.10': { label: 'Gateway Rate Limiting',                  status: 'Complete' },
@@ -57,6 +58,212 @@ const GROUP_META: Record<string, { label: string; status: string }> = {
 }
 
 const VERSIONS: Version[] = [
+  {
+    tag: 'v1.13.9',
+    date: '2026-05-18',
+    label: 'Ingest Spike Cloud Monitoring Alert',
+    completionState: 'published',
+    group: 'v1.13',
+    summary:
+      'Adds an optional Cloud Monitoring alert policy to the pubsub-ingest Terraform module that fires when the ingest topic receives more than a configurable number of messages per minute. Controlled by new spike_alert_email and spike_threshold_per_min variables. Uses ALIGN_DELTA over a 60-second window to measure publish count per minute. Alert documentation includes guidance on identifying the spike source and applying rate limits or circuit breakers.',
+    highlights: [
+      {
+        heading: 'terraform/pubsub-ingest additions',
+        items: [
+          'New variable spike_alert_email (default empty): set to enable spike alert creation.',
+          'New variable spike_threshold_per_min (default 1000): alert threshold in messages per 60-second window.',
+          'google_monitoring_notification_channel (email) and google_monitoring_alert_policy added; both count = spike_alert_email != "" ? 1 : 0.',
+          'Metric: pubsub.googleapis.com/topic/send_message_operation_count with ALIGN_DELTA + REDUCE_SUM.',
+          'Alert documentation references go-gateway rate limiting and bulk-import tuning steps.',
+        ],
+      },
+    ],
+  },
+  {
+    tag: 'v1.13.8',
+    date: '2026-05-18',
+    label: 'BigQuery Analytics Sink for Pub/Sub Ingest Topic',
+    completionState: 'published',
+    group: 'v1.13',
+    summary:
+      'Extends the pubsub-ingest Terraform module with an optional BigQuery subscription that streams all CRM mutation events to a BQ table for long-term analytics. Enabled when bigquery_dataset_id is set. Provisions a dataset, a table with a schema aligned to the Pub/Sub metadata envelope (subscription_name, message_id, publish_time, data, attributes), a BigQuery Data Editor IAM binding for the Pub/Sub service account, and a google_pubsub_subscription with bigquery_config.',
+    highlights: [
+      {
+        heading: 'terraform/pubsub-ingest additions',
+        items: [
+          'New variable bigquery_dataset_id (default empty): set to enable the BQ sink.',
+          'New variable bigquery_table_id (default "crm_mutations"): BQ table name.',
+          'google_bigquery_dataset, google_bigquery_table (5-column schema), google_bigquery_dataset_iam_member (roles/bigquery.dataEditor), and google_pubsub_subscription.bigquery_sink all gated on bigquery_dataset_id != "".',
+          'write_metadata = true on the bigquery_config block so message ID and publish time are stored alongside the payload.',
+        ],
+      },
+    ],
+  },
+  {
+    tag: 'v1.13.7',
+    date: '2026-05-18',
+    label: 'Dead-Letter Replay Script',
+    completionState: 'published',
+    group: 'v1.13',
+    summary:
+      'Adds go-gateway/scripts/replay-deadletter.sh: a bash script that pulls messages from the Pub/Sub dead-letter drain subscription and republishes them to the main ingest topic. Requires gcloud CLI and jq. Configurable via PUBSUB_PROJECT, DEAD_LETTER_SUB, INGEST_TOPIC, MAX_MESSAGES, and DRY_RUN environment variables. Runs in a loop until the drain subscription is empty, with per-message base64 decoding and re-publish via gcloud pubsub topics publish.',
+    highlights: [
+      {
+        heading: 'go-gateway/scripts/replay-deadletter.sh',
+        items: [
+          'Required env: PUBSUB_PROJECT. Optional: DEAD_LETTER_SUB, INGEST_TOPIC, MAX_MESSAGES, DRY_RUN.',
+          'Pulls up to MAX_MESSAGES (default 100) per batch with --auto-ack; loops until no messages remain.',
+          'DRY_RUN=true acks messages without republishing — useful for discarding known-bad messages.',
+          'Uses jq for JSON parsing and base64 --decode for payload decoding; validates both before publish.',
+          'set -euo pipefail + dependency checks (gcloud, jq) guard against misconfigured environments.',
+        ],
+      },
+    ],
+  },
+  {
+    tag: 'v1.13.6',
+    date: '2026-05-18',
+    label: 'Deploy Workflow: AUTH_JWT_SECRET from Secret Manager',
+    completionState: 'published',
+    group: 'v1.13',
+    summary:
+      'Updates the go-gateway Cloud Run deploy workflow to inject AUTH_JWT_SECRET from GCP Secret Manager at deploy time via --set-secrets. Previously only OBSERVABOARD_API_KEY was sourced from Secret Manager; the JWT secret was left unset in production, effectively disabling token validation. With this change the Cloud Run revision mounts the secret as an environment variable, completing the production JWT auth story.',
+    highlights: [
+      {
+        heading: 'go-gateway/.github/workflows/deploy-cloud-run.yml',
+        items: [
+          'Added AUTH_JWT_SECRET=AUTH_JWT_SECRET:latest to --set-secrets in the gcloud run deploy step.',
+          'Secret must be created in GCP Secret Manager with name AUTH_JWT_SECRET before deployment.',
+        ],
+      },
+    ],
+  },
+  {
+    tag: 'v1.13.5',
+    date: '2026-05-18',
+    label: 'Terraform Drift Detection (Scheduled Plan)',
+    completionState: 'published',
+    group: 'v1.13',
+    summary:
+      'Adds a scheduled GitHub Actions workflow that runs terraform plan -detailed-exitcode against the envs/prod environment every weekday at 06:00 UTC. Exit code 2 indicates drift (live state differs from .tfstate); the workflow automatically opens a GitHub issue with the full plan output and a link to the apply workflow. Requires TF_STATE_BUCKET, GCP_PROJECT_ID, and GCP_WORKLOAD_IDENTITY_PROVIDER; gracefully skips when credentials are not configured.',
+    highlights: [
+      {
+        heading: 'Portfolio/.github/workflows/terraform-drift.yml',
+        items: [
+          'Triggers on schedule (weekdays 06:00 UTC) and workflow_dispatch.',
+          'terraform plan -detailed-exitcode: exit 0 = clean, exit 1 = error, exit 2 = drift.',
+          'On drift: opens a GitHub issue with the plan output truncated to 60 kB, labelled "infrastructure" and "drift".',
+          'Issue body includes a direct link to the terraform-apply workflow for one-click remediation.',
+        ],
+      },
+    ],
+  },
+  {
+    tag: 'v1.13.4',
+    date: '2026-05-18',
+    label: 'Terraform Apply Workflow for envs/prod',
+    completionState: 'published',
+    group: 'v1.13',
+    summary:
+      'Adds a GitHub Actions workflow for planning and applying the envs/prod Terraform root module. On pull requests touching terraform/ it runs terraform plan and posts the output as a PR comment. On workflow_dispatch with apply=true it runs terraform apply -auto-approve with GCP Workload Identity Federation authentication. The workflow requires TF_STATE_BUCKET, GCP_PROJECT_ID, and GCP_WORKLOAD_IDENTITY_PROVIDER; it skips gracefully when these are not configured.',
+    highlights: [
+      {
+        heading: 'Portfolio/.github/workflows/terraform-apply.yml',
+        items: [
+          'Triggers on push/PR touching terraform/ and on workflow_dispatch (with apply input).',
+          'Uses hashicorp/setup-terraform v3, GCP WIF auth via google-github-actions/auth@v2.',
+          'terraform init with -backend-config=bucket and -backend-config=prefix from secrets/vars.',
+          'PR trigger: posts plan output (truncated to 60 kB) as a comment on the PR.',
+          'workflow_dispatch with apply=true: runs terraform apply -auto-approve.',
+        ],
+      },
+    ],
+  },
+  {
+    tag: 'v1.13.3',
+    date: '2026-05-18',
+    label: 'slog Structured Logging in go-gateway',
+    completionState: 'published',
+    group: 'v1.13',
+    summary:
+      'Replaces fmt.Printf and log.Printf/Fatalf in go-gateway with structured slog calls using a JSON handler. Cloud Logging can parse the emitted JSON key/value pairs as structured fields, enabling log-based metrics and alerting. Startup events, route registration, and per-request logs all emit structured JSON to stdout. The slog.NewJSONHandler is set as the default logger at startup so all packages that call the package-level slog functions benefit automatically.',
+    highlights: [
+      {
+        heading: 'cmd/gateway/main.go',
+        items: [
+          'slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stdout, nil))) configured at startup.',
+          'Route registration: slog.Info("route registered", "prefix", ..., "upstream", ..., "observed", ...).',
+          'Startup: slog.Info("go-gateway listening", "addr", ..., "auth_rps", ..., "write_rps", ..., "read_rps", ..., "default_rps", ...).',
+          'Fatal error: slog.Error("server error", "error", err) + os.Exit(1) replaces log.Fatalf.',
+        ],
+      },
+      {
+        heading: 'internal/middleware/logger.go',
+        items: [
+          'Request log: slog.Info("request", "method", ..., "path", ..., "status", ..., "duration_ms", ..., "request_id", ...).',
+          'Removed fmt import; imported log/slog.',
+        ],
+      },
+    ],
+  },
+  {
+    tag: 'v1.13.2',
+    date: '2026-05-18',
+    label: 'RS256 JWT Support in go-gateway + JWKS Endpoint in auth-service',
+    completionState: 'published',
+    group: 'v1.13',
+    summary:
+      'Extends the go-gateway JWT middleware to support RS256 (RSA-PKCS1v15-SHA256) in addition to HS256. The algorithm is detected from the JWT header and dispatched to the appropriate verifier. A new AUTH_JWT_PUBLIC_KEY environment variable accepts a PEM-encoded RSA public key; when set, RS256 tokens are verified without the private key. Complementary JWKS endpoint added to auth-service at /.well-known/jwks.json — returns the RSA public key in JWK format when RS256 is configured, empty key set otherwise.',
+    highlights: [
+      {
+        heading: 'internal/middleware/auth.go',
+        items: [
+          'JWTAuth signature extended: JWTAuth(secret string, pubKey *rsa.PublicKey, issuer string, skipPrefixes []string).',
+          'peekAlgorithm: decodes JWT header to read "alg" without verifying signature.',
+          'verifyRS256: SHA-256 digest of header.payload, rsa.VerifyPKCS1v15 with crypto.SHA256.',
+          'parseClaims: shared helper for exp/iss validation used by both HS256 and RS256 paths.',
+          'No-op when both secret == "" and pubKey == nil.',
+        ],
+      },
+      {
+        heading: 'config.go + main.go',
+        items: [
+          'JWTPublicKey field added (AUTH_JWT_PUBLIC_KEY env var).',
+          'main.go: parses PEM with encoding/pem + x509.ParsePKIXPublicKey at startup; calls os.Exit(1) on invalid key.',
+        ],
+      },
+      {
+        heading: 'auth-service: /.well-known/jwks.json',
+        items: [
+          'New GET endpoint returns RSA public key as JWK (kty, use, alg, kid, n, e fields) when AUTH_JWT_ALGORITHM is RS256/RS384/RS512 and AUTH_JWT_PUBLIC_KEY is set.',
+          'Returns {"keys": []} for HS256 configs — no secret exposure.',
+          'Uses cryptography.hazmat to load the PEM and extract RSA public numbers for base64url encoding.',
+        ],
+      },
+    ],
+  },
+  {
+    tag: 'v1.13.1',
+    date: '2026-05-18',
+    label: 'JWT Middleware Unit Tests',
+    completionState: 'published',
+    group: 'v1.13',
+    summary:
+      'Adds a comprehensive test suite for the go-gateway JWT auth middleware covering HS256 and RS256 token paths, expiry, wrong signature, wrong issuer, missing header, skip-prefix pass-through, and the empty-secret no-op mode. Tests run without external dependencies using only Go stdlib crypto primitives. The RS256 tests generate a real RSA-2048 key pair at test time for authentic cryptographic verification.',
+    highlights: [
+      {
+        heading: 'internal/middleware/auth_test.go',
+        items: [
+          'makeHS256Token helper: crafts signed HS256 JWTs using crypto/hmac + crypto/sha256.',
+          'makeRS256Token helper: crafts signed RS256 JWTs using rsa.SignPKCS1v15 with a generated test key.',
+          'HS256 tests: valid token (checks X-Auth-Subject/X-Auth-Roles), expired, wrong signature, wrong issuer, missing header, malformed bearer.',
+          'Skip-prefix tests: /health and /api/auth pass without a token; non-skipped path still requires token.',
+          'No-op test: empty secret + nil pubKey passes all requests without validation.',
+          'RS256 tests: valid token, wrong key (different RSA key pair), HS256 token rejected when only pubKey configured.',
+        ],
+      },
+    ],
+  },
   {
     tag: 'v1.12.4',
     date: '2026-05-16',
