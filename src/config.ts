@@ -13,6 +13,9 @@ export const AUTH_SERVICE_URL: string =
 export const PROJECTS_API_BASE_URL: string =
   ((import.meta.env.VITE_PROJECTS_API_BASE_URL as string | undefined) ?? '').replace(/\/$/, '')
 
+export const GATEWAY_URL: string =
+  (import.meta.env.VITE_GATEWAY_URL as string | undefined) ?? 'https://go-gateway-5gcrg4oiza-uc.a.run.app'
+
 const _ADMIN_JWT_ENV = (import.meta.env.VITE_ADMIN_JWT as string | undefined) ?? ''
 
 function _jwtExpired(token: string): boolean {

@@ -29,6 +29,7 @@ import { PortalForgotPasswordPage } from './pages/PortalForgotPasswordPage'
 import { PortalResetPasswordPage } from './pages/PortalResetPasswordPage'
 import { AuditPage } from './pages/AuditPage'
 import { ServiceHealthPage } from './pages/ServiceHealthPage'
+import { ApiDocsPage } from './pages/ApiDocsPage'
 
 const WATCHDOG_DELAY_MS = 5000
 
@@ -144,6 +145,7 @@ function Root() {
   if (hash === '#/observaboard') return <ObservaboardPage />
   if (hash === '#/admin/audit') return <AuditPage />
   if (hash === '#/admin/health') return <ServiceHealthPage />
+  if (hash === '#/api-docs') return <ApiDocsPage />
   if (hash === '#/contact') return <ContactPage />
   return <App />
 }
