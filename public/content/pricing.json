@@ -1,10 +1,10 @@
 {
-  "note": "All engagements start with a free 30-minute discovery call.",
+  "note": "Every engagement starts with a short discovery call so we can size the work, agree on scope, and recommend the right paid engagement.",
   "tiers": [
     {
-      "tier": "Hourly",
+      "tier": "Architecture Review",
       "price": "$125/hr",
-      "description": "Advisory for architecture reviews, second opinions, compliance assessments, and troubleshooting sessions.",
+      "description": "Architecture reviews, second opinions, compliance assessments, and troubleshooting sessions that turn uncertainty into a concrete next step.",
       "features": [
         "Scheduled 1-hr video calls",
         "Written summary after each session",
@@ -12,27 +12,13 @@
         "No minimum commitment"
       ],
       "highlighted": false,
-      "ctaLabel": "Book a call",
-      "ctaHref": "#/contact"
-    },
-    {
-      "tier": "Retainer",
-      "price": "$1,000–$1,500/week · 10–15 hrs/week",
-      "description": "Dedicated capacity for ongoing engineering support. Buy availability and responsiveness, not just tracked hours. (~$100/hr — 20% off hourly)",
-      "features": [
-        "10–15 hrs/week of hands-on work",
-        "Priority response (same business day)",
-        "Weekly sync and progress update",
-        "Slack/Discord access during business hours"
-      ],
-      "highlighted": false,
-      "ctaLabel": "Start a retainer",
+      "ctaLabel": "Book review",
       "ctaHref": "#/contact"
     },
     {
       "tier": "Project",
-      "price": "$3,400–$5,100/month · 4-week minimum",
-      "description": "Fixed-scope delivery billed as a monthly retainer. CI/CD pipelines, IaC, containerisation, cloud migrations, and compliance readiness. 10–15 hrs/week dedicated capacity. (~$85/hr — 32% off hourly)",
+      "price": "$3,400\u2013$5,100/month \u00b7 4-week minimum",
+      "description": "Fixed-scope delivery billed monthly. CI/CD pipelines, IaC, containerisation, cloud migrations, and compliance readiness. A written proposal is agreed before any work begins.",
       "features": [
         "Scoped proposal with timeline",
         "All code delivered via pull request",
@@ -40,7 +26,22 @@
         "1 month of post-delivery email support"
       ],
       "highlighted": false,
-      "ctaLabel": "Discuss a project",
+      "ctaLabel": "Discuss project",
+      "ctaHref": "#/contact"
+    },
+    {
+      "tier": "Retainer",
+      "price": "$1,000\u2013$1,500/week \u00b7 10\u201315 hrs/week",
+      "description": "Dedicated engineering capacity available every week. Buy consistent availability and same-day responsiveness, not just tracked hours. The most cost-effective way to keep delivery moving.",
+      "features": [
+        "10\u201315 hrs/week of hands-on work",
+        "Priority response (same business day)",
+        "Weekly sync and progress update",
+        "Slack/Discord access during business hours",
+        "Flexible scope \u2014 shift priorities week to week"
+      ],
+      "highlighted": true,
+      "ctaLabel": "Start retainer",
       "ctaHref": "#/contact"
     }
   ]

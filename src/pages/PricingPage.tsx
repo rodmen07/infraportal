@@ -1,6 +1,8 @@
 import { PageLayout } from './PageLayout'
 import { FocusCard } from '../features/layout/FocusCard'
 import { PricingCard } from '../features/consulting/PricingCard'
+import { PricingFaq } from '../features/consulting/PricingFaq'
+import { PricingTrustStrip } from '../features/consulting/PricingTrustStrip'
 import { HowItWorksSection } from '../features/site/HowItWorksSection'
 import { ContactCTA } from '../features/site/ContactCTA'
 import { usePricingContent } from '../features/consulting/usePricingContent'
@@ -30,14 +32,22 @@ export function PricingPage() {
               href="#/contact"
               className="mt-3 inline-block rounded-xl border border-zinc-600/50 bg-zinc-800/60 px-5 py-2 text-sm font-semibold text-zinc-300 transition hover:border-zinc-500/60 hover:bg-zinc-700/60 hover:text-zinc-100"
             >
-              Let's talk first →
+              Book paid discovery →
             </a>
           </div>
         </section>
       </FocusCard>
 
       <FocusCard>
+        <PricingTrustStrip />
+      </FocusCard>
+
+      <FocusCard>
         <HowItWorksSection />
+      </FocusCard>
+
+      <FocusCard>
+        <PricingFaq />
       </FocusCard>
 
       <FocusCard>
