@@ -9,6 +9,7 @@ import {
   type ConsultationStatus,
 } from '../features/consulting/consultationStore'
 import { pushConsultationToCrm } from '../features/consulting/consultationLead'
+import { buildFollowUpClipboardText } from '../features/consulting/followUpTemplate'
 import { type LeadPriority } from '../features/consulting/leadScoring'
 import { formatRelativeTime } from '../utils/time'
 
@@ -131,6 +132,7 @@ export function ConsultationsPage() {
   const [priorityFilter, setPriorityFilter] = useState<LeadPriority | 'all'>('all')
   const [syncingId, setSyncingId] = useState<string | null>(null)
   const [syncError, setSyncError] = useState<Record<string, string>>({})
+  const [copyState, setCopyState] = useState<Record<string, 'idle' | 'copied' | 'error'>>({})
 
   const counts = useMemo(() => {
     return {
@@ -194,6 +196,31 @@ export function ConsultationsPage() {
     clearConsultationRequests()
     setRequests([])
     setSyncError({})
+    setCopyState({})
+  }
+
+  const handleCopyFollowUp = async (request: ConsultationRequest) => {
+    const text = buildFollowUpClipboardText({
+      name: request.name,
+      projectType: request.projectType,
+      timeline: request.timeline,
+      budget: request.budget,
+      leadPriority: request.leadPriority,
+      status: request.status,
+    })
+
+    try {
+      await navigator.clipboard.writeText(text)
+      setCopyState((prev) => ({ ...prev, [request.id]: 'copied' }))
+      setTimeout(() => {
+        setCopyState((prev) => ({ ...prev, [request.id]: 'idle' }))
+      }, 1800)
+    } catch {
+      setCopyState((prev) => ({ ...prev, [request.id]: 'error' }))
+      setTimeout(() => {
+        setCopyState((prev) => ({ ...prev, [request.id]: 'idle' }))
+      }, 2200)
+    }
   }
 
   const filterOptions: Array<{ value: ConsultationStatus | 'all'; label: string }> = [
@@ -291,6 +318,12 @@ export function ConsultationsPage() {
             {visibleRequests.map((request) => {
               const target = nextStatus(request.status)
               const sla = getHotLeadSla(request)
+              const copyLabel =
+                copyState[request.id] === 'copied'
+                  ? 'Copied'
+                  : copyState[request.id] === 'error'
+                    ? 'Copy failed'
+                    : 'Copy follow-up'
               return (
                 <li
                   key={request.id}
@@ -350,6 +383,13 @@ export function ConsultationsPage() {
                   )}
 
                   <div className="mt-4 flex flex-wrap items-center justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleCopyFollowUp(request)}
+                      className="rounded-lg border border-zinc-500/40 bg-zinc-800/70 px-3 py-1.5 text-xs font-medium text-zinc-200 transition hover:border-zinc-400/60 hover:bg-zinc-700/70 hover:text-zinc-100"
+                    >
+                      {copyLabel}
+                    </button>
                     {request.crmContactId ? (
                       <span className="rounded-lg border border-emerald-400/40 bg-emerald-500/10 px-3 py-1.5 text-xs font-medium text-emerald-300">
                         Synced to CRM
