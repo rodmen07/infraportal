@@ -9,6 +9,7 @@ export interface ConsultationRequest {
   message: string
   createdAt: string
   status: ConsultationStatus
+  crmContactId?: string
 }
 
 const STORAGE_KEY = 'managed-hosting-consultations'
@@ -43,6 +44,14 @@ export function saveConsultationRequest(request: ConsultationRequest): Consultat
 export function updateConsultationStatus(id: string, status: ConsultationStatus): ConsultationRequest[] {
   const nextRequests = readStoredRequests().map((request) =>
     request.id === id ? { ...request, status } : request,
+  )
+  writeStoredRequests(nextRequests)
+  return nextRequests
+}
+
+export function attachCrmContact(id: string, crmContactId: string): ConsultationRequest[] {
+  const nextRequests = readStoredRequests().map((request) =>
+    request.id === id ? { ...request, crmContactId } : request,
   )
   writeStoredRequests(nextRequests)
   return nextRequests

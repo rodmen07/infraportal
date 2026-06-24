@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it } from 'vitest'
 import {
+  attachCrmContact,
   clearConsultationRequests,
   getConsultationRequests,
   saveConsultationRequest,
@@ -68,5 +69,23 @@ describe('consultationStore', () => {
     const requests = getConsultationRequests()
     expect(requests.find((r) => r.id === 'req-a')?.status).toBe('new')
     expect(requests.find((r) => r.id === 'req-b')?.status).toBe('accepted')
+  })
+
+  it('attaches a CRM contact id to a request', () => {
+    const request = {
+      id: 'req-3',
+      name: 'Grace Hopper',
+      email: 'grace@example.com',
+      projectType: 'Client portal',
+      timeline: 'Next month',
+      message: 'Want managed hosting for a launch.',
+      createdAt: '2026-06-23T12:00:00.000Z',
+      status: 'new' as const,
+    }
+
+    saveConsultationRequest(request)
+    attachCrmContact('req-3', 'contact-123')
+
+    expect(getConsultationRequests()[0].crmContactId).toBe('contact-123')
   })
 })

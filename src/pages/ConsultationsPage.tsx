@@ -1,12 +1,14 @@
 import { useMemo, useState } from 'react'
 import { PageLayout } from './PageLayout'
 import {
+  attachCrmContact,
   clearConsultationRequests,
   getConsultationRequests,
   updateConsultationStatus,
   type ConsultationRequest,
   type ConsultationStatus,
 } from '../features/consulting/consultationStore'
+import { pushConsultationToCrm } from '../features/consulting/consultationLead'
 import { formatRelativeTime } from '../utils/time'
 
 const STATUS_ORDER: ConsultationStatus[] = ['new', 'reviewed', 'accepted']
@@ -53,6 +55,8 @@ function SummaryCard({ label, value, accent }: { label: string; value: number; a
 export function ConsultationsPage() {
   const [requests, setRequests] = useState<ConsultationRequest[]>(() => getConsultationRequests())
   const [filter, setFilter] = useState<ConsultationStatus | 'all'>('all')
+  const [syncingId, setSyncingId] = useState<string | null>(null)
+  const [syncError, setSyncError] = useState<Record<string, string>>({})
 
   const counts = useMemo(() => {
     return {
@@ -74,9 +78,28 @@ export function ConsultationsPage() {
     setRequests(updateConsultationStatus(request.id, target))
   }
 
+  const handleSync = async (request: ConsultationRequest) => {
+    setSyncingId(request.id)
+    setSyncError((prev) => {
+      const next = { ...prev }
+      delete next[request.id]
+      return next
+    })
+
+    const result = await pushConsultationToCrm(request)
+
+    if (result.ok) {
+      setRequests(attachCrmContact(request.id, result.contactId))
+    } else {
+      setSyncError((prev) => ({ ...prev, [request.id]: result.message }))
+    }
+    setSyncingId(null)
+  }
+
   const handleClear = () => {
     clearConsultationRequests()
     setRequests([])
+    setSyncError({})
   }
 
   const filterOptions: Array<{ value: ConsultationStatus | 'all'; label: string }> = [
@@ -173,8 +196,28 @@ export function ConsultationsPage() {
                     <p className="mt-3 whitespace-pre-wrap text-sm text-zinc-300">{request.message}</p>
                   )}
 
-                  {target && (
-                    <div className="mt-4 flex justify-end">
+                  {syncError[request.id] && (
+                    <p className="mt-3 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-red-300">
+                      {syncError[request.id]}
+                    </p>
+                  )}
+
+                  <div className="mt-4 flex flex-wrap items-center justify-end gap-2">
+                    {request.crmContactId ? (
+                      <span className="rounded-lg border border-emerald-400/40 bg-emerald-500/10 px-3 py-1.5 text-xs font-medium text-emerald-300">
+                        Synced to CRM
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => handleSync(request)}
+                        disabled={syncingId === request.id}
+                        className="rounded-lg border border-sky-400/40 bg-sky-500/15 px-3 py-1.5 text-xs font-semibold text-sky-200 transition hover:border-sky-400/60 hover:bg-sky-500/25 hover:text-sky-100 disabled:opacity-50"
+                      >
+                        {syncingId === request.id ? 'Sending…' : 'Send to CRM'}
+                      </button>
+                    )}
+                    {target && (
                       <button
                         type="button"
                         onClick={() => handleAdvance(request)}
@@ -182,8 +225,8 @@ export function ConsultationsPage() {
                       >
                         Mark as {STATUS_META[target].label.toLowerCase()} →
                       </button>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </li>
               )
             })}
