@@ -5,6 +5,7 @@ import { useAuth } from '../features/auth/useAuth'
 import { PROJECTS_API_BASE_URL, AUTH_SERVICE_URL } from '../config'
 import { useGitHubBuildStatus, type GhBuildItem } from '../features/site/useGitHubBuildStatus'
 import { OnboardingChecklist } from '../features/onboarding/OnboardingChecklist'
+import { SupportRequestPanel } from '../features/support/SupportRequestPanel'
 import { formatRelativeTime } from '../utils/time'
 
 // --- Types ---
@@ -1041,6 +1042,7 @@ export function PortalPage() {
         <div className="space-y-5">
           <ManagedServiceSnapshot project={project} />
           <OnboardingChecklist projectId={project.id} />
+          <SupportRequestPanel projectId={project.id} />
           <ProjectSummaryCard
             project={project}
             deliverablesByMilestone={deliverablesByMilestone}
