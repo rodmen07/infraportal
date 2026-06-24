@@ -15,6 +15,8 @@ export interface ConsultationRequest {
   crmContactId?: string
   leadScore?: number
   leadPriority?: LeadPriority
+  firstResponseAt?: string
+  firstResponseMinutes?: number
 }
 
 const STORAGE_KEY = 'managed-hosting-consultations'
@@ -45,6 +47,12 @@ function readStoredRequests(): ConsultationRequest[] {
         budget,
         leadScore,
         leadPriority: base.leadPriority ?? getLeadPriority(leadScore),
+        firstResponseAt:
+          typeof base.firstResponseAt === 'string' && base.firstResponseAt.trim() ? base.firstResponseAt : undefined,
+        firstResponseMinutes:
+          typeof base.firstResponseMinutes === 'number' && Number.isFinite(base.firstResponseMinutes)
+            ? Math.max(0, Math.round(base.firstResponseMinutes))
+            : undefined,
       }
     })
   } catch {
@@ -69,9 +77,33 @@ export function saveConsultationRequest(request: ConsultationRequest): Consultat
 }
 
 export function updateConsultationStatus(id: string, status: ConsultationStatus): ConsultationRequest[] {
-  const nextRequests = readStoredRequests().map((request) =>
-    request.id === id ? { ...request, status } : request,
-  )
+  const nowIso = new Date().toISOString()
+  const nextRequests = readStoredRequests().map((request) => {
+    if (request.id !== id) return request
+
+    const shouldCaptureFirstResponse =
+      request.status === 'new' &&
+      status === 'reviewed' &&
+      typeof request.firstResponseAt !== 'string'
+
+    if (!shouldCaptureFirstResponse) {
+      return { ...request, status }
+    }
+
+    const createdAtMs = Date.parse(request.createdAt)
+    const nowMs = Date.parse(nowIso)
+    const firstResponseMinutes =
+      Number.isFinite(createdAtMs) && Number.isFinite(nowMs) && nowMs >= createdAtMs
+        ? Math.round((nowMs - createdAtMs) / 60000)
+        : undefined
+
+    return {
+      ...request,
+      status,
+      firstResponseAt: nowIso,
+      firstResponseMinutes,
+    }
+  })
   writeStoredRequests(nextRequests)
   return nextRequests
 }

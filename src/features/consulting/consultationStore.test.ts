@@ -53,9 +53,12 @@ describe('consultationStore', () => {
     updateConsultationStatus('req-2', 'reviewed')
 
     expect(getConsultationRequests()[0].status).toBe('reviewed')
+    expect(getConsultationRequests()[0].firstResponseAt).toBeTypeOf('string')
+    expect(getConsultationRequests()[0].firstResponseMinutes).toBeTypeOf('number')
 
     updateConsultationStatus('req-2', 'accepted')
     expect(getConsultationRequests()[0].status).toBe('accepted')
+    expect(getConsultationRequests()[0].firstResponseAt).toBeTypeOf('string')
   })
 
   it('leaves other requests untouched when updating one status', () => {
@@ -134,5 +137,26 @@ describe('consultationStore', () => {
     expect(stored.budget).toBe('$5k-$15k')
     expect(stored.leadScore).toBeTypeOf('number')
     expect(stored.leadPriority).toBe(getLeadPriority(stored.leadScore ?? 0))
+  })
+
+  it('does not capture first response timestamp when skipping directly to accepted', () => {
+    const request = {
+      id: 'req-5',
+      name: 'Direct Accept',
+      email: 'accept@example.com',
+      projectType: 'Security review',
+      timeline: 'Within 2 weeks',
+      message: 'We need fast approval support.',
+      createdAt: '2026-06-23T12:00:00.000Z',
+      status: 'new' as const,
+    }
+
+    saveConsultationRequest(request)
+    updateConsultationStatus('req-5', 'accepted')
+
+    const stored = getConsultationRequests()[0]
+    expect(stored.status).toBe('accepted')
+    expect(stored.firstResponseAt).toBeUndefined()
+    expect(stored.firstResponseMinutes).toBeUndefined()
   })
 })

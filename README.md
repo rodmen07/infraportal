@@ -137,9 +137,12 @@ This iteration improved the operations workflows in a few practical ways:
 
 The latest infraportal polish pass improved the client-facing experience in a few key areas:
 
+- The hero now includes a proof strip above the fold so visitors see concrete delivery evidence before the CTA.
 - The homepage, pricing, and contact flow now emphasize productized consulting offers, paid discovery, and clear proposal requests.
+- The hero and process sections now surface the configured scheduling link directly when `VITE_SCHEDULING_URL` is set, reducing booking friction.
 - Consultation intake now computes lead score and priority (hot/warm/nurture) from engagement type, budget, timeline, and response detail so high-value prospects are reviewed first.
 - Consultations admin now includes a compact pipeline strip (new-to-reviewed, reviewed-to-accepted, and overall acceptance rates) plus priority quick filters to triage hot leads faster.
+- Hot leads now display a first-response SLA state (clock, met, missed) using a 2-hour target once intake moves from new to reviewed.
 - Contact pages now surface an optional booking link from `VITE_SCHEDULING_URL` so prospects can jump straight to a 30-minute call when a calendar URL is configured.
 - Shared navigation now uses clearer grouped sections across mobile and desktop layouts.
 - The contact page provides better submission guidance, live message feedback, and clearer sending states.

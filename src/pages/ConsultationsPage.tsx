@@ -44,6 +44,8 @@ const PRIORITY_META: Record<LeadPriority, { label: string; badge: string }> = {
   },
 }
 
+const HOT_LEAD_SLA_MINUTES = 120
+
 function nextStatus(status: ConsultationStatus): ConsultationStatus | null {
   const index = STATUS_ORDER.indexOf(status)
   if (index < 0 || index === STATUS_ORDER.length - 1) return null
@@ -80,6 +82,47 @@ function SummaryCard({ label, value, accent }: { label: string; value: number; a
 function formatPercent(numerator: number, denominator: number): string {
   if (denominator <= 0) return '0%'
   return `${Math.round((numerator / denominator) * 100)}%`
+}
+
+function formatSlaDuration(minutes: number): string {
+  if (minutes < 60) return `${minutes}m`
+  const hours = Math.floor(minutes / 60)
+  const remaining = minutes % 60
+  if (remaining === 0) return `${hours}h`
+  return `${hours}h ${remaining}m`
+}
+
+function getHotLeadSla(request: ConsultationRequest): { label: string; badge: string } | null {
+  if (request.leadPriority !== 'hot') return null
+
+  if (typeof request.firstResponseMinutes === 'number') {
+    if (request.firstResponseMinutes <= HOT_LEAD_SLA_MINUTES) {
+      return {
+        label: `SLA met (${formatSlaDuration(request.firstResponseMinutes)})`,
+        badge: 'border-emerald-400/40 bg-emerald-500/15 text-emerald-200',
+      }
+    }
+    return {
+      label: `SLA missed (${formatSlaDuration(request.firstResponseMinutes)})`,
+      badge: 'border-red-400/40 bg-red-500/15 text-red-200',
+    }
+  }
+
+  if (request.status !== 'new') return null
+  const ageMinutes = Math.max(0, Math.round((Date.now() - Date.parse(request.createdAt)) / 60000))
+  if (!Number.isFinite(ageMinutes)) return null
+
+  if (ageMinutes <= HOT_LEAD_SLA_MINUTES) {
+    return {
+      label: `SLA clock: ${formatSlaDuration(ageMinutes)} elapsed`,
+      badge: 'border-amber-400/40 bg-amber-500/15 text-amber-200',
+    }
+  }
+
+  return {
+    label: `SLA overdue (${formatSlaDuration(ageMinutes)})`,
+    badge: 'border-red-400/40 bg-red-500/15 text-red-200',
+  }
 }
 
 export function ConsultationsPage() {
@@ -247,6 +290,7 @@ export function ConsultationsPage() {
           <ul className="flex flex-col gap-3">
             {visibleRequests.map((request) => {
               const target = nextStatus(request.status)
+              const sla = getHotLeadSla(request)
               return (
                 <li
                   key={request.id}
@@ -261,6 +305,11 @@ export function ConsultationsPage() {
                         {typeof request.leadScore === 'number' && (
                           <span className="rounded-full border border-zinc-600/50 bg-zinc-800/70 px-2.5 py-0.5 text-[11px] font-medium text-zinc-300">
                             Score {request.leadScore}
+                          </span>
+                        )}
+                        {sla && (
+                          <span className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${sla.badge}`}>
+                            {sla.label}
                           </span>
                         )}
                       </div>
