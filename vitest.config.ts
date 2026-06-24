@@ -2,8 +2,16 @@ import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   test: {
-    environment: 'node',
+    environment: 'jsdom',
     include: ['src/**/*.test.ts'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html', 'lcov'],
+      exclude: [
+        'node_modules/',
+        'src/**/*.test.ts',
+      ]
+    },
     env: {
       VITE_API_URL: 'http://localhost:3000',
       VITE_AUTH_SERVICE_URL: 'http://localhost:8000',
