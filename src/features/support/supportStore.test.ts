@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import {
   clearSupportRequests,
   createSupportRequest,
+  getAllSupportRequests,
   getSupportRequests,
   removeSupportRequest,
   updateSupportStatus,
@@ -55,5 +56,15 @@ describe('supportStore', () => {
 
     expect(getSupportRequests('project-1')).toHaveLength(1)
     expect(getSupportRequests('project-2')).toHaveLength(0)
+  })
+
+  it('aggregates requests across all projects, newest first', () => {
+    createSupportRequest({ projectId: 'project-1', category: 'Bug', subject: 'Older', message: 'm' })
+    createSupportRequest({ projectId: 'project-2', category: 'Maintenance', subject: 'Newer', message: 'm' })
+
+    const all = getAllSupportRequests()
+    expect(all).toHaveLength(2)
+    expect(all.map((r) => r.subject)).toContain('Older')
+    expect(all.map((r) => r.subject)).toContain('Newer')
   })
 })

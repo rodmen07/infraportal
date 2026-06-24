@@ -47,6 +47,23 @@ export function getSupportRequests(projectId: string): SupportRequest[] {
   return readRequests(projectId)
 }
 
+/**
+ * Aggregates support requests across every project, for the admin queue.
+ * Scans localStorage keys with the support prefix so the team can triage all
+ * incoming requests in one place.
+ */
+export function getAllSupportRequests(): SupportRequest[] {
+  if (typeof window === 'undefined') return []
+  const all: SupportRequest[] = []
+  for (let i = 0; i < window.localStorage.length; i += 1) {
+    const key = window.localStorage.key(i)
+    if (!key || !key.startsWith(STORAGE_PREFIX)) continue
+    const projectId = key.slice(STORAGE_PREFIX.length)
+    all.push(...readRequests(projectId))
+  }
+  return all.sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+}
+
 export function createSupportRequest(input: SupportRequestInput): SupportRequest {
   const request: SupportRequest = {
     id: `sup-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,

@@ -31,6 +31,7 @@ import { AuditPage } from './pages/AuditPage'
 import { ServiceHealthPage } from './pages/ServiceHealthPage'
 import { ApiDocsPage } from './pages/ApiDocsPage'
 import { ConsultationsPage } from './pages/ConsultationsPage'
+import { SupportQueuePage } from './pages/SupportQueuePage'
 
 const WATCHDOG_DELAY_MS = 5000
 
@@ -147,6 +148,7 @@ function Root() {
   if (hash === '#/admin/audit') return <AuditPage />
   if (hash === '#/admin/health') return <ServiceHealthPage />
   if (hash === '#/admin/consultations') return <ConsultationsPage />
+  if (hash === '#/admin/support') return <SupportQueuePage />
   if (hash === '#/api-docs') return <ApiDocsPage />
   if (hash === '#/contact') return <ContactPage />
   return <App />

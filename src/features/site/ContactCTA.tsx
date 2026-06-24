@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { getConsultationRequests, saveConsultationRequest, type ConsultationRequest } from '../consulting/consultationStore'
+import { submitPublicLead } from '../consulting/leadIntake'
 
 type Phase = 'idle' | 'sending' | 'sent' | 'error'
 
@@ -12,31 +13,32 @@ export function ContactCTA() {
   const [phase, setPhase] = useState<Phase>('idle')
   const [savedRequests, setSavedRequests] = useState<ConsultationRequest[]>(() => getConsultationRequests())
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setPhase('sending')
 
-    window.setTimeout(() => {
-      const request: ConsultationRequest = {
-        id: `req-${Date.now()}`,
-        name: name.trim(),
-        email: email.trim(),
-        projectType,
-        timeline,
-        message: message.trim(),
-        createdAt: new Date().toISOString(),
-        status: 'new',
-      }
+    const request: ConsultationRequest = {
+      id: `req-${Date.now()}`,
+      name: name.trim(),
+      email: email.trim(),
+      projectType,
+      timeline,
+      message: message.trim(),
+      createdAt: new Date().toISOString(),
+      status: 'new',
+    }
 
-      saveConsultationRequest(request)
-      setSavedRequests(getConsultationRequests())
-      setPhase('sent')
-      setName('')
-      setEmail('')
-      setProjectType('Web app')
-      setTimeline('Within 2 weeks')
-      setMessage('')
-    }, 400)
+    saveConsultationRequest(request)
+    // Best-effort server-side intake; no-ops until VITE_LEAD_INTAKE_URL is set.
+    await submitPublicLead(request)
+
+    setSavedRequests(getConsultationRequests())
+    setPhase('sent')
+    setName('')
+    setEmail('')
+    setProjectType('Web app')
+    setTimeline('Within 2 weeks')
+    setMessage('')
   }
 
   const latestRequest = useMemo(() => savedRequests[0], [savedRequests])
