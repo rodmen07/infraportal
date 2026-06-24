@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { getConsultationRequests, saveConsultationRequest, type ConsultationRequest } from '../consulting/consultationStore'
 
 type Phase = 'idle' | 'sending' | 'sent' | 'error'
@@ -10,11 +10,7 @@ export function ContactCTA() {
   const [timeline, setTimeline] = useState('Within 2 weeks')
   const [message, setMessage] = useState('')
   const [phase, setPhase] = useState<Phase>('idle')
-  const [savedRequests, setSavedRequests] = useState<ConsultationRequest[]>([])
-
-  useEffect(() => {
-    setSavedRequests(getConsultationRequests())
-  }, [])
+  const [savedRequests, setSavedRequests] = useState<ConsultationRequest[]>(() => getConsultationRequests())
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
