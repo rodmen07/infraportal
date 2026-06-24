@@ -77,9 +77,15 @@ function SummaryCard({ label, value, accent }: { label: string; value: number; a
   )
 }
 
+function formatPercent(numerator: number, denominator: number): string {
+  if (denominator <= 0) return '0%'
+  return `${Math.round((numerator / denominator) * 100)}%`
+}
+
 export function ConsultationsPage() {
   const [requests, setRequests] = useState<ConsultationRequest[]>(() => getConsultationRequests())
   const [filter, setFilter] = useState<ConsultationStatus | 'all'>('all')
+  const [priorityFilter, setPriorityFilter] = useState<LeadPriority | 'all'>('all')
   const [syncingId, setSyncingId] = useState<string | null>(null)
   const [syncError, setSyncError] = useState<Record<string, string>>({})
 
@@ -90,19 +96,32 @@ export function ConsultationsPage() {
       reviewed: requests.filter((r) => r.status === 'reviewed').length,
       accepted: requests.filter((r) => r.status === 'accepted').length,
       hot: requests.filter((r) => r.leadPriority === 'hot').length,
+      warm: requests.filter((r) => r.leadPriority === 'warm').length,
+      nurture: requests.filter((r) => r.leadPriority === 'nurture').length,
     }
   }, [requests])
 
+  const funnelMetrics = useMemo(() => {
+    const reviewedRate = formatPercent(counts.reviewed, counts.new)
+    const closeRate = formatPercent(counts.accepted, counts.reviewed)
+    const overallRate = formatPercent(counts.accepted, counts.total)
+
+    return { reviewedRate, closeRate, overallRate }
+  }, [counts])
+
   const visibleRequests = useMemo(() => {
-    const filtered = filter === 'all' ? requests : requests.filter((r) => r.status === filter)
-    return filtered
+    const byStatus = filter === 'all' ? requests : requests.filter((r) => r.status === filter)
+    const byPriority =
+      priorityFilter === 'all' ? byStatus : byStatus.filter((r) => r.leadPriority === priorityFilter)
+
+    return byPriority
       .slice()
       .sort((a, b) => {
         const scoreDelta = (b.leadScore ?? 0) - (a.leadScore ?? 0)
         if (scoreDelta !== 0) return scoreDelta
         return Date.parse(b.createdAt) - Date.parse(a.createdAt)
       })
-  }, [requests, filter])
+  }, [requests, filter, priorityFilter])
 
   const handleAdvance = (request: ConsultationRequest) => {
     const target = nextStatus(request.status)
@@ -141,6 +160,13 @@ export function ConsultationsPage() {
     { value: 'accepted', label: `Accepted (${counts.accepted})` },
   ]
 
+  const priorityFilterOptions: Array<{ value: LeadPriority | 'all'; label: string }> = [
+    { value: 'all', label: `All priorities (${counts.total})` },
+    { value: 'hot', label: `Hot (${counts.hot})` },
+    { value: 'warm', label: `Warm (${counts.warm})` },
+    { value: 'nurture', label: `Nurture (${counts.nurture})` },
+  ]
+
   return (
     <PageLayout
       title="Consultation requests"
@@ -154,6 +180,18 @@ export function ConsultationsPage() {
         <SummaryCard label="Accepted" value={counts.accepted} accent="text-emerald-300" />
       </section>
 
+      <section className="forge-panel surface-card flex flex-wrap items-center gap-3 rounded-2xl p-4 text-xs text-zinc-300 sm:gap-4">
+        <span className="rounded-full border border-zinc-700/50 bg-zinc-800/60 px-3 py-1.5">
+          New → Reviewed: <strong className="text-zinc-100">{funnelMetrics.reviewedRate}</strong>
+        </span>
+        <span className="rounded-full border border-zinc-700/50 bg-zinc-800/60 px-3 py-1.5">
+          Reviewed → Accepted: <strong className="text-zinc-100">{funnelMetrics.closeRate}</strong>
+        </span>
+        <span className="rounded-full border border-zinc-700/50 bg-zinc-800/60 px-3 py-1.5">
+          Overall acceptance: <strong className="text-zinc-100">{funnelMetrics.overallRate}</strong>
+        </span>
+      </section>
+
       <section className="forge-panel surface-card-strong flex flex-col gap-4 p-5 sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap gap-2">
@@ -165,6 +203,22 @@ export function ConsultationsPage() {
                 className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition ${
                   filter === option.value
                     ? 'border-amber-400/50 bg-amber-500/15 text-amber-100'
+                    : 'border-zinc-600/40 bg-zinc-800/60 text-zinc-300 hover:border-zinc-500/50 hover:bg-zinc-700/60 hover:text-zinc-100'
+                }`}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {priorityFilterOptions.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => setPriorityFilter(option.value)}
+                className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition ${
+                  priorityFilter === option.value
+                    ? 'border-rose-400/50 bg-rose-500/15 text-rose-100'
                     : 'border-zinc-600/40 bg-zinc-800/60 text-zinc-300 hover:border-zinc-500/50 hover:bg-zinc-700/60 hover:text-zinc-100'
                 }`}
               >

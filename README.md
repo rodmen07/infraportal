@@ -91,6 +91,7 @@ Commonly used variables:
 - `VITE_MONITORING_URL`
 - `VITE_AI_ORCHESTRATOR_URL`
 - `VITE_AUTH_SERVICE_URL`
+- `VITE_SCHEDULING_URL`
 - `VITE_PROJECTS_API_BASE_URL`
 - `VITE_CONTACTS_API_BASE_URL`
 - `VITE_ACCOUNTS_API_BASE_URL`
@@ -138,6 +139,8 @@ The latest infraportal polish pass improved the client-facing experience in a fe
 
 - The homepage, pricing, and contact flow now emphasize productized consulting offers, paid discovery, and clear proposal requests.
 - Consultation intake now computes lead score and priority (hot/warm/nurture) from engagement type, budget, timeline, and response detail so high-value prospects are reviewed first.
+- Consultations admin now includes a compact pipeline strip (new-to-reviewed, reviewed-to-accepted, and overall acceptance rates) plus priority quick filters to triage hot leads faster.
+- Contact pages now surface an optional booking link from `VITE_SCHEDULING_URL` so prospects can jump straight to a 30-minute call when a calendar URL is configured.
 - Shared navigation now uses clearer grouped sections across mobile and desktop layouts.
 - The contact page provides better submission guidance, live message feedback, and clearer sending states.
 - Search now presents a more structured query workspace with grouped result summaries.
