@@ -27,6 +27,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Audit npm dependencies
+        # Audit shipped (production) dependencies and fail on high+ severity.
+        # Dev/build-tool advisories (e.g. a vite major-version bump) are tracked
+        # separately so they do not block delivery of the app itself.
+        run: npm audit --omit=dev --audit-level=high
+
       - name: Run tests with coverage
         run: npm run test:coverage
 

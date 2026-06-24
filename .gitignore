@@ -23,6 +23,12 @@ dist-ssr
 .eslintcache
 coverage/
 
+# Editor crash-recovery / temp files
+*.tmp
+*.tmp.*
+*.bak
+*.orig
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
