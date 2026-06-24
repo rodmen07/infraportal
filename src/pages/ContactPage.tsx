@@ -2,9 +2,11 @@ import { useState } from 'react'
 import { PageLayout } from './PageLayout'
 import { FocusCard } from '../features/layout/FocusCard'
 import { HowItWorksSection } from '../features/site/HowItWorksSection'
-import { MONITORING_URL } from '../config'
+import { SCHEDULING_URL } from '../config'
+import { saveConsultationRequest, type ConsultationRequest } from '../features/consulting/consultationStore'
+import { submitPublicLead } from '../features/consulting/leadIntake'
 
-type Phase = 'idle' | 'sending' | 'sent' | 'error'
+type Phase = 'idle' | 'sending' | 'sent'
 
 export function ContactPage() {
   const [name, setName] = useState('')
@@ -30,20 +32,27 @@ export function ContactPage() {
     e.preventDefault()
     if (!validate()) return
     setPhase('sending')
-    try {
-      const res = await fetch(`${MONITORING_URL}/api/contact`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, message }),
-      })
-      if (!res.ok) throw new Error(`${res.status}`)
-      setPhase('sent')
-      setName('')
-      setEmail('')
-      setMessage('')
-    } catch {
-      setPhase('error')
+
+    const request: ConsultationRequest = {
+      id: `req-${Date.now()}`,
+      name: name.trim(),
+      email: email.trim(),
+      projectType: 'General inquiry',
+      timeline: 'Not specified',
+      message: message.trim(),
+      createdAt: new Date().toISOString(),
+      status: 'new',
     }
+
+    // Always persist locally so the lead is never lost.
+    saveConsultationRequest(request)
+    // Best-effort server delivery — no-ops when VITE_LEAD_INTAKE_URL is unset.
+    await submitPublicLead(request)
+
+    setPhase('sent')
+    setName('')
+    setEmail('')
+    setMessage('')
   }
 
   const fieldClass = (hasError: boolean) =>
@@ -65,6 +74,16 @@ export function ContactPage() {
           <div className="surface-card rounded-xl px-4 py-3 text-xs text-zinc-300">
             <p className="font-semibold text-white">Typical response time</p>
             <p className="mt-1 text-zinc-400">Within 1 business day</p>
+            {SCHEDULING_URL && (
+              <a
+                href={SCHEDULING_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-3 inline-flex rounded-lg border border-amber-400/30 bg-amber-500/15 px-3 py-2 text-[11px] font-semibold text-amber-200 transition hover:border-amber-400/60 hover:bg-amber-500/25 hover:text-amber-100"
+              >
+                Book 30-minute call →
+              </a>
+            )}
           </div>
         </div>
 
@@ -134,12 +153,6 @@ export function ContactPage() {
             </div>
             {fieldErrors.message && <p className="mt-1 text-xs text-red-400">{fieldErrors.message}</p>}
           </div>
-
-          {phase === 'error' && (
-            <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
-              Your message did not send successfully. Please try again, or use one of the direct contact options below.
-            </div>
-          )}
 
           <div className="flex flex-wrap items-center gap-3">
             <button
