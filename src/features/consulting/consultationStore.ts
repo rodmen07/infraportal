@@ -1,3 +1,5 @@
+import { calculateLeadScore, extractLegacyBudgetFromMessage, getLeadPriority, type LeadPriority } from './leadScoring'
+
 export type ConsultationStatus = 'new' | 'reviewed' | 'accepted'
 
 export interface ConsultationRequest {
@@ -5,11 +7,14 @@ export interface ConsultationRequest {
   name: string
   email: string
   projectType: string
+  budget?: string
   timeline: string
   message: string
   createdAt: string
   status: ConsultationStatus
   crmContactId?: string
+  leadScore?: number
+  leadPriority?: LeadPriority
 }
 
 const STORAGE_KEY = 'managed-hosting-consultations'
@@ -19,7 +24,29 @@ function readStoredRequests(): ConsultationRequest[] {
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY)
     if (!raw) return []
-    return JSON.parse(raw) as ConsultationRequest[]
+    const parsed = JSON.parse(raw)
+    if (!Array.isArray(parsed)) return []
+
+    return parsed.map((request) => {
+      const base = request as ConsultationRequest
+      const budget = (base.budget && base.budget.trim()) || extractLegacyBudgetFromMessage(base.message)
+      const leadScore =
+        typeof base.leadScore === 'number'
+          ? Math.max(0, Math.min(100, base.leadScore))
+          : calculateLeadScore({
+              engagement: base.projectType,
+              timeline: base.timeline,
+              budget,
+              message: base.message,
+            })
+
+      return {
+        ...base,
+        budget,
+        leadScore,
+        leadPriority: base.leadPriority ?? getLeadPriority(leadScore),
+      }
+    })
   } catch {
     return []
   }

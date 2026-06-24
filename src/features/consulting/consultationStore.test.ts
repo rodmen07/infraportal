@@ -7,6 +7,7 @@ import {
   saveConsultationRequest,
   updateConsultationStatus,
 } from './consultationStore'
+import { getLeadPriority } from './leadScoring'
 
 describe('consultationStore', () => {
   beforeEach(() => {
@@ -27,7 +28,13 @@ describe('consultationStore', () => {
 
     saveConsultationRequest(request)
 
-    expect(getConsultationRequests()).toEqual([request])
+    expect(getConsultationRequests()).toEqual([
+      expect.objectContaining({
+        ...request,
+        leadScore: expect.any(Number),
+        leadPriority: expect.any(String),
+      }),
+    ])
   })
 
   it('advances a request through its review lifecycle', () => {
@@ -87,5 +94,45 @@ describe('consultationStore', () => {
     attachCrmContact('req-3', 'contact-123')
 
     expect(getConsultationRequests()[0].crmContactId).toBe('contact-123')
+  })
+
+  it('hydrates lead metadata for new requests', () => {
+    const request = {
+      id: 'req-4',
+      name: 'Dorothy Vaughan',
+      email: 'dorothy@example.com',
+      projectType: 'Monthly retainer',
+      budget: '$15k+',
+      timeline: 'Within 2 weeks',
+      message: 'Need an external platform engineering partner for the next quarter.',
+      createdAt: '2026-06-23T12:00:00.000Z',
+      status: 'new' as const,
+    }
+
+    saveConsultationRequest(request)
+
+    const stored = getConsultationRequests()[0]
+    expect(stored.leadScore).toBeTypeOf('number')
+    expect(stored.leadPriority).toBe(getLeadPriority(stored.leadScore ?? 0))
+  })
+
+  it('backfills budget and lead metadata from legacy message prefixes', () => {
+    const legacyRequest = {
+      id: 'req-legacy',
+      name: 'Legacy Lead',
+      email: 'legacy@example.com',
+      projectType: 'Launch sprint',
+      timeline: 'Next month',
+      message: '$5k–$15k budget. Need help stabilizing and shipping a release.',
+      createdAt: '2026-06-23T12:00:00.000Z',
+      status: 'new' as const,
+    }
+
+    window.localStorage.setItem('managed-hosting-consultations', JSON.stringify([legacyRequest]))
+
+    const stored = getConsultationRequests()[0]
+    expect(stored.budget).toBe('$5k-$15k')
+    expect(stored.leadScore).toBeTypeOf('number')
+    expect(stored.leadPriority).toBe(getLeadPriority(stored.leadScore ?? 0))
   })
 })

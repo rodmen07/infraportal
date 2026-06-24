@@ -136,6 +136,8 @@ This iteration improved the operations workflows in a few practical ways:
 
 The latest infraportal polish pass improved the client-facing experience in a few key areas:
 
+- The homepage, pricing, and contact flow now emphasize productized consulting offers, paid discovery, and clear proposal requests.
+- Consultation intake now computes lead score and priority (hot/warm/nurture) from engagement type, budget, timeline, and response detail so high-value prospects are reviewed first.
 - Shared navigation now uses clearer grouped sections across mobile and desktop layouts.
 - The contact page provides better submission guidance, live message feedback, and clearer sending states.
 - Search now presents a more structured query workspace with grouped result summaries.

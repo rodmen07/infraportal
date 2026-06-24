@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { getConsultationRequests, saveConsultationRequest, type ConsultationRequest } from '../consulting/consultationStore'
+import { calculateLeadScore, getLeadPriority } from '../consulting/leadScoring'
 import { submitPublicLead } from '../consulting/leadIntake'
 
 type Phase = 'idle' | 'sending' | 'sent' | 'error'
@@ -7,7 +8,8 @@ type Phase = 'idle' | 'sending' | 'sent' | 'error'
 export function ContactCTA() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
-  const [projectType, setProjectType] = useState('Web app')
+  const [engagement, setEngagement] = useState('Architecture review')
+  const [budget, setBudget] = useState('Under $5k')
   const [timeline, setTimeline] = useState('Within 2 weeks')
   const [message, setMessage] = useState('')
   const [phase, setPhase] = useState<Phase>('idle')
@@ -17,15 +19,26 @@ export function ContactCTA() {
     e.preventDefault()
     setPhase('sending')
 
+    const trimmedMessage = message.trim()
+    const leadScore = calculateLeadScore({
+      engagement,
+      budget,
+      timeline,
+      message: trimmedMessage,
+    })
+
     const request: ConsultationRequest = {
       id: `req-${Date.now()}`,
       name: name.trim(),
       email: email.trim(),
-      projectType,
+      projectType: engagement,
+      budget,
       timeline,
-      message: message.trim(),
+      message: trimmedMessage,
       createdAt: new Date().toISOString(),
       status: 'new',
+      leadScore,
+      leadPriority: getLeadPriority(leadScore),
     }
 
     saveConsultationRequest(request)
@@ -36,7 +49,8 @@ export function ContactCTA() {
     setPhase('sent')
     setName('')
     setEmail('')
-    setProjectType('Web app')
+    setEngagement('Architecture review')
+    setBudget('Under $5k')
     setTimeline('Within 2 weeks')
     setMessage('')
   }
@@ -45,9 +59,9 @@ export function ContactCTA() {
 
   return (
     <section className="forge-panel rounded-3xl border border-zinc-500/30 bg-zinc-900/80 p-8 shadow-2xl shadow-black/50 backdrop-blur-xl">
-      <h2 className="text-xl font-semibold text-white">Book a consultation</h2>
+      <h2 className="text-xl font-semibold text-white">Start a paid engagement</h2>
       <p className="mt-2 text-sm text-zinc-400">
-        Tell us about your app and we will follow up with the right next steps for setup and support.
+        Choose the type of work you want and we will follow up with the right scope, timeline, and next step.
       </p>
 
       {phase === 'sent' ? (
@@ -81,14 +95,14 @@ export function ContactCTA() {
           </div>
           <div className="flex flex-col gap-4 sm:flex-row">
             <select
-              value={projectType}
-              onChange={e => setProjectType(e.target.value)}
+              value={engagement}
+              onChange={e => setEngagement(e.target.value)}
               className="flex-1 rounded-xl border border-zinc-700/60 bg-zinc-800/60 px-4 py-2.5 text-sm text-zinc-100 outline-none focus:border-amber-400/50 focus:ring-1 focus:ring-amber-400/20"
             >
-              <option>Web app</option>
-              <option>Client portal</option>
-              <option>Internal tool</option>
-              <option>Other</option>
+              <option>Architecture review</option>
+              <option>Launch sprint</option>
+              <option>Monthly retainer</option>
+              <option>Security review</option>
             </select>
             <select
               value={timeline}
@@ -100,10 +114,25 @@ export function ContactCTA() {
               <option>Planning stage</option>
             </select>
           </div>
+          <div className="flex flex-col gap-4 sm:flex-row">
+            <select
+              value={budget}
+              onChange={e => setBudget(e.target.value)}
+              className="flex-1 rounded-xl border border-zinc-700/60 bg-zinc-800/60 px-4 py-2.5 text-sm text-zinc-100 outline-none focus:border-amber-400/50 focus:ring-1 focus:ring-amber-400/20"
+            >
+              <option>Under $5k</option>
+              <option>$5k–$15k</option>
+              <option>$15k+</option>
+              <option>Need guidance</option>
+            </select>
+            <div className="rounded-xl border border-zinc-700/50 bg-zinc-800/40 px-4 py-2.5 text-sm text-zinc-400 sm:flex-1">
+              Productized offers are scoped quickly, so you get a concrete proposal instead of a vague estimate.
+            </div>
+          </div>
           <textarea
             required
             rows={4}
-            placeholder="Tell us what you want hosted, maintained, or launched."
+            placeholder="Tell us what you want reviewed, built, or launched."
             value={message}
             onChange={e => setMessage(e.target.value)}
             maxLength={4000}
@@ -119,7 +148,7 @@ export function ContactCTA() {
               disabled={phase === 'sending'}
               className="rounded-xl border border-amber-400/40 bg-amber-500/15 px-5 py-2.5 text-sm font-semibold text-amber-200 transition hover:border-amber-400/60 hover:bg-amber-500/25 hover:text-amber-100 disabled:opacity-50"
             >
-              {phase === 'sending' ? 'Submitting…' : 'Request consultation →'}
+              {phase === 'sending' ? 'Submitting…' : 'Request proposal →'}
             </button>
           </div>
         </form>

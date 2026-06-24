@@ -9,6 +9,7 @@ import {
   type ConsultationStatus,
 } from '../features/consulting/consultationStore'
 import { pushConsultationToCrm } from '../features/consulting/consultationLead'
+import { type LeadPriority } from '../features/consulting/leadScoring'
 import { formatRelativeTime } from '../utils/time'
 
 const STATUS_ORDER: ConsultationStatus[] = ['new', 'reviewed', 'accepted']
@@ -28,6 +29,21 @@ const STATUS_META: Record<ConsultationStatus, { label: string; badge: string }> 
   },
 }
 
+const PRIORITY_META: Record<LeadPriority, { label: string; badge: string }> = {
+  hot: {
+    label: 'Hot',
+    badge: 'border-rose-400/40 bg-rose-500/15 text-rose-200',
+  },
+  warm: {
+    label: 'Warm',
+    badge: 'border-amber-400/40 bg-amber-500/15 text-amber-200',
+  },
+  nurture: {
+    label: 'Nurture',
+    badge: 'border-zinc-500/40 bg-zinc-600/20 text-zinc-300',
+  },
+}
+
 function nextStatus(status: ConsultationStatus): ConsultationStatus | null {
   const index = STATUS_ORDER.indexOf(status)
   if (index < 0 || index === STATUS_ORDER.length - 1) return null
@@ -36,6 +52,15 @@ function nextStatus(status: ConsultationStatus): ConsultationStatus | null {
 
 function StatusBadge({ status }: { status: ConsultationStatus }) {
   const meta = STATUS_META[status]
+  return (
+    <span className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${meta.badge}`}>
+      {meta.label}
+    </span>
+  )
+}
+
+function PriorityBadge({ priority }: { priority: LeadPriority }) {
+  const meta = PRIORITY_META[priority]
   return (
     <span className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${meta.badge}`}>
       {meta.label}
@@ -64,12 +89,19 @@ export function ConsultationsPage() {
       new: requests.filter((r) => r.status === 'new').length,
       reviewed: requests.filter((r) => r.status === 'reviewed').length,
       accepted: requests.filter((r) => r.status === 'accepted').length,
+      hot: requests.filter((r) => r.leadPriority === 'hot').length,
     }
   }, [requests])
 
   const visibleRequests = useMemo(() => {
-    if (filter === 'all') return requests
-    return requests.filter((r) => r.status === filter)
+    const filtered = filter === 'all' ? requests : requests.filter((r) => r.status === filter)
+    return filtered
+      .slice()
+      .sort((a, b) => {
+        const scoreDelta = (b.leadScore ?? 0) - (a.leadScore ?? 0)
+        if (scoreDelta !== 0) return scoreDelta
+        return Date.parse(b.createdAt) - Date.parse(a.createdAt)
+      })
   }, [requests, filter])
 
   const handleAdvance = (request: ConsultationRequest) => {
@@ -112,10 +144,11 @@ export function ConsultationsPage() {
   return (
     <PageLayout
       title="Consultation requests"
-      subtitle="Review incoming managed-hosting inquiries and move each one through intake to onboarding."
+      subtitle="Review incoming inquiries, prioritize the highest-value leads, and move each one from intake to onboarding."
     >
-      <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <section className="grid grid-cols-2 gap-3 sm:grid-cols-5">
         <SummaryCard label="Total" value={counts.total} accent="text-zinc-100" />
+        <SummaryCard label="Hot" value={counts.hot} accent="text-rose-300" />
         <SummaryCard label="New" value={counts.new} accent="text-amber-300" />
         <SummaryCard label="Reviewed" value={counts.reviewed} accent="text-sky-300" />
         <SummaryCard label="Accepted" value={counts.accepted} accent="text-emerald-300" />
@@ -170,6 +203,12 @@ export function ConsultationsPage() {
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="font-semibold text-zinc-100">{request.name}</span>
                         <StatusBadge status={request.status} />
+                        {request.leadPriority && <PriorityBadge priority={request.leadPriority} />}
+                        {typeof request.leadScore === 'number' && (
+                          <span className="rounded-full border border-zinc-600/50 bg-zinc-800/70 px-2.5 py-0.5 text-[11px] font-medium text-zinc-300">
+                            Score {request.leadScore}
+                          </span>
+                        )}
                       </div>
                       <a
                         href={`mailto:${request.email}`}
@@ -190,6 +229,11 @@ export function ConsultationsPage() {
                     <span className="rounded-full border border-zinc-700/50 bg-zinc-800/60 px-2.5 py-0.5">
                       {request.timeline}
                     </span>
+                    {request.budget && (
+                      <span className="rounded-full border border-zinc-700/50 bg-zinc-800/60 px-2.5 py-0.5">
+                        {request.budget}
+                      </span>
+                    )}
                   </div>
 
                   {request.message && (
