@@ -1211,6 +1211,58 @@ const VERSIONS: Version[] = [
     ],
   },
   {
+    tag: 'v1.3.2',
+    date: '2026-06-01',
+    label: 'Client Portal Dashboard',
+    completionState: 'published',
+    group: 'v1.3',
+    summary:
+      'Full-featured client portal for project tracking, effort estimation, and real-time collaboration. Clients authenticate via GitHub/Google OAuth or email+password, view project milestones with deliverables and progress bars, browse project links and Gmail-synced email threads, track collaborators and progress updates, send direct messages to admin, and monitor GitHub build status. Built with React 19, TypeScript, and Tailwind; backed by projects-service.',
+    highlights: [
+      {
+        heading: 'Client authentication & authorization',
+        items: [
+          'OAuth sign-in: GitHub and Google (auth-service integration via AuthGate)',
+          'Email+password login with forgot-password and register flows',
+          'JWT token refresh on 401 — seamless session continuation without page reload',
+        ],
+      },
+      {
+        heading: 'Project dashboard',
+        items: [
+          'Project summary card: name, description, status badge, progress bar (deliverables completed / total)',
+          'Timeline: milestones with due dates, status, effort (hours), expandable deliverables with status and estimates',
+          'Progress tracking: overall % completion, estimated vs. actual hours, days to deadline',
+        ],
+      },
+      {
+        heading: 'Collaboration & comms',
+        items: [
+          'Collaborators section: team members with avatars, names, and roles',
+          'Progress updates: timestamped admin posts visible on the portal',
+          'Message thread: real-time Q&A between client and admin with send/receive',
+        ],
+      },
+      {
+        heading: 'Project context & artifacts',
+        items: [
+          'Project links: Upwork, Google Drive, GitHub, Figma, custom URLs with emoji icons',
+          'Email section: Gmail-synced email threads tied to the project with expandable bodies',
+          'Build status badges: GitHub CI results per repo with pass/fail/running status and last run timestamp',
+        ],
+      },
+      {
+        heading: 'Empty states & error handling',
+        items: [
+          'Graceful handling when client has no assigned project (shows account ID for admin linking)',
+          'Loading skeletons for async sections (cards, tables, metrics)',
+          'Empty state illustrations + messages for no milestones, no emails, no collaborators',
+          'Error panel with retry for failed fetches',
+        ],
+      },
+    ],
+  },
+  {
     tag: 'v1.3.1',
     date: '2026-04-15',
     label: 'Productionizer Agent',

@@ -8,7 +8,7 @@ interface HeroSectionProps {
 
 export function HeroSection({ content }: HeroSectionProps) {
   const [open, setOpen] = useState(false)
-  const tagline = content.heroTagline || 'AI + Cloud Launchpad'
+  const tagline = content.heroTagline || 'Managed Hosting + Launch Support'
   const [motionEnabled, setMotionEnabled] = useState<boolean>(false)
 
   useEffect(() => {
@@ -67,24 +67,24 @@ export function HeroSection({ content }: HeroSectionProps) {
         </p>
         <div className="reveal reveal-delay-2 mt-8 flex flex-wrap justify-center gap-3">
           <a
-            href="#/case-studies"
+            href="#/contact"
             className="rounded-xl border border-amber-400/40 bg-amber-500/15 px-5 py-2.5 text-sm font-semibold text-amber-200 transition hover:border-amber-400/60 hover:bg-amber-500/25 hover:text-amber-100 animate-pop"
           >
-            See the work →
+            Book a consultation →
           </a>
           <a
-            href="#/contact"
+            href="#/services"
             className="rounded-xl border border-zinc-600/50 bg-zinc-800/60 px-5 py-2.5 text-sm font-semibold text-zinc-300 transition hover:border-zinc-500/60 hover:bg-zinc-700/60 hover:text-zinc-100 animate-pop"
           >
-            Book a free call →
+            See what's included →
           </a>
         </div>
       </header>
 
       <SlideOver open={open} onClose={() => setOpen(false)} title={tagline}>
         <p>
-          I help startup teams ship fast on AWS + GCP with Terraform, Databricks-ready
-          data foundations, and production-grade engineering from day one.
+          We help founders and product teams launch reliable web apps with deployment setup,
+          hosting support, monitoring, and ongoing maintenance so you never have to worry about the infrastructure.
         </p>
 
         <div className="mt-4 flex items-center gap-3">
@@ -107,11 +107,11 @@ export function HeroSection({ content }: HeroSectionProps) {
         </div>
 
         <div className="mt-4 flex gap-2">
-          <a href="#/case-studies" className="btn-accent">
-            See the work
+          <a href="#/services" className="btn-accent">
+            See what's included
           </a>
           <a href="#/contact" className="btn-neutral">
-            Book a free call
+            Book a consultation
           </a>
         </div>
       </SlideOver>

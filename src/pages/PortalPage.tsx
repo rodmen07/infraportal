@@ -1,4 +1,5 @@
 import type React from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { PageLayout } from './PageLayout'
 import { useAuth } from '../features/auth/useAuth'
 import { PROJECTS_API_BASE_URL, AUTH_SERVICE_URL } from '../config'
@@ -793,6 +794,48 @@ function RepoBadge({ item }: { item: GhBuildItem }) {
   )
 }
 
+function ManagedServiceSnapshot({ project }: { project: Project }) {
+  return (
+    <div className="forge-panel surface-card-strong p-5">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-400">Managed service snapshot</p>
+          <h2 className="mt-2 text-lg font-semibold text-zinc-100">Your hosting and delivery workspace</h2>
+          <p className="mt-1 text-sm text-zinc-400">
+            A simple view of the operational side while your product stays live and supported.
+          </p>
+        </div>
+        <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-300">
+          On track
+        </span>
+      </div>
+
+      <div className="mt-4 grid gap-3 md:grid-cols-4">
+        <div className="rounded-2xl border border-zinc-700/50 bg-zinc-800/40 p-3">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-zinc-500">Deployment</p>
+          <p className="mt-1 text-sm font-semibold text-zinc-100">Configured</p>
+          <p className="mt-1 text-xs text-zinc-400">Domain and SSL are ready</p>
+        </div>
+        <div className="rounded-2xl border border-zinc-700/50 bg-zinc-800/40 p-3">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-zinc-500">Support</p>
+          <p className="mt-1 text-sm font-semibold text-zinc-100">Priority queue</p>
+          <p className="mt-1 text-xs text-zinc-400">Questions are routed quickly</p>
+        </div>
+        <div className="rounded-2xl border border-zinc-700/50 bg-zinc-800/40 p-3">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-zinc-500">Maintenance</p>
+          <p className="mt-1 text-sm font-semibold text-zinc-100">Weekly review</p>
+          <p className="mt-1 text-xs text-zinc-400">Updates and checks happen on schedule</p>
+        </div>
+        <div className="rounded-2xl border border-zinc-700/50 bg-zinc-800/40 p-3">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-zinc-500">Project status</p>
+          <p className="mt-1 text-sm font-semibold text-zinc-100">{project.status.replace('_', ' ')}</p>
+          <p className="mt-1 text-xs text-zinc-400">Managed with clear milestones</p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function ProjectRepoBuildStatus({ links }: { links: ProjectLink[] }) {
   const githubLinks = links.filter(l => /github\.com\/([^/]+)\/([^/]+)/.test(l.url))
   
@@ -995,6 +1038,7 @@ export function PortalPage() {
 
       {status === 'idle' && project && (
         <div className="space-y-5">
+          <ManagedServiceSnapshot project={project} />
           <ProjectSummaryCard
             project={project}
             deliverablesByMilestone={deliverablesByMilestone}

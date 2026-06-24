@@ -44,8 +44,8 @@ function TopNavComponent() {
     <nav className="sticky top-2 z-40 rounded-2xl border border-zinc-500/30 bg-zinc-900/80 p-3 shadow-xl shadow-black/40 backdrop-blur-xl">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <div className="text-sm font-bold tracking-tight text-amber-300">RMCC</div>
-          <p className="mt-1 text-[11px] text-zinc-400">Client portal, dashboards, and delivery status</p>
+          <div className="text-sm font-bold tracking-tight text-amber-300">Managed Hosting</div>
+          <p className="mt-1 text-[11px] text-zinc-400">Deployment support, hosting, and ongoing maintenance</p>
         </div>
         <div className="flex items-center gap-2">
           {isClient && (

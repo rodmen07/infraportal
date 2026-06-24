@@ -1,22 +1,22 @@
 const STEPS = [
   {
     number: '01',
-    heading: 'Discovery call',
-    body: 'Free 30-minute call to understand your infrastructure, pain points, and goals. No commitment required.',
+    heading: 'Tell us about your app',
+    body: 'Share your product, launch timeline, and support needs. We make the onboarding simple and fast.',
     accent: 'border-amber-400/30 bg-amber-500/5',
     numColor: 'text-amber-500/50',
   },
   {
     number: '02',
-    heading: 'Proposal & scope',
-    body: 'Written architecture plan, clear deliverables, and a fixed price or hourly estimate. You approve before any work begins.',
+    heading: 'We set up the hosting',
+    body: 'We handle deployment, domain setup, SSL, and the initial environment so your app is ready to launch.',
     accent: 'border-amber-400/25 bg-amber-500/5',
     numColor: 'text-amber-500/40',
   },
   {
     number: '03',
-    heading: 'Deliver & document',
-    body: 'Hands-on implementation delivered via pull request. Full runbook and handoff docs included. Retainer support available.',
+    heading: 'We keep it running',
+    body: 'From updates to monitoring and support requests, we maintain the operational side so you can stay focused on the product.',
     accent: 'border-amber-400/20 bg-amber-500/[0.03]',
     numColor: 'text-amber-500/30',
   },
@@ -25,7 +25,7 @@ const STEPS = [
 export function HowItWorksSection() {
   return (
     <section className="forge-panel rounded-3xl border border-zinc-500/30 bg-zinc-900/80 p-6 shadow-2xl shadow-black/50 backdrop-blur-xl">
-      <h2 className="mb-6 text-center text-xl font-semibold text-white">How an engagement works</h2>
+      <h2 className="mb-6 text-center text-xl font-semibold text-white">How the service works</h2>
 
       <div className="relative grid gap-4 sm:grid-cols-3">
         {STEPS.map((step) => (
@@ -47,7 +47,7 @@ export function HowItWorksSection() {
           href="#/contact"
           className="inline-block rounded-xl border border-amber-400/30 bg-amber-500/10 px-4 py-2 text-sm font-medium text-amber-200 transition hover:border-amber-400/50 hover:bg-amber-500/20 hover:text-amber-100"
         >
-          Book a free discovery call →
+          Book a consultation →
         </a>
       </div>
     </section>
