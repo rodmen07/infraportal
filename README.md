@@ -142,12 +142,13 @@ The latest infraportal polish pass improved the client-facing experience in a fe
 - The hero and process sections now surface the configured scheduling link directly when `VITE_SCHEDULING_URL` is set, reducing booking friction.
 - The contact page now reuses the pricing trust strip and FAQ so prospects see proof and objections handling before submitting the form.
 - The services, case studies, pricing, and home call-to-action blocks now route to the configured scheduling link when present, keeping the strongest buying-intent pages focused on booking.
+- Pricing tiers can now route directly to secure hosted checkout (e.g. a Stripe Payment Link) by setting an HTTPS `checkoutUrl` per tier in `public/content/pricing.json`; when set the CTA opens checkout in a new tab and emits a `pricing_checkout_click` event, and it falls back to the lead form when unset.
 - Consultation intake now computes lead score and priority (hot/warm/nurture) from engagement type, budget, timeline, and response detail so high-value prospects are reviewed first.
 - Consultations admin now includes a compact pipeline strip (new-to-reviewed, reviewed-to-accepted, and overall acceptance rates) plus priority quick filters to triage hot leads faster.
 - Hot leads now display a first-response SLA state (clock, met, missed) using a 2-hour target once intake moves from new to reviewed.
 - Consultation cards now include one-click follow-up template copy (priority-aware subject and message body) to speed first outreach.
 - Contact pages now surface an optional booking link from `VITE_SCHEDULING_URL` so prospects can jump straight to a 30-minute call when a calendar URL is configured.
-- CTA clicks and form submits now emit provider-agnostic analytics events (`consulting_cta_click`, `pricing_cta_click`, `consultation_form_submit`, `contact_form_submit`) so conversion tracking can be attached later without changing the UI again.
+- CTA clicks and form submits now emit provider-agnostic analytics events (`consulting_cta_click`, `pricing_cta_click`, `pricing_checkout_click`, `consultation_form_submit`, `contact_form_submit`) so conversion tracking can be attached later without changing the UI again.
 - Shared navigation now uses clearer grouped sections across mobile and desktop layouts.
 - The contact page provides better submission guidance, live message feedback, and clearer sending states.
 - Search now presents a more structured query workspace with grouped result summaries.

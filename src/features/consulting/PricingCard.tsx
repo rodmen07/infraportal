@@ -1,6 +1,7 @@
 import { useTheme } from '../layout/useTheme'
 import type { PricingTier } from '../../types'
 import { trackPortfolioEvent } from '../../utils/analytics'
+import { resolvePricingCheckout } from './pricingCheckout'
 
 type HighlightLevel = 0 | 1 | 2
 
@@ -48,7 +49,7 @@ const badgeLabel: Partial<Record<HighlightLevel, string>> = {
   2: 'Recommended',
 }
 
-export function PricingCard({ tier, price, description, features, ctaLabel, ctaHref, highlighted, highlightLevel = 0 }: PricingCardProps) {
+export function PricingCard({ tier, price, description, features, ctaLabel, ctaHref, checkoutUrl, highlighted, highlightLevel = 0 }: PricingCardProps) {
   const { theme } = useTheme()
   const isLight = theme === 'light'
   const emphasisLevel: HighlightLevel = highlighted ? 2 : highlightLevel
@@ -63,6 +64,7 @@ export function PricingCard({ tier, price, description, features, ctaLabel, ctaH
   const checkClass = isLight ? 'text-emerald-600' : 'text-emerald-400'
 
   const badge = highlighted ? 'Recommended' : badgeLabel[emphasisLevel]
+  const checkout = resolvePricingCheckout(checkoutUrl, ctaHref)
 
   return (
     <article className={`flex flex-col gap-4 rounded-2xl border p-6 transition-transform duration-200 hover:-translate-y-1 ${cardStyles[emphasisLevel]}`}>
@@ -91,12 +93,16 @@ export function PricingCard({ tier, price, description, features, ctaLabel, ctaH
       </ul>
 
       <a
-        href={ctaHref}
-        onClick={() => trackPortfolioEvent('pricing_cta_click', { tier, label: ctaLabel })}
+        href={checkout.href}
+        {...(checkout.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+        onClick={() => trackPortfolioEvent(checkout.eventName, { tier, label: ctaLabel })}
         className={`mt-auto rounded-xl border px-4 py-2.5 text-center text-sm font-semibold transition ${ctaStyles[emphasisLevel]}`}
       >
         {ctaLabel}
       </a>
+      {checkout.external && (
+        <p className="-mt-2 text-center text-[11px] text-zinc-500">Secure checkout</p>
+      )}
     </article>
   )
 }

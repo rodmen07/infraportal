@@ -53,6 +53,7 @@ export interface PricingTier {
   highlighted: boolean
   ctaLabel: string
   ctaHref: string
+  checkoutUrl?: string
 }
 
 export interface PricingContent {

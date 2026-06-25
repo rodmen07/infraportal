@@ -13,7 +13,8 @@
       ],
       "highlighted": false,
       "ctaLabel": "Book review",
-      "ctaHref": "#/contact"
+      "ctaHref": "#/contact",
+      "checkoutUrl": ""
     },
     {
       "tier": "Project",
@@ -27,7 +28,8 @@
       ],
       "highlighted": false,
       "ctaLabel": "Discuss project",
-      "ctaHref": "#/contact"
+      "ctaHref": "#/contact",
+      "checkoutUrl": ""
     },
     {
       "tier": "Retainer",
@@ -42,7 +44,8 @@
       ],
       "highlighted": true,
       "ctaLabel": "Start retainer",
-      "ctaHref": "#/contact"
+      "ctaHref": "#/contact",
+      "checkoutUrl": ""
     }
   ]
 }

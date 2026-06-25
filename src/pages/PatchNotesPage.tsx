@@ -61,6 +61,38 @@ const GROUP_META: Record<string, { label: string; status: string }> = {
 
 const VERSIONS: Version[] = [
   {
+    tag: 'v1.15.11',
+    date: '2026-06-25',
+    label: 'Funnel Build Integrity & Direct Checkout',
+    completionState: 'published',
+    group: 'v1.15',
+    summary:
+      'Restores the public funnel after a build regression that shipped runtime-fatal undefined references on the homepage, pricing, case studies, and CRM admin pages, adds a TypeScript typecheck gate to CI so the same class of bug cannot reach production again, and introduces an optional direct-checkout path on pricing tiers for paid engagements.',
+    highlights: [
+      {
+        heading: 'Funnel restoration',
+        items: [
+          'Fixed missing SCHEDULING_URL imports that crashed the homepage, pricing, case studies, and services pages at runtime.',
+          'Restored the missing React hooks import in the CRM admin page (lead triage) that broke the entire view.',
+          'Fixed a search-page variable-ordering bug, a Skeleton radius type, and a malformed patch-notes entry.',
+        ],
+      },
+      {
+        heading: 'Regression guard',
+        items: [
+          'Added an npm "typecheck" script (tsc --noEmit) and a CI Type Check job, since vite/esbuild strips types without checking and let undefined imports ship to production.',
+        ],
+      },
+      {
+        heading: 'Direct checkout',
+        items: [
+          'Pricing tiers now accept an optional HTTPS checkoutUrl (e.g. a Stripe Payment Link); when set, the CTA opens secure checkout in a new tab and emits a pricing_checkout_click analytics event.',
+          'Falls back to the existing lead form when unset, so it stays a graceful no-op until a payment link is configured.',
+        ],
+      },
+    ],
+  },
+  {
     tag: 'v1.15.10',
     date: '2026-05-17',
     label: 'v1.15 Patch Notes, README & Final Commit',
@@ -1169,6 +1201,7 @@ const VERSIONS: Version[] = [
     ],
   },
   {
+    tag: 'v1.3.0',
     date: '2026-05-06',
     label: 'Client Portal Dashboard',
     completionState: 'published',
