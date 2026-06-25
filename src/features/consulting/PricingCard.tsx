@@ -1,5 +1,6 @@
 import { useTheme } from '../layout/useTheme'
 import type { PricingTier } from '../../types'
+import { trackPortfolioEvent } from '../../utils/analytics'
 
 type HighlightLevel = 0 | 1 | 2
 
@@ -44,12 +45,13 @@ const lightCtaStyles: Record<HighlightLevel, string> = {
 }
 
 const badgeLabel: Partial<Record<HighlightLevel, string>> = {
-  2: 'Best value',
+  2: 'Recommended',
 }
 
-export function PricingCard({ tier, price, description, features, ctaLabel, ctaHref, highlightLevel = 0 }: PricingCardProps) {
+export function PricingCard({ tier, price, description, features, ctaLabel, ctaHref, highlighted, highlightLevel = 0 }: PricingCardProps) {
   const { theme } = useTheme()
   const isLight = theme === 'light'
+  const emphasisLevel: HighlightLevel = highlighted ? 2 : highlightLevel
 
   const cardStyles = isLight ? lightCardStyles : darkCardStyles
   const priceStyles = isLight ? lightPriceStyles : darkPriceStyles
@@ -60,10 +62,10 @@ export function PricingCard({ tier, price, description, features, ctaLabel, ctaH
   const featureClass = isLight ? 'text-zinc-700' : 'text-zinc-300'
   const checkClass = isLight ? 'text-emerald-600' : 'text-emerald-400'
 
-  const badge = badgeLabel[highlightLevel]
+  const badge = highlighted ? 'Recommended' : badgeLabel[emphasisLevel]
 
   return (
-    <article className={`flex flex-col gap-4 rounded-2xl border p-6 transition-transform duration-200 hover:-translate-y-1 ${cardStyles[highlightLevel]}`}>
+    <article className={`flex flex-col gap-4 rounded-2xl border p-6 transition-transform duration-200 hover:-translate-y-1 ${cardStyles[emphasisLevel]}`}>
       {badge && (
         <span className={`self-start rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${
           isLight
@@ -75,7 +77,7 @@ export function PricingCard({ tier, price, description, features, ctaLabel, ctaH
       )}
       <div>
         <h3 className={`text-base font-semibold ${titleClass}`}>{tier}</h3>
-        <p className={`mt-1 text-2xl font-bold ${priceStyles[highlightLevel]}`}>{price}</p>
+        <p className={`mt-1 text-2xl font-bold ${priceStyles[emphasisLevel]}`}>{price}</p>
         <p className={`mt-2 text-sm leading-relaxed ${descClass}`}>{description}</p>
       </div>
 
@@ -90,7 +92,8 @@ export function PricingCard({ tier, price, description, features, ctaLabel, ctaH
 
       <a
         href={ctaHref}
-        className={`mt-auto rounded-xl border px-4 py-2.5 text-center text-sm font-semibold transition ${ctaStyles[highlightLevel]}`}
+        onClick={() => trackPortfolioEvent('pricing_cta_click', { tier, label: ctaLabel })}
+        className={`mt-auto rounded-xl border px-4 py-2.5 text-center text-sm font-semibold transition ${ctaStyles[emphasisLevel]}`}
       >
         {ctaLabel}
       </a>

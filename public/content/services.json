@@ -1,43 +1,43 @@
 {
-  "intro": "End-to-end cloud engineering for startup teams that need to ship quickly, stay reliable, and avoid expensive platform mistakes.",
+  "intro": "End-to-end cloud engineering for startup teams that need a clear delivery plan, reliable deployment support, and a partner who can actually ship the work.",
   "services": [
     {
-      "title": "Cloud Architecture",
-      "description": "VPC design, IAM policies, and multi-environment account structure. AWS and GCP are equal focus areas, with Azure-ready patterns when needed. Right-sized for your stage - no over-provisioning.",
+      "title": "Architecture review",
+      "description": "A paid discovery and audit pass for VPC design, IAM, and multi-environment account structure. AWS and GCP are equal focus areas, with Azure-ready patterns when needed.",
       "tags": ["AWS", "GCP", "Azure-ready", "VPC", "IAM"]
     },
     {
-      "title": "CI/CD Pipelines",
-      "description": "GitHub Actions workflows that lint, test, build, and deploy on every push. Zero-downtime deploys with health checks from day one.",
+      "title": "Launch pipeline",
+      "description": "GitHub Actions workflows that lint, test, build, and deploy on every push. Designed as a fixed-scope launch engagement with health checks from day one.",
       "tags": ["GitHub Actions", "Docker", "Cloud Run", "ECS"]
     },
     {
-      "title": "Infrastructure as Code",
-      "description": "Terraform-first modules for repeatable, version-controlled infrastructure, with Pulumi support where it fits. Remote state, workspaces, and secrets management included.",
+      "title": "Infrastructure as code",
+      "description": "Terraform-first modules for repeatable, version-controlled infrastructure, with Pulumi support where it fits. Remote state, workspaces, and secrets management included in a scoped delivery.",
       "tags": ["Terraform", "Terraform Cloud", "Pulumi", "AWS CDK", "GCP IaC", "Azure IaC"]
     },
     {
-      "title": "Containers & Orchestration",
-      "description": "Dockerised services on ECS Fargate, lightweight Kubernetes, or Cloud Run for fast managed deployment. Matched to your scale and budget.",
+      "title": "Containers & orchestration",
+      "description": "Dockerised services on ECS Fargate, lightweight Kubernetes, or Cloud Run for fast managed deployment. Matched to your scale, budget, and handoff needs.",
       "tags": ["Docker", "Kubernetes", "ECS", "Cloud Run"]
     },
     {
-      "title": "Monitoring & Alerting",
-      "description": "Observability from day one â€” structured logs, metrics dashboards, uptime alerts, and on-call runbooks your team can actually follow.",
+      "title": "Monitoring & alerting",
+      "description": "Observability from day one - structured logs, metrics dashboards, uptime alerts, and on-call runbooks your team can actually follow.",
       "tags": ["Prometheus", "Grafana", "CloudWatch", "PagerDuty"]
     },
     {
-      "title": "Cost Optimisation",
+      "title": "Cost optimisation",
       "description": "Audit unused resources, right-size compute, implement spot/preemptible strategies, and plan committed-use or reserved capacity before cloud spend surprises you.",
       "tags": ["AWS Cost Explorer", "GCP Billing", "Savings Plans", "Committed Use Discounts", "Spot Instances"]
     },
     {
-      "title": "Security Hardening",
-      "description": "Least-privilege IAM, secrets management, WAF setup, dependency scanning, and SAST pipeline integration. Secure by default, not bolted on after.",
+      "title": "Security hardening",
+      "description": "Least-privilege IAM, secrets management, WAF setup, dependency scanning, and SAST pipeline integration. A practical hardening sprint, not a slide deck.",
       "tags": ["IAM", "Vault", "AWS Secrets Manager", "GCP Secret Manager", "Trivy", "Azure Key Vault"]
     },
     {
-      "title": "Open-Source Stacks",
+      "title": "Open-source stacks",
       "description": "Rust/Axum, Python/FastAPI, PostgreSQL, SQLite, React, and Databricks-integrated data workflows - production setups with open tooling and pragmatic managed services.",
       "tags": ["Rust", "Python", "PostgreSQL", "React", "Databricks", "Delta Lake"]
     }

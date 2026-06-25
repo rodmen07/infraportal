@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import type { SiteContent } from '../../types'
 import { SlideOver } from './SlideOver'
+import { SCHEDULING_URL } from '../../config'
+import { trackPortfolioEvent } from '../../utils/analytics'
 
 interface HeroSectionProps {
   content: SiteContent
@@ -65,26 +67,54 @@ export function HeroSection({ content }: HeroSectionProps) {
         <p className="reveal reveal-delay-1 mx-auto mt-4 max-w-2xl text-base leading-relaxed text-zinc-300 sm:text-lg">
           {content.subtitle}
         </p>
+        <div className="reveal reveal-delay-2 mt-8 grid gap-3 sm:grid-cols-3">
+          <div className="rounded-2xl border border-zinc-700/50 bg-zinc-800/50 px-4 py-3 text-left">
+            <div className="text-lg font-bold text-white">16 services</div>
+            <div className="mt-1 text-xs uppercase tracking-[0.2em] text-zinc-500">Production systems shipped</div>
+          </div>
+          <div className="rounded-2xl border border-zinc-700/50 bg-zinc-800/50 px-4 py-3 text-left">
+            <div className="text-lg font-bold text-white">9 controls</div>
+            <div className="mt-1 text-xs uppercase tracking-[0.2em] text-zinc-500">SOC 2 baseline encoded</div>
+          </div>
+          <div className="rounded-2xl border border-zinc-700/50 bg-zinc-800/50 px-4 py-3 text-left">
+            <div className="text-lg font-bold text-white">2 clouds</div>
+            <div className="mt-1 text-xs uppercase tracking-[0.2em] text-zinc-500">AWS and GCP delivery</div>
+          </div>
+        </div>
         <div className="reveal reveal-delay-2 mt-8 flex flex-wrap justify-center gap-3">
-          <a
-            href="#/contact"
-            className="rounded-xl border border-amber-400/40 bg-amber-500/15 px-5 py-2.5 text-sm font-semibold text-amber-200 transition hover:border-amber-400/60 hover:bg-amber-500/25 hover:text-amber-100 animate-pop"
-          >
-            Book a consultation →
-          </a>
+          {SCHEDULING_URL ? (
+            <a
+              href={SCHEDULING_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => trackPortfolioEvent('consulting_cta_click', { location: 'hero', label: 'Book 30-minute call' })}
+              className="rounded-xl border border-amber-400/40 bg-amber-500/15 px-5 py-2.5 text-sm font-semibold text-amber-200 transition hover:border-amber-400/60 hover:bg-amber-500/25 hover:text-amber-100 animate-pop"
+            >
+              Book 30-minute call →
+            </a>
+          ) : (
+            <a
+              href="#/contact"
+              onClick={() => trackPortfolioEvent('consulting_cta_click', { location: 'hero', label: 'Start paid discovery' })}
+              className="rounded-xl border border-amber-400/40 bg-amber-500/15 px-5 py-2.5 text-sm font-semibold text-amber-200 transition hover:border-amber-400/60 hover:bg-amber-500/25 hover:text-amber-100 animate-pop"
+            >
+              Start paid discovery →
+            </a>
+          )}
           <a
             href="#/services"
+            onClick={() => trackPortfolioEvent('consulting_cta_click', { location: 'hero', label: 'View offers' })}
             className="rounded-xl border border-zinc-600/50 bg-zinc-800/60 px-5 py-2.5 text-sm font-semibold text-zinc-300 transition hover:border-zinc-500/60 hover:bg-zinc-700/60 hover:text-zinc-100 animate-pop"
           >
-            See what's included →
+            View offers →
           </a>
         </div>
       </header>
 
       <SlideOver open={open} onClose={() => setOpen(false)} title={tagline}>
         <p>
-          We help founders and product teams launch reliable web apps with deployment setup,
-          hosting support, monitoring, and ongoing maintenance so you never have to worry about the infrastructure.
+          We help founders and product teams launch reliable web apps with paid discovery, deployment setup,
+          hosting support, monitoring, and ongoing maintenance so the infrastructure work is scoped and sold clearly.
         </p>
 
         <div className="mt-4 flex items-center gap-3">
@@ -110,9 +140,25 @@ export function HeroSection({ content }: HeroSectionProps) {
           <a href="#/services" className="btn-accent">
             See what's included
           </a>
-          <a href="#/contact" className="btn-neutral">
-            Book a consultation
-          </a>
+          {SCHEDULING_URL ? (
+            <a
+              href={SCHEDULING_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => trackPortfolioEvent('consulting_cta_click', { location: 'hero-slideover', label: 'Book call' })}
+              className="btn-neutral"
+            >
+              Book call
+            </a>
+          ) : (
+            <a
+              href="#/contact"
+              onClick={() => trackPortfolioEvent('consulting_cta_click', { location: 'hero-slideover', label: 'Book paid discovery' })}
+              className="btn-neutral"
+            >
+              Book paid discovery
+            </a>
+          )}
         </div>
       </SlideOver>
     </>

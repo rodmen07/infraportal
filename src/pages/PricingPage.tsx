@@ -28,12 +28,23 @@ export function PricingPage() {
 
           <div className="mt-6 rounded-2xl border border-zinc-700/40 bg-zinc-800/40 p-5 text-center">
             <p className="text-sm text-zinc-400">Not sure which option fits?</p>
-            <a
-              href="#/contact"
-              className="mt-3 inline-block rounded-xl border border-zinc-600/50 bg-zinc-800/60 px-5 py-2 text-sm font-semibold text-zinc-300 transition hover:border-zinc-500/60 hover:bg-zinc-700/60 hover:text-zinc-100"
-            >
-              Book paid discovery →
-            </a>
+            {SCHEDULING_URL ? (
+              <a
+                href={SCHEDULING_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-3 inline-block rounded-xl border border-zinc-600/50 bg-zinc-800/60 px-5 py-2 text-sm font-semibold text-zinc-300 transition hover:border-zinc-500/60 hover:bg-zinc-700/60 hover:text-zinc-100"
+              >
+                Book a call →
+              </a>
+            ) : (
+              <a
+                href="#/contact"
+                className="mt-3 inline-block rounded-xl border border-zinc-600/50 bg-zinc-800/60 px-5 py-2 text-sm font-semibold text-zinc-300 transition hover:border-zinc-500/60 hover:bg-zinc-700/60 hover:text-zinc-100"
+              >
+                Book paid discovery →
+              </a>
+            )}
           </div>
         </section>
       </FocusCard>

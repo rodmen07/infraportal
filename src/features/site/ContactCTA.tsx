@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react'
+import { SCHEDULING_URL } from '../../config'
 import { getConsultationRequests, saveConsultationRequest, type ConsultationRequest } from '../consulting/consultationStore'
 import { calculateLeadScore, getLeadPriority } from '../consulting/leadScoring'
 import { submitPublicLead } from '../consulting/leadIntake'
+import { trackPortfolioEvent } from '../../utils/analytics'
 
 type Phase = 'idle' | 'sending' | 'sent' | 'error'
 
@@ -44,6 +46,12 @@ export function ContactCTA() {
     saveConsultationRequest(request)
     // Best-effort server-side intake; no-ops until VITE_LEAD_INTAKE_URL is set.
     await submitPublicLead(request)
+    trackPortfolioEvent('consultation_form_submit', {
+      engagement,
+      budget,
+      timeline,
+      leadPriority: getLeadPriority(leadScore),
+    })
 
     setSavedRequests(getConsultationRequests())
     setPhase('sent')
@@ -63,6 +71,22 @@ export function ContactCTA() {
       <p className="mt-2 text-sm text-zinc-400">
         Choose the type of work you want and we will follow up with the right scope, timeline, and next step.
       </p>
+
+      {SCHEDULING_URL && (
+        <div className="mt-4 rounded-2xl border border-amber-400/20 bg-amber-500/10 px-4 py-3 text-sm text-zinc-200">
+          <p className="font-medium text-amber-100">Want to skip the form?</p>
+          <p className="mt-1 text-zinc-300">Book a 30-minute call directly and we can scope the right engagement on the spot.</p>
+          <a
+            href={SCHEDULING_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => trackPortfolioEvent('consulting_cta_click', { location: 'contact-cta', label: 'Book 30-minute call' })}
+            className="mt-3 inline-flex rounded-xl border border-amber-400/40 bg-amber-500/15 px-4 py-2 text-sm font-semibold text-amber-200 transition hover:border-amber-400/60 hover:bg-amber-500/25 hover:text-amber-100"
+          >
+            Book 30-minute call →
+          </a>
+        </div>
+      )}
 
       {phase === 'sent' ? (
         <div className="mt-6 space-y-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-5 py-4 text-sm text-emerald-300">

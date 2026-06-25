@@ -10,6 +10,9 @@ export const EVENT_STREAM_URL: string =
 export const AUTH_SERVICE_URL: string =
   (import.meta.env.VITE_AUTH_SERVICE_URL as string | undefined) ?? ''
 
+export const SCHEDULING_URL: string =
+  ((import.meta.env.VITE_SCHEDULING_URL as string | undefined) ?? '').replace(/\/$/, '')
+
 export const PROJECTS_API_BASE_URL: string =
   ((import.meta.env.VITE_PROJECTS_API_BASE_URL as string | undefined) ?? '').replace(/\/$/, '')
 
