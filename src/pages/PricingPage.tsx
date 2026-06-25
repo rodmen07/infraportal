@@ -6,6 +6,7 @@ import { PricingTrustStrip } from '../features/consulting/PricingTrustStrip'
 import { HowItWorksSection } from '../features/site/HowItWorksSection'
 import { ContactCTA } from '../features/site/ContactCTA'
 import { usePricingContent } from '../features/consulting/usePricingContent'
+import { SCHEDULING_URL } from '../config'
 
 export function PricingPage() {
   const baseUrl = import.meta.env.BASE_URL

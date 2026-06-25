@@ -199,6 +199,12 @@ function SearchView() {
   const searchCopy = getSearchStateCopy(query, results.length)
   const sampleQueries = ['acme', 'renewal', 'onboarding', 'quarterly review']
   const resultCountLabel = `${results.length} match${results.length === 1 ? '' : 'es'}`
+  // Group results by entity_type
+  const grouped = results.reduce<Record<string, SearchResult[]>>((acc, r) => {
+    ;(acc[r.entity_type] ??= []).push(r)
+    return acc
+  }, {})
+  const groupKeys = Object.keys(grouped).sort()
   const groupCountLabel = `${groupKeys.length} categor${groupKeys.length === 1 ? 'y' : 'ies'}`
 
   const doSearch = async (q: string) => {
@@ -249,13 +255,6 @@ function SearchView() {
     setError(null)
     setLoading(false)
   }
-
-  // Group results by entity_type
-  const grouped = results.reduce<Record<string, SearchResult[]>>((acc, r) => {
-    ;(acc[r.entity_type] ??= []).push(r)
-    return acc
-  }, {})
-  const groupKeys = Object.keys(grouped).sort()
 
   return (
     <div className="space-y-6">

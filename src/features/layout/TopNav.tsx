@@ -1,6 +1,6 @@
 import { useTheme } from './useTheme'
 import { useAuth } from '../auth/useAuth'
-import { ADMIN_NAV_ITEMS, PRIMARY_NAV_ITEMS, WORKSPACE_NAV_ITEMS, type NavItem } from './navItems'
+import { ADMIN_NAV_ITEMS, PRIMARY_NAV_ITEMS, type NavItem } from './navItems'
 import { NotificationBell } from '../notifications/NotificationBell'
 
 function TopNavComponent() {

@@ -4,6 +4,7 @@ import { ServiceCard } from '../features/consulting/ServiceCard'
 import { HowItWorksSection } from '../features/site/HowItWorksSection'
 import { ContactCTA } from '../features/site/ContactCTA'
 import { useServicesContent } from '../features/consulting/useServicesContent'
+import { SCHEDULING_URL } from '../config'
 
 const STANDARD_DELIVERABLES = [
   'A clear launch plan with deployment milestones and ownership',

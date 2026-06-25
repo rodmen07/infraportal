@@ -8,6 +8,7 @@ import { ContactCTA } from './features/site/ContactCTA'
 import { useSiteContent } from './features/site/useSiteContent'
 import { PricingCard } from './features/consulting/PricingCard'
 import { usePricingContent } from './features/consulting/usePricingContent'
+import { SCHEDULING_URL } from './config'
 
 function App() {
   const baseUrl = import.meta.env.BASE_URL

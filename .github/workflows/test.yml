@@ -72,3 +72,30 @@ jobs:
         if: failure()
         run: echo "::error::Linting failed. See output above for details."
         shell: bash
+
+  typecheck:
+    runs-on: ubuntu-latest
+    name: Type Check
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run TypeScript type check
+        # tsc is the only gate that catches undefined imports / type errors.
+        # vite build uses esbuild, which strips types without checking, so
+        # runtime-fatal bugs (e.g. a missing import) can otherwise ship to prod.
+        run: npm run typecheck
+
+      - name: Check typecheck results
+        if: failure()
+        run: echo "::error::Type check failed. Undefined imports or type errors would crash at runtime."
+        shell: bash

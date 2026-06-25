@@ -8,8 +8,12 @@ describe('analytics', () => {
     const dataLayer: Array<Record<string, unknown>> = []
     const gtag = vi.fn()
 
-    window.dataLayer = dataLayer
-    window.gtag = gtag
+    const w = window as typeof window & {
+      dataLayer?: Array<Record<string, unknown>>
+      gtag?: (...args: unknown[]) => void
+    }
+    w.dataLayer = dataLayer
+    w.gtag = gtag
 
     trackPortfolioEvent('consulting_cta_click', { label: 'Start paid discovery', location: 'hero' })
 

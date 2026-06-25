@@ -5,6 +5,7 @@ import { MedallionDemo } from '../features/site/MedallionDemo'
 import { BuildStatusSection } from '../features/site/BuildStatusSection'
 import { ContactCTA } from '../features/site/ContactCTA'
 import { useCaseStudiesContent } from '../features/consulting/useCaseStudiesContent'
+import { SCHEDULING_URL } from '../config'
 
 export function CaseStudiesPage() {
   const baseUrl = import.meta.env.BASE_URL
