@@ -7,14 +7,8 @@ import './index.css'
 import 'highlight.js/styles/github-dark.css'
 import App from './App'
 import { ServicesPage } from './pages/ServicesPage'
-import { CaseStudiesPage } from './pages/CaseStudiesPage'
 import { PricingPage } from './pages/PricingPage'
 import { ContactPage } from './pages/ContactPage'
-import { DynamoDbCaseStudyPage } from './pages/DynamoDbCaseStudyPage'
-import { MicroservicesCaseStudyPage } from './pages/MicroservicesCaseStudyPage'
-import { Soc2CaseStudyPage } from './pages/Soc2CaseStudyPage'
-import { CicdCaseStudyPage } from './pages/CicdCaseStudyPage'
-import { CloudMigrationCaseStudyPage } from './pages/CloudMigrationCaseStudyPage'
 import { AboutPage } from './pages/AboutPage'
 import { PatchNotesPage } from './pages/PatchNotesPage'
 import { CrmAdminPage } from './pages/CrmAdminPage'
@@ -128,12 +122,6 @@ function Root() {
 
   if (hash === '#/about') return <AboutPage />
   if (hash === '#/services') return <ServicesPage />
-  if (hash === '#/case-studies') return <CaseStudiesPage />
-  if (hash === '#/case-studies/dynamodb-idempotency') return <DynamoDbCaseStudyPage />
-  if (hash === '#/case-studies/microservices-platform') return <MicroservicesCaseStudyPage />
-  if (hash === '#/case-studies/soc2-terraform-module') return <Soc2CaseStudyPage />
-  if (hash === '#/case-studies/cicd-pipeline-template') return <CicdCaseStudyPage />
-  if (hash === '#/case-studies/fly-to-gcp-migration') return <CloudMigrationCaseStudyPage />
   if (hash === '#/pricing') return <PricingPage />
   if (hash === '#/patch-notes') return <PatchNotesPage />
   if (hash === '#/crm/admin') return <CrmAdminPage />
