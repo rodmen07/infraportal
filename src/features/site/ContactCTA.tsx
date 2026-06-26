@@ -13,6 +13,7 @@ export function ContactCTA() {
   const [engagement, setEngagement] = useState('Architecture review')
   const [budget, setBudget] = useState('Under $5k')
   const [timeline, setTimeline] = useState('Within 2 weeks')
+  const [referralSource, setReferralSource] = useState('')
   const [message, setMessage] = useState('')
   const [phase, setPhase] = useState<Phase>('idle')
   const [savedRequests, setSavedRequests] = useState<ConsultationRequest[]>(() => getConsultationRequests())
@@ -51,12 +52,20 @@ export function ContactCTA() {
       budget,
       timeline,
       leadPriority: getLeadPriority(leadScore),
+      referral_source: referralSource || 'none',
     })
+
+    if (referralSource.trim()) {
+      trackPortfolioEvent('referral_lead_captured', {
+        referrer: referralSource.trim(),
+      })
+    }
 
     setSavedRequests(getConsultationRequests())
     setPhase('sent')
     setName('')
     setEmail('')
+    setReferralSource('')
     setEngagement('Architecture review')
     setBudget('Under $5k')
     setTimeline('Within 2 weeks')
@@ -153,6 +162,14 @@ export function ContactCTA() {
               Productionized offers are scoped quickly, so you get a concrete proposal instead of a vague estimate.
             </div>
           </div>
+          <input
+            type="text"
+            placeholder="(Optional) Who referred you? (get them $500 credit)"
+            value={referralSource}
+            onChange={e => setReferralSource(e.target.value)}
+            maxLength={200}
+            className="rounded-xl border border-zinc-700/60 bg-zinc-800/60 px-4 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 outline-none focus:border-amber-400/50 focus:ring-1 focus:ring-amber-400/20"
+          />
           <textarea
             required
             rows={4}
@@ -190,6 +207,21 @@ export function ContactCTA() {
           </div>
         </div>
       )}
+
+      <div className="mt-8 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-6">
+        <div className="flex items-start gap-3">
+          <span className="text-2xl">🎁</span>
+          <div className="flex-1">
+            <p className="font-semibold text-emerald-300">Refer a friend, earn $500</p>
+            <p className="mt-2 text-sm text-emerald-200/80">
+              Know another team that needs infrastructure help? Refer them for a successful Project or Retainer, and I'll send you a $500 credit toward your next engagement. No limit on referrals.
+            </p>
+            <p className="mt-3 text-xs text-emerald-200/60">
+              Just mention "Referred by [your name]" in their initial request, or ask them to include your contact info.
+            </p>
+          </div>
+        </div>
+      </div>
     </section>
   )
 }

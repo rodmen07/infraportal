@@ -1,0 +1,49 @@
+{
+  "title": "Infrastructure Audit Checklist",
+  "subtitle": "Self-assess your cloud setup for security, cost, and reliability",
+  "description": "A practical 20-point checklist to audit your production infrastructure against DevSecOps best practices. Identifies gaps in auto-scaling, security hardening, CI/CD maturity, and cost optimization.",
+  "sections": [
+    {
+      "category": "Security & Compliance",
+      "items": [
+        "All services authenticate with short-lived credentials (no long-lived API keys)",
+        "Secrets are rotated and not stored in code or environment variables",
+        "Network access is restricted by default (deny-all ingress, allow-list egress)",
+        "All data in transit is encrypted (TLS 1.2+)",
+        "Logging captures authentication attempts, deployments, and config changes"
+      ]
+    },
+    {
+      "category": "Reliability & Scaling",
+      "items": [
+        "Services auto-scale based on CPU, memory, or custom metrics",
+        "Databases have automated backups with tested restore procedures",
+        "Load balancers distribute traffic across multiple availability zones",
+        "Health checks actively monitor service readiness",
+        "Critical services have fallback/failover strategies"
+      ]
+    },
+    {
+      "category": "Operations & Monitoring",
+      "items": [
+        "Real-time dashboards show CPU, memory, error rates, and request latency",
+        "Alerting triggers on errors, latency spikes, or deployment failures",
+        "Logs are centralized and searchable (not scattered across servers)",
+        "Deployment rollback is tested and documented",
+        "On-call runbooks exist for common incidents"
+      ]
+    },
+    {
+      "category": "Cost Optimization",
+      "items": [
+        "Reserved capacity or commit discounts are used for baseline load",
+        "Unused resources (orphaned disks, old snapshots) are regularly cleaned up",
+        "Spot/preemptible instances are used for fault-tolerant workloads",
+        "Storage tiers match access patterns (hot/warm/cold)",
+        "Resource tagging enables cost allocation by team or project"
+      ]
+    }
+  ],
+  "cta": "Answer 15+ of these checks? Solid foundation. Answer <10? Let's talk about strengthening your infrastructure.",
+  "followUp": "After you download, I'll send a 3-email sequence over the next week with specific recommendations for your stack."
+}
