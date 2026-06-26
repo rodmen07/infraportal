@@ -7,12 +7,12 @@ export function AboutHero() {
         </div>
         <div className="flex-1">
           <p className="text-xl font-bold text-white">Roderick Mendoza</p>
-          <p className="mt-1 text-sm text-amber-300/80">Cloud & Infrastructure Consultant</p>
+          <p className="mt-1 text-sm text-amber-300/80">Technical Architecture - Senior Analyst | DevSecOps - Cloud Engineer</p>
           <p className="mt-3 text-sm leading-relaxed text-zinc-300">
-            I help founders and small product teams move from idea to reliable production systems
-            without hiring a full internal platform team too early. My work spans full-stack
-            implementation, cloud infrastructure, and operational handoff, with a focus on
-            AWS/GCP, Terraform, CI/CD, and secure delivery patterns.
+            I design and build production-ready cloud infrastructure that auto-scales with demand.
+            My focus: secure-by-default platform engineering, DevSecOps workflows, and systems
+            that handle real-world load without breaking. Recent work includes shipping an
+            Autonomous Document Processing system leveraging GCP's AI services.
           </p>
           <div className="mt-5 flex flex-wrap gap-3">
             <a

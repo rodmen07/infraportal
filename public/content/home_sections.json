@@ -2,34 +2,34 @@
   "title": "Why work with me",
   "cards": [
     {
-      "heading": "Production systems, not prototypes",
-      "body": "Launch-ready systems with CI/CD, auth, observability, and runbooks — not throwaway demos.",
+      "heading": "Auto-scaling production infrastructure",
+      "body": "Build systems that grow with demand. Terraform IaC, Kubernetes, load balancing, and monitoring that keeps costs predictable and performance consistent.",
       "link": "#/case-studies"
     },
     {
-      "heading": "Cloud-native from day one",
-      "body": "Terraform IaC, containerised services, zero-downtime deploys, AWS/GCP parity, Azure-ready.",
+      "heading": "DevSecOps by design",
+      "body": "Security integrated into every layer — CI/CD pipelines, secrets management, least-privilege IAM, automated compliance checks, and audit logging built in from day one.",
       "link": "#/services"
     },
     {
-      "heading": "You own what I build",
-      "body": "Clean code, architecture decision records, full handoff runbook — no black boxes, no lock-in.",
+      "heading": "Cloud platform engineering",
+      "body": "GCP, AWS, or Azure — architect systems that leverage cloud AI services, serverless functions, managed databases, and cost-optimized configurations for your scale.",
       "link": "#/services"
     },
     {
-      "heading": "Regulated-environment execution",
-      "body": "Finance/FinTech and government-focused cloud security background keeps delivery audit-ready.",
+      "heading": "Production-ready on first deploy",
+      "body": "No prototypes. Zero-downtime deploys, runbooks, architecture decision records, and full platform documentation so your team ships and owns the system.",
       "link": "#/case-studies"
     },
     {
       "heading": "Fixed scope, fixed price",
-      "body": "Written proposal before any work begins. No surprises. Retainer support available post-delivery.",
+      "body": "Written proposal before any work begins. No surprises. Retainer support available post-delivery to keep systems running smoothly.",
       "link": "#/pricing"
     },
     {
-      "heading": "Secure by default",
-      "body": "JWT/RBAC, secrets management, least-privilege IAM, and audit logging at every layer.",
-      "link": "#/services"
+      "heading": "Latest: Autonomous Document Processing",
+      "body": "Recently shipped an autonomous document processing system leveraging GCP's AI services. Built the platform, infrastructure, and DevOps workflows from ground zero to production.",
+      "link": "#/case-studies"
     }
   ]
 }
