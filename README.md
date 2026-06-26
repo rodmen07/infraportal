@@ -105,6 +105,28 @@ Commonly used variables:
 - `VITE_OBSERVABOARD_URL`
 - `VITE_SPEND_API_BASE_URL`
 
+### Lead magnet delivery flow
+
+The lead magnet page (`#/lead-magnet`) now runs a hybrid delivery flow:
+
+- Captures the submitted email.
+- Posts lead metadata to `VITE_LEAD_INTAKE_URL` when configured.
+- Always shows immediate artifact access on success:
+  - Web checklist route.
+  - Printable checklist (`public/downloads/infrastructure-audit-checklist.html`) for save-as-PDF.
+
+If `VITE_LEAD_INTAKE_URL` is not configured, the UX still completes successfully and falls back to instant on-page delivery only.
+
+Expected intake payload shapes:
+
+- Consultation submit payload:
+  - `name`, `email`, `project_type`, `timeline`, `message`
+- Lead magnet payload:
+  - Consultation fields above plus metadata such as:
+  - `event_type=lead_magnet`, `magnet_slug`, `lead_source`, `delivery_mode`, `sequence_name`, `sequence_days`, `checklist_web_url`, `checklist_printable_url`
+
+Important: do not point `VITE_LEAD_INTAKE_URL` directly to authenticated CRM endpoints (for example `contacts-service /api/v1/contacts`) unless you place a public intake proxy in front of them.
+
 Stripe Payment Links bootstrap variables (used by `npm run stripe:setup-links`):
 
 - `STRIPE_SECRET_KEY`
