@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { PageLayout } from './PageLayout'
 import { FocusCard } from '../features/layout/FocusCard'
 import { trackPortfolioEvent } from '../utils/analytics'
+import { submitLeadMagnetLead } from '../features/consulting/leadIntake'
 
 interface ChecklistSection {
   category: string
@@ -21,6 +22,11 @@ export function LeadMagnetPage() {
   const [email, setEmail] = useState('')
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [deliveryStatus, setDeliveryStatus] = useState<'sent' | 'not-configured' | 'failed'>('not-configured')
+
+  const magnetSlug = 'infrastructure-audit-checklist'
+  const checklistWebUrl = '#/lead-magnet'
+  const checklistPrintableUrl = `${import.meta.env.BASE_URL}downloads/infrastructure-audit-checklist.html`
 
   const content: LeadMagnetContent = {
     title: 'Infrastructure Audit Checklist',
@@ -76,30 +82,55 @@ export function LeadMagnetPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!email.trim()) return
+    const cleanedEmail = email.trim()
+    if (!cleanedEmail) return
 
     setIsLoading(true)
 
     try {
       // Track lead magnet capture
       trackPortfolioEvent('lead_magnet_email_capture', {
-        magnet: 'infrastructure-audit-checklist',
-        email_domain: email.split('@')[1] || 'unknown',
+        magnet: magnetSlug,
+        email_domain: cleanedEmail.split('@')[1] || 'unknown',
       })
 
-      // Simulate email verification/storage (in production, would send to backend)
-      // For now, just mark as submitted and show download
-      await new Promise((resolve) => setTimeout(resolve, 500))
+      const intakeResult = await submitLeadMagnetLead({
+        email: cleanedEmail,
+        magnet: magnetSlug,
+        source: 'lead-magnet-page',
+        checklistWebUrl,
+        checklistPrintableUrl,
+      })
+
+      const intakeStatus = intakeResult.ok
+        ? 'sent'
+        : intakeResult.reason === 'not-configured'
+          ? 'not-configured'
+          : 'failed'
+
+      setDeliveryStatus(intakeStatus)
+
+      trackPortfolioEvent('lead_magnet_submit_result', {
+        magnet: magnetSlug,
+        delivery_status: intakeStatus,
+      })
 
       setIsSubmitted(true)
 
       // Track nurture sequence started
       trackPortfolioEvent('nurture_sequence_started', {
         sequence: 'infrastructure-audit-3-email',
-        email_domain: email.split('@')[1] || 'unknown',
+        email_domain: cleanedEmail.split('@')[1] || 'unknown',
+        delivery_status: intakeStatus,
       })
     } catch (error) {
       console.error('Failed to capture email:', error)
+      setDeliveryStatus('failed')
+      setIsSubmitted(true)
+      trackPortfolioEvent('lead_magnet_submit_result', {
+        magnet: magnetSlug,
+        delivery_status: 'failed',
+      })
     } finally {
       setIsLoading(false)
     }
@@ -140,12 +171,36 @@ export function LeadMagnetPage() {
                 <p className="text-sm font-medium text-emerald-300">
                   ✓ Checklist is ready to download!
                 </p>
-                <p className="mt-2 text-sm text-emerald-200/80">
-                  Check your email ({email}) - I've sent the checklist plus instructions for the next steps.
-                </p>
+                {deliveryStatus === 'sent' ? (
+                  <p className="mt-2 text-sm text-emerald-200/80">
+                    Day 0 email has been queued to {email.trim()} with your checklist and next-step guidance.
+                  </p>
+                ) : (
+                  <p className="mt-2 text-sm text-emerald-200/80">
+                    Download it now below. Email automation is being finalized, so the checklist is delivered instantly on this page.
+                  </p>
+                )}
                 <p className="mt-3 text-xs text-emerald-200/60">
                   {content.followUp}
                 </p>
+                <div className="mt-4 flex flex-wrap gap-3">
+                  <a
+                    href={checklistWebUrl}
+                    onClick={() => trackPortfolioEvent('lead_magnet_artifact_click', { artifact: 'web_checklist' })}
+                    className="inline-block rounded-lg border border-emerald-400/40 bg-emerald-500/15 px-4 py-2 text-xs font-semibold text-emerald-200 transition hover:border-emerald-400/60 hover:bg-emerald-500/25"
+                  >
+                    Open web checklist
+                  </a>
+                  <a
+                    href={checklistPrintableUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => trackPortfolioEvent('lead_magnet_artifact_click', { artifact: 'printable_checklist' })}
+                    className="inline-block rounded-lg border border-emerald-400/40 bg-emerald-500/15 px-4 py-2 text-xs font-semibold text-emerald-200 transition hover:border-emerald-400/60 hover:bg-emerald-500/25"
+                  >
+                    Printable checklist (save as PDF)
+                  </a>
+                </div>
                 <a
                   href="#/"
                   className="mt-4 inline-block rounded-lg border border-emerald-400/40 bg-emerald-500/15 px-4 py-2 text-xs font-semibold text-emerald-200 transition hover:border-emerald-400/60 hover:bg-emerald-500/25"
@@ -202,7 +257,7 @@ export function LeadMagnetPage() {
                 <div>
                   <p className="font-medium text-zinc-100">Instant download</p>
                   <p className="mt-1 text-sm text-zinc-400">
-                    Your checklist arrives immediately, plus a 5-min video walking through each section.
+                    Get immediate access to the web checklist and a printable version you can save as PDF.
                   </p>
                 </div>
               </div>

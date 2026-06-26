@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Infrastructure Audit Checklist</title>
+    <style>
+      :root {
+        --bg: #0b1020;
+        --fg: #0f172a;
+        --muted: #475569;
+        --line: #cbd5e1;
+        --accent: #0ea5e9;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.45;
+        color: var(--fg);
+        background: #f8fafc;
+      }
+
+      main {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 2rem 1.25rem 3rem;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 1.8rem;
+      }
+
+      .subtitle {
+        margin: 0.5rem 0 1.25rem;
+        color: var(--muted);
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin: 0 0 1.5rem;
+      }
+
+      .button {
+        border: 1px solid #0ea5e933;
+        background: #0ea5e914;
+        color: #0369a1;
+        border-radius: 0.6rem;
+        padding: 0.55rem 0.85rem;
+        font-weight: 600;
+        text-decoration: none;
+      }
+
+      .note {
+        margin: 0 0 1.5rem;
+        font-size: 0.92rem;
+        color: #334155;
+      }
+
+      section {
+        border: 1px solid var(--line);
+        background: #ffffff;
+        border-radius: 0.75rem;
+        padding: 1rem;
+        margin: 0 0 1rem;
+      }
+
+      h2 {
+        margin: 0 0 0.65rem;
+        font-size: 1.1rem;
+      }
+
+      ul {
+        margin: 0;
+        padding-left: 1.15rem;
+      }
+
+      li {
+        margin: 0.4rem 0;
+      }
+
+      footer {
+        margin-top: 1.5rem;
+        color: var(--muted);
+        font-size: 0.88rem;
+      }
+
+      @media print {
+        body {
+          background: #ffffff;
+        }
+
+        .actions,
+        .note {
+          display: none;
+        }
+
+        main {
+          max-width: none;
+          margin: 0;
+          padding: 0;
+        }
+
+        section {
+          break-inside: avoid;
+          border-color: #d1d5db;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Infrastructure Audit Checklist</h1>
+      <p class="subtitle">Self-assess your cloud setup for security, cost, and reliability</p>
+      <div class="actions">
+        <a class="button" href="#" onclick="window.print(); return false;">Print or Save as PDF</a>
+      </div>
+      <p class="note">Tip: choose "Save as PDF" in your browser print dialog to keep a copy for team reviews.</p>
+
+      <section>
+        <h2>Security and Compliance</h2>
+        <ul>
+          <li>All services authenticate with short-lived credentials (no long-lived API keys)</li>
+          <li>Secrets are rotated and not stored in code or environment variables</li>
+          <li>Network access is restricted by default (deny-all ingress, allow-list egress)</li>
+          <li>All data in transit is encrypted (TLS 1.2+)</li>
+          <li>Logging captures authentication attempts, deployments, and config changes</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Reliability and Scaling</h2>
+        <ul>
+          <li>Services auto-scale based on CPU, memory, or custom metrics</li>
+          <li>Databases have automated backups with tested restore procedures</li>
+          <li>Load balancers distribute traffic across multiple availability zones</li>
+          <li>Health checks actively monitor service readiness</li>
+          <li>Critical services have fallback or failover strategies</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Operations and Monitoring</h2>
+        <ul>
+          <li>Real-time dashboards show CPU, memory, error rates, and request latency</li>
+          <li>Alerting triggers on errors, latency spikes, or deployment failures</li>
+          <li>Logs are centralized and searchable (not scattered across servers)</li>
+          <li>Deployment rollback is tested and documented</li>
+          <li>On-call runbooks exist for common incidents</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Cost Optimization</h2>
+        <ul>
+          <li>Reserved capacity or commit discounts are used for baseline load</li>
+          <li>Unused resources (orphaned disks, old snapshots) are regularly cleaned up</li>
+          <li>Spot or preemptible instances are used for fault-tolerant workloads</li>
+          <li>Storage tiers match access patterns (hot, warm, cold)</li>
+          <li>Resource tagging enables cost allocation by team or project</li>
+        </ul>
+      </section>
+
+      <footer>
+        Score guidance: 15+ checks = solid foundation. Under 10 checks = high ROI opportunity for hardening.
+      </footer>
+    </main>
+  </body>
+</html>
