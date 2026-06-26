@@ -150,7 +150,7 @@ export function ContactCTA() {
               <option>Need guidance</option>
             </select>
             <div className="rounded-xl border border-zinc-700/50 bg-zinc-800/40 px-4 py-2.5 text-sm text-zinc-400 sm:flex-1">
-              Productized offers are scoped quickly, so you get a concrete proposal instead of a vague estimate.
+              Productionized offers are scoped quickly, so you get a concrete proposal instead of a vague estimate.
             </div>
           </div>
           <textarea

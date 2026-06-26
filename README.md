@@ -167,7 +167,7 @@ This iteration improved the operations workflows in a few practical ways:
 The latest infraportal polish pass improved the client-facing experience in a few key areas:
 
 - The hero now includes a proof strip above the fold so visitors see concrete delivery evidence before the CTA.
-- The homepage, pricing, and contact flow now emphasize productized consulting offers, paid discovery, and clear proposal requests.
+- The homepage, pricing, and contact flow now emphasize productionized consulting offers, paid discovery, and clear proposal requests.
 - The hero and process sections now surface the configured scheduling link directly when `VITE_SCHEDULING_URL` is set, reducing booking friction.
 - The contact page now reuses the pricing trust strip and FAQ so prospects see proof and objections handling before submitting the form.
 - The services, case studies, pricing, and home call-to-action blocks now route to the configured scheduling link when present, keeping the strongest buying-intent pages focused on booking.

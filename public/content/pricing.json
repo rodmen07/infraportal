@@ -4,7 +4,7 @@
     {
       "tier": "Architecture Review",
       "price": "$125/hr",
-      "description": "Architecture reviews, second opinions, compliance assessments, and troubleshooting sessions that turn uncertainty into a concrete next step.",
+      "description": "Dedicated technical guidance delivered through focused sessions. We review your architecture, identify risks and opportunities, and provide written recommendations with clear next steps. Ideal for vetting decisions, modernization planning, compliance readiness, or resolving complex infrastructure challenges.",
       "features": [
         "Scheduled 1-hr video calls",
         "Written summary after each session",
@@ -19,7 +19,7 @@
     {
       "tier": "Project",
       "price": "$3,400–$5,100/month · 4-week minimum",
-      "description": "Fixed-scope delivery billed monthly. CI/CD pipelines, IaC, containerisation, cloud migrations, and compliance readiness. A written proposal is agreed before any work begins.",
+      "description": "Well-defined projects delivered with complete documentation. All code arrives via pull request with comprehensive runbooks. A detailed proposal is agreed upfront so there are no surprises. Examples: CI/CD pipeline setup, infrastructure-as-code, containerization, cloud migrations, compliance hardening, or deployment automation.",
       "features": [
         "Scoped proposal with timeline",
         "All code delivered via pull request",
@@ -34,7 +34,7 @@
     {
       "tier": "Retainer",
       "price": "$1,000–$1,500/week · 10–15 hrs/week",
-      "description": "Dedicated engineering capacity available every week. Buy consistent availability and same-day responsiveness, not just tracked hours. The most cost-effective way to keep delivery moving.",
+      "description": "Reliable hands-on engineering every week with consistent capacity and same-day response times. Shift priorities week-to-week based on what matters most. Ideal for ongoing optimization, feature development, infrastructure scaling, technical debt reduction, or keeping cloud infrastructure lean and efficient.",
       "features": [
         "10–15 hrs/week of hands-on work",
         "Priority response (same business day)",
