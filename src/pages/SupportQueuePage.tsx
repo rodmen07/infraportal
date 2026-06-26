@@ -8,6 +8,11 @@ import {
 } from '../features/support/supportStore'
 import { formatRelativeTime } from '../utils/time'
 
+// ---------------------------------------------------------------------------
+// Config
+// ---------------------------------------------------------------------------
+const ADMIN_KEY = import.meta.env.VITE_ADMIN_KEY ?? 'dev-admin'
+
 const STATUS_ORDER: SupportStatus[] = ['open', 'in_progress', 'resolved']
 
 const STATUS_META: Record<SupportStatus, { label: string; badge: string }> = {
@@ -31,7 +36,45 @@ function SummaryCard({ label, value, accent }: { label: string; value: number; a
   )
 }
 
-export function SupportQueuePage() {
+function AuthGate({ children }: { children: React.ReactNode }) {
+  const [key, setKey] = useState(() => sessionStorage.getItem('admin_key') ?? '')
+  const [input, setInput] = useState('')
+  const [error, setError] = useState(false)
+
+  if (key === ADMIN_KEY) return <>{children}</>
+
+  const submit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (input === ADMIN_KEY) {
+      sessionStorage.setItem('admin_key', input)
+      setKey(input)
+    } else {
+      setError(true)
+    }
+  }
+
+  return (
+    <div className="flex min-h-[60vh] items-center justify-center">
+      <form onSubmit={submit} className="forge-panel surface-card-strong w-full max-w-sm space-y-4 p-6">
+        <h2 className="text-base font-semibold text-zinc-100">Admin access required</h2>
+        <input
+          autoFocus
+          type="password"
+          placeholder="Admin key"
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 outline-none focus:border-amber-400/50 focus:ring-1 focus:ring-amber-400/30"
+        />
+        {error && <p className="text-xs text-rose-400">Incorrect admin key</p>}
+        <button type="submit" className="w-full rounded-lg bg-amber-500/20 py-2 text-sm font-semibold text-amber-200 hover:bg-amber-500/30">
+          Unlock
+        </button>
+      </form>
+    </div>
+  )
+}
+
+function SupportQueueView() {
   const [requests, setRequests] = useState<SupportRequest[]>(() => getAllSupportRequests())
   const [filter, setFilter] = useState<SupportStatus | 'all'>('all')
 
@@ -157,6 +200,16 @@ export function SupportQueuePage() {
           </ul>
         )}
       </section>
+    </PageLayout>
+  )
+}
+
+export function SupportQueuePage() {
+  return (
+    <PageLayout>
+      <AuthGate>
+        <SupportQueueView />
+      </AuthGate>
     </PageLayout>
   )
 }
