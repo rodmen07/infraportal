@@ -21,8 +21,8 @@ export function CheckoutThankYouPage() {
           <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-emerald-300/90">Payment received</p>
           <h1 className="mt-2 text-2xl font-bold text-white">Thank you - your checkout is confirmed.</h1>
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-zinc-300">
-            We received payment for <span className="font-semibold text-zinc-100">{tierLabel}</span>. You will
-            receive a confirmation email from Stripe, and we will follow up within 1 business day with next steps.
+            I received payment for <span className="font-semibold text-zinc-100">{tierLabel}</span>. You will
+            receive a confirmation email from Stripe, and I will follow up within 1 business day with next steps.
           </p>
 
           <div className="mt-6 grid gap-3 rounded-2xl border border-zinc-700/40 bg-zinc-900/50 p-5 text-sm text-zinc-300 sm:grid-cols-3">
@@ -32,11 +32,11 @@ export function CheckoutThankYouPage() {
             </div>
             <div>
               <p className="font-semibold text-zinc-100">2. Follow-up</p>
-              <p className="mt-1 text-zinc-400">We reach out within one business day.</p>
+              <p className="mt-1 text-zinc-400">I reach out within one business day.</p>
             </div>
             <div>
               <p className="font-semibold text-zinc-100">3. Delivery</p>
-              <p className="mt-1 text-zinc-400">We start with your scoped plan and timeline.</p>
+              <p className="mt-1 text-zinc-400">I start with your scoped plan and timeline.</p>
             </div>
           </div>
 

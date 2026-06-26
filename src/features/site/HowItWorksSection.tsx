@@ -3,22 +3,22 @@ import { SCHEDULING_URL } from '../../config'
 const STEPS = [
   {
     number: '01',
-    heading: 'Tell us about your app',
-    body: 'Share your product, launch timeline, and support needs. We make the onboarding simple and fast.',
+    heading: 'Tell me about your app',
+    body: 'Share your product, launch timeline, and support needs. I make the onboarding simple and fast.',
     accent: 'border-amber-400/30 bg-amber-500/5',
     numColor: 'text-amber-500/50',
   },
   {
     number: '02',
-    heading: 'We set up the hosting',
-    body: 'We handle deployment, domain setup, SSL, and the initial environment so your app is ready to launch.',
+    heading: 'I set up the hosting',
+    body: 'I handle deployment, domain setup, SSL, and the initial environment so your app is ready to launch.',
     accent: 'border-amber-400/25 bg-amber-500/5',
     numColor: 'text-amber-500/40',
   },
   {
     number: '03',
-    heading: 'We keep it running',
-    body: 'From updates to monitoring and support requests, we maintain the operational side so you can stay focused on the product.',
+    heading: 'I keep it running',
+    body: 'From updates to monitoring and support requests, I maintain the operational side so you can stay focused on the product.',
     accent: 'border-amber-400/20 bg-amber-500/[0.03]',
     numColor: 'text-amber-500/30',
   },

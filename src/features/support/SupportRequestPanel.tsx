@@ -97,7 +97,7 @@ export function SupportRequestPanel({ projectId }: { projectId: string }) {
         />
         <div className="flex flex-wrap items-center justify-between gap-3">
           {justSent ? (
-            <p className="text-sm text-emerald-300">Request logged. We will pick it up from the queue.</p>
+            <p className="text-sm text-emerald-300">Request logged. I will pick it up from the queue.</p>
           ) : (
             <p className="text-sm text-zinc-500">Requests are tracked here until they are resolved.</p>
           )}

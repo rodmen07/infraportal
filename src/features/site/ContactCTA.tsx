@@ -69,13 +69,13 @@ export function ContactCTA() {
     <section className="forge-panel rounded-3xl border border-zinc-500/30 bg-zinc-900/80 p-8 shadow-2xl shadow-black/50 backdrop-blur-xl">
       <h2 className="text-xl font-semibold text-white">Start a paid engagement</h2>
       <p className="mt-2 text-sm text-zinc-400">
-        Choose the type of work you want and we will follow up with the right scope, timeline, and next step.
+        Choose the type of work you want and I will follow up with the right scope, timeline, and next step.
       </p>
 
       {SCHEDULING_URL && (
         <div className="mt-4 rounded-2xl border border-amber-400/20 bg-amber-500/10 px-4 py-3 text-sm text-zinc-200">
           <p className="font-medium text-amber-100">Want to skip the form?</p>
-          <p className="mt-1 text-zinc-300">Book a 30-minute call directly and we can scope the right engagement on the spot.</p>
+          <p className="mt-1 text-zinc-300">Book a 30-minute call directly and I can scope the right engagement on the spot.</p>
           <a
             href={SCHEDULING_URL}
             target="_blank"
@@ -90,7 +90,7 @@ export function ContactCTA() {
 
       {phase === 'sent' ? (
         <div className="mt-6 space-y-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-5 py-4 text-sm text-emerald-300">
-          <p>Thanks — your consultation request is ready and we will reach out shortly.</p>
+          <p>Thanks — your consultation request is ready and I will reach out shortly.</p>
           {latestRequest && (
             <p className="text-xs text-emerald-200/90">
               Saved request for {latestRequest.name} with {latestRequest.projectType.toLowerCase()} planning.

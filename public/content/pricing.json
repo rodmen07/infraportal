@@ -1,10 +1,10 @@
 {
-  "note": "Every engagement starts with a short discovery call so we can size the work, agree on scope, and recommend the right paid engagement.",
+  "note": "Every engagement starts with a short discovery call so I can size the work, agree on scope, and recommend the right paid engagement.",
   "tiers": [
     {
       "tier": "Architecture Review",
       "price": "$125/hr",
-      "description": "Dedicated technical guidance delivered through focused sessions. We review your architecture, identify risks and opportunities, and provide written recommendations with clear next steps. Ideal for vetting decisions, modernization planning, compliance readiness, or resolving complex infrastructure challenges.",
+      "description": "Dedicated technical guidance delivered through focused sessions. I review your architecture, identify risks and opportunities, and provide written recommendations with clear next steps. Ideal for vetting decisions, modernization planning, compliance readiness, or resolving complex infrastructure challenges.",
       "features": [
         "Scheduled 1-hr video calls",
         "Written summary after each session",

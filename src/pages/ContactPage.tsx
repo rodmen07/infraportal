@@ -74,7 +74,7 @@ export function ContactPage() {
             <h1 className="text-2xl font-bold text-white">Get in touch</h1>
             <p className="mt-2 text-sm leading-relaxed text-zinc-300">
               Every engagement starts with a free 30-minute discovery call. Share your current
-              stack, timeline, and constraints so we can quickly shape the right implementation path.
+              stack, timeline, and constraints so I can quickly shape the right implementation path.
             </p>
           </div>
           <div className="surface-card rounded-xl px-4 py-3 text-xs text-zinc-300">

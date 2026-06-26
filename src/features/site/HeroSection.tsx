@@ -99,7 +99,7 @@ export function HeroSection({ content }: HeroSectionProps) {
 
       <SlideOver open={open} onClose={() => setOpen(false)} title={tagline}>
         <p>
-          We help founders and product teams launch reliable web apps with paid discovery, deployment setup,
+          I help founders and product teams launch reliable web apps with paid discovery, deployment setup,
           hosting support, monitoring, and ongoing maintenance so the infrastructure work is scoped and sold clearly.
         </p>
 

@@ -10,7 +10,7 @@ const FAQS: FaqItem[] = [
   {
     question: 'What happens during the free discovery call?',
     answer:
-      'We spend 30 minutes mapping your current stack, deployment setup, and the biggest blocker you want solved. You leave with a clear recommendation on which engagement fits and a written summary of what we covered.',
+      'I spend 30 minutes mapping your current stack, deployment setup, and the biggest blocker you want solved. You leave with a clear recommendation on which engagement fits and a written summary of what I covered.',
   },
   {
     question: 'Can I start with an Architecture Review and move to a Retainer?',
@@ -20,7 +20,7 @@ const FAQS: FaqItem[] = [
   {
     question: 'How does the Project tier handle scope changes?',
     answer:
-      'A written proposal with explicit deliverables is agreed before any work begins. If scope expands mid-project, we agree on a change order in writing before proceeding — no surprise invoices.',
+      'A written proposal with explicit deliverables is agreed before any work begins. If scope expands mid-project, I agree on a change order in writing before proceeding — no surprise invoices.',
   },
   {
     question: 'What is included after a Project engagement ends?',
