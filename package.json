@@ -8,6 +8,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
+    "stripe:setup-links": "node ./scripts/setup-stripe-payment-links.mjs",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",

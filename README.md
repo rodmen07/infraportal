@@ -105,6 +105,35 @@ Commonly used variables:
 - `VITE_OBSERVABOARD_URL`
 - `VITE_SPEND_API_BASE_URL`
 
+Stripe Payment Links bootstrap variables (used by `npm run stripe:setup-links`):
+
+- `STRIPE_SECRET_KEY`
+- `STRIPE_SITE_URL`
+- `STRIPE_THANK_YOU_URL` (defaults to `https://<site>/#/checkout-thank-you`)
+- `STRIPE_CURRENCY`
+- `STRIPE_ARCH_REVIEW_UNIT_CENTS`
+- `STRIPE_PROJECT_DEPOSIT_CENTS`
+- `STRIPE_RETAINER_WEEKLY_CENTS`
+
+### Stripe Payment Links API setup
+
+Generate and apply checkout URLs for all pricing tiers using Stripe's API:
+
+```bash
+# Preview the config without calling Stripe
+npm run stripe:setup-links -- --dry-run
+
+# Create products, prices, and payment links; then update public/content/pricing.json
+npm run stripe:setup-links
+```
+
+What the script does:
+
+- Creates three Stripe products/prices for `Architecture Review`, `Project` (deposit), and `Retainer` (weekly recurring).
+- Creates one Payment Link per tier with a redirect target to `#/checkout-thank-you?tier=<slug>`.
+- Writes checkout URLs into `public/content/pricing.json` (`checkoutUrl` field).
+- Stores generated IDs and links in `public/content/stripe_payment_links.json` for traceability.
+
 ## GitHub Pages deployment
 
 This repo includes a workflow at `.github/workflows/deploy-pages.yml`.

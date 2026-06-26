@@ -32,6 +32,7 @@ import { ServiceHealthPage } from './pages/ServiceHealthPage'
 import { ApiDocsPage } from './pages/ApiDocsPage'
 import { ConsultationsPage } from './pages/ConsultationsPage'
 import { SupportQueuePage } from './pages/SupportQueuePage'
+import { CheckoutThankYouPage } from './pages/CheckoutThankYouPage'
 
 const WATCHDOG_DELAY_MS = 5000
 
@@ -150,6 +151,8 @@ function Root() {
   if (hash === '#/admin/consultations') return <ConsultationsPage />
   if (hash === '#/admin/support') return <SupportQueuePage />
   if (hash === '#/api-docs') return <ApiDocsPage />
+  if (hash.startsWith('#/checkout-thank-you')) return <CheckoutThankYouPage />
+  if (hash.startsWith('#/thank-you')) return <CheckoutThankYouPage />
   if (hash === '#/contact') return <ContactPage />
   return <App />
 }
