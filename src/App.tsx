@@ -1,7 +1,6 @@
 import TopNav from './features/layout/TopNav'
 import { FocusCard } from './features/layout/FocusCard'
 import { HowItWorksSection } from './features/site/HowItWorksSection'
-import { MedallionDemo } from './features/site/MedallionDemo'
 import { HeroSection } from './features/site/HeroSection'
 import { ContactCTA } from './features/site/ContactCTA'
 import { useSiteContent } from './features/site/useSiteContent'
@@ -73,9 +72,6 @@ function App() {
                 )}
               </div>
             </section>
-          </FocusCard>
-          <FocusCard>
-            <MedallionDemo defaultLayer="gold" />
           </FocusCard>
           <FocusCard>
             <ContactCTA />
