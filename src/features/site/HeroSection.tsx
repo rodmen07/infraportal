@@ -67,20 +67,6 @@ export function HeroSection({ content }: HeroSectionProps) {
         <p className="reveal reveal-delay-1 mx-auto mt-4 max-w-2xl text-base leading-relaxed text-zinc-300 sm:text-lg">
           {content.subtitle}
         </p>
-        <div className="reveal reveal-delay-2 mt-8 grid gap-3 sm:grid-cols-3">
-          <div className="rounded-2xl border border-zinc-700/50 bg-zinc-800/50 px-4 py-3 text-left">
-            <div className="text-lg font-bold text-white">16 services</div>
-            <div className="mt-1 text-xs uppercase tracking-[0.2em] text-zinc-500">Production systems shipped</div>
-          </div>
-          <div className="rounded-2xl border border-zinc-700/50 bg-zinc-800/50 px-4 py-3 text-left">
-            <div className="text-lg font-bold text-white">9 controls</div>
-            <div className="mt-1 text-xs uppercase tracking-[0.2em] text-zinc-500">SOC 2 baseline encoded</div>
-          </div>
-          <div className="rounded-2xl border border-zinc-700/50 bg-zinc-800/50 px-4 py-3 text-left">
-            <div className="text-lg font-bold text-white">2 clouds</div>
-            <div className="mt-1 text-xs uppercase tracking-[0.2em] text-zinc-500">AWS and GCP delivery</div>
-          </div>
-        </div>
         <div className="reveal reveal-delay-2 mt-8 flex flex-wrap justify-center gap-3">
           {SCHEDULING_URL ? (
             <a
