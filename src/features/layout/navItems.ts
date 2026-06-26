@@ -11,8 +11,6 @@ export const NAV_ITEMS: NavItem[] = [
   { label: 'Services', href: '#/services', section: 'primary' },
   { label: 'Case Studies', href: '#/case-studies', section: 'primary' },
   { label: 'Pricing', href: '#/pricing', section: 'primary' },
-  { label: 'API Docs', href: '#/api-docs', section: 'primary' },
-  { label: 'Patch Notes', href: '#/patch-notes', section: 'primary' },
   { label: 'Contact', href: '#/contact', section: 'primary' },
   { label: 'Consultations', href: '#/admin/consultations', section: 'admin' },
   { label: 'Support queue', href: '#/admin/support', section: 'admin' },

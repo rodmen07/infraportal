@@ -79,7 +79,7 @@ function TopNavComponent() {
           </div>
         </div>
 
-        {ADMIN_NAV_ITEMS.length > 0 && (
+        {isClient && ADMIN_NAV_ITEMS.length > 0 && (
           <div className="overflow-x-auto pb-1 [scrollbar-width:none]">
             <div className="mb-1 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500">
               <span>Admin</span>
