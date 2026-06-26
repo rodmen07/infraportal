@@ -1,5 +1,6 @@
 {
   "note": "Every engagement starts with a short discovery call so I can size the work, agree on scope, and recommend the right paid engagement.",
+  "scarcity": "Retainer slots typically fill 2-3 months ahead",
   "tiers": [
     {
       "tier": "Architecture Review",
@@ -12,6 +13,7 @@
         "No minimum commitment"
       ],
       "highlighted": false,
+      "scarcity": null,
       "ctaLabel": "Book review",
       "ctaHref": "#/contact",
       "checkoutUrl": "https://buy.stripe.com/bJe4gy3TR8fq5Y8cF4ffy00"
@@ -27,25 +29,28 @@
         "1 month of post-delivery email support"
       ],
       "highlighted": false,
+      "scarcity": null,
       "ctaLabel": "Discuss project",
       "ctaHref": "#/contact",
       "checkoutUrl": "https://buy.stripe.com/bJedR87632V6euEfRgffy01"
     },
     {
       "tier": "Retainer",
-      "price": "$1,000–$1,500/week · 10–15 hrs/week",
-      "description": "Reliable hands-on engineering every week with consistent capacity and same-day response times. Shift priorities week-to-week based on what matters most. Ideal for ongoing optimization, feature development, infrastructure scaling, technical debt reduction, or keeping cloud infrastructure lean and efficient.",
+      "price": "Flexible · Starting at $800/week",
+      "description": "Ongoing hands-on engineering with flexible hours and responsiveness. Pick the capacity that fits your team: Starter ($800/week), Standard ($1,500/week), or Premium ($3,000/week). Same-day response, weekly syncs, and priority access.",
       "features": [
-        "10–15 hrs/week of hands-on work",
-        "Priority response (same business day)",
-        "Weekly sync and progress update",
-        "Slack/Discord access during business hours",
-        "Flexible scope — shift priorities week to week"
+        "Choose 6–25 hrs/week capacity",
+        "Same-day or priority response",
+        "Weekly sync and progress updates",
+        "Slack/Discord access (included)",
+        "Flexible scope — shift priorities week-to-week",
+        "Cancel anytime (no lock-in)"
       ],
       "highlighted": true,
-      "ctaLabel": "Start retainer",
-      "ctaHref": "#/contact",
-      "checkoutUrl": "https://buy.stripe.com/6oUdR8dur7bm9ak8oOffy02"
+      "scarcity": "Slots fill 2-3 months ahead",
+      "ctaLabel": "View retainer plans →",
+      "ctaHref": "#/retainers",
+      "checkoutUrl": null
     }
   ]
 }

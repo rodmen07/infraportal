@@ -8,6 +8,7 @@ import 'highlight.js/styles/github-dark.css'
 import App from './App'
 import { ServicesPage } from './pages/ServicesPage'
 import { PricingPage } from './pages/PricingPage'
+import { RetainersPage } from './pages/RetainersPage'
 import { ContactPage } from './pages/ContactPage'
 import { AboutPage } from './pages/AboutPage'
 import { PatchNotesPage } from './pages/PatchNotesPage'
@@ -123,6 +124,7 @@ function Root() {
   if (hash === '#/about') return <AboutPage />
   if (hash === '#/services') return <ServicesPage />
   if (hash === '#/pricing') return <PricingPage />
+  if (hash === '#/retainers') return <RetainersPage />
   if (hash === '#/patch-notes') return <PatchNotesPage />
   if (hash === '#/crm/admin') return <CrmAdminPage />
   if (hash === '#/search') return <SearchPage />

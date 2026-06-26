@@ -49,7 +49,7 @@ const badgeLabel: Partial<Record<HighlightLevel, string>> = {
   2: 'Recommended',
 }
 
-export function PricingCard({ tier, price, description, features, ctaLabel, ctaHref, checkoutUrl, highlighted, highlightLevel = 0 }: PricingCardProps) {
+export function PricingCard({ tier, price, description, features, ctaLabel, ctaHref, checkoutUrl, scarcity, highlighted, highlightLevel = 0 }: PricingCardProps) {
   const { theme } = useTheme()
   const isLight = theme === 'light'
   const emphasisLevel: HighlightLevel = highlighted ? 2 : highlightLevel
@@ -64,19 +64,30 @@ export function PricingCard({ tier, price, description, features, ctaLabel, ctaH
   const checkClass = isLight ? 'text-emerald-600' : 'text-emerald-400'
 
   const badge = highlighted ? 'Recommended' : badgeLabel[emphasisLevel]
-  const checkout = resolvePricingCheckout(checkoutUrl, ctaHref)
+  const checkout = resolvePricingCheckout(checkoutUrl ?? undefined, ctaHref)
 
   return (
     <article className={`flex flex-col gap-4 rounded-2xl border p-6 transition-transform duration-200 hover:-translate-y-1 ${cardStyles[emphasisLevel]}`}>
-      {badge && (
-        <span className={`self-start rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${
-          isLight
-            ? 'border-amber-400/60 bg-amber-200/60 text-amber-800'
-            : 'border-amber-300/50 bg-amber-400/12 text-amber-200'
-        }`}>
-          {badge}
-        </span>
-      )}
+      <div className="flex flex-wrap gap-2">
+        {badge && (
+          <span className={`self-start rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${
+            isLight
+              ? 'border-amber-400/60 bg-amber-200/60 text-amber-800'
+              : 'border-amber-300/50 bg-amber-400/12 text-amber-200'
+          }`}>
+            {badge}
+          </span>
+        )}
+        {scarcity && (
+          <span className={`self-start rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${
+            isLight
+              ? 'border-orange-300/60 bg-orange-100/60 text-orange-700'
+              : 'border-orange-400/40 bg-orange-500/12 text-orange-300'
+          }`}>
+            {scarcity}
+          </span>
+        )}
+      </div>
       <div>
         <h3 className={`text-base font-semibold ${titleClass}`}>{tier}</h3>
         <p className={`mt-1 text-2xl font-bold ${priceStyles[emphasisLevel]}`}>{price}</p>

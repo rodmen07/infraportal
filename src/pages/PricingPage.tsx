@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { PageLayout } from './PageLayout'
 import { FocusCard } from '../features/layout/FocusCard'
 import { PricingCard } from '../features/consulting/PricingCard'
@@ -6,11 +7,27 @@ import { PricingTrustStrip } from '../features/consulting/PricingTrustStrip'
 import { HowItWorksSection } from '../features/site/HowItWorksSection'
 import { ContactCTA } from '../features/site/ContactCTA'
 import { usePricingContent } from '../features/consulting/usePricingContent'
+import { trackPortfolioEvent } from '../utils/analytics'
 import { SCHEDULING_URL } from '../config'
 
 export function PricingPage() {
   const baseUrl = import.meta.env.BASE_URL
   const { note, tiers } = usePricingContent(baseUrl)
+
+  useEffect(() => {
+    trackPortfolioEvent('pricing_page_view', {
+      tier_count: tiers.length,
+      has_retainer_link: tiers.some(t => t.tier === 'Retainer'),
+    })
+    // Track individual tier impressions
+    tiers.forEach((tier, index) => {
+      trackPortfolioEvent('pricing_tier_impression', {
+        tier: tier.tier,
+        index: index + 1,
+        highlighted: tier.highlighted ? 'yes' : 'no',
+      })
+    })
+  }, [tiers])
 
   return (
     <PageLayout>

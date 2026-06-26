@@ -53,10 +53,12 @@ export interface PricingTier {
   highlighted: boolean
   ctaLabel: string
   ctaHref: string
-  checkoutUrl?: string
+  checkoutUrl?: string | null
+  scarcity?: string | null
 }
 
 export interface PricingContent {
   note: string
+  scarcity?: string
   tiers: PricingTier[]
 }
