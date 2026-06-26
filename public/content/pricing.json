@@ -14,11 +14,11 @@
       "highlighted": false,
       "ctaLabel": "Book review",
       "ctaHref": "#/contact",
-      "checkoutUrl": ""
+      "checkoutUrl": "https://buy.stripe.com/bJe4gy3TR8fq5Y8cF4ffy00"
     },
     {
       "tier": "Project",
-      "price": "$3,400\u2013$5,100/month \u00b7 4-week minimum",
+      "price": "$3,400–$5,100/month · 4-week minimum",
       "description": "Fixed-scope delivery billed monthly. CI/CD pipelines, IaC, containerisation, cloud migrations, and compliance readiness. A written proposal is agreed before any work begins.",
       "features": [
         "Scoped proposal with timeline",
@@ -29,23 +29,23 @@
       "highlighted": false,
       "ctaLabel": "Discuss project",
       "ctaHref": "#/contact",
-      "checkoutUrl": ""
+      "checkoutUrl": "https://buy.stripe.com/bJedR87632V6euEfRgffy01"
     },
     {
       "tier": "Retainer",
-      "price": "$1,000\u2013$1,500/week \u00b7 10\u201315 hrs/week",
+      "price": "$1,000–$1,500/week · 10–15 hrs/week",
       "description": "Dedicated engineering capacity available every week. Buy consistent availability and same-day responsiveness, not just tracked hours. The most cost-effective way to keep delivery moving.",
       "features": [
-        "10\u201315 hrs/week of hands-on work",
+        "10–15 hrs/week of hands-on work",
         "Priority response (same business day)",
         "Weekly sync and progress update",
         "Slack/Discord access during business hours",
-        "Flexible scope \u2014 shift priorities week to week"
+        "Flexible scope — shift priorities week to week"
       ],
       "highlighted": true,
       "ctaLabel": "Start retainer",
       "ctaHref": "#/contact",
-      "checkoutUrl": ""
+      "checkoutUrl": "https://buy.stripe.com/6oUdR8dur7bm9ak8oOffy02"
     }
   ]
 }

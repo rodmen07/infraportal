@@ -1,0 +1,33 @@
+{
+  "generatedAt": "2026-06-26T08:27:18.274Z",
+  "thankYouUrl": "https://rodmen07.github.io/infraportal/#/checkout-thank-you",
+  "tiers": [
+    {
+      "tier": "Architecture Review",
+      "slug": "architecture-review",
+      "productId": "prod_Um3CivwilYGQPq",
+      "priceId": "price_1TmV6XBkBSNpEhPn9QReuKDE",
+      "paymentLinkId": "plink_1TmV6XBkBSNpEhPnJT09FcOq",
+      "checkoutUrl": "https://buy.stripe.com/bJe4gy3TR8fq5Y8cF4ffy00",
+      "thankYouUrl": "https://rodmen07.github.io/infraportal/#/checkout-thank-you"
+    },
+    {
+      "tier": "Project",
+      "slug": "project-deposit",
+      "productId": "prod_Um3CpYwJGQqbOC",
+      "priceId": "price_1TmV6YBkBSNpEhPnJt6BxX4G",
+      "paymentLinkId": "plink_1TmV6YBkBSNpEhPnHEGhbVtz",
+      "checkoutUrl": "https://buy.stripe.com/bJedR87632V6euEfRgffy01",
+      "thankYouUrl": "https://rodmen07.github.io/infraportal/#/checkout-thank-you"
+    },
+    {
+      "tier": "Retainer",
+      "slug": "retainer-weekly",
+      "productId": "prod_Um3CyBIjgorET6",
+      "priceId": "price_1TmV6YBkBSNpEhPntYkEYOBz",
+      "paymentLinkId": "plink_1TmV6ZBkBSNpEhPnWKl5lsR8",
+      "checkoutUrl": "https://buy.stripe.com/6oUdR8dur7bm9ak8oOffy02",
+      "thankYouUrl": "https://rodmen07.github.io/infraportal/#/checkout-thank-you"
+    }
+  ]
+}
