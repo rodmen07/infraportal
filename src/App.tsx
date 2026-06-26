@@ -1,7 +1,6 @@
 import TopNav from './features/layout/TopNav'
 import { FocusCard } from './features/layout/FocusCard'
 import { HowItWorksSection } from './features/site/HowItWorksSection'
-import { AskAISection } from './features/site/AskAISection'
 import { MedallionDemo } from './features/site/MedallionDemo'
 import { HeroSection } from './features/site/HeroSection'
 import { ContactCTA } from './features/site/ContactCTA'
@@ -29,9 +28,6 @@ function App() {
         <div className="mt-6 space-y-6">
           <FocusCard>
             <HeroSection content={content} />
-          </FocusCard>
-          <FocusCard>
-            <AskAISection />
           </FocusCard>
           <FocusCard>
             <HowItWorksSection />
