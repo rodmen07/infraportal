@@ -1,4 +1,5 @@
 import { SCHEDULING_URL } from '../../config'
+import { trackPortfolioEvent } from '../../utils/analytics'
 
 const STEPS = [
   {
@@ -50,6 +51,7 @@ export function HowItWorksSection() {
             href={SCHEDULING_URL}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => trackPortfolioEvent('how_it_works_cta_click', { action: 'book_call', source: 'scheduling_url' })}
             className="inline-block rounded-xl border border-amber-400/30 bg-amber-500/10 px-4 py-2 text-sm font-medium text-amber-200 transition hover:border-amber-400/50 hover:bg-amber-500/20 hover:text-amber-100"
           >
             Book a call →
@@ -57,6 +59,7 @@ export function HowItWorksSection() {
         ) : (
           <a
             href="#/contact"
+            onClick={() => trackPortfolioEvent('how_it_works_cta_click', { action: 'book_consultation', source: 'contact_page' })}
             className="inline-block rounded-xl border border-amber-400/30 bg-amber-500/10 px-4 py-2 text-sm font-medium text-amber-200 transition hover:border-amber-400/50 hover:bg-amber-500/20 hover:text-amber-100"
           >
             Book a consultation →
