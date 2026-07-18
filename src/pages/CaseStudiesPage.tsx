@@ -70,7 +70,7 @@ export function CaseStudiesPage() {
         <section className="space-y-3">
           <div>
             <h2 className="text-base font-semibold text-white">Live pipeline demo</h2>
-            <p className="mt-1 text-sm text-zinc-400">Bronze → Silver → Gold medallion data currently running in DynamoDB.</p>
+            <p className="mt-1 text-sm text-zinc-400">Bronze → Silver → Gold medallion transform over the live NIST NVD CVE feed, running right here in your browser.</p>
           </div>
           <MedallionDemo defaultLayer="gold" />
         </section>
@@ -82,23 +82,22 @@ export function CaseStudiesPage() {
 
       <FocusCard>
         <section className="surface-card rounded-2xl p-5">
-          <h2 className="text-lg font-semibold text-white">What comes next</h2>
+          <h2 className="text-lg font-semibold text-white">The full lifecycle, including the shutdown</h2>
           <p className="mt-2 text-sm text-zinc-400">
-            Cloud Run baseline is stable and CI/CD is fully automated. The current build queue
-            spans language breadth, product depth, and portfolio polish: a Django REST API and a
-            Go project to demonstrate multi-language backend range; a client-facing project
-            dashboard for real-time engagement tracking; AI consulting feature completion; a
-            react-router-dom migration; and a codebase audit pass to trim dead code and tighten
-            reuse across all services.
+            The platform shipped 15 minor versions, from the first Cloud Run deploy through
+            deployment safety, SLO monitoring, and distributed state. Then it was deliberately
+            decommissioned to zero infrastructure cost: databases and registries deleted,
+            volumes destroyed, every recurring line item eliminated. Real infrastructure work includes knowing when
+            and how to turn things off. The reusable parts live on as published, documented Rust
+            crates on crates.io.
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
-            <span className="fx-chip">Django REST API</span>
-            <span className="fx-chip">Go project</span>
-            <span className="fx-chip">Client project dashboard</span>
-            <span className="fx-chip">AI consulting (finish)</span>
-            <span className="fx-chip">react-router-dom migration</span>
-            <span className="fx-chip">Codebase audit</span>
-            <span className="fx-chip">Workspace consolidation</span>
+            <span className="fx-chip">FinOps teardown to $0</span>
+            <span className="fx-chip">axum-api-kit on crates.io</span>
+            <span className="fx-chip">slokit (SLO tooling)</span>
+            <span className="fx-chip">svccat (drift detection)</span>
+            <span className="fx-chip">Terraform IaC</span>
+            <span className="fx-chip">SOC 2 controls</span>
           </div>
           <div className="mt-5 flex flex-wrap gap-2">
             {SCHEDULING_URL ? (

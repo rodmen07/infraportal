@@ -20,11 +20,13 @@ const NotificationContext = createContext<NotificationContextValue | null>(null)
 const MAX_NOTIFICATIONS = 50
 const RECONNECT_BASE_MS = 2000
 const RECONNECT_MAX_MS = 30000
+const MAX_RECONNECT_ATTEMPTS = 5
 
 export function NotificationProvider({ children }: { children: ReactNode }) {
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [readCount, setReadCount] = useState(0)
   const reconnectDelay = useRef(RECONNECT_BASE_MS)
+  const failedAttempts = useRef(0)
   const esRef = useRef<EventSource | null>(null)
   const mountedRef = useRef(true)
   const connectRef = useRef<() => void>(() => {})
@@ -59,6 +61,8 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       es.close()
       esRef.current = null
       if (!mountedRef.current) return
+      failedAttempts.current += 1
+      if (failedAttempts.current >= MAX_RECONNECT_ATTEMPTS) return
       const delay = reconnectDelay.current
       reconnectDelay.current = Math.min(delay * 2, RECONNECT_MAX_MS)
       setTimeout(() => {
@@ -68,6 +72,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
 
     es.addEventListener('open', () => {
       reconnectDelay.current = RECONNECT_BASE_MS
+      failedAttempts.current = 0
     })
   }, [])
 

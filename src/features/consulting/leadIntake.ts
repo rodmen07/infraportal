@@ -32,6 +32,18 @@ export type LeadIntakeResult =
   | { ok: true }
   | { ok: false; reason: 'not-configured' | 'request-failed'; message: string }
 
+// Underscore-prefixed fields are FormSubmit relay directives (subject line,
+// table-formatted email, no captcha challenge on AJAX posts). Non-FormSubmit
+// intake endpoints ignore unknown fields, so they are safe to send always.
+function withRelayHints<T extends object>(payload: T, subject: string): T & Record<string, string> {
+  return {
+    ...payload,
+    _subject: subject,
+    _template: 'table',
+    _captcha: 'false',
+  }
+}
+
 export function buildIntakePayload(request: ConsultationRequest): LeadIntakePayload {
   return {
     name: request.name.trim(),
@@ -78,8 +90,8 @@ export async function submitPublicLead(
   try {
     const res = await fetchImpl(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(buildIntakePayload(request)),
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify(withRelayHints(buildIntakePayload(request), 'New consultation lead (RM Cloud Consulting)')),
     })
 
     if (!res.ok) {
@@ -105,8 +117,8 @@ export async function submitLeadMagnetLead(
   try {
     const res = await fetchImpl(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(buildLeadMagnetIntakePayload(request)),
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify(withRelayHints(buildLeadMagnetIntakePayload(request), 'New checklist lead (RM Cloud Consulting)')),
     })
 
     if (!res.ok) {

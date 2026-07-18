@@ -19,11 +19,14 @@ export const PROJECTS_API_BASE_URL: string =
 export const CONTACTS_API_BASE_URL: string =
   ((import.meta.env.VITE_CONTACTS_API_BASE_URL as string | undefined) ?? '').replace(/\/$/, '')
 
+// Fallback relays form submissions to the owner's inbox via FormSubmit so leads
+// are never stranded in the visitor's localStorage when no backend is deployed.
 export const LEAD_INTAKE_URL: string =
-  ((import.meta.env.VITE_LEAD_INTAKE_URL as string | undefined) ?? '').replace(/\/$/, '')
+  ((import.meta.env.VITE_LEAD_INTAKE_URL as string | undefined) ??
+    'https://formsubmit.co/ajax/rodmendoza07@gmail.com').replace(/\/$/, '')
 
 export const GATEWAY_URL: string =
-  (import.meta.env.VITE_GATEWAY_URL as string | undefined) ?? 'https://go-gateway-5gcrg4oiza-uc.a.run.app'
+  ((import.meta.env.VITE_GATEWAY_URL as string | undefined) ?? '').replace(/\/$/, '')
 
 const _ADMIN_JWT_ENV = (import.meta.env.VITE_ADMIN_JWT as string | undefined) ?? ''
 

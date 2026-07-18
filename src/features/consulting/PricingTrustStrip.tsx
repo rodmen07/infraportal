@@ -10,7 +10,7 @@ const STATS: TrustStat[] = [
   { value: 'GCP + AWS', label: 'multi-cloud' },
   { value: 'SOC 2', label: 'compliance-ready' },
   { value: '< 1 day', label: 'response time' },
-  { value: '99.9%', label: 'uptime SLA' },
+  { value: '1k+', label: 'crate downloads' },
   { value: '3+ years', label: 'DevOps expertise' },
   { value: 'Free', label: 'discovery call' },
 ]

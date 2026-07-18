@@ -1842,7 +1842,7 @@ export function CrmAdminPage() {
             <h1 className="text-2xl font-bold text-white">CRM — Admin</h1>
             <p className="mt-1 text-sm text-zinc-400">Live data from the microservices. Requires service URLs configured and either <code className="rounded bg-zinc-800 px-1 py-0.5 text-xs">VITE_ADMIN_JWT</code> set or an active portal login.</p>
           </div>
-          <a href="#/admin" className="btn-neutral px-3 py-1.5 text-xs">← Admin</a>
+          <a href="#/admin/consultations" className="btn-neutral px-3 py-1.5 text-xs">← Admin</a>
         </div>
 
         {/* Scrollable tab bar */}

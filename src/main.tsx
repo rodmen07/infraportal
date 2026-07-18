@@ -29,6 +29,12 @@ import { ApiDocsPage } from './pages/ApiDocsPage'
 import { ConsultationsPage } from './pages/ConsultationsPage'
 import { SupportQueuePage } from './pages/SupportQueuePage'
 import { CheckoutThankYouPage } from './pages/CheckoutThankYouPage'
+import { CaseStudiesPage } from './pages/CaseStudiesPage'
+import { MicroservicesCaseStudyPage } from './pages/MicroservicesCaseStudyPage'
+import { Soc2CaseStudyPage } from './pages/Soc2CaseStudyPage'
+import { CicdCaseStudyPage } from './pages/CicdCaseStudyPage'
+import { CloudMigrationCaseStudyPage } from './pages/CloudMigrationCaseStudyPage'
+import { DynamoDbCaseStudyPage } from './pages/DynamoDbCaseStudyPage'
 
 const WATCHDOG_DELAY_MS = 5000
 
@@ -128,6 +134,12 @@ function Root() {
   if (hash === '#/retainers') return <RetainersPage />
   if (hash === '#/lead-magnet' || hash === '#/infrastructure-audit-checklist') return <LeadMagnetPage />
   if (hash === '#/patch-notes') return <PatchNotesPage />
+  if (hash === '#/case-studies/microservices-platform') return <MicroservicesCaseStudyPage />
+  if (hash === '#/case-studies/soc2-terraform-module') return <Soc2CaseStudyPage />
+  if (hash === '#/case-studies/cicd-pipeline-template') return <CicdCaseStudyPage />
+  if (hash === '#/case-studies/fly-to-gcp-migration') return <CloudMigrationCaseStudyPage />
+  if (hash === '#/case-studies/dynamodb-idempotency') return <DynamoDbCaseStudyPage />
+  if (hash === '#/case-studies' || hash.startsWith('#/case-studies/')) return <CaseStudiesPage />
   if (hash === '#/crm/admin') return <CrmAdminPage />
   if (hash === '#/search') return <SearchPage />
   if (hash === '#/crm/dashboard') return <UserDashboardPage />

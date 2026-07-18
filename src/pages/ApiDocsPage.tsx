@@ -31,34 +31,46 @@ export function ApiDocsPage() {
         {/* Header / CTA */}
         <div className="forge-panel surface-card-strong space-y-4 p-5 sm:p-6">
           <div>
-            <h2 className="text-lg font-semibold text-zinc-100">Welcome to the InfraPortal API</h2>
+            <h2 className="text-lg font-semibold text-zinc-100">The InfraPortal API</h2>
             <p className="mt-2 text-sm text-zinc-400">
-              Build integrations with a production-grade 15-service CRM platform. All endpoints are documented below.
+              The API surface of a production-grade 16-service CRM platform, preserved as a design reference.
+              The platform ran on GCP Cloud Run and Fly.io and was deliberately decommissioned to zero
+              infrastructure cost in June 2026; all source code and docs remain public.
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
+            {GATEWAY_URL && (
+              <a
+                href={docsURL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-accent"
+              >
+                Open Swagger UI
+              </a>
+            )}
+            {GATEWAY_URL && (
+              <a
+                href={specURL}
+                download="infraportal-api.json"
+                className="btn-neutral"
+              >
+                Download OpenAPI Spec
+              </a>
+            )}
             <a
-              href={docsURL}
+              href="https://github.com/rodmen07/portfolio"
               target="_blank"
               rel="noopener noreferrer"
               className="btn-accent"
             >
-              Open Swagger UI
+              View Source on GitHub
             </a>
             <a
-              href={specURL}
-              download="infraportal-api.json"
+              href="#/case-studies/microservices-platform"
               className="btn-neutral"
             >
-              Download OpenAPI Spec
-            </a>
-            <a
-              href="https://rodmen07.github.io/infraportal/api-reference/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-neutral"
-            >
-              View Static Docs
+              Read the Case Study
             </a>
           </div>
         </div>
@@ -147,19 +159,19 @@ export function ApiDocsPage() {
           <ol className="space-y-3 text-sm text-zinc-400">
             <li className="flex gap-3">
               <span className="mt-0.5 h-5 w-5 shrink-0 rounded-full bg-amber-500/20 text-center text-xs leading-5 text-amber-300">1</span>
-              <span>Read <a href="/docs/API.md" className="text-amber-400 hover:text-amber-300">docs/API.md</a> for authentication and architecture overview</span>
+              <span>Read <a href="https://github.com/rodmen07/portfolio/blob/main/docs/API.md" target="_blank" rel="noopener noreferrer" className="text-amber-400 hover:text-amber-300">docs/API.md</a> for authentication and architecture overview</span>
             </li>
             <li className="flex gap-3">
               <span className="mt-0.5 h-5 w-5 shrink-0 rounded-full bg-amber-500/20 text-center text-xs leading-5 text-amber-300">2</span>
-              <span>Explore endpoints in the <a href={docsURL} target="_blank" rel="noopener noreferrer" className="text-amber-400 hover:text-amber-300">interactive Swagger UI</a></span>
+              <span>Review the <a href="https://github.com/rodmen07/portfolio/blob/main/docs/ARCHITECTURE.md" target="_blank" rel="noopener noreferrer" className="text-amber-400 hover:text-amber-300">architecture docs</a> for service boundaries and data flow</span>
             </li>
             <li className="flex gap-3">
               <span className="mt-0.5 h-5 w-5 shrink-0 rounded-full bg-amber-500/20 text-center text-xs leading-5 text-amber-300">3</span>
-              <span>Download our <a href="#/docs" className="text-amber-400 hover:text-amber-300">TypeScript SDK</a> (v1.16.2)</span>
+              <span>Check <a href="https://github.com/rodmen07/portfolio/blob/main/docs/ERROR_CODES.md" target="_blank" rel="noopener noreferrer" className="text-amber-400 hover:text-amber-300">docs/ERROR_CODES.md</a> for the full error-envelope catalog</span>
             </li>
             <li className="flex gap-3">
               <span className="mt-0.5 h-5 w-5 shrink-0 rounded-full bg-amber-500/20 text-center text-xs leading-5 text-amber-300">4</span>
-              <span>Use our <a href="#/docs" className="text-amber-400 hover:text-amber-300">Postman collection</a> (v1.16.4) for testing</span>
+              <span>Browse the <a href="https://github.com/rodmen07/portfolio" target="_blank" rel="noopener noreferrer" className="text-amber-400 hover:text-amber-300">source on GitHub</a> to see every service end to end</span>
             </li>
           </ol>
         </div>
@@ -167,7 +179,7 @@ export function ApiDocsPage() {
         {/* Support */}
         <div className="rounded-lg border border-zinc-700/40 bg-zinc-900/20 p-4">
           <p className="text-xs text-zinc-400">
-            Questions? Check <a href="/docs/API.md" className="text-amber-400 hover:text-amber-300">docs/API.md</a> or open an issue on <a href="https://github.com/rodmen07/portfolio" target="_blank" rel="noopener noreferrer" className="text-amber-400 hover:text-amber-300">GitHub</a>.
+            Questions? Check <a href="https://github.com/rodmen07/portfolio/blob/main/docs/API.md" target="_blank" rel="noopener noreferrer" className="text-amber-400 hover:text-amber-300">docs/API.md</a> or open an issue on <a href="https://github.com/rodmen07/portfolio" target="_blank" rel="noopener noreferrer" className="text-amber-400 hover:text-amber-300">GitHub</a>.
           </p>
         </div>
       </div>

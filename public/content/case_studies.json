@@ -35,8 +35,7 @@
         "Health endpoint with DB + Redis connectivity checks returning 503 on degradation",
         "Multi-stage Docker build with non-root user, WhiteNoise static serving, zero-downtime Fly.io deploys"
       ],
-      "githubUrl": "https://github.com/rodmen07/observaboard",
-      "detailUrl": "https://observaboard-rodmen07.fly.dev/dashboard/"
+      "githubUrl": "https://github.com/rodmen07/observaboard"
     },
     {
       "title": "SOC 2 Baseline — Terraform Module",
