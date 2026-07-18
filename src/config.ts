@@ -10,8 +10,11 @@ export const EVENT_STREAM_URL: string =
 export const AUTH_SERVICE_URL: string =
   (import.meta.env.VITE_AUTH_SERVICE_URL as string | undefined) ?? ''
 
+// Same empty-means-unset handling as LEAD_INTAKE_URL: CI exports unset repo
+// variables as empty strings, so || (not ??) is required for the fallback.
 export const SCHEDULING_URL: string =
-  ((import.meta.env.VITE_SCHEDULING_URL as string | undefined) ?? '').replace(/\/$/, '')
+  (((import.meta.env.VITE_SCHEDULING_URL as string | undefined) ?? '').trim() ||
+    'https://cal.com/roderick-mendoza-nr7vdc/30min').replace(/\/$/, '')
 
 export const PROJECTS_API_BASE_URL: string =
   ((import.meta.env.VITE_PROJECTS_API_BASE_URL as string | undefined) ?? '').replace(/\/$/, '')
