@@ -8,6 +8,7 @@ import { OnboardingChecklist } from '../features/onboarding/OnboardingChecklist'
 import { SupportRequestPanel } from '../features/support/SupportRequestPanel'
 import { ServiceHealthIndicators } from '../features/health/ServiceHealthIndicators'
 import { formatRelativeTime } from '../utils/time'
+import DOMPurify from 'dompurify'
 
 // --- Types ---
 
@@ -480,8 +481,7 @@ function EmailsSection({ emails }: { emails: ProjectEmail[] }) {
                   {email.body_html ? (
                     <div
                       className="prose prose-invert prose-sm max-w-none text-zinc-300"
-                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                      dangerouslySetInnerHTML={{ __html: email.body_html } as any}
+                      dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(email.body_html) }}
                     />
                   ) : email.snippet ? (
                     <p className="text-sm text-zinc-400">{email.snippet}</p>
