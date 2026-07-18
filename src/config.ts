@@ -21,8 +21,10 @@ export const CONTACTS_API_BASE_URL: string =
 
 // Fallback relays form submissions to the owner's inbox via FormSubmit so leads
 // are never stranded in the visitor's localStorage when no backend is deployed.
+// CI exports unset repo variables as empty strings, so empty must count as
+// unset here (|| rather than ??).
 export const LEAD_INTAKE_URL: string =
-  ((import.meta.env.VITE_LEAD_INTAKE_URL as string | undefined) ??
+  (((import.meta.env.VITE_LEAD_INTAKE_URL as string | undefined) ?? '').trim() ||
     'https://formsubmit.co/ajax/rodmendoza07@gmail.com').replace(/\/$/, '')
 
 export const GATEWAY_URL: string =
