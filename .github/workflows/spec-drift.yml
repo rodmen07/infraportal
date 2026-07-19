@@ -1,0 +1,63 @@
+name: Spec Drift
+
+# Cross-repo spec drift detection (v1.17.4).
+#
+# The committed OpenAPI snapshots under src/api-specs/ are synced from the
+# microservices repo, so drift can arrive two ways:
+#   1. A PR here touches the snapshots or the sync pipeline (path filter below).
+#   2. The specs change in the microservices repo with NO PR here, which is
+#      why the weekly schedule exists.
+#
+# Runners only check out this repo; there is no sibling microservices
+# checkout to read. The check therefore runs in remote mode, fetching the
+# canonical specs from the public microservices repo over HTTPS at a pinned
+# ref (main). See the header of scripts/check-spec-drift.mjs.
+#
+# Path filters keep this job away from unrelated PRs (per the v1.17 theme:
+# drift should be noticed, not break unrelated work). The committed snapshot
+# stays authoritative for the deployed site; the fix for drift is
+# `npm run sync-specs` plus a commit.
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/api-specs/**'
+      - 'scripts/sync-api-specs.mjs'
+      - 'scripts/check-spec-drift.mjs'
+      - 'scripts/lib/**'
+      - '.github/workflows/spec-drift.yml'
+  schedule:
+    # Weekly, Mondays 06:00 UTC: catches cross-repo drift that arrives
+    # without any PR in this repo.
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  spec-drift:
+    runs-on: ubuntu-latest
+    name: Spec Drift Check
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check committed snapshots against canonical specs
+        run: npm run check-spec-drift -- --source remote --ref main
+
+      - name: Report drift
+        if: failure()
+        run: |
+          echo "::warning::Committed API spec snapshots under src/api-specs/ differ from the canonical specs in rodmen07/microservices@main. Run 'npm run sync-specs' against an up-to-date microservices checkout and commit the diff. Per-file report is in the step above."
+        shell: bash
