@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit",
     "stripe:setup-links": "node ./scripts/setup-stripe-payment-links.mjs",
     "sync-specs": "node ./scripts/sync-api-specs.mjs",
+    "check-spec-drift": "node ./scripts/check-spec-drift.mjs",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -23,6 +24,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@types/node": "^24.13.3",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^4.3.1",
