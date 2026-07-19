@@ -6,11 +6,15 @@
  * dataset render a disabled state with the adapter's honest reason instead of
  * a fake success. Stateful, but with no effects and no browser globals, so
  * the node-env render-smoke suite can exercise it via react-dom/server.
+ *
+ * Also hosts the v1.17.3 SnippetsSection (rendered as a sibling of the Try
+ * it box) so the generated curl command can source the live form values.
  */
 
 import { useMemo, useState } from 'react'
 import { tryItAdapter, type SimulatedResponse } from '../../../lib/tryItAdapter.mock'
 import type { OperationView } from '../specModel'
+import { SnippetsSection } from '../snippets/SnippetsSection'
 import {
   buildRequestPreview,
   buildTryItForm,
@@ -143,9 +147,12 @@ function ResponseViewer({ response }: { response: SimulatedResponse }) {
 export function TryItPanel({
   serviceId,
   operation,
+  baseUrl,
 }: {
   serviceId: string
   operation: OperationView
+  /** First documented server URL from the spec, for the snippets (v1.17.3). */
+  baseUrl?: string
 }) {
   const support = tryItAdapter.support(serviceId, operation)
   const model = useMemo(() => buildTryItForm(operation), [operation])
@@ -184,6 +191,7 @@ export function TryItPanel({
   }
 
   return (
+    <>
     <div
       data-tryit={operation.operationId}
       className="rounded-lg border border-amber-500/20 bg-zinc-900/50 p-3"
@@ -312,5 +320,13 @@ export function TryItPanel({
         </div>
       )}
     </div>
+    <SnippetsSection
+      serviceId={serviceId}
+      operation={operation}
+      model={model}
+      baseUrl={baseUrl}
+      state={{ values, bodyText, jsonMode }}
+    />
+    </>
   )
 }

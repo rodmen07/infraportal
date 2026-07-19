@@ -9,6 +9,8 @@
  */
 
 import type { OpenApiSpec } from './openapiTypes'
+import { CopyButton } from './CopyButton'
+import { buildApiDocsLink } from './deepLink'
 import { TryItPanel } from './tryIt/TryItPanel'
 import type {
   MediaTypeView,
@@ -207,13 +209,19 @@ export function MediaContentView({ media }: { media: MediaTypeView }) {
 export function OperationCard({
   operation,
   serviceId,
+  baseUrl,
 }: {
   operation: OperationView
   /** Enables the per-operation Try it panel; omit for docs-only rendering. */
   serviceId?: string
+  /** First documented server URL from the spec, for snippets (v1.17.3). */
+  baseUrl?: string
 }) {
   return (
-    <details className="group rounded-xl border border-zinc-700/40 bg-zinc-900/40 open:border-amber-400/30">
+    <details
+      data-op-card={operation.operationId}
+      className="group rounded-xl border border-zinc-700/40 bg-zinc-900/40 open:border-amber-400/30"
+    >
       <summary className="flex cursor-pointer list-none flex-wrap items-center gap-3 p-3 [&::-webkit-details-marker]:hidden">
         <MethodBadge method={operation.method} />
         <code className="break-all font-mono text-xs text-zinc-200">{operation.path}</code>
@@ -232,6 +240,20 @@ export function OperationCard({
           >
             Auth: {operation.auth.label}
           </span>
+          {serviceId && (
+            <span className="ml-auto" data-copy-link={operation.operationId}>
+              <CopyButton
+                label="Copy link"
+                copiedLabel="Link copied"
+                text={() =>
+                  buildApiDocsLink(
+                    { service: serviceId, op: operation.operationId },
+                    window.location.href,
+                  )
+                }
+              />
+            </span>
+          )}
         </div>
 
         {operation.description && (
@@ -291,13 +313,21 @@ export function OperationCard({
           </ul>
         </div>
 
-        {serviceId && <TryItPanel serviceId={serviceId} operation={operation} />}
+        {serviceId && <TryItPanel serviceId={serviceId} operation={operation} baseUrl={baseUrl} />}
       </div>
     </details>
   )
 }
 
-export function TagGroupSection({ group, serviceId }: { group: TagGroupView; serviceId?: string }) {
+export function TagGroupSection({
+  group,
+  serviceId,
+  baseUrl,
+}: {
+  group: TagGroupView
+  serviceId?: string
+  baseUrl?: string
+}) {
   return (
     <section className="space-y-2">
       <div>
@@ -306,7 +336,12 @@ export function TagGroupSection({ group, serviceId }: { group: TagGroupView; ser
       </div>
       <div className="space-y-2">
         {group.operations.map((operation) => (
-          <OperationCard key={operation.operationId} operation={operation} serviceId={serviceId} />
+          <OperationCard
+            key={operation.operationId}
+            operation={operation}
+            serviceId={serviceId}
+            baseUrl={baseUrl}
+          />
         ))}
       </div>
     </section>
@@ -323,6 +358,8 @@ export function ServiceSpecView({
   /** Enables the per-operation Try it panels; omit for docs-only rendering. */
   serviceId?: string
 }) {
+  // First documented server (the historical deployment) anchors the snippets.
+  const baseUrl = spec.servers?.[0]?.url
   return (
     <div className="space-y-6">
       <div className="rounded-xl border border-zinc-700/40 bg-zinc-900/40 p-4">
@@ -358,7 +395,7 @@ export function ServiceSpecView({
       </div>
 
       {groups.map((group) => (
-        <TagGroupSection key={group.tag} group={group} serviceId={serviceId} />
+        <TagGroupSection key={group.tag} group={group} serviceId={serviceId} baseUrl={baseUrl} />
       ))}
     </div>
   )

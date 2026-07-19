@@ -160,7 +160,8 @@ function Root() {
   if (hash === '#/admin/health') return <ServiceHealthPage />
   if (hash === '#/admin/consultations') return <ConsultationsPage />
   if (hash === '#/admin/support') return <SupportQueuePage />
-  if (hash === '#/api-docs') {
+  // Bare route or a v1.17.3 deep link (#/api-docs?service=...&op=...).
+  if (hash === '#/api-docs' || hash.startsWith('#/api-docs?')) {
     return (
       <Suspense fallback={<main className="min-h-screen bg-zinc-950" />}>
         <ApiDocsPage />

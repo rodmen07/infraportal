@@ -175,4 +175,31 @@ describe('committed spec catalog', () => {
       }
     }
   })
+
+  it('renders snippets and a copy-link affordance for every operation (v1.17.3)', async () => {
+    const specs = await loadAll()
+    for (const [id, spec] of specs) {
+      const operations = extractOperations(spec)
+      const groups = groupOperationsByTag(spec, operations)
+      const html = renderToStaticMarkup(
+        createElement(ServiceSpecView, { spec, groups, serviceId: id }),
+      )
+      for (const operation of operations) {
+        const context = `${id}: ${operation.operationId}`
+        expect(html, `${context} missing its deep-link anchor`).toContain(
+          `data-op-card="${operation.operationId}"`,
+        )
+        expect(html, `${context} missing its snippets section`).toContain(
+          `data-snippets="${operation.operationId}"`,
+        )
+        expect(html, `${context} missing its copy-link affordance`).toContain(
+          `data-copy-link="${operation.operationId}"`,
+        )
+      }
+      // The snippets are generated into the markup: every service view names
+      // the SDK package and the offline honesty note at least once.
+      expect(html, id).toContain('@rodmen07/infraportal-sdk')
+      expect(html, id).toContain('offline since the 2026-06-04 decommission')
+    }
+  })
 })
