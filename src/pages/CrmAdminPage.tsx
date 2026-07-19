@@ -4,7 +4,10 @@ import { resolveAdminToken, AUTH_SERVICE_URL } from '../config'
 import { useAuth } from '../features/auth/useAuth'
 import { HealthView } from './ServiceHealthPage'
 import { BulkImportModal } from '../components/BulkImportModal'
+import { BulkEditModal } from '../components/BulkEditModal'
 import type { ImportEntity } from '../lib/bulkImportCsv'
+import { CRM_STORE_BOUNDARY, crmStore } from '../lib/crmStore.mock'
+import { clearSelection, isAllSelected, isSomeSelected, pruneSelection, toggleAll, toggleRow } from '../lib/rowSelection'
 
 // ---------------------------------------------------------------------------
 // Config
@@ -16,6 +19,15 @@ const ACTIVITIES_URL = (import.meta.env.VITE_ACTIVITIES_API_BASE_URL     ?? '').
 const STREAM_URL     = (import.meta.env.VITE_EVENT_STREAM_URL            ?? '').replace(/\/$/, '')
 const PROJECTS_URL   = (import.meta.env.VITE_PROJECTS_API_BASE_URL       ?? '').replace(/\/$/, '')
 const SPEND_URL      = (import.meta.env.VITE_SPEND_API_BASE_URL          ?? '').replace(/\/$/, '')
+
+// When a CRM service URL is unset (the backend was decommissioned on
+// 2026-06-04), the tab falls back to the in-memory demo dataset behind the
+// clearly marked mock boundary in `src/lib/crmStore.mock.ts`. Bulk selection
+// and bulk edit are only offered in this demo mode, so no call site pretends
+// the backend is live.
+const CONTACTS_DEMO = !CONTACTS_URL
+const ACCOUNTS_DEMO = !ACCOUNTS_URL
+const OPPS_DEMO     = !OPPS_URL
 
 // ---------------------------------------------------------------------------
 // Types
@@ -250,6 +262,56 @@ function ActionButtons({ onEdit, onDelete }: { onEdit: () => void; onDelete: () 
   )
 }
 
+// ---------------------------------------------------------------------------
+// Bulk selection primitives (page-scoped: "select all" targets the rows
+// currently rendered). Only shown in demo mode, where the tables render the
+// in-memory mock store.
+// ---------------------------------------------------------------------------
+function DemoDataBadge() {
+  return (
+    <span
+      title={CRM_STORE_BOUNDARY}
+      className="rounded-full bg-amber-500/15 px-2 py-0.5 text-[11px] text-amber-300 ring-1 ring-amber-500/30"
+    >
+      Demo data
+    </span>
+  )
+}
+
+function SelectAllCheckbox({ pageIds, selected, onToggle }: {
+  pageIds: string[]; selected: ReadonlySet<string>; onToggle: () => void
+}) {
+  const ref = useRef<HTMLInputElement>(null)
+  const all = isAllSelected(selected, pageIds)
+  const some = isSomeSelected(selected, pageIds)
+  useEffect(() => {
+    if (ref.current) ref.current.indeterminate = !all && some
+  }, [all, some])
+  return (
+    <input
+      ref={ref}
+      type="checkbox"
+      className="rounded"
+      checked={all}
+      onChange={onToggle}
+      aria-label="Select all rows"
+    />
+  )
+}
+
+function SelectionToolbar({ count, onBulkEdit, onClear }: {
+  count: number; onBulkEdit: () => void; onClear: () => void
+}) {
+  if (count === 0) return null
+  return (
+    <div className="flex items-center gap-2">
+      <span className="text-xs font-medium text-amber-300">{count} selected</span>
+      <button type="button" onClick={onBulkEdit} className="btn-accent px-3 py-1.5 text-xs">Bulk edit</button>
+      <button type="button" onClick={onClear} className="text-xs text-zinc-400 hover:text-white">Clear</button>
+    </div>
+  )
+}
+
 function DeleteModal({ label, onConfirm, onClose, saving, error }: {
   label: string; onConfirm: () => void; onClose: () => void; saving: boolean; error: string | null
 }) {
@@ -315,11 +377,18 @@ function ContactsTab({ stageFilter }: { stageFilter?: string }) {
   const [modal, setModal]     = useState<ModalMode<Contact>>(null)
   const [saving, setSaving]   = useState(false)
   const [saveErr, setSaveErr] = useState<string | null>(null)
+  const [selected, setSelected] = useState<ReadonlySet<string>>(() => new Set())
+  const [bulkEditOpen, setBulkEditOpen] = useState(false)
 
   const [form, setForm] = useState({ first_name: '', last_name: '', email: '', phone: '', lifecycle_stage: stageFilter ?? 'lead', account_id: '' })
 
   const load = useCallback(async () => {
-    if (!CONTACTS_URL) { setError('VITE_CONTACTS_API_BASE_URL not configured.'); return }
+    if (CONTACTS_DEMO) {
+      const all = crmStore.list('contacts')
+      setRows(stageFilter ? all.filter(c => c.lifecycle_stage === stageFilter) : all)
+      setError(null)
+      return
+    }
     if (!resolveAdminToken()) { setError(NO_TOKEN_MSG); return }
     setLoading(true); setError(null)
     try {
@@ -331,6 +400,16 @@ function ContactsTab({ stageFilter }: { stageFilter?: string }) {
   }, [stageFilter])
 
   useEffect(() => { load() }, [load])
+  // In demo mode, re-read whenever the shared mock store changes (bulk
+  // import, bulk edit, or CRUD from another tab).
+  useEffect(() => {
+    if (!CONTACTS_DEMO) return
+    return crmStore.subscribe(load)
+  }, [load])
+  // Drop selected ids that left the list (refresh, delete, stage change).
+  useEffect(() => {
+    setSelected(prev => pruneSelection(prev, rows.map(r => r.id)))
+  }, [rows])
 
   function openCreate() {
     setForm({ first_name: '', last_name: '', email: '', phone: '', lifecycle_stage: stageFilter ?? 'lead', account_id: '' })
@@ -345,6 +424,12 @@ function ContactsTab({ stageFilter }: { stageFilter?: string }) {
   async function handleSave(e: React.FormEvent) {
     e.preventDefault(); setSaving(true); setSaveErr(null)
     const body = { first_name: form.first_name.trim(), last_name: form.last_name.trim(), email: form.email.trim() || undefined, phone: form.phone.trim() || undefined, lifecycle_stage: form.lifecycle_stage, account_id: form.account_id.trim() || undefined }
+    if (CONTACTS_DEMO) {
+      if (modal?.mode === 'create') crmStore.insertFromImport('contacts', { first_name: body.first_name, last_name: body.last_name, email: body.email ?? '', phone: body.phone ?? '', lifecycle_stage: body.lifecycle_stage, account_id: body.account_id ?? '' })
+      else if (modal?.mode === 'edit') crmStore.updateFields('contacts', modal.record.id, body)
+      setSaving(false); setModal(null); load()
+      return
+    }
     try {
       if (modal?.mode === 'create')        await api(`${CONTACTS_URL}/api/v1/contacts`, { method: 'POST', body: JSON.stringify(body) })
       else if (modal?.mode === 'edit') await api(`${CONTACTS_URL}/api/v1/contacts/${modal.record.id}`, { method: 'PATCH', body: JSON.stringify(body) })
@@ -356,12 +441,18 @@ function ContactsTab({ stageFilter }: { stageFilter?: string }) {
   async function handleDelete() {
     if (modal?.mode !== 'delete') return
     setSaving(true); setSaveErr(null)
+    if (CONTACTS_DEMO) {
+      crmStore.remove('contacts', modal.id)
+      setSaving(false); setModal(null); load()
+      return
+    }
     try { await api(`${CONTACTS_URL}/api/v1/contacts/${modal.id}`, { method: 'DELETE' }); setModal(null); load() }
     catch (e) { setSaveErr(e instanceof Error ? e.message : String(e)) }
     finally   { setSaving(false) }
   }
 
   const entity = stageFilter === 'lead' ? 'lead' : 'contact'
+  const pageIds = rows.map(c => c.id)
 
   return (
     <>
@@ -380,7 +471,11 @@ function ContactsTab({ stageFilter }: { stageFilter?: string }) {
       {!loading && !error && rows.length > 0 && (
         <div>
           <div className="mb-3 flex items-center justify-between">
-            <p className="text-xs text-zinc-500">{rows.length} record{rows.length !== 1 ? 's' : ''}</p>
+            <div className="flex items-center gap-3">
+              <p className="text-xs text-zinc-500">{rows.length} record{rows.length !== 1 ? 's' : ''}</p>
+              {CONTACTS_DEMO && <DemoDataBadge />}
+              <SelectionToolbar count={selected.size} onBulkEdit={() => setBulkEditOpen(true)} onClear={() => setSelected(clearSelection())} />
+            </div>
             <div className="flex gap-2">
               <button type="button" onClick={load} className="btn-neutral px-3 py-1.5 text-xs">Refresh</button>
               <button type="button" onClick={openCreate} className="btn-accent px-3 py-1.5 text-xs">+ New {entity}</button>
@@ -390,6 +485,11 @@ function ContactsTab({ stageFilter }: { stageFilter?: string }) {
             <table className="w-full min-w-[620px] text-xs">
               <thead>
                 <tr className="border-b border-zinc-700/40 text-left text-zinc-500">
+                  {CONTACTS_DEMO && (
+                    <th className="w-8 px-3 py-2">
+                      <SelectAllCheckbox pageIds={pageIds} selected={selected} onToggle={() => setSelected(s => toggleAll(s, pageIds))} />
+                    </th>
+                  )}
                   <th className="px-3 py-2 font-medium">Name</th>
                   <th className="px-3 py-2 font-medium">Email</th>
                   <th className="px-3 py-2 font-medium">Phone</th>
@@ -401,6 +501,17 @@ function ContactsTab({ stageFilter }: { stageFilter?: string }) {
               <tbody>
                 {rows.map((c, i) => (
                   <tr key={c.id} className={`border-b border-zinc-700/20 ${i % 2 === 0 ? 'bg-zinc-800/20' : ''}`}>
+                    {CONTACTS_DEMO && (
+                      <td className="px-3 py-2">
+                        <input
+                          type="checkbox"
+                          className="rounded"
+                          checked={selected.has(c.id)}
+                          onChange={() => setSelected(s => toggleRow(s, c.id))}
+                          aria-label={`Select ${c.first_name} ${c.last_name}`}
+                        />
+                      </td>
+                    )}
                     <td className="px-3 py-2 text-zinc-200">{c.first_name} {c.last_name}</td>
                     <td className="px-3 py-2 text-zinc-300">{c.email ?? '—'}</td>
                     <td className="px-3 py-2 text-zinc-400">{c.phone ?? '—'}</td>
@@ -454,6 +565,16 @@ function ContactsTab({ stageFilter }: { stageFilter?: string }) {
       {modal?.mode === 'delete' && (
         <DeleteModal label={modal.label} onConfirm={handleDelete} onClose={() => setModal(null)} saving={saving} error={saveErr} />
       )}
+
+      {/* Bulk edit modal (demo mode only) */}
+      {bulkEditOpen && (
+        <BulkEditModal
+          entity="contacts"
+          targets={rows.filter(c => selected.has(c.id)).map(c => ({ id: c.id, label: `${c.first_name} ${c.last_name}` }))}
+          onApplied={() => setSelected(clearSelection())}
+          onClose={() => { setBulkEditOpen(false); load() }}
+        />
+      )}
     </>
   )
 }
@@ -468,10 +589,16 @@ function AccountsTab() {
   const [modal, setModal]     = useState<ModalMode<Account>>(null)
   const [saving, setSaving]   = useState(false)
   const [saveErr, setSaveErr] = useState<string | null>(null)
+  const [selected, setSelected] = useState<ReadonlySet<string>>(() => new Set())
+  const [bulkEditOpen, setBulkEditOpen] = useState(false)
   const [form, setForm]       = useState({ name: '', domain: '', status: 'active' })
 
   const load = useCallback(async () => {
-    if (!ACCOUNTS_URL) { setError('VITE_ACCOUNTS_API_BASE_URL not configured.'); return }
+    if (ACCOUNTS_DEMO) {
+      setRows(crmStore.list('accounts'))
+      setError(null)
+      return
+    }
     if (!resolveAdminToken()) { setError(NO_TOKEN_MSG); return }
     setLoading(true); setError(null)
     try {
@@ -482,6 +609,13 @@ function AccountsTab() {
   }, [])
 
   useEffect(() => { load() }, [load])
+  useEffect(() => {
+    if (!ACCOUNTS_DEMO) return
+    return crmStore.subscribe(load)
+  }, [load])
+  useEffect(() => {
+    setSelected(prev => pruneSelection(prev, rows.map(r => r.id)))
+  }, [rows])
 
   function openCreate() { setForm({ name: '', domain: '', status: 'active' }); setSaveErr(null); setModal({ mode: 'create' }) }
   function openEdit(a: Account) { setForm({ name: a.name, domain: a.domain ?? '', status: a.status }); setSaveErr(null); setModal({ mode: 'edit', record: a }) }
@@ -490,6 +624,12 @@ function AccountsTab() {
   async function handleSave(e: React.FormEvent) {
     e.preventDefault(); setSaving(true); setSaveErr(null)
     const body = { name: form.name.trim(), domain: form.domain.trim() || undefined, status: form.status }
+    if (ACCOUNTS_DEMO) {
+      if (modal?.mode === 'create') crmStore.insertFromImport('accounts', { name: body.name, domain: body.domain ?? '', status: body.status })
+      else if (modal?.mode === 'edit') crmStore.updateFields('accounts', modal.record.id, body)
+      setSaving(false); setModal(null); load()
+      return
+    }
     try {
       if (modal?.mode === 'create')        await api(`${ACCOUNTS_URL}/api/v1/accounts`, { method: 'POST', body: JSON.stringify(body) })
       else if (modal?.mode === 'edit') await api(`${ACCOUNTS_URL}/api/v1/accounts/${modal.record.id}`, { method: 'PATCH', body: JSON.stringify(body) })
@@ -501,10 +641,17 @@ function AccountsTab() {
   async function handleDelete() {
     if (modal?.mode !== 'delete') return
     setSaving(true); setSaveErr(null)
+    if (ACCOUNTS_DEMO) {
+      crmStore.remove('accounts', modal.id)
+      setSaving(false); setModal(null); load()
+      return
+    }
     try { await api(`${ACCOUNTS_URL}/api/v1/accounts/${modal.id}`, { method: 'DELETE' }); setModal(null); load() }
     catch (e) { setSaveErr(e instanceof Error ? e.message : String(e)) }
     finally   { setSaving(false) }
   }
+
+  const pageIds = rows.map(a => a.id)
 
   return (
     <>
@@ -523,7 +670,11 @@ function AccountsTab() {
       {!loading && !error && rows.length > 0 && (
         <div>
           <div className="mb-3 flex items-center justify-between">
-            <p className="text-xs text-zinc-500">{rows.length} record{rows.length !== 1 ? 's' : ''}</p>
+            <div className="flex items-center gap-3">
+              <p className="text-xs text-zinc-500">{rows.length} record{rows.length !== 1 ? 's' : ''}</p>
+              {ACCOUNTS_DEMO && <DemoDataBadge />}
+              <SelectionToolbar count={selected.size} onBulkEdit={() => setBulkEditOpen(true)} onClear={() => setSelected(clearSelection())} />
+            </div>
             <div className="flex gap-2">
               <button type="button" onClick={load} className="btn-neutral px-3 py-1.5 text-xs">Refresh</button>
               <button type="button" onClick={openCreate} className="btn-accent px-3 py-1.5 text-xs">+ New account</button>
@@ -533,6 +684,11 @@ function AccountsTab() {
             <table className="w-full min-w-[500px] text-xs">
               <thead>
                 <tr className="border-b border-zinc-700/40 text-left text-zinc-500">
+                  {ACCOUNTS_DEMO && (
+                    <th className="w-8 px-3 py-2">
+                      <SelectAllCheckbox pageIds={pageIds} selected={selected} onToggle={() => setSelected(s => toggleAll(s, pageIds))} />
+                    </th>
+                  )}
                   <th className="px-3 py-2 font-medium">Name</th>
                   <th className="px-3 py-2 font-medium">Domain</th>
                   <th className="px-3 py-2 font-medium">Status</th>
@@ -543,6 +699,17 @@ function AccountsTab() {
               <tbody>
                 {rows.map((a, i) => (
                   <tr key={a.id} className={`border-b border-zinc-700/20 ${i % 2 === 0 ? 'bg-zinc-800/20' : ''}`}>
+                    {ACCOUNTS_DEMO && (
+                      <td className="px-3 py-2">
+                        <input
+                          type="checkbox"
+                          className="rounded"
+                          checked={selected.has(a.id)}
+                          onChange={() => setSelected(s => toggleRow(s, a.id))}
+                          aria-label={`Select ${a.name}`}
+                        />
+                      </td>
+                    )}
                     <td className="px-3 py-2 text-zinc-200">{a.name}</td>
                     <td className="px-3 py-2 text-zinc-300">{a.domain ?? '—'}</td>
                     <td className="px-3 py-2"><Badge value={a.status} map={STATUS_COLOR} /></td>
@@ -581,6 +748,16 @@ function AccountsTab() {
       {modal?.mode === 'delete' && (
         <DeleteModal label={modal.label} onConfirm={handleDelete} onClose={() => setModal(null)} saving={saving} error={saveErr} />
       )}
+
+      {/* Bulk edit modal (demo mode only) */}
+      {bulkEditOpen && (
+        <BulkEditModal
+          entity="accounts"
+          targets={rows.filter(a => selected.has(a.id)).map(a => ({ id: a.id, label: a.name }))}
+          onApplied={() => setSelected(clearSelection())}
+          onClose={() => { setBulkEditOpen(false); load() }}
+        />
+      )}
     </>
   )
 }
@@ -595,10 +772,16 @@ function OpportunitiesTab() {
   const [modal, setModal]     = useState<ModalMode<Opportunity>>(null)
   const [saving, setSaving]   = useState(false)
   const [saveErr, setSaveErr] = useState<string | null>(null)
+  const [selected, setSelected] = useState<ReadonlySet<string>>(() => new Set())
+  const [bulkEditOpen, setBulkEditOpen] = useState(false)
   const [form, setForm]       = useState({ name: '', account_id: '', stage: 'qualification', amount: '', close_date: '' })
 
   const load = useCallback(async () => {
-    if (!OPPS_URL)  { setError('VITE_OPPORTUNITIES_API_BASE_URL not configured.'); return }
+    if (OPPS_DEMO) {
+      setRows(crmStore.list('opportunities'))
+      setError(null)
+      return
+    }
     if (!resolveAdminToken()) { setError(NO_TOKEN_MSG); return }
     setLoading(true); setError(null)
     try   { setRows(await api<Opportunity[]>(`${OPPS_URL}/api/v1/opportunities`)) }
@@ -607,6 +790,13 @@ function OpportunitiesTab() {
   }, [])
 
   useEffect(() => { load() }, [load])
+  useEffect(() => {
+    if (!OPPS_DEMO) return
+    return crmStore.subscribe(load)
+  }, [load])
+  useEffect(() => {
+    setSelected(prev => pruneSelection(prev, rows.map(r => r.id)))
+  }, [rows])
 
   function openCreate() { setForm({ name: '', account_id: '', stage: 'qualification', amount: '', close_date: '' }); setSaveErr(null); setModal({ mode: 'create' }) }
   function openEdit(o: Opportunity) {
@@ -617,6 +807,12 @@ function OpportunitiesTab() {
   async function handleSave(e: React.FormEvent) {
     e.preventDefault(); setSaving(true); setSaveErr(null)
     const body = { name: form.name.trim(), account_id: form.account_id.trim(), stage: form.stage, amount: form.amount ? parseFloat(form.amount) : undefined, close_date: form.close_date || undefined }
+    if (OPPS_DEMO) {
+      if (modal?.mode === 'create') crmStore.insertFromImport('opportunities', { name: body.name, account_id: body.account_id, stage: body.stage, amount: form.amount.trim(), close_date: form.close_date })
+      else if (modal?.mode === 'edit') crmStore.updateFields('opportunities', modal.record.id, body)
+      setSaving(false); setModal(null); load()
+      return
+    }
     try {
       if (modal?.mode === 'create')        await api(`${OPPS_URL}/api/v1/opportunities`, { method: 'POST', body: JSON.stringify(body) })
       else if (modal?.mode === 'edit') await api(`${OPPS_URL}/api/v1/opportunities/${modal.record.id}`, { method: 'PATCH', body: JSON.stringify(body) })
@@ -628,12 +824,18 @@ function OpportunitiesTab() {
   async function handleDelete() {
     if (modal?.mode !== 'delete') return
     setSaving(true); setSaveErr(null)
+    if (OPPS_DEMO) {
+      crmStore.remove('opportunities', modal.id)
+      setSaving(false); setModal(null); load()
+      return
+    }
     try { await api(`${OPPS_URL}/api/v1/opportunities/${modal.id}`, { method: 'DELETE' }); setModal(null); load() }
     catch (e) { setSaveErr(e instanceof Error ? e.message : String(e)) }
     finally   { setSaving(false) }
   }
 
   const totalValue = rows.reduce((s, o) => s + o.amount, 0)
+  const pageIds = rows.map(o => o.id)
 
   return (
     <>
@@ -655,6 +857,8 @@ function OpportunitiesTab() {
             <div className="flex items-center gap-4">
               <p className="text-xs text-zinc-500">{rows.length} record{rows.length !== 1 ? 's' : ''}</p>
               <p className="text-xs text-zinc-500">Total: <span className="text-zinc-300">${totalValue.toLocaleString('en-US', { minimumFractionDigits: 0 })}</span></p>
+              {OPPS_DEMO && <DemoDataBadge />}
+              <SelectionToolbar count={selected.size} onBulkEdit={() => setBulkEditOpen(true)} onClear={() => setSelected(clearSelection())} />
             </div>
             <div className="flex gap-2">
               <button type="button" onClick={load} className="btn-neutral px-3 py-1.5 text-xs">Refresh</button>
@@ -665,6 +869,11 @@ function OpportunitiesTab() {
             <table className="w-full min-w-[600px] text-xs">
               <thead>
                 <tr className="border-b border-zinc-700/40 text-left text-zinc-500">
+                  {OPPS_DEMO && (
+                    <th className="w-8 px-3 py-2">
+                      <SelectAllCheckbox pageIds={pageIds} selected={selected} onToggle={() => setSelected(s => toggleAll(s, pageIds))} />
+                    </th>
+                  )}
                   <th className="px-3 py-2 font-medium">Name</th>
                   <th className="px-3 py-2 font-medium">Stage</th>
                   <th className="px-3 py-2 font-medium">Amount</th>
@@ -676,6 +885,17 @@ function OpportunitiesTab() {
               <tbody>
                 {rows.map((o, i) => (
                   <tr key={o.id} className={`border-b border-zinc-700/20 ${i % 2 === 0 ? 'bg-zinc-800/20' : ''}`}>
+                    {OPPS_DEMO && (
+                      <td className="px-3 py-2">
+                        <input
+                          type="checkbox"
+                          className="rounded"
+                          checked={selected.has(o.id)}
+                          onChange={() => setSelected(s => toggleRow(s, o.id))}
+                          aria-label={`Select ${o.name}`}
+                        />
+                      </td>
+                    )}
                     <td className="px-3 py-2 text-zinc-200">{o.name}</td>
                     <td className="px-3 py-2"><Badge value={o.stage} map={STAGE_COLOR} /></td>
                     <td className="px-3 py-2 text-zinc-300">{o.amount > 0 ? `$${o.amount.toLocaleString('en-US', { minimumFractionDigits: 0 })}` : '—'}</td>
@@ -722,6 +942,16 @@ function OpportunitiesTab() {
       )}
       {modal?.mode === 'delete' && (
         <DeleteModal label={modal.label} onConfirm={handleDelete} onClose={() => setModal(null)} saving={saving} error={saveErr} />
+      )}
+
+      {/* Bulk edit modal (demo mode only) */}
+      {bulkEditOpen && (
+        <BulkEditModal
+          entity="opportunities"
+          targets={rows.filter(o => selected.has(o.id)).map(o => ({ id: o.id, label: o.name }))}
+          onApplied={() => setSelected(clearSelection())}
+          onClose={() => { setBulkEditOpen(false); load() }}
+        />
       )}
     </>
   )
