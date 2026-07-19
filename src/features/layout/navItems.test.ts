@@ -39,6 +39,14 @@ describe('navItems', () => {
       expect(labels).toContain('Contact')
     })
 
+    it('should include API Docs after the funnel entries (v1.17.1)', () => {
+      const labels = PRIMARY_NAV_ITEMS.map((item) => item.label)
+      expect(labels).toContain('API Docs')
+      expect(labels.indexOf('API Docs')).toBeGreaterThan(labels.indexOf('Contact'))
+      const apiDocs = PRIMARY_NAV_ITEMS.find((item) => item.label === 'API Docs')
+      expect(apiDocs?.href).toBe('#/api-docs')
+    })
+
     it('should NOT include Workspace items', () => {
       const labels = PRIMARY_NAV_ITEMS.map((item) => item.label)
       expect(labels).not.toContain('Search')
