@@ -7,8 +7,11 @@
 //
 // Record shapes mirror the projects-service DTOs (microservices repo,
 // projects-service/openapi.yaml) as rendered by the admin Projects tab.
-// Milestone and deliverable statuses follow the admin UI vocabulary
-// (pending / in_progress / completed / blocked).
+// Milestone statuses follow the admin UI vocabulary (pending / in_progress /
+// completed / blocked). Deliverables may additionally carry the
+// projects-service API enum (not_started / in_review / accepted) since the
+// v1.17.2 API playground writes spec-vocabulary records into the same demo
+// dataset; the seed data keeps the admin vocabulary.
 //
 // Consumed by the marked mock boundary in `src/lib/projectsStore.mock.ts`;
 // nothing here talks to a backend.
@@ -16,6 +19,14 @@
 
 export type ProjectStatus = 'planning' | 'active' | 'on_hold' | 'completed' | 'cancelled'
 export type TaskStatus = 'pending' | 'in_progress' | 'completed' | 'blocked'
+
+/**
+ * Deliverable status: the admin demo vocabulary (TaskStatus) plus the
+ * projects-service OpenAPI enum values it does not share. Seed data uses the
+ * admin vocabulary; records written through the API playground's demo adapter
+ * use the spec enum verbatim.
+ */
+export type DeliverableStatus = TaskStatus | 'not_started' | 'in_review' | 'accepted'
 
 /** Status a cloned or templated project starts in when statuses are reset. */
 export const RESET_PROJECT_STATUS: ProjectStatus = 'planning'
@@ -56,7 +67,7 @@ export interface DemoDeliverable {
   milestone_id: string
   name: string
   description: string | null
-  status: TaskStatus
+  status: DeliverableStatus
   estimated_hours: number | null
   created_at: string
   updated_at: string
