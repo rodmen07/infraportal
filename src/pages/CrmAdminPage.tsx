@@ -5,8 +5,11 @@ import { useAuth } from '../features/auth/useAuth'
 import { HealthView } from './ServiceHealthPage'
 import { BulkImportModal } from '../components/BulkImportModal'
 import { BulkEditModal } from '../components/BulkEditModal'
+import { ProjectCloneModal } from '../components/ProjectCloneModal'
+import { TemplateLibrary } from '../components/TemplateLibrary'
 import type { ImportEntity } from '../lib/bulkImportCsv'
 import { CRM_STORE_BOUNDARY, crmStore } from '../lib/crmStore.mock'
+import { PROJECTS_STORE_BOUNDARY, projectsStore } from '../lib/projectsStore.mock'
 import { clearSelection, isAllSelected, isSomeSelected, pruneSelection, toggleAll, toggleRow } from '../lib/rowSelection'
 
 // ---------------------------------------------------------------------------
@@ -28,6 +31,10 @@ const SPEND_URL      = (import.meta.env.VITE_SPEND_API_BASE_URL          ?? '').
 const CONTACTS_DEMO = !CONTACTS_URL
 const ACCOUNTS_DEMO = !ACCOUNTS_URL
 const OPPS_DEMO     = !OPPS_URL
+// Same discipline for the Projects tab (v1.16.5): with no projects-service
+// URL it renders the demo dataset in `src/lib/projectsStore.mock.ts`, and
+// cloning plus the template library are only offered in this demo mode.
+const PROJECTS_DEMO = !PROJECTS_URL
 
 // ---------------------------------------------------------------------------
 // Types
@@ -267,10 +274,10 @@ function ActionButtons({ onEdit, onDelete }: { onEdit: () => void; onDelete: () 
 // currently rendered). Only shown in demo mode, where the tables render the
 // in-memory mock store.
 // ---------------------------------------------------------------------------
-function DemoDataBadge() {
+function DemoDataBadge({ note = CRM_STORE_BOUNDARY }: { note?: string }) {
   return (
     <span
-      title={CRM_STORE_BOUNDARY}
+      title={note}
       className="rounded-full bg-amber-500/15 px-2 py-0.5 text-[11px] text-amber-300 ring-1 ring-amber-500/30"
     >
       Demo data
@@ -1261,8 +1268,15 @@ function ProjectsTab() {
   // message send error
   const [sendError, setSendError] = useState<string | null>(null)
 
+  // clone modal (demo mode only)
+  const [cloneOpen, setCloneOpen] = useState(false)
+
   const loadProjects = useCallback(async () => {
-    if (!PROJECTS_URL) return
+    if (PROJECTS_DEMO) {
+      setProjects(projectsStore.listProjects())
+      setError(null)
+      return
+    }
     setLoading(true); setError(null)
     try {
       const rows = await api<Project[]>(`${PROJECTS_URL}/api/v1/projects`)
@@ -1277,6 +1291,14 @@ function ProjectsTab() {
   const loadProject = useCallback(async (p: Project) => {
     setSelected(p); setMilestones([]); setDeliverables({}); setMessages([]); setLinks([])
     setCollaborators([]); setProgressUpdates([])
+    if (PROJECTS_DEMO) {
+      const ms = projectsStore.listMilestones(p.id)
+      setMilestones(ms)
+      const dlMap: Record<string, Deliverable[]> = {}
+      for (const m of ms) dlMap[m.id] = projectsStore.listDeliverables(m.id)
+      setDeliverables(dlMap)
+      return
+    }
     try {
       const [ms, msgs, lnks, collabs, updates] = await Promise.all([
         api<Milestone[]>(`${PROJECTS_URL}/api/v1/projects/${p.id}/milestones`),
@@ -1301,6 +1323,12 @@ function ProjectsTab() {
   }, [])
 
   useEffect(() => { loadProjects() }, [loadProjects])
+  // In demo mode, re-read whenever the shared mock store changes (clone,
+  // template create, or a mutation from another component).
+  useEffect(() => {
+    if (!PROJECTS_DEMO) return
+    return projectsStore.subscribe(loadProjects)
+  }, [loadProjects])
 
   const createProject = async (e: React.FormEvent) => {
     e.preventDefault(); setSaving(true); setSaveError(null)
@@ -1433,21 +1461,20 @@ function ProjectsTab() {
     }
   }
 
-  if (!PROJECTS_URL) return (
-    <CustomEmptyState
-      icon={<ProjectIcon />}
-      title="Project service URL not configured"
-      description="Set VITE_PROJECTS_API_BASE_URL to enable this tab."
-    />
-  )
-
   return (
     <div className="space-y-4">
       {/* Project list */}
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-zinc-200">Projects</h3>
+        <div className="flex items-center gap-3">
+          <h3 className="text-sm font-semibold text-zinc-200">Projects</h3>
+          {PROJECTS_DEMO && <DemoDataBadge note={PROJECTS_STORE_BOUNDARY} />}
+        </div>
         {projects.length > 0 && (
-          <button className="btn-accent btn-sm" onClick={() => setShowCreate(true)}>+ New project</button>
+          PROJECTS_DEMO ? (
+            <button className="btn-accent btn-sm" onClick={() => setCloneOpen(true)}>Clone project</button>
+          ) : (
+            <button className="btn-accent btn-sm" onClick={() => setShowCreate(true)}>+ New project</button>
+          )
         )}
       </div>
 
@@ -1459,8 +1486,8 @@ function ProjectsTab() {
           icon={<ProjectIcon />}
           title="No projects yet"
           description="Create your first project to organize work."
-          ctaText="+ New project"
-          onCtaClick={() => setShowCreate(true)}
+          ctaText={PROJECTS_DEMO ? undefined : '+ New project'}
+          onCtaClick={PROJECTS_DEMO ? undefined : () => setShowCreate(true)}
         />
       )}
 
@@ -1495,7 +1522,9 @@ function ProjectsTab() {
                 <p className="mt-0.5 text-xs text-zinc-400">Budget: <span className="text-zinc-200">${selected.budget.toLocaleString()}</span></p>
               )}
             </div>
-            <button className="btn-neutral btn-sm" onClick={() => setShowMilestone(true)}>+ Milestone</button>
+            {!PROJECTS_DEMO && (
+              <button className="btn-neutral btn-sm" onClick={() => setShowMilestone(true)}>+ Milestone</button>
+            )}
           </div>
 
           {/* Milestones */}
@@ -1503,9 +1532,11 @@ function ProjectsTab() {
             <CustomEmptyState
               icon={<FlagIcon />}
               title="No milestones yet"
-              description="Add milestones to track key project phases."
-              ctaText="+ Milestone"
-              onCtaClick={() => setShowMilestone(true)}
+              description={PROJECTS_DEMO
+                ? 'This project was cloned without milestones.'
+                : 'Add milestones to track key project phases.'}
+              ctaText={PROJECTS_DEMO ? undefined : '+ Milestone'}
+              onCtaClick={PROJECTS_DEMO ? undefined : () => setShowMilestone(true)}
             />
           )}
           {milestones.map(m => (
@@ -1517,9 +1548,11 @@ function ProjectsTab() {
                   <span className={`rounded-full px-2 py-0.5 text-xs ${STATUS_PILL[m.status] ?? 'bg-zinc-700/40 text-zinc-400'}`}>
                     {m.status.replace('_', ' ')}
                   </span>
-                  <button className="text-xs text-zinc-500 hover:text-zinc-300" onClick={() => { setShowDeliverable(m.id); setDlForm({ name: '', description: '', status: 'pending', estimated_hours: '' }) }}>
-                    + Deliverable
-                  </button>
+                  {!PROJECTS_DEMO && (
+                    <button className="text-xs text-zinc-500 hover:text-zinc-300" onClick={() => { setShowDeliverable(m.id); setDlForm({ name: '', description: '', status: 'pending', estimated_hours: '' }) }}>
+                      + Deliverable
+                    </button>
+                  )}
                 </div>
               </div>
               {(deliverables[m.id] ?? []).map(d => (
@@ -1538,7 +1571,10 @@ function ProjectsTab() {
             </div>
           ))}
 
-          {/* Project links */}
+          {/* Links, collaborators, progress updates, and messages talk to
+              live endpoints only; they are hidden in demo mode because they
+              are not part of the demo store (v1.16.5 scope). */}
+          {!PROJECTS_DEMO && (<>
           <div className="space-y-2">
             <h5 className="text-xs font-semibold uppercase tracking-widest text-zinc-400">Project links</h5>
             {links.length === 0 && <p className="text-xs text-zinc-500">No links yet.</p>}
@@ -1642,7 +1678,20 @@ function ProjectsTab() {
               </div>
             </form>
           </div>
+          </>)}
         </div>
+      )}
+
+      {/* Template library (demo mode only) */}
+      {PROJECTS_DEMO && <TemplateLibrary projects={projects} />}
+
+      {/* Clone modal (demo mode only) */}
+      {PROJECTS_DEMO && cloneOpen && (
+        <ProjectCloneModal
+          projects={projects}
+          initialSourceId={selected?.id}
+          onClose={() => setCloneOpen(false)}
+        />
       )}
 
       {/* Create project modal */}
