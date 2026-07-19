@@ -31,10 +31,10 @@ Each milestone is one or two small PRs, in ship order, keeping the platform's on
 - PR 2 (optional polish): bulk select and bulk edit affordances in portal lists reusing the same mocked boundary; Vitest coverage for the CSV validation logic.
 - Done when: build, Vitest, and the tsc CI gate are green; the Pages deploy succeeds; the mock boundary is explicit in code (no call sites pretend the backend is live).
 
-### v1.16.5 - Deliverable Templates and Project Cloning (mocked API) - SHIPPED 2026-07-19 (PR #22; templates + cloning + projects demo store)
+### v1.16.5 - Deliverable Templates and Project Cloning (mocked API) - SHIPPED 2026-07-19 (both PRs; milestone complete)
 
-- PR 1: `ProjectCloneModal` plus `TemplateLibrary` components against the same mocked API layer.
-- PR 2 (optional): template CRUD UX and a clone-from-template flow, with tests.
+- PR 1 (repo PR #22): `ProjectCloneModal` plus `TemplateLibrary` components against the same mocked API layer, with the pure clone/template engine and the seeded projects demo store.
+- PR 2 (shipped 2026-07-19): full template CRUD (create from a project, create from scratch and edit in `TemplateEditorModal`, delete behind an inline confirm, empty state), the clone flow covered end to end by jsdom wiring tests, and status-vocabulary reconciliation: `src/lib/projectStatusVocabulary.ts` is the single spec-derived source of truth for project/milestone/deliverable statuses (the admin tab's off-spec "blocked"/"pending"/"completed" deliverable values are gone), locked by a guard test against `src/api-specs/projects-service.json` so UI vocabulary drift from the service contract fails the suite.
 - Done when: same bar as v1.16.4.
 
 ### v1.17 - Interactive API Playground (approved 2026-07-19; all four milestones SHIPPED 2026-07-19)

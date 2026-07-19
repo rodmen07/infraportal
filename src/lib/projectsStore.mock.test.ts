@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import { createProjectsStore } from './projectsStore.mock'
+import {
+  DELIVERABLE_STATUSES,
+  MILESTONE_STATUSES,
+  PROJECT_STATUSES,
+} from './projectStatusVocabulary'
 
 const FIXED_NOW = '2026-07-19T12:00:00Z'
 
@@ -54,10 +59,32 @@ describe('projectsStore seed', () => {
     const snap = store.snapshot('proj-001')
     expect(snap).not.toBeNull()
     snap!.project.name = 'Mutated'
-    snap!.milestones[0].status = 'blocked'
+    snap!.milestones[0].status = 'pending'
     expect(store.listProjects()[0].name).toBe('Cloud Migration - Acme Corp')
     expect(store.listMilestones('proj-001')[0].status).toBe('completed')
     expect(store.snapshot('proj-nope')).toBeNull()
+  })
+
+  it('seeds only statuses the projects-service spec allows (v1.16.5 PR2 reconciliation)', () => {
+    const store = createProjectsStore()
+    for (const project of store.listProjects()) {
+      expect(PROJECT_STATUSES).toContain(project.status)
+      for (const milestone of store.listMilestones(project.id)) {
+        expect(MILESTONE_STATUSES).toContain(milestone.status)
+        for (const deliverable of store.listDeliverables(milestone.id)) {
+          expect(DELIVERABLE_STATUSES).toContain(deliverable.status)
+        }
+      }
+    }
+    // The seed still demonstrates the full deliverable lifecycle, including
+    // the review state that replaced the old off-spec "blocked" value.
+    const allDeliverableStatuses = new Set(
+      store.listProjects()
+        .flatMap(p => store.listMilestones(p.id))
+        .flatMap(m => store.listDeliverables(m.id))
+        .map(d => d.status),
+    )
+    expect([...allDeliverableStatuses].sort()).toEqual([...DELIVERABLE_STATUSES].sort())
   })
 })
 
@@ -84,7 +111,7 @@ describe('projectsStore cloning', () => {
     expect(clonedMilestones.every(m => m.status === 'pending')).toBe(true)
     const clonedDeliverables = clonedMilestones.flatMap(m => store.listDeliverables(m.id))
     expect(clonedDeliverables).toHaveLength(sourceDeliverableCount)
-    expect(clonedDeliverables.every(d => d.status === 'pending')).toBe(true)
+    expect(clonedDeliverables.every(d => d.status === 'not_started')).toBe(true)
 
     // The source keeps its ids and statuses.
     expect(store.listMilestones('proj-001').map(m => m.status)).toEqual(['completed', 'in_progress', 'pending'])
@@ -125,7 +152,7 @@ describe('projectsStore templates', () => {
       const created = store.listDeliverables(milestone.id)
       const source = store.listDeliverables(sourceMilestones[index].id)
       expect(created.map(d => d.name)).toEqual(source.map(d => d.name))
-      expect(created.every(d => d.status === 'pending')).toBe(true)
+      expect(created.every(d => d.status === 'not_started')).toBe(true)
     })
   })
 
@@ -136,6 +163,84 @@ describe('projectsStore templates', () => {
     expect(store.removeTemplate('tpl-001')).toBe(true)
     expect(store.removeTemplate('tpl-001')).toBe(false)
     expect(store.listTemplates()).toHaveLength(0)
+  })
+
+  it('getTemplate returns an isolated copy, and null for unknown ids', () => {
+    const store = createProjectsStore()
+    const template = store.getTemplate('tpl-001')
+    expect(template).toMatchObject({ id: 'tpl-001', name: 'Standard consulting engagement' })
+    template!.name = 'Mutated'
+    template!.milestones[0].deliverables.push({ name: 'Injected' })
+    expect(store.getTemplate('tpl-001')).toMatchObject({ name: 'Standard consulting engagement' })
+    expect(store.getTemplate('tpl-001')!.milestones[0].deliverables).toHaveLength(2)
+    expect(store.getTemplate('tpl-nope')).toBeNull()
+  })
+
+  it('listTemplates copies nested structure so callers cannot mutate the store', () => {
+    const store = createProjectsStore()
+    store.listTemplates()[0].milestones.pop()
+    expect(store.getTemplate('tpl-001')!.milestones).toHaveLength(3)
+  })
+})
+
+describe('projectsStore template CRUD (v1.16.5 PR2)', () => {
+  it('createTemplate builds a scratch template that instantiates like any other', () => {
+    const store = createProjectsStore({ now: () => FIXED_NOW })
+    const template = store.createTemplate(' Onboarding track ', [
+      { name: ' Setup ', deliverables: [' Access checklist ', ''] },
+      { name: '', deliverables: ['dropped with its row'] },
+      { name: 'Launch', deliverables: ['Go-live review'] },
+    ])
+
+    expect(template).toMatchObject({
+      name: 'Onboarding track',
+      source_project_name: 'scratch',
+      created_at: FIXED_NOW,
+    })
+    expect(template!.milestones).toEqual([
+      { name: 'Setup', sort_order: 0, deliverables: [{ name: 'Access checklist' }] },
+      { name: 'Launch', sort_order: 1, deliverables: [{ name: 'Go-live review' }] },
+    ])
+    expect(store.listTemplates()).toHaveLength(2)
+
+    const project = store.createFromTemplate(template!.id, 'First client onboarding')
+    expect(project).toMatchObject({ name: 'First client onboarding', status: 'planning' })
+    const milestones = store.listMilestones(project!.id)
+    expect(milestones.map(m => m.name)).toEqual(['Setup', 'Launch'])
+    expect(store.listDeliverables(milestones[0].id).map(d => d.status)).toEqual(['not_started'])
+  })
+
+  it('createTemplate rejects unusable drafts without touching the library', () => {
+    const store = createProjectsStore()
+    expect(store.createTemplate('   ', [{ name: 'Setup', deliverables: [] }])).toBeNull()
+    expect(store.createTemplate('Named', [{ name: '  ', deliverables: ['x'] }])).toBeNull()
+    expect(store.listTemplates()).toHaveLength(1)
+  })
+
+  it('updateTemplate renames and restructures in place, keeping id and provenance', () => {
+    const store = createProjectsStore({ now: () => FIXED_NOW })
+    const renamed = store.updateTemplate('tpl-001', { name: ' Consulting v2 ' })
+    expect(renamed).toMatchObject({ id: 'tpl-001', name: 'Consulting v2', source_project_name: 'Starter' })
+    expect(renamed!.milestones.map(m => m.name)).toEqual(['Discovery', 'Build', 'Handover'])
+
+    const restructured = store.updateTemplate('tpl-001', {
+      milestones: [{ name: 'Single phase', deliverables: [' Everything ', ' '] }],
+    })
+    expect(restructured!.name).toBe('Consulting v2')
+    expect(restructured!.milestones).toEqual([
+      { name: 'Single phase', sort_order: 0, deliverables: [{ name: 'Everything' }] },
+    ])
+    expect(store.getTemplate('tpl-001')).toEqual(restructured)
+    expect(store.listTemplates()).toHaveLength(1) // edited, not duplicated
+  })
+
+  it('updateTemplate returns null and leaves the template untouched for unknown ids and unusable edits', () => {
+    const store = createProjectsStore()
+    const before = store.getTemplate('tpl-001')
+    expect(store.updateTemplate('tpl-nope', { name: 'X' })).toBeNull()
+    expect(store.updateTemplate('tpl-001', { name: '   ' })).toBeNull()
+    expect(store.updateTemplate('tpl-001', { milestones: [] })).toBeNull()
+    expect(store.getTemplate('tpl-001')).toEqual(before)
   })
 })
 
@@ -204,19 +309,25 @@ describe('projectsStore notifications and reset', () => {
     store.cloneProject('proj-001', ALL_OPTIONS)
     const template = store.saveTemplate('proj-001', 'Migration track')
     store.createFromTemplate(template!.id, 'From template')
+    store.updateTemplate(template!.id, { name: 'Migration track v2' })
+    const scratch = store.createTemplate('Scratch track', [{ name: 'Only phase', deliverables: [] }])
     store.removeTemplate(template!.id)
-    expect(calls).toBe(4)
+    store.removeTemplate(scratch!.id)
+    expect(calls).toBe(7)
 
     // Failed operations do not notify.
     store.cloneProject('proj-nope', ALL_OPTIONS)
     store.saveTemplate('proj-nope', 'Nope')
     store.createFromTemplate('tpl-nope', 'Nope')
+    store.createTemplate('  ', [])
+    store.updateTemplate('tpl-nope', { name: 'X' })
+    store.updateTemplate('tpl-001', { name: '  ' })
     store.removeTemplate('tpl-nope')
-    expect(calls).toBe(4)
+    expect(calls).toBe(7)
 
     unsubscribe()
     store.reset()
-    expect(calls).toBe(4)
+    expect(calls).toBe(7)
   })
 
   it('reset restores the seed after clones and template edits', () => {

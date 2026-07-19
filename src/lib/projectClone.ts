@@ -7,34 +7,40 @@
 //
 // Record shapes mirror the projects-service DTOs (microservices repo,
 // projects-service/openapi.yaml) as rendered by the admin Projects tab.
-// Milestone statuses follow the admin UI vocabulary (pending / in_progress /
-// completed / blocked). Deliverables may additionally carry the
-// projects-service API enum (not_started / in_review / accepted) since the
-// v1.17.2 API playground writes spec-vocabulary records into the same demo
-// dataset; the seed data keeps the admin vocabulary.
+// Since v1.16.5 PR2 every status field uses the spec vocabulary from
+// `projectStatusVocabulary.ts` (guard-tested against the committed spec
+// snapshot), so nothing built on this engine can present a status the
+// service would reject.
 //
 // Consumed by the marked mock boundary in `src/lib/projectsStore.mock.ts`;
 // nothing here talks to a backend.
 // ---------------------------------------------------------------------------
 
-export type ProjectStatus = 'planning' | 'active' | 'on_hold' | 'completed' | 'cancelled'
-export type TaskStatus = 'pending' | 'in_progress' | 'completed' | 'blocked'
+import {
+  RESET_DELIVERABLE_STATUS,
+  RESET_MILESTONE_STATUS,
+  RESET_PROJECT_STATUS,
+  type DeliverableStatus,
+  type MilestoneStatus,
+  type ProjectStatus,
+} from './projectStatusVocabulary'
 
-/**
- * Deliverable status: the admin demo vocabulary (TaskStatus) plus the
- * projects-service OpenAPI enum values it does not share. Seed data uses the
- * admin vocabulary; records written through the API playground's demo adapter
- * use the spec enum verbatim.
- */
-export type DeliverableStatus = TaskStatus | 'not_started' | 'in_review' | 'accepted'
-
-/** Status a cloned or templated project starts in when statuses are reset. */
-export const RESET_PROJECT_STATUS: ProjectStatus = 'planning'
-/** Status cloned or templated milestones and deliverables reset to. */
-export const RESET_TASK_STATUS: TaskStatus = 'pending'
+// Re-exported so existing importers keep a single import site for the
+// engine's record shapes plus their status unions.
+export {
+  RESET_DELIVERABLE_STATUS,
+  RESET_MILESTONE_STATUS,
+  RESET_PROJECT_STATUS,
+  type DeliverableStatus,
+  type MilestoneStatus,
+  type ProjectStatus,
+}
 
 /** Demo account a template-created project is filed under (no live CRM). */
 export const TEMPLATE_PROJECT_ACCOUNT_ID = 'acct-demo'
+
+/** source_project_name for templates authored from scratch in the editor. */
+export const TEMPLATE_SCRATCH_SOURCE = 'scratch'
 
 export interface DemoProject {
   id: string
@@ -56,7 +62,7 @@ export interface DemoMilestone {
   name: string
   description: string | null
   due_date: string | null
-  status: TaskStatus
+  status: MilestoneStatus
   sort_order: number
   created_at: string
   updated_at: string
@@ -86,7 +92,10 @@ export interface CloneOptions {
   includeMilestones: boolean
   /** Only honored when milestones are included (deliverables need parents). */
   includeDeliverables: boolean
-  /** Reset the project to planning and every milestone/deliverable to pending. */
+  /**
+   * Reset every status to its vocabulary's initial state: project to
+   * planning, milestones to pending, deliverables to not_started.
+   */
   resetStatuses: boolean
 }
 
@@ -134,7 +143,7 @@ export function cloneProjectSnapshot(
         ...milestone,
         id: milestoneId,
         project_id: project.id,
-        status: options.resetStatuses ? RESET_TASK_STATUS : milestone.status,
+        status: options.resetStatuses ? RESET_MILESTONE_STATUS : milestone.status,
         created_at: timestamp,
         updated_at: timestamp,
       })
@@ -145,7 +154,7 @@ export function cloneProjectSnapshot(
           ...deliverable,
           id: deps.ids.deliverable(),
           milestone_id: milestoneId,
-          status: options.resetStatuses ? RESET_TASK_STATUS : deliverable.status,
+          status: options.resetStatuses ? RESET_DELIVERABLE_STATUS : deliverable.status,
           created_at: timestamp,
           updated_at: timestamp,
         })
@@ -218,7 +227,7 @@ export function buildTemplate(
 
 /**
  * Creates a fresh project snapshot from a template: new ids throughout, the
- * project in planning, and every milestone/deliverable pending.
+ * project in planning, milestones pending, deliverables not started.
  */
 export function instantiateTemplate(
   template: ProjectTemplate,
@@ -251,7 +260,7 @@ export function instantiateTemplate(
       name: templateMilestone.name,
       description: null,
       due_date: null,
-      status: RESET_TASK_STATUS,
+      status: RESET_MILESTONE_STATUS,
       sort_order: index,
       created_at: timestamp,
       updated_at: timestamp,
@@ -262,7 +271,7 @@ export function instantiateTemplate(
         milestone_id: milestoneId,
         name: templateDeliverable.name,
         description: null,
-        status: RESET_TASK_STATUS,
+        status: RESET_DELIVERABLE_STATUS,
         estimated_hours: null,
         created_at: timestamp,
         updated_at: timestamp,
@@ -271,4 +280,85 @@ export function instantiateTemplate(
   })
 
   return { project, milestones, deliverables }
+}
+
+// ---------------------------------------------------------------------------
+// Template drafts: what the editor produces when a template is written or
+// edited by hand instead of captured from a project. Normalization is pure so
+// the store and the editor agree on exactly what survives a save.
+// ---------------------------------------------------------------------------
+
+/** One editor row: a milestone title plus its deliverable titles, in order. */
+export interface TemplateDraftMilestone {
+  name: string
+  deliverables: string[]
+}
+
+/**
+ * Turns editor rows into template structure: titles are trimmed, deliverables
+ * with empty titles are dropped, milestones with empty titles are dropped
+ * (together with their deliverables), and the survivors are renumbered
+ * 0..n-1 in the order given.
+ */
+export function normalizeTemplateStructure(rows: TemplateDraftMilestone[]): TemplateMilestone[] {
+  return rows
+    .map(row => ({
+      name: row.name.trim(),
+      deliverables: row.deliverables
+        .map(title => title.trim())
+        .filter(title => title !== '')
+        .map(title => ({ name: title })),
+    }))
+    .filter(row => row.name !== '')
+    .map((row, index) => ({ name: row.name, sort_order: index, deliverables: row.deliverables }))
+}
+
+/**
+ * Builds a from-scratch template out of editor rows. Returns null when the
+ * draft is not a usable template: blank name, or no milestone survives
+ * normalization (a template's whole value is its structure).
+ */
+export function buildTemplateFromStructure(
+  templateName: string,
+  rows: TemplateDraftMilestone[],
+  deps: TemplateDeps,
+): ProjectTemplate | null {
+  const name = templateName.trim()
+  const milestones = normalizeTemplateStructure(rows)
+  if (name === '' || milestones.length === 0) return null
+  return {
+    id: deps.id(),
+    name,
+    source_project_name: TEMPLATE_SCRATCH_SOURCE,
+    created_at: deps.now(),
+    milestones,
+  }
+}
+
+/** Editable template fields; undefined fields keep their stored values. */
+export interface TemplateChanges {
+  name?: string
+  milestones?: TemplateDraftMilestone[]
+}
+
+/**
+ * Applies an edit to a template, returning a new record (id, provenance, and
+ * created_at are preserved). Returns null when the edit would leave the
+ * template unusable: a provided name that trims to empty, or a provided
+ * structure with no surviving milestone.
+ */
+export function reviseTemplate(
+  template: ProjectTemplate,
+  changes: TemplateChanges,
+): ProjectTemplate | null {
+  const name = changes.name === undefined ? template.name : changes.name.trim()
+  const milestones =
+    changes.milestones === undefined
+      ? template.milestones.map(milestone => ({
+          ...milestone,
+          deliverables: milestone.deliverables.map(deliverable => ({ ...deliverable })),
+        }))
+      : normalizeTemplateStructure(changes.milestones)
+  if (name === '' || milestones.length === 0) return null
+  return { ...template, name, milestones }
 }

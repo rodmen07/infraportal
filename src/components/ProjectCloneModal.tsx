@@ -9,6 +9,7 @@
 import { useMemo, useState } from 'react'
 import { PROJECTS_STORE_BOUNDARY, projectsStore, type ProjectsStore } from '../lib/projectsStore.mock'
 import type { DemoProject } from '../lib/projectClone'
+import { STATUS_RESET_DESCRIPTION } from '../lib/projectStatusVocabulary'
 
 const INPUT_CLS = 'w-full rounded-xl border border-zinc-700 bg-zinc-800/60 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 outline-none transition hover:border-zinc-600 hover:bg-zinc-800/80 focus:border-amber-500/60 focus:ring-2 focus:ring-amber-500/30'
 
@@ -81,7 +82,7 @@ export function ProjectCloneModal({ projects, initialSourceId, store = projectsS
     const phases = ['Copying project details']
     if (includeMilestones) phases.push(`Copying ${plural(counts.milestones, 'milestone')}`)
     if (includeMilestones && includeDeliverables) phases.push(`Copying ${plural(counts.deliverables, 'deliverable')}`)
-    if (resetStatuses) phases.push('Resetting statuses to pending')
+    if (resetStatuses) phases.push('Resetting statuses')
     for (let i = 0; i < phases.length; i++) {
       setPhase(phases[i])
       setPercent(Math.round((i / phases.length) * 100))
@@ -173,7 +174,7 @@ export function ProjectCloneModal({ projects, initialSourceId, store = projectsS
                 </label>
                 <label className="flex items-center gap-2 text-sm text-zinc-300">
                   <input type="checkbox" className="rounded" checked={resetStatuses} onChange={e => setResetStatuses(e.target.checked)} />
-                  Reset statuses to pending
+                  Reset statuses for a fresh start
                 </label>
               </fieldset>
             </>
@@ -192,7 +193,7 @@ export function ProjectCloneModal({ projects, initialSourceId, store = projectsS
                     ? `Includes ${plural(counts.milestones, 'milestone')}${includeDeliverables ? ` and ${plural(counts.deliverables, 'deliverable')}` : ' (deliverables skipped)'}`
                     : 'Project details only (milestones and deliverables skipped)'}
                 </li>
-                <li>{resetStatuses ? 'Statuses reset: project to planning, work items to pending' : 'Statuses copied as-is'}</li>
+                <li>{resetStatuses ? `Statuses reset: ${STATUS_RESET_DESCRIPTION}` : 'Statuses copied as-is'}</li>
                 <li>The copy starts unassigned (no client user)</li>
               </ul>
             </div>

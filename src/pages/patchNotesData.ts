@@ -206,7 +206,8 @@ export const VERSIONS: Version[] = [
         heading: 'v1.16.4-.5 Portal UX (this site)',
         items: [
           'Bulk CSV import and bulk select/edit on the portal lists, executing against the in-browser demo stores behind explicit mock data boundary markers, with Vitest coverage of the CSV validation logic.',
-          'Deliverable templates and project cloning on the same mocked boundary.',
+          'Deliverable templates and project cloning on the same mocked boundary: full template CRUD (save from a project, write from scratch or edit in a structure editor, delete behind an inline confirm) and a staged clone flow with progress and confirm summary.',
+          'Status vocabulary reconciled with the projects-service OpenAPI contract: a single spec-derived vocabulary module feeds every status select, pill, and reset, and a guard test fails the suite if the UI vocabulary ever drifts from the committed spec snapshot.',
         ],
       },
     ],

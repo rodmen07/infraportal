@@ -49,9 +49,14 @@ import type {
   DemoDeliverable,
   DemoMilestone,
   DemoProject,
+  MilestoneStatus,
   ProjectStatus,
-  TaskStatus,
 } from './projectClone'
+import {
+  DELIVERABLE_STATUSES,
+  MILESTONE_STATUSES,
+  PROJECT_STATUSES,
+} from './projectStatusVocabulary'
 
 /**
  * Marker note re-exported so call sites can surface (in code review or UI)
@@ -814,17 +819,9 @@ const OPPORTUNITIES_OPS: Record<string, ExecutableOp> = {
 // checks run before body validation; delete FK failures -> 500 DB_ERROR)
 // ---------------------------------------------------------------------------
 
-const PROJECT_STATUSES: ProjectStatus[] = ['planning', 'active', 'on_hold', 'completed', 'cancelled']
-const MILESTONE_STATUSES: TaskStatus[] = ['pending', 'in_progress', 'completed']
-const DELIVERABLE_STATUSES: DeliverableStatus[] = [
-  'not_started',
-  'in_progress',
-  'in_review',
-  'accepted',
-]
-
-const DELIVERABLE_VOCAB_NOTE =
-  'Some demo seed deliverables predate the projects-service API contract and use the admin demo status vocabulary (pending, completed, blocked); they are shown verbatim rather than remapped. Records created through this panel use the documented enum.'
+// Status enums come from the shared spec-locked vocabulary module
+// (projectStatusVocabulary.ts); since v1.16.5 PR2 the demo seed uses the
+// documented enums too, so no legacy-vocabulary caveat is needed here.
 
 /** The projects-service Project DTO has no budget field; the demo record does. */
 const projectDto = (record: DemoProject) => ({
@@ -1077,11 +1074,11 @@ const PROJECTS_OPS: Record<string, ExecutableOp> = {
         (description !== null ? checkDescription(description) : null)
       if (error) return error
       const statusRaw = read.value.status == null ? '' : String(read.value.status).trim()
-      let status: TaskStatus = 'pending'
+      let status: MilestoneStatus = 'pending'
       if (statusRaw !== '') {
         const statusError = checkStatusEnum(statusRaw, MILESTONE_STATUSES)
         if (statusError) return statusError
-        status = statusRaw as TaskStatus
+        status = statusRaw as MilestoneStatus
       }
       const record = ctx.projects.createMilestone(path.project_id, {
         name,
@@ -1110,7 +1107,7 @@ const PROJECTS_OPS: Record<string, ExecutableOp> = {
         name?: string
         description?: string
         due_date?: string
-        status?: TaskStatus
+        status?: MilestoneStatus
         sort_order?: number
       } = {}
       if (read.value.name != null) {
@@ -1123,7 +1120,7 @@ const PROJECTS_OPS: Record<string, ExecutableOp> = {
         const status = String(read.value.status)
         const error = checkStatusEnum(status, MILESTONE_STATUSES)
         if (error) return error
-        changes.status = status as TaskStatus
+        changes.status = status as MilestoneStatus
       }
       if (read.value.description != null) {
         const description = String(read.value.description)
@@ -1157,12 +1154,7 @@ const PROJECTS_OPS: Record<string, ExecutableOp> = {
       const rows = [...ctx.projects.listDeliverables(path.milestone_id)].sort((a, b) =>
         a.created_at.localeCompare(b.created_at),
       )
-      const notes = rows.some(
-        (r) => !DELIVERABLE_STATUSES.includes(r.status),
-      )
-        ? [DELIVERABLE_VOCAB_NOTE]
-        : []
-      return jsonResult(200, rows.map(deliverableDto), notes)
+      return jsonResult(200, rows.map(deliverableDto))
     },
   },
 
