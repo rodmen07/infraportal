@@ -10,6 +10,14 @@ import { TemplateLibrary } from '../components/TemplateLibrary'
 import type { ImportEntity } from '../lib/bulkImportCsv'
 import { CRM_STORE_BOUNDARY, crmStore } from '../lib/crmStore.mock'
 import { PROJECTS_STORE_BOUNDARY, projectsStore } from '../lib/projectsStore.mock'
+import {
+  DELIVERABLE_STATUSES,
+  MILESTONE_STATUSES,
+  PROJECT_STATUSES,
+  RESET_DELIVERABLE_STATUS,
+  RESET_MILESTONE_STATUS,
+  statusLabel,
+} from '../lib/projectStatusVocabulary'
 import { clearSelection, isAllSelected, isSomeSelected, pruneSelection, toggleAll, toggleRow } from '../lib/rowSelection'
 
 // ---------------------------------------------------------------------------
@@ -1208,21 +1216,24 @@ function LiveFeedTab() {
 }
 
 // ---------------------------------------------------------------------------
-// Projects tab
+// Projects tab. Status vocabularies come from the spec-locked module
+// (src/lib/projectStatusVocabulary.ts), so no select here can offer a value
+// the projects-service contract would reject.
 // ---------------------------------------------------------------------------
-const PROJECT_STATUSES = ['planning', 'active', 'on_hold', 'completed', 'cancelled']
-const MILESTONE_STATUSES = ['pending', 'in_progress', 'completed', 'blocked']
-const DELIVERABLE_STATUSES = ['pending', 'in_progress', 'completed', 'blocked']
-
 const STATUS_PILL: Record<string, string> = {
+  // Project statuses
   planning:    'bg-zinc-700/40 text-zinc-300',
   active:      'bg-emerald-500/15 text-emerald-300',
   on_hold:     'bg-amber-500/15 text-amber-300',
   completed:   'bg-blue-500/15 text-blue-300',
   cancelled:   'bg-red-500/15 text-red-300',
+  // Milestone statuses (completed shared above)
   pending:     'bg-zinc-700/40 text-zinc-400',
   in_progress: 'bg-amber-500/15 text-amber-300',
-  blocked:     'bg-red-500/15 text-red-400',
+  // Deliverable statuses (in_progress shared above)
+  not_started: 'bg-zinc-700/40 text-zinc-400',
+  in_review:   'bg-blue-500/15 text-blue-400',
+  accepted:    'bg-emerald-500/15 text-emerald-300',
 }
 
 function ProjectsTab() {
@@ -1244,11 +1255,11 @@ function ProjectsTab() {
 
   // milestone create form
   const [showMilestone, setShowMilestone] = useState(false)
-  const [msForm, setMsForm] = useState({ name: '', due_date: '', status: 'pending', sort_order: '0', description: '' })
+  const [msForm, setMsForm] = useState({ name: '', due_date: '', status: RESET_MILESTONE_STATUS as string, sort_order: '0', description: '' })
 
   // deliverable create form
   const [showDeliverable, setShowDeliverable] = useState<string | null>(null) // milestone id
-  const [dlForm, setDlForm] = useState({ name: '', description: '', status: 'pending', estimated_hours: '' })
+  const [dlForm, setDlForm] = useState({ name: '', description: '', status: RESET_DELIVERABLE_STATUS as string, estimated_hours: '' })
 
   // project links
   const [links, setLinks] = useState<ProjectLink[]>([])
@@ -1363,7 +1374,7 @@ function ProjectsTab() {
         description: msForm.description || null,
       })})
       setShowMilestone(false)
-      setMsForm({ name: '', due_date: '', status: 'pending', sort_order: '0', description: '' })
+      setMsForm({ name: '', due_date: '', status: RESET_MILESTONE_STATUS, sort_order: '0', description: '' })
       if (selected) loadProject(selected)
     } catch (e) {
       setSaveError(e instanceof Error ? e.message : 'Save failed')
@@ -1382,7 +1393,7 @@ function ProjectsTab() {
         estimated_hours: dlForm.estimated_hours ? parseFloat(dlForm.estimated_hours) : null,
       })})
       setShowDeliverable(null)
-      setDlForm({ name: '', description: '', status: 'pending', estimated_hours: '' })
+      setDlForm({ name: '', description: '', status: RESET_DELIVERABLE_STATUS, estimated_hours: '' })
       if (selected) loadProject(selected)
     } catch (e) {
       setSaveError(e instanceof Error ? e.message : 'Save failed')
@@ -1502,7 +1513,7 @@ function ProjectsTab() {
               }`}>
               <span className="font-medium">{p.name}</span>
               <span className={`rounded-full px-2 py-0.5 text-xs ${STATUS_PILL[p.status] ?? 'bg-zinc-700/40 text-zinc-400'}`}>
-                {p.status.replace('_', ' ')}
+                {statusLabel(p.status)}
               </span>
             </button>
           ))}
@@ -1546,10 +1557,10 @@ function ProjectsTab() {
                 <div className="flex items-center gap-2">
                   {m.due_date && <span className="text-xs text-zinc-500">{m.due_date.slice(0, 10)}</span>}
                   <span className={`rounded-full px-2 py-0.5 text-xs ${STATUS_PILL[m.status] ?? 'bg-zinc-700/40 text-zinc-400'}`}>
-                    {m.status.replace('_', ' ')}
+                    {statusLabel(m.status)}
                   </span>
                   {!PROJECTS_DEMO && (
-                    <button className="text-xs text-zinc-500 hover:text-zinc-300" onClick={() => { setShowDeliverable(m.id); setDlForm({ name: '', description: '', status: 'pending', estimated_hours: '' }) }}>
+                    <button className="text-xs text-zinc-500 hover:text-zinc-300" onClick={() => { setShowDeliverable(m.id); setDlForm({ name: '', description: '', status: RESET_DELIVERABLE_STATUS, estimated_hours: '' }) }}>
                       + Deliverable
                     </button>
                   )}
@@ -1563,7 +1574,7 @@ function ProjectsTab() {
                       <span className="text-zinc-500">{d.estimated_hours}h</span>
                     )}
                     <span className={`rounded-full px-2 py-0.5 ${STATUS_PILL[d.status] ?? 'bg-zinc-700/40 text-zinc-400'}`}>
-                      {d.status.replace('_', ' ')}
+                      {statusLabel(d.status)}
                     </span>
                   </div>
                 </div>
@@ -1706,7 +1717,7 @@ function ProjectsTab() {
             </FormField>
             <FormField label="Status">
               <select value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))} className={INPUT_CLS}>
-                {PROJECT_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
+                {PROJECT_STATUSES.map(s => <option key={s} value={s}>{statusLabel(s)}</option>)}
               </select>
             </FormField>
             <FormField label="Start date"><input type="date" value={form.start_date} onChange={e => setForm(f => ({ ...f, start_date: e.target.value }))} className={INPUT_CLS} /></FormField>
@@ -1729,7 +1740,7 @@ function ProjectsTab() {
             <FormField label="Name"><input required value={msForm.name} onChange={e => setMsForm(f => ({ ...f, name: e.target.value }))} className={INPUT_CLS} /></FormField>
             <FormField label="Status">
               <select value={msForm.status} onChange={e => setMsForm(f => ({ ...f, status: e.target.value }))} className={INPUT_CLS}>
-                {MILESTONE_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
+                {MILESTONE_STATUSES.map(s => <option key={s} value={s}>{statusLabel(s)}</option>)}
               </select>
             </FormField>
             <FormField label="Due date"><input type="date" value={msForm.due_date} onChange={e => setMsForm(f => ({ ...f, due_date: e.target.value }))} className={INPUT_CLS} /></FormField>
@@ -1751,7 +1762,7 @@ function ProjectsTab() {
             <FormField label="Name"><input required value={dlForm.name} onChange={e => setDlForm(f => ({ ...f, name: e.target.value }))} className={INPUT_CLS} /></FormField>
             <FormField label="Status">
               <select value={dlForm.status} onChange={e => setDlForm(f => ({ ...f, status: e.target.value }))} className={INPUT_CLS}>
-                {DELIVERABLE_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
+                {DELIVERABLE_STATUSES.map(s => <option key={s} value={s}>{statusLabel(s)}</option>)}
               </select>
             </FormField>
             <FormField label="Estimated hours">

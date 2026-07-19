@@ -609,15 +609,22 @@ describe('projects operations', () => {
     expect(run(adapter, 'projects', 'deleteMilestone', { pathParams: { id: 'ms-007' } }).status).toBe(404)
   })
 
-  it('listDeliverables flags seed records that use the admin status vocabulary', () => {
+  it('listDeliverables returns seed records that already use the documented enum (v1.16.5 PR2)', () => {
     const adapter = freshAdapter()
     const seeded = run(adapter, 'projects', 'listDeliverables', {
       pathParams: { milestone_id: 'ms-005' },
     })
     expect(seeded.status).toBe(200)
     const rows = jsonBody(seeded) as { status: string }[]
-    expect(rows.some((r) => r.status === 'blocked')).toBe(true)
-    expect(seeded.notes.some((n) => n.includes('admin demo status vocabulary'))).toBe(true)
+    // The pre-reconciliation seed carried admin-vocabulary statuses (this
+    // milestone had a "blocked" deliverable) and the response carried a
+    // legacy-vocabulary caveat note. Both are gone: every seed status is in
+    // the spec enum, so no caveat is needed.
+    const documented = ['not_started', 'in_progress', 'in_review', 'accepted']
+    expect(rows.length).toBeGreaterThan(0)
+    for (const row of rows) expect(documented).toContain(row.status)
+    expect(rows.some((r) => r.status === 'in_review')).toBe(true)
+    expect(seeded.notes.some((n) => n.includes('status vocabulary'))).toBe(false)
 
     const missing = run(adapter, 'projects', 'listDeliverables', {
       pathParams: { milestone_id: 'ms-nope' },
@@ -641,7 +648,7 @@ describe('projects operations', () => {
 
     const badStatus = run(adapter, 'projects', 'createDeliverable', {
       pathParams: { milestone_id: 'ms-008' },
-      bodyText: JSON.stringify({ name: 'X', status: 'blocked' }), // admin vocab is not the API enum
+      bodyText: JSON.stringify({ name: 'X', status: 'blocked' }), // 'blocked' has never been in the API enum
     })
     expect(badStatus.status).toBe(400)
     expect(jsonBody(badStatus)).toMatchObject({

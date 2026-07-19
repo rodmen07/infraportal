@@ -11,10 +11,16 @@
 //   - The admin Projects tab (`CrmAdminPage.tsx`) reads projects, milestones,
 //     and deliverables from it when VITE_PROJECTS_API_BASE_URL is unset.
 //   - `ProjectCloneModal.tsx` clones projects through `cloneProject`.
-//   - `TemplateLibrary.tsx` saves and applies structure templates through
-//     `saveTemplate` / `createFromTemplate`.
+//   - `TemplateLibrary.tsx` + `TemplateEditorModal.tsx` run the full template
+//     CRUD: `saveTemplate` (from a project), `createTemplate` (from scratch),
+//     `updateTemplate`, `removeTemplate`, `createFromTemplate`.
 //   - The API playground's demo adapter (`tryItAdapter.mock.ts`, v1.17.2)
 //     maps projects-service spec operations onto the direct CRUD methods.
+//
+// Every status field carries the projects-service spec vocabulary from
+// `projectStatusVocabulary.ts` (guard-tested against the committed spec
+// snapshot), so nothing rendered from this store can show a status the
+// service would reject.
 //
 // The clone and template logic itself is pure and lives in
 // `src/lib/projectClone.ts`; this module only owns the data and wiring.
@@ -27,17 +33,21 @@
 
 import {
   buildTemplate,
+  buildTemplateFromStructure,
   cloneProjectSnapshot,
   instantiateTemplate,
+  reviseTemplate,
   type CloneOptions,
   type DeliverableStatus,
   type DemoDeliverable,
   type DemoMilestone,
   type DemoProject,
+  type MilestoneStatus,
   type ProjectSnapshot,
   type ProjectStatus,
   type ProjectTemplate,
-  type TaskStatus,
+  type TemplateChanges,
+  type TemplateDraftMilestone,
 } from './projectClone'
 
 /**
@@ -63,7 +73,7 @@ export interface NewMilestoneFields {
   name: string
   description?: string | null
   due_date?: string | null
-  status?: TaskStatus
+  status?: MilestoneStatus
   sort_order?: number
 }
 
@@ -131,16 +141,31 @@ export interface ProjectsStore {
   cloneProject(sourceProjectId: string, options: CloneOptions): DemoProject | null
   /** Snapshot of the saved templates (insertion order). */
   listTemplates(): ProjectTemplate[]
+  /** Copy of one template, or null when the id is unknown. */
+  getTemplate(templateId: string): ProjectTemplate | null
   /**
    * Captures a project's structure (milestone/deliverable titles + ordering,
    * statuses never stored) as a named template. Null for an unknown project.
    */
   saveTemplate(projectId: string, templateName: string): ProjectTemplate | null
+  /**
+   * Creates a template from scratch out of editor rows (trimmed, empty rows
+   * dropped, renumbered). Null when the draft is unusable: blank name, or no
+   * milestone survives normalization.
+   */
+  createTemplate(templateName: string, structure: TemplateDraftMilestone[]): ProjectTemplate | null
+  /**
+   * Edits a template's name and/or structure (undefined fields keep their
+   * stored values; provided structure is normalized like createTemplate).
+   * Null when the id is unknown or the edit would leave the template
+   * unusable; in both null cases the stored template is unchanged.
+   */
+  updateTemplate(templateId: string, changes: TemplateChanges): ProjectTemplate | null
   /** Removes a template. Returns false when the id is unknown. */
   removeTemplate(templateId: string): boolean
   /**
    * Creates a fresh project from a template: planning status, pending
-   * milestones and deliverables. Null for an unknown template.
+   * milestones, not-started deliverables. Null for an unknown template.
    */
   createFromTemplate(templateId: string, projectName: string): DemoProject | null
   /** Notifies after every mutation (clone, template save/apply/remove, reset). */
@@ -190,10 +215,8 @@ function seedProjects(): DemoProject[] {
   ]
 }
 
-type TaskRow = DemoMilestone['status']
-
 function seedMilestones(): DemoMilestone[] {
-  const rows: [string, string, string, string | null, TaskRow, number, string][] = [
+  const rows: [string, string, string, string | null, MilestoneStatus, number, string][] = [
     ['ms-001', 'proj-001', 'Discovery and audit', '2026-05-15', 'completed', 0, '2026-05-04'],
     ['ms-002', 'proj-001', 'Migration build-out', '2026-07-31', 'in_progress', 1, '2026-05-04'],
     ['ms-003', 'proj-001', 'Cutover and hardening', '2026-08-21', 'pending', 2, '2026-05-04'],
@@ -209,23 +232,27 @@ function seedMilestones(): DemoMilestone[] {
   }))
 }
 
+// Deliverable statuses use the projects-service enum (see
+// projectStatusVocabulary.ts): work starts not_started, finishes accepted,
+// and the review state stands in for what the admin demo used to call
+// "blocked" (the service contract has no blocked state).
 function seedDeliverables(): DemoDeliverable[] {
-  const rows: [string, string, string, TaskRow, number][] = [
-    ['dlv-001', 'ms-001', 'Current-state architecture review', 'completed', 10],
-    ['dlv-002', 'ms-001', 'Migration readiness report', 'completed', 6],
-    ['dlv-003', 'ms-002', 'Terraform baseline for all environments', 'completed', 14],
+  const rows: [string, string, string, DeliverableStatus, number][] = [
+    ['dlv-001', 'ms-001', 'Current-state architecture review', 'accepted', 10],
+    ['dlv-002', 'ms-001', 'Migration readiness report', 'accepted', 6],
+    ['dlv-003', 'ms-002', 'Terraform baseline for all environments', 'accepted', 14],
     ['dlv-004', 'ms-002', 'Cloud Run service cutover', 'in_progress', 20],
-    ['dlv-005', 'ms-002', 'Data migration dry run', 'pending', 12],
-    ['dlv-006', 'ms-003', 'Production cutover runbook', 'pending', 8],
-    ['dlv-007', 'ms-003', 'Post-migration observability dashboard', 'pending', 10],
-    ['dlv-008', 'ms-004', 'Control gap matrix', 'completed', 12],
-    ['dlv-009', 'ms-004', 'Remediation roadmap', 'completed', 6],
+    ['dlv-005', 'ms-002', 'Data migration dry run', 'not_started', 12],
+    ['dlv-006', 'ms-003', 'Production cutover runbook', 'not_started', 8],
+    ['dlv-007', 'ms-003', 'Post-migration observability dashboard', 'not_started', 10],
+    ['dlv-008', 'ms-004', 'Control gap matrix', 'accepted', 12],
+    ['dlv-009', 'ms-004', 'Remediation roadmap', 'accepted', 6],
     ['dlv-010', 'ms-005', 'Security policy pack', 'in_progress', 16],
-    ['dlv-011', 'ms-005', 'Evidence collection automation', 'blocked', 18],
-    ['dlv-012', 'ms-006', 'Mock audit walkthrough', 'pending', 8],
-    ['dlv-013', 'ms-007', 'Stakeholder interview notes', 'pending', 5],
-    ['dlv-014', 'ms-007', 'UX audit of the current portal', 'pending', 8],
-    ['dlv-015', 'ms-008', 'Clickable prototype', 'pending', 15],
+    ['dlv-011', 'ms-005', 'Evidence collection automation', 'in_review', 18],
+    ['dlv-012', 'ms-006', 'Mock audit walkthrough', 'not_started', 8],
+    ['dlv-013', 'ms-007', 'Stakeholder interview notes', 'not_started', 5],
+    ['dlv-014', 'ms-007', 'UX audit of the current portal', 'not_started', 8],
+    ['dlv-015', 'ms-008', 'Clickable prototype', 'not_started', 15],
   ]
   return rows.map(([id, milestone_id, name, status, estimated_hours]) => ({
     id, milestone_id, name, description: null, status, estimated_hours,
@@ -274,6 +301,7 @@ export function createProjectsStore(options: ProjectsStoreOptions = {}): Project
       deliverable: () => `dlv-${idCounter++}`,
     },
   }
+  const templateDeps = { id: () => `tpl-${idCounter++}`, now }
 
   function snapshot(projectId: string): ProjectSnapshot | null {
     const project = data.projects.find(p => p.id === projectId)
@@ -296,6 +324,17 @@ export function createProjectsStore(options: ProjectsStoreOptions = {}): Project
     data.deliverables.push(...created.deliverables)
     notify()
     return created.project
+  }
+
+  /** Deep copy: template rows nest arrays, so shallow copies would alias. */
+  function copyTemplate(template: ProjectTemplate): ProjectTemplate {
+    return {
+      ...template,
+      milestones: template.milestones.map(milestone => ({
+        ...milestone,
+        deliverables: milestone.deliverables.map(deliverable => ({ ...deliverable })),
+      })),
+    }
   }
 
   /** PATCH-merge: only defined fields overwrite; updated_at is refreshed. */
@@ -456,16 +495,39 @@ export function createProjectsStore(options: ProjectsStoreOptions = {}): Project
     },
 
     listTemplates() {
-      return [...data.templates]
+      return data.templates.map(copyTemplate)
+    },
+
+    getTemplate(templateId) {
+      const template = data.templates.find(t => t.id === templateId)
+      return template ? copyTemplate(template) : null
     },
 
     saveTemplate(projectId, templateName) {
       const source = snapshot(projectId)
       if (!source) return null
-      const template = buildTemplate(source, templateName, { id: () => `tpl-${idCounter++}`, now })
+      const template = buildTemplate(source, templateName, templateDeps)
       data.templates.push(template)
       notify()
-      return template
+      return copyTemplate(template)
+    },
+
+    createTemplate(templateName, structure) {
+      const template = buildTemplateFromStructure(templateName, structure, templateDeps)
+      if (!template) return null
+      data.templates.push(template)
+      notify()
+      return copyTemplate(template)
+    },
+
+    updateTemplate(templateId, changes) {
+      const index = data.templates.findIndex(t => t.id === templateId)
+      if (index === -1) return null
+      const revised = reviseTemplate(data.templates[index], changes)
+      if (!revised) return null
+      data.templates[index] = revised
+      notify()
+      return copyTemplate(revised)
     },
 
     removeTemplate(templateId) {

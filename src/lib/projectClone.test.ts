@@ -1,13 +1,18 @@
 import { describe, expect, it } from 'vitest'
 import {
   buildTemplate,
+  buildTemplateFromStructure,
   cloneProjectSnapshot,
   instantiateTemplate,
+  normalizeTemplateStructure,
+  reviseTemplate,
   templateDeliverableCount,
   TEMPLATE_PROJECT_ACCOUNT_ID,
+  TEMPLATE_SCRATCH_SOURCE,
   type CloneDeps,
   type CloneOptions,
   type ProjectSnapshot,
+  type ProjectTemplate,
 } from './projectClone'
 
 const FIXED_NOW = '2026-07-19T12:00:00Z'
@@ -49,7 +54,7 @@ function makeSnapshot(): ProjectSnapshot {
     deliverables: [
       {
         id: 'src-dlv-1', milestone_id: 'src-ms-a', name: 'Audit report', description: null,
-        status: 'completed', estimated_hours: 8,
+        status: 'accepted', estimated_hours: 8,
         created_at: '2026-05-02T09:00:00Z', updated_at: '2026-06-01T09:00:00Z',
       },
       {
@@ -59,7 +64,7 @@ function makeSnapshot(): ProjectSnapshot {
       },
       {
         id: 'src-dlv-3', milestone_id: 'src-ms-b', name: 'Cutover runbook', description: null,
-        status: 'blocked', estimated_hours: null,
+        status: 'in_review', estimated_hours: null,
         created_at: '2026-05-04T09:00:00Z', updated_at: '2026-06-01T09:00:00Z',
       },
     ],
@@ -122,18 +127,19 @@ describe('cloneProjectSnapshot', () => {
     expect(byMilestone(clone.milestones[1].id)).toEqual(['Terraform baseline', 'Cutover runbook'])
   })
 
-  it('resets statuses to planning/pending when resetStatuses is true', () => {
+  it('resets each record to its spec vocabulary initial state when resetStatuses is true', () => {
     const clone = cloneProjectSnapshot(makeSnapshot(), ALL_OPTIONS, makeDeps())
     expect(clone.project.status).toBe('planning')
     expect(clone.milestones.every(m => m.status === 'pending')).toBe(true)
-    expect(clone.deliverables.every(d => d.status === 'pending')).toBe(true)
+    // Deliverables have their own vocabulary: they reset to not_started.
+    expect(clone.deliverables.every(d => d.status === 'not_started')).toBe(true)
   })
 
   it('preserves statuses when resetStatuses is false', () => {
     const clone = cloneProjectSnapshot(makeSnapshot(), { ...ALL_OPTIONS, resetStatuses: false }, makeDeps())
     expect(clone.project.status).toBe('active')
     expect(clone.milestones.map(m => m.status)).toEqual(['completed', 'in_progress'])
-    expect(clone.deliverables.map(d => d.status)).toEqual(['completed', 'in_progress', 'blocked'])
+    expect(clone.deliverables.map(d => d.status)).toEqual(['accepted', 'in_progress', 'in_review'])
   })
 
   it('shares no object references with the source in either direction', () => {
@@ -151,11 +157,11 @@ describe('cloneProjectSnapshot', () => {
     // Mutating the source afterwards must not leak into the clone...
     source.project.name = 'Renamed source'
     source.milestones[1].name = 'Renamed milestone'
-    source.deliverables[0].status = 'pending'
+    source.deliverables[0].status = 'not_started'
     source.milestones.push({ ...source.milestones[0], id: 'src-ms-extra' })
     expect(clone.project.name).toBe('The copy')
     expect(clone.milestones.map(m => m.name)).toEqual(['Discovery', 'Build'])
-    expect(clone.deliverables[0].status).toBe('completed')
+    expect(clone.deliverables[0].status).toBe('accepted')
     expect(clone.milestones).toHaveLength(2)
 
     // ...and mutating the clone must not leak back into the source.
@@ -201,7 +207,7 @@ describe('templates', () => {
     }
   })
 
-  it('instantiateTemplate creates a fresh planning project with pending items', () => {
+  it('instantiateTemplate creates a fresh planning project with reset work items', () => {
     const template = buildTemplate(makeSnapshot(), 'Migration playbook', templateDeps)
     const created = instantiateTemplate(template, 'New client migration', makeDeps())
 
@@ -219,7 +225,7 @@ describe('templates', () => {
     expect(created.milestones.map(m => m.name)).toEqual(['Discovery', 'Build'])
     expect(created.milestones.map(m => m.sort_order)).toEqual([0, 1])
     expect(created.milestones.every(m => m.status === 'pending')).toBe(true)
-    expect(created.deliverables.every(d => d.status === 'pending')).toBe(true)
+    expect(created.deliverables.every(d => d.status === 'not_started')).toBe(true)
     for (const milestone of created.milestones) expect(milestone.project_id).toBe(created.project.id)
     const milestoneIds = new Set(created.milestones.map(m => m.id))
     for (const deliverable of created.deliverables) expect(milestoneIds.has(deliverable.milestone_id)).toBe(true)
@@ -232,5 +238,106 @@ describe('templates', () => {
 
     expect(rebuilt.milestones).toEqual(original.milestones)
     expect(rebuilt.source_project_name).toBe('Round-trip project')
+  })
+})
+
+describe('normalizeTemplateStructure', () => {
+  it('trims titles, drops empty rows, and renumbers survivors in order', () => {
+    const normalized = normalizeTemplateStructure([
+      { name: '  Discovery  ', deliverables: ['  Kickoff notes ', '', '   '] },
+      { name: '   ', deliverables: ['Orphaned deliverable'] }, // dropped with its children
+      { name: 'Build', deliverables: [] },
+    ])
+
+    expect(normalized).toEqual([
+      { name: 'Discovery', sort_order: 0, deliverables: [{ name: 'Kickoff notes' }] },
+      { name: 'Build', sort_order: 1, deliverables: [] },
+    ])
+  })
+
+  it('returns an empty array when nothing survives', () => {
+    expect(normalizeTemplateStructure([])).toEqual([])
+    expect(normalizeTemplateStructure([{ name: ' ', deliverables: ['kept nowhere'] }])).toEqual([])
+  })
+})
+
+describe('buildTemplateFromStructure', () => {
+  const deps = { id: () => 'tpl-scratch', now: () => FIXED_NOW }
+
+  it('builds a scratch-sourced template from normalized editor rows', () => {
+    const template = buildTemplateFromStructure('  Onboarding track ', [
+      { name: 'Setup', deliverables: [' Access checklist ', ''] },
+      { name: ' ', deliverables: [] },
+      { name: 'Launch', deliverables: ['Go-live review'] },
+    ], deps)
+
+    expect(template).toEqual({
+      id: 'tpl-scratch',
+      name: 'Onboarding track',
+      source_project_name: TEMPLATE_SCRATCH_SOURCE,
+      created_at: FIXED_NOW,
+      milestones: [
+        { name: 'Setup', sort_order: 0, deliverables: [{ name: 'Access checklist' }] },
+        { name: 'Launch', sort_order: 1, deliverables: [{ name: 'Go-live review' }] },
+      ],
+    })
+  })
+
+  it('returns null for a blank name or a structure with no surviving milestone', () => {
+    expect(buildTemplateFromStructure('   ', [{ name: 'Setup', deliverables: [] }], deps)).toBeNull()
+    expect(buildTemplateFromStructure('Named', [], deps)).toBeNull()
+    expect(buildTemplateFromStructure('Named', [{ name: '  ', deliverables: ['x'] }], deps)).toBeNull()
+  })
+})
+
+describe('reviseTemplate', () => {
+  function makeTemplate(): ProjectTemplate {
+    return {
+      id: 'tpl-1',
+      name: 'Original',
+      source_project_name: 'Source project',
+      created_at: FIXED_NOW,
+      milestones: [
+        { name: 'Discovery', sort_order: 0, deliverables: [{ name: 'Audit report' }] },
+        { name: 'Build', sort_order: 1, deliverables: [] },
+      ],
+    }
+  }
+
+  it('renames without touching structure, preserving id, provenance, and created_at', () => {
+    const original = makeTemplate()
+    const revised = reviseTemplate(original, { name: '  Renamed  ' })
+
+    expect(revised).toMatchObject({
+      id: 'tpl-1',
+      name: 'Renamed',
+      source_project_name: 'Source project',
+      created_at: FIXED_NOW,
+    })
+    expect(revised!.milestones).toEqual(original.milestones)
+    // The structure is copied, not aliased: mutating the revision leaves the
+    // original alone.
+    revised!.milestones[0].deliverables.push({ name: 'Injected' })
+    expect(original.milestones[0].deliverables).toEqual([{ name: 'Audit report' }])
+  })
+
+  it('replaces structure through the same normalization as creation', () => {
+    const revised = reviseTemplate(makeTemplate(), {
+      milestones: [
+        { name: ' Handover ', deliverables: [' Docs pack ', ' '] },
+        { name: '', deliverables: ['dropped'] },
+      ],
+    })
+
+    expect(revised!.name).toBe('Original')
+    expect(revised!.milestones).toEqual([
+      { name: 'Handover', sort_order: 0, deliverables: [{ name: 'Docs pack' }] },
+    ])
+  })
+
+  it('returns null when the edit would leave the template unusable', () => {
+    expect(reviseTemplate(makeTemplate(), { name: '   ' })).toBeNull()
+    expect(reviseTemplate(makeTemplate(), { milestones: [] })).toBeNull()
+    expect(reviseTemplate(makeTemplate(), { milestones: [{ name: ' ', deliverables: [] }] })).toBeNull()
   })
 })
