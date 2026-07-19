@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { SPEC_SERVICES, loadSpec } from '../../api-specs'
 import { COVERED_SERVICE_IDS } from '../../lib/tryItAdapter.mock'
 import type { OpenApiSpec } from './openapiTypes'
+import { buildApiDocsHash, parseApiDocsHash } from './deepLink'
 import { extractOperations, groupOperationsByTag, type TagGroupView } from './specModel'
 import { ServiceSpecView } from './SpecView'
 
@@ -10,8 +11,33 @@ import { ServiceSpecView } from './SpecView'
 // misses asynchronously and bumps a tick to re-render.
 const specCache = new Map<string, OpenApiSpec>()
 
+interface ExplorerTarget {
+  service: string
+  op: string | null
+}
+
+/**
+ * Resolves a deep-link hash (v1.17.3) to a valid explorer target, falling
+ * back to the first service when the hash names no known service.
+ */
+function resolveTarget(hash: string): ExplorerTarget {
+  const fallback = SPEC_SERVICES[0]?.id ?? ''
+  const parsed = parseApiDocsHash(hash)
+  if (!parsed?.service || !SPEC_SERVICES.some((service) => service.id === parsed.service)) {
+    return { service: fallback, op: null }
+  }
+  return { service: parsed.service, op: parsed.op ?? null }
+}
+
 export function ApiSpecExplorer() {
-  const [selectedId, setSelectedId] = useState<string>(SPEC_SERVICES[0]?.id ?? '')
+  const [initialTarget] = useState<ExplorerTarget>(() =>
+    resolveTarget(typeof window === 'undefined' ? '' : window.location.hash),
+  )
+  const [selectedId, setSelectedId] = useState<string>(initialTarget.service)
+  /** operationId a deep link asked to reveal, cleared once handled. */
+  const pendingOpRef = useRef<string | null>(initialTarget.op)
+  /** Bumped by hashchange so the reveal effect re-runs for a new target. */
+  const [revealTick, setRevealTick] = useState(0)
   const [, setLoadTick] = useState(0)
   const [loadErrors, setLoadErrors] = useState<Record<string, string>>({})
 
@@ -36,8 +62,58 @@ export function ApiSpecExplorer() {
     }
   }, [selectedId])
 
+  // Follow in-page deep-link navigation (e.g. a pasted #/api-docs?service=...
+  // link while the page is already open). Our own replaceState below does not
+  // fire hashchange, so this never loops.
+  useEffect(() => {
+    const onHashChange = () => {
+      const parsed = parseApiDocsHash(window.location.hash)
+      if (!parsed?.service || !SPEC_SERVICES.some((service) => service.id === parsed.service)) {
+        return
+      }
+      pendingOpRef.current = parsed.op ?? null
+      setSelectedId(parsed.service)
+      setRevealTick((tick) => tick + 1)
+    }
+    window.addEventListener('hashchange', onHashChange)
+    return () => window.removeEventListener('hashchange', onHashChange)
+  }, [])
+
   const spec = specCache.get(selectedId)
   const errorMessage = loadErrors[selectedId]
+
+  // Once the deep-linked service's spec is rendered, expand the requested
+  // operation card and bring it into view. Pure DOM synchronization: the
+  // pending target lives in a ref and is consumed here.
+  useEffect(() => {
+    const pendingOp = pendingOpRef.current
+    if (pendingOp === null || !spec) return
+    // Attribute scan instead of a selector so no CSS escaping is needed.
+    const card = [...document.querySelectorAll('details[data-op-card]')].find(
+      (element) => element.getAttribute('data-op-card') === pendingOp,
+    )
+    if (card instanceof HTMLDetailsElement) {
+      card.open = true
+      if (typeof card.scrollIntoView === 'function') {
+        try {
+          card.scrollIntoView({ block: 'start', behavior: 'smooth' })
+        } catch {
+          // Non-visual environments (jsdom) may stub this out.
+        }
+      }
+    }
+    pendingOpRef.current = null
+  }, [revealTick, spec])
+
+  const selectService = (id: string) => {
+    setSelectedId(id)
+    pendingOpRef.current = null
+    // Keep the address bar sharable without adding history entries or
+    // re-triggering the hash router (replaceState fires no hashchange).
+    if (typeof window !== 'undefined' && parseApiDocsHash(window.location.hash) !== null) {
+      window.history.replaceState(null, '', buildApiDocsHash({ service: id }))
+    }
+  }
 
   const groups: TagGroupView[] = useMemo(() => {
     if (!spec) return []
@@ -53,7 +129,7 @@ export function ApiSpecExplorer() {
             <button
               key={service.id}
               type="button"
-              onClick={() => setSelectedId(service.id)}
+              onClick={() => selectService(service.id)}
               aria-pressed={isSelected}
               className={`rounded-xl border p-3 text-left transition ${
                 isSelected
