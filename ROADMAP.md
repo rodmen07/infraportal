@@ -25,13 +25,13 @@ Frontend-only roadmap for the infraportal repo. Created 2026-07-18. The canonica
 
 Each milestone is one or two small PRs, in ship order, keeping the platform's one-minor-per-week cadence.
 
-### v1.16.4 - Portal Bulk Ops (mocked API)
+### v1.16.4 - Portal Bulk Ops (mocked API) - SHIPPED 2026-07-19 (PRs #20, #21 incl. the shared demo store)
 
 - PR 1: `BulkImportModal` plus a `useBulkImport` hook with CSV parse and validation UX, against a mocked API layer with the mock boundary clearly marked in code.
 - PR 2 (optional polish): bulk select and bulk edit affordances in portal lists reusing the same mocked boundary; Vitest coverage for the CSV validation logic.
 - Done when: build, Vitest, and the tsc CI gate are green; the Pages deploy succeeds; the mock boundary is explicit in code (no call sites pretend the backend is live).
 
-### v1.16.5 - Deliverable Templates and Project Cloning (mocked API)
+### v1.16.5 - Deliverable Templates and Project Cloning (mocked API) - SHIPPED 2026-07-19 (PR #22; templates + cloning + projects demo store)
 
 - PR 1: `ProjectCloneModal` plus `TemplateLibrary` components against the same mocked API layer.
 - PR 2 (optional): template CRUD UX and a clone-from-template flow, with tests.
