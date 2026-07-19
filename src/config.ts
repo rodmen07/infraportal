@@ -30,9 +30,6 @@ export const LEAD_INTAKE_URL: string =
   (((import.meta.env.VITE_LEAD_INTAKE_URL as string | undefined) ?? '').trim() ||
     'https://formsubmit.co/ajax/rodmendoza07@gmail.com').replace(/\/$/, '')
 
-export const GATEWAY_URL: string =
-  ((import.meta.env.VITE_GATEWAY_URL as string | undefined) ?? '').replace(/\/$/, '')
-
 const _ADMIN_JWT_ENV = (import.meta.env.VITE_ADMIN_JWT as string | undefined) ?? ''
 
 function _jwtExpired(token: string): boolean {

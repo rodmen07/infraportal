@@ -1,4 +1,4 @@
-import { Component, StrictMode, useEffect, useState, type ReactNode } from 'react'
+import { Component, StrictMode, Suspense, lazy, useEffect, useState, type ReactNode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { ThemeProvider } from './features/layout/ThemeContext'
 import { AuthProvider } from './features/auth/AuthContext'
@@ -25,7 +25,6 @@ import { PortalForgotPasswordPage } from './pages/PortalForgotPasswordPage'
 import { PortalResetPasswordPage } from './pages/PortalResetPasswordPage'
 import { AuditPage } from './pages/AuditPage'
 import { ServiceHealthPage } from './pages/ServiceHealthPage'
-import { ApiDocsPage } from './pages/ApiDocsPage'
 import { ConsultationsPage } from './pages/ConsultationsPage'
 import { SupportQueuePage } from './pages/SupportQueuePage'
 import { CheckoutThankYouPage } from './pages/CheckoutThankYouPage'
@@ -37,6 +36,13 @@ import { CloudMigrationCaseStudyPage } from './pages/CloudMigrationCaseStudyPage
 import { DynamoDbCaseStudyPage } from './pages/DynamoDbCaseStudyPage'
 
 const WATCHDOG_DELAY_MS = 5000
+
+// Lazy route: the API reference carries the 11 committed OpenAPI snapshots as
+// their own chunks, so none of that weight lands in the initial bundle. The
+// <main> fallback keeps the load watchdog satisfied while the chunk loads.
+const ApiDocsPage = lazy(() =>
+  import('./pages/ApiDocsPage').then((module) => ({ default: module.ApiDocsPage })),
+)
 
 // eslint-disable-next-line react-refresh/only-export-components
 function FailureMessage({ reason }: { reason: string }) {
@@ -154,7 +160,13 @@ function Root() {
   if (hash === '#/admin/health') return <ServiceHealthPage />
   if (hash === '#/admin/consultations') return <ConsultationsPage />
   if (hash === '#/admin/support') return <SupportQueuePage />
-  if (hash === '#/api-docs') return <ApiDocsPage />
+  if (hash === '#/api-docs') {
+    return (
+      <Suspense fallback={<main className="min-h-screen bg-zinc-950" />}>
+        <ApiDocsPage />
+      </Suspense>
+    )
+  }
   if (hash.startsWith('#/checkout-thank-you')) return <CheckoutThankYouPage />
   if (hash.startsWith('#/thank-you')) return <CheckoutThankYouPage />
   if (hash === '#/contact') return <ContactPage />

@@ -37,9 +37,14 @@ Each milestone is one or two small PRs, in ship order, keeping the platform's on
 - PR 2 (optional): template CRUD UX and a clone-from-template flow, with tests.
 - Done when: same bar as v1.16.4.
 
-### Follow-up tied to platform v1.16.1/.2 (doable once specs land)
+### v1.17 - Interactive API Playground (approved 2026-07-19)
 
-- Restore the API Docs nav link and point the Swagger UI page at the committed OpenAPI specs from the microservices repo (bundled statically into the site; no live endpoint). One small PR.
+Theme design record: `d:/Projects/Portfolio/microservices/docs/design/V1_17_THEME.md`. Approved with the custom lightweight renderer (no new runtime dependencies), the API Docs nav link restored after the funnel entries, and four weekly minors. This theme absorbs the old "Follow-up tied to platform v1.16.1/.2" line (restore the nav link, point the page at the committed specs).
+
+- **v1.17.1 - Committed specs rendered on the site (shipped 2026-07-19).** `npm run sync-specs` converts the 11 `<service>-service/openapi.yaml` files from the sibling microservices checkout into committed JSON snapshots under `src/api-specs/` (pinned `yaml` devDependency, deterministic output, plus a small generated manifest). `ApiDocsPage` reworked into a custom client-side OpenAPI renderer: service selector from the manifest, operations grouped by tag, parameters, request/response schema trees with local $ref resolution and cycle guards, per-operation auth requirements, and ApiError-envelope tagging. Specs lazy-load as one chunk per service; the route itself is lazy so the initial bundle shrinks. Dead `GATEWAY_URL` links and the hardcoded services table deleted; page counts derive from the manifest. API Docs nav link restored after Contact. Vitest: spec-model unit tests plus a walk-every-operation catalog suite (all $refs resolve, manifest matches specs, render smoke over every operation).
+- **v1.17.2 - Request builder against the demo stores** (next): "Try it" panel per operation executing against the labeled in-browser demo stores for accounts, contacts, opportunities, projects; explicit static-reference state for services without demo data; envelope and rate-limit-header simulation per the specs.
+- **v1.17.3 - Snippets and deep links**: per-operation curl and TypeScript SDK snippets (labeled "builds from source; not yet on npm"); sharable `#/api-docs?service=...&op=...` deep links.
+- **v1.17.4 - Drift protection and wrap-up**: non-blocking CI drift check comparing committed snapshots against the microservices repo specs; cross-links and patch notes.
 
 ---
 
