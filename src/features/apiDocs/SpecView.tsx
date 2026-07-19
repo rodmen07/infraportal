@@ -1,12 +1,15 @@
 /**
- * Pure presentational components for rendering an OpenAPI snapshot's view
- * models (see specModel.ts). No browser globals, no context, no effects:
- * everything renders from props, expand/collapse uses native <details>, and
- * the whole tree is exercisable with react-dom/server in the node-env test
- * suite (renderSmoke assertions in specCatalog.test.ts).
+ * Presentational components for rendering an OpenAPI snapshot's view models
+ * (see specModel.ts). No browser globals, no context, no effects: everything
+ * renders from props, expand/collapse uses native <details>, and the whole
+ * tree is exercisable with react-dom/server in the node-env test suite
+ * (renderSmoke assertions in specCatalog.test.ts). The one stateful child is
+ * the v1.17.2 TryItPanel, rendered per operation only when a serviceId is
+ * provided; it keeps local form state but still has no effects.
  */
 
 import type { OpenApiSpec } from './openapiTypes'
+import { TryItPanel } from './tryIt/TryItPanel'
 import type {
   MediaTypeView,
   OperationView,
@@ -201,7 +204,14 @@ export function MediaContentView({ media }: { media: MediaTypeView }) {
   )
 }
 
-export function OperationCard({ operation }: { operation: OperationView }) {
+export function OperationCard({
+  operation,
+  serviceId,
+}: {
+  operation: OperationView
+  /** Enables the per-operation Try it panel; omit for docs-only rendering. */
+  serviceId?: string
+}) {
   return (
     <details className="group rounded-xl border border-zinc-700/40 bg-zinc-900/40 open:border-amber-400/30">
       <summary className="flex cursor-pointer list-none flex-wrap items-center gap-3 p-3 [&::-webkit-details-marker]:hidden">
@@ -280,12 +290,14 @@ export function OperationCard({ operation }: { operation: OperationView }) {
             ))}
           </ul>
         </div>
+
+        {serviceId && <TryItPanel serviceId={serviceId} operation={operation} />}
       </div>
     </details>
   )
 }
 
-export function TagGroupSection({ group }: { group: TagGroupView }) {
+export function TagGroupSection({ group, serviceId }: { group: TagGroupView; serviceId?: string }) {
   return (
     <section className="space-y-2">
       <div>
@@ -294,14 +306,23 @@ export function TagGroupSection({ group }: { group: TagGroupView }) {
       </div>
       <div className="space-y-2">
         {group.operations.map((operation) => (
-          <OperationCard key={operation.operationId} operation={operation} />
+          <OperationCard key={operation.operationId} operation={operation} serviceId={serviceId} />
         ))}
       </div>
     </section>
   )
 }
 
-export function ServiceSpecView({ spec, groups }: { spec: OpenApiSpec; groups: TagGroupView[] }) {
+export function ServiceSpecView({
+  spec,
+  groups,
+  serviceId,
+}: {
+  spec: OpenApiSpec
+  groups: TagGroupView[]
+  /** Enables the per-operation Try it panels; omit for docs-only rendering. */
+  serviceId?: string
+}) {
   return (
     <div className="space-y-6">
       <div className="rounded-xl border border-zinc-700/40 bg-zinc-900/40 p-4">
@@ -337,7 +358,7 @@ export function ServiceSpecView({ spec, groups }: { spec: OpenApiSpec; groups: T
       </div>
 
       {groups.map((group) => (
-        <TagGroupSection key={group.tag} group={group} />
+        <TagGroupSection key={group.tag} group={group} serviceId={serviceId} />
       ))}
     </div>
   )

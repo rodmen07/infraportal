@@ -139,6 +139,62 @@ describe('projectsStore templates', () => {
   })
 })
 
+describe('projectsStore direct CRUD (v1.17.2 playground adapter surface)', () => {
+  it('creates, reads, patches, and removes a project; budget starts null', () => {
+    const store = createProjectsStore({ now: () => FIXED_NOW })
+    const created = store.createProject({ account_id: 'acct-900', name: 'Direct build' })
+    expect(created).toMatchObject({
+      account_id: 'acct-900', name: 'Direct build', status: 'active',
+      client_user_id: null, description: null, budget: null,
+      created_at: FIXED_NOW, updated_at: FIXED_NOW,
+    })
+    expect(store.getProject(created.id)).toMatchObject({ name: 'Direct build' })
+    expect(store.getProject('proj-nope')).toBeNull()
+
+    const patched = store.updateProject(created.id, { status: 'on_hold', name: undefined })
+    expect(patched).toMatchObject({ name: 'Direct build', status: 'on_hold' })
+    expect(store.updateProject('proj-nope', { name: 'x' })).toBeNull()
+
+    expect(store.removeProject(created.id)).toBe(true)
+    expect(store.removeProject(created.id)).toBe(false)
+    expect(store.listProjects()).toHaveLength(3)
+  })
+
+  it('creates milestones and deliverables only under existing parents', () => {
+    const store = createProjectsStore({ now: () => FIXED_NOW })
+    expect(store.createMilestone('proj-nope', { name: 'Orphan' })).toBeNull()
+
+    const milestone = store.createMilestone('proj-003', { name: 'Launch prep', sort_order: 9 })
+    expect(milestone).toMatchObject({
+      project_id: 'proj-003', name: 'Launch prep', status: 'pending', sort_order: 9,
+    })
+    expect(store.getMilestone(milestone!.id)).not.toBeNull()
+
+    expect(store.createDeliverable('ms-nope', { name: 'Orphan' })).toBeNull()
+    const deliverable = store.createDeliverable(milestone!.id, { name: 'Checklist' })
+    // Direct creates default to the projects-service API enum vocabulary.
+    expect(deliverable).toMatchObject({ status: 'not_started', estimated_hours: null })
+    expect(store.getDeliverable(deliverable!.id)).not.toBeNull()
+
+    expect(store.updateDeliverable(deliverable!.id, { status: 'in_review' })).toMatchObject({
+      status: 'in_review',
+    })
+    expect(store.updateMilestone(milestone!.id, { status: 'completed' })).toMatchObject({
+      status: 'completed',
+    })
+    expect(store.removeDeliverable(deliverable!.id)).toBe(true)
+    expect(store.removeMilestone(milestone!.id)).toBe(true)
+    expect(store.removeMilestone(milestone!.id)).toBe(false)
+  })
+
+  it('removeProject does not cascade: children stay until removed explicitly', () => {
+    const store = createProjectsStore()
+    expect(store.removeProject('proj-003')).toBe(true)
+    // The no-cascade contract leaves the orphaned milestones queryable.
+    expect(store.listMilestones('proj-003')).toHaveLength(2)
+  })
+})
+
 describe('projectsStore notifications and reset', () => {
   it('notifies subscribers on every mutation and honors unsubscribe', () => {
     const store = createProjectsStore()

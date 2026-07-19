@@ -1,6 +1,7 @@
 import { PageLayout } from './PageLayout'
 import { SPEC_SERVICES, SPEC_MANIFEST, TOTAL_OPERATIONS } from '../api-specs'
 import { ApiSpecExplorer } from '../features/apiDocs/ApiSpecExplorer'
+import { EXECUTABLE_OPERATION_COUNT } from '../lib/tryItAdapter.mock'
 
 const SPECS_REPO_URL = 'https://github.com/rodmen07/microservices'
 const API_GUIDE_URL = `${SPECS_REPO_URL}/blob/main/docs/API.md`
@@ -28,6 +29,13 @@ export function ApiDocsPage() {
               bundle: no network requests, no live backend. The platform itself ran on GCP Cloud Run
               and Fly.io and was deliberately decommissioned to zero infrastructure cost in June 2026;
               the specs, source, and CI remain public.
+            </p>
+            <p className="mt-2 text-sm text-zinc-400">
+              {EXECUTABLE_OPERATION_COUNT} of the {TOTAL_OPERATIONS} operations are executable right
+              here through each operation's "Try it" panel, running against a labeled in-browser demo
+              dataset (accounts, contacts, opportunities, and projects). The panels simulate the
+              documented success, validation, and not-found responses from real demo state; operations
+              without a demo dataset say so instead of faking a result.
             </p>
           </div>
           <div className="flex flex-wrap gap-3">

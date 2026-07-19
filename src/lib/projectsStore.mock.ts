@@ -13,6 +13,8 @@
 //   - `ProjectCloneModal.tsx` clones projects through `cloneProject`.
 //   - `TemplateLibrary.tsx` saves and applies structure templates through
 //     `saveTemplate` / `createFromTemplate`.
+//   - The API playground's demo adapter (`tryItAdapter.mock.ts`, v1.17.2)
+//     maps projects-service spec operations onto the direct CRUD methods.
 //
 // The clone and template logic itself is pure and lives in
 // `src/lib/projectClone.ts`; this module only owns the data and wiring.
@@ -28,11 +30,14 @@ import {
   cloneProjectSnapshot,
   instantiateTemplate,
   type CloneOptions,
+  type DeliverableStatus,
   type DemoDeliverable,
   type DemoMilestone,
   type DemoProject,
   type ProjectSnapshot,
+  type ProjectStatus,
   type ProjectTemplate,
+  type TaskStatus,
 } from './projectClone'
 
 /**
@@ -42,9 +47,74 @@ import {
 export const PROJECTS_STORE_BOUNDARY =
   'projectsStore.mock: projects, milestones, deliverables, and templates shown here live in an in-memory demo dataset in the browser. The platform backend was decommissioned on 2026-06-04; nothing is persisted or sent over the network.' as const
 
+/** Fields accepted when creating a project directly (playground adapter). */
+export interface NewProjectFields {
+  account_id: string
+  name: string
+  client_user_id?: string | null
+  description?: string | null
+  status?: ProjectStatus
+  start_date?: string | null
+  target_end_date?: string | null
+}
+
+/** Fields accepted when creating a milestone directly (playground adapter). */
+export interface NewMilestoneFields {
+  name: string
+  description?: string | null
+  due_date?: string | null
+  status?: TaskStatus
+  sort_order?: number
+}
+
+/** Fields accepted when creating a deliverable directly (playground adapter). */
+export interface NewDeliverableFields {
+  name: string
+  description?: string | null
+  status?: DeliverableStatus
+  estimated_hours?: number | null
+}
+
+/** PATCH-style changes: undefined fields keep their stored values. */
+export type ProjectChanges = Partial<Omit<DemoProject, 'id' | 'budget' | 'created_at' | 'updated_at'>>
+export type MilestoneChanges = Partial<Omit<DemoMilestone, 'id' | 'project_id' | 'created_at' | 'updated_at'>>
+export type DeliverableChanges = Partial<Omit<DemoDeliverable, 'id' | 'milestone_id' | 'created_at' | 'updated_at'>>
+
 export interface ProjectsStore {
   /** Snapshot of the current projects (insertion order). */
   listProjects(): DemoProject[]
+  /** Copy of one project, or null when the id is unknown. */
+  getProject(projectId: string): DemoProject | null
+  /** Copy of one milestone, or null when the id is unknown. */
+  getMilestone(milestoneId: string): DemoMilestone | null
+  /** Copy of one deliverable, or null when the id is unknown. */
+  getDeliverable(deliverableId: string): DemoDeliverable | null
+  /** Inserts a project (budget starts null). Returns the new record. */
+  createProject(fields: NewProjectFields): DemoProject
+  /**
+   * Shallow-merges defined fields into a project and bumps updated_at.
+   * Returns the updated record, or null when the id is unknown.
+   */
+  updateProject(projectId: string, changes: ProjectChanges): DemoProject | null
+  /**
+   * Removes the project row only. Does not cascade and does not check
+   * children: the projects-service schema has no ON DELETE CASCADE for
+   * milestones, so callers decide how to surface remaining children
+   * (the playground adapter simulates the documented 500 DB_ERROR).
+   */
+  removeProject(projectId: string): boolean
+  /** Inserts a milestone. Returns null when the parent project is unknown. */
+  createMilestone(projectId: string, fields: NewMilestoneFields): DemoMilestone | null
+  /** PATCH-merge on a milestone; null when the id is unknown. */
+  updateMilestone(milestoneId: string, changes: MilestoneChanges): DemoMilestone | null
+  /** Removes the milestone row only (same no-cascade contract as projects). */
+  removeMilestone(milestoneId: string): boolean
+  /** Inserts a deliverable. Returns null when the parent milestone is unknown. */
+  createDeliverable(milestoneId: string, fields: NewDeliverableFields): DemoDeliverable | null
+  /** PATCH-merge on a deliverable; null when the id is unknown. */
+  updateDeliverable(deliverableId: string, changes: DeliverableChanges): DemoDeliverable | null
+  /** Removes a deliverable. Returns false when the id is unknown. */
+  removeDeliverable(deliverableId: string): boolean
   /** Milestones for a project, ordered by sort_order ascending. */
   listMilestones(projectId: string): DemoMilestone[]
   /** Deliverables for a milestone (insertion order). */
@@ -228,19 +298,153 @@ export function createProjectsStore(options: ProjectsStoreOptions = {}): Project
     return created.project
   }
 
+  /** PATCH-merge: only defined fields overwrite; updated_at is refreshed. */
+  function patchRecord<T extends { updated_at: string }>(
+    record: T,
+    changes: Partial<Record<keyof T, unknown>>,
+  ): T {
+    const merged = { ...record }
+    for (const [key, value] of Object.entries(changes)) {
+      if (value !== undefined) (merged as Record<string, unknown>)[key] = value
+    }
+    merged.updated_at = now()
+    return merged
+  }
+
   return {
     listProjects() {
       return [...data.projects]
+    },
+
+    getProject(projectId) {
+      const project = data.projects.find(p => p.id === projectId)
+      return project ? { ...project } : null
+    },
+
+    getMilestone(milestoneId) {
+      const milestone = data.milestones.find(m => m.id === milestoneId)
+      return milestone ? { ...milestone } : null
+    },
+
+    getDeliverable(deliverableId) {
+      const deliverable = data.deliverables.find(d => d.id === deliverableId)
+      return deliverable ? { ...deliverable } : null
+    },
+
+    createProject(fields) {
+      const timestamp = now()
+      const project: DemoProject = {
+        id: cloneDeps.ids.project(),
+        account_id: fields.account_id,
+        client_user_id: fields.client_user_id ?? null,
+        name: fields.name,
+        description: fields.description ?? null,
+        status: fields.status ?? 'active',
+        budget: null,
+        start_date: fields.start_date ?? null,
+        target_end_date: fields.target_end_date ?? null,
+        created_at: timestamp,
+        updated_at: timestamp,
+      }
+      data.projects.push(project)
+      notify()
+      return { ...project }
+    },
+
+    updateProject(projectId, changes) {
+      const index = data.projects.findIndex(p => p.id === projectId)
+      if (index === -1) return null
+      data.projects[index] = patchRecord(data.projects[index], changes)
+      notify()
+      return { ...data.projects[index] }
+    },
+
+    removeProject(projectId) {
+      const index = data.projects.findIndex(p => p.id === projectId)
+      if (index === -1) return false
+      data.projects.splice(index, 1)
+      notify()
+      return true
+    },
+
+    createMilestone(projectId, fields) {
+      if (!data.projects.some(p => p.id === projectId)) return null
+      const timestamp = now()
+      const milestone: DemoMilestone = {
+        id: cloneDeps.ids.milestone(),
+        project_id: projectId,
+        name: fields.name,
+        description: fields.description ?? null,
+        due_date: fields.due_date ?? null,
+        status: fields.status ?? 'pending',
+        sort_order: fields.sort_order ?? 0,
+        created_at: timestamp,
+        updated_at: timestamp,
+      }
+      data.milestones.push(milestone)
+      notify()
+      return { ...milestone }
+    },
+
+    updateMilestone(milestoneId, changes) {
+      const index = data.milestones.findIndex(m => m.id === milestoneId)
+      if (index === -1) return null
+      data.milestones[index] = patchRecord(data.milestones[index], changes)
+      notify()
+      return { ...data.milestones[index] }
+    },
+
+    removeMilestone(milestoneId) {
+      const index = data.milestones.findIndex(m => m.id === milestoneId)
+      if (index === -1) return false
+      data.milestones.splice(index, 1)
+      notify()
+      return true
+    },
+
+    createDeliverable(milestoneId, fields) {
+      if (!data.milestones.some(m => m.id === milestoneId)) return null
+      const timestamp = now()
+      const deliverable: DemoDeliverable = {
+        id: cloneDeps.ids.deliverable(),
+        milestone_id: milestoneId,
+        name: fields.name,
+        description: fields.description ?? null,
+        status: fields.status ?? 'not_started',
+        estimated_hours: fields.estimated_hours ?? null,
+        created_at: timestamp,
+        updated_at: timestamp,
+      }
+      data.deliverables.push(deliverable)
+      notify()
+      return { ...deliverable }
+    },
+
+    updateDeliverable(deliverableId, changes) {
+      const index = data.deliverables.findIndex(d => d.id === deliverableId)
+      if (index === -1) return null
+      data.deliverables[index] = patchRecord(data.deliverables[index], changes)
+      notify()
+      return { ...data.deliverables[index] }
+    },
+
+    removeDeliverable(deliverableId) {
+      const index = data.deliverables.findIndex(d => d.id === deliverableId)
+      if (index === -1) return false
+      data.deliverables.splice(index, 1)
+      notify()
+      return true
     },
 
     listMilestones(projectId) {
       return data.milestones
         .filter(m => m.project_id === projectId)
         .sort((a, b) => a.sort_order - b.sort_order)
+        .map(m => ({ ...m }))
     },
 
     listDeliverables(milestoneId) {
-      return data.deliverables.filter(d => d.milestone_id === milestoneId)
+      return data.deliverables.filter(d => d.milestone_id === milestoneId).map(d => ({ ...d }))
     },
 
     snapshot,

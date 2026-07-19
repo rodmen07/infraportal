@@ -12,6 +12,8 @@
 //   - The mock bulk-import API (`bulkImportApi.mock.ts`) inserts successful
 //     rows into it.
 //   - The mock bulk-edit API (`bulkEditApi.mock.ts`) mutates records in it.
+//   - The API playground's demo adapter (`tryItAdapter.mock.ts`, v1.17.2)
+//     maps accounts/contacts/opportunities spec operations onto it.
 //
 // The seed mirrors the PR1 sample CSVs in `BulkImportModal.tsx`, so the demo
 // tables show the same rows the import samples produce.

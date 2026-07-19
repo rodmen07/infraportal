@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { SPEC_SERVICES, loadSpec } from '../../api-specs'
+import { COVERED_SERVICE_IDS } from '../../lib/tryItAdapter.mock'
 import type { OpenApiSpec } from './openapiTypes'
 import { extractOperations, groupOperationsByTag, type TagGroupView } from './specModel'
 import { ServiceSpecView } from './SpecView'
@@ -64,8 +65,15 @@ export function ApiSpecExplorer() {
                 <span className={`text-sm font-semibold ${isSelected ? 'text-amber-100' : 'text-zinc-200'}`}>
                   {service.name}
                 </span>
-                <span className="shrink-0 rounded bg-zinc-800/70 px-1.5 py-0.5 text-[10px] text-zinc-400">
-                  {service.operationCount} ops
+                <span className="flex shrink-0 items-center gap-1">
+                  {COVERED_SERVICE_IDS.includes(service.id) && (
+                    <span className="rounded border border-emerald-500/25 bg-emerald-500/10 px-1.5 py-0.5 text-[10px] text-emerald-300">
+                      try-it demo
+                    </span>
+                  )}
+                  <span className="rounded bg-zinc-800/70 px-1.5 py-0.5 text-[10px] text-zinc-400">
+                    {service.operationCount} ops
+                  </span>
                 </span>
               </div>
               <p className="mt-1 line-clamp-2 text-[11px] leading-4 text-zinc-500">{service.summary}</p>
@@ -86,7 +94,7 @@ export function ApiSpecExplorer() {
         </div>
       )}
 
-      {spec && <ServiceSpecView spec={spec} groups={groups} />}
+      {spec && <ServiceSpecView spec={spec} groups={groups} serviceId={selectedId} />}
     </div>
   )
 }

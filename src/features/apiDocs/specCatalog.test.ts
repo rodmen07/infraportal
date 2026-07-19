@@ -16,6 +16,7 @@ import {
   TOTAL_OPERATIONS,
   loadSpec,
 } from '../../api-specs'
+import { COVERED_SERVICE_IDS, getTryItSupport } from '../../lib/tryItAdapter.mock'
 import type { OpenApiSpec } from './openapiTypes'
 import {
   countOperations,
@@ -24,6 +25,16 @@ import {
   resolveRef,
 } from './specModel'
 import { ServiceSpecView } from './SpecView'
+
+/** Mirrors react-dom's text escaping so raw strings can be asserted in HTML. */
+function escapeForHtml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+}
 
 async function loadAll(): Promise<Map<string, OpenApiSpec>> {
   const specs = new Map<string, OpenApiSpec>()
@@ -128,6 +139,38 @@ describe('committed spec catalog', () => {
       for (const operation of operations) {
         expect(html, `${id}: ${operation.operationId} missing from render`).toContain(
           operation.operationId,
+        )
+      }
+    }
+  })
+
+  it('renders a Try it panel state for every operation when a serviceId is provided (v1.17.2)', async () => {
+    const specs = await loadAll()
+    for (const [id, spec] of specs) {
+      const operations = extractOperations(spec)
+      const groups = groupOperationsByTag(spec, operations)
+      const html = renderToStaticMarkup(
+        createElement(ServiceSpecView, { spec, groups, serviceId: id }),
+      )
+      for (const operation of operations) {
+        const context = `${id}: ${operation.operationId}`
+        expect(html, `${context} missing its Try it panel`).toContain(
+          `data-tryit="${operation.operationId}"`,
+        )
+        const support = getTryItSupport(id, operation)
+        if (!support.executable) {
+          expect(html, `${context} must render its honest disabled reason`).toContain(
+            escapeForHtml(support.reason),
+          )
+        }
+      }
+      // Executable services surface the demo-boundary framing; the count of
+      // panels always matches the count of operations.
+      expect(html.match(/data-tryit="/g)?.length, id).toBe(operations.length)
+      if (COVERED_SERVICE_IDS.includes(id)) {
+        expect(html, `${id} must label the demo execution`).toContain('in-browser demo')
+        expect(html, `${id} must state the admin-caller simulation`).toContain(
+          'authenticated admin caller',
         )
       }
     }
