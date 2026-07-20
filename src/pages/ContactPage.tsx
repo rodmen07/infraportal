@@ -19,6 +19,22 @@ export function ContactPage() {
   const sending = phase === 'sending'
   const messageLength = message.trim().length
 
+  // v1.18.3 (D9, F8): the $500 referral panel used to appear on ContactCTA,
+  // repeated on every page it is embedded in (Home, About, Services,
+  // Pricing, Case Studies, Retainers). It is demoted here, to the highest-
+  // intent page's footer, instead. The referral_lead_captured event this
+  // used to fire from ContactCTA's form on submit now fires from this
+  // standalone capture, same event name and payload shape, just relocated.
+  const [referralSource, setReferralSource] = useState('')
+  const [referralNoted, setReferralNoted] = useState(false)
+
+  const noteReferral = () => {
+    const trimmed = referralSource.trim()
+    if (!trimmed) return
+    trackPortfolioEvent('referral_lead_captured', { referrer: trimmed })
+    setReferralNoted(true)
+  }
+
   const validate = () => {
     const errors: Record<string, string> = {}
     if (!name.trim()) errors.name = 'Required'
@@ -83,10 +99,10 @@ export function ContactPage() {
                 href={SCHEDULING_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={() => trackPortfolioEvent('consulting_cta_click', { location: 'contact-page', label: 'Book 30-minute call' })}
+                onClick={() => trackPortfolioEvent('consulting_cta_click', { location: 'contact-page', label: 'Book a 30-minute call' })}
                 className="mt-3 inline-flex rounded-lg border border-amber-400/30 bg-amber-500/15 px-3 py-2 text-[11px] font-semibold text-amber-200 transition hover:border-amber-400/60 hover:bg-amber-500/25 hover:text-amber-100"
               >
-                Book 30-minute call →
+                Book a 30-minute call →
               </a>
             )}
           </div>
@@ -201,6 +217,36 @@ export function ContactPage() {
         </div>
         <p className="mt-4 text-xs text-zinc-600">Based in San Antonio, TX — open to remote worldwide.</p>
         <p className="mt-1 text-xs text-zinc-600">Email link opens your default mail client — works best on mobile.</p>
+      </section>
+
+      <section className="surface-card rounded-2xl p-6">
+        <div className="flex items-start gap-3">
+          <span className="text-2xl" aria-hidden="true">🎁</span>
+          <div className="flex-1">
+            <p className="font-semibold text-emerald-300">Refer a friend, earn $500</p>
+            <p className="mt-2 text-sm text-emerald-200/80">
+              Know another team that needs infrastructure help? Refer them for a successful project or retainer,
+              and I will send you a $500 credit toward your next engagement. No limit on referrals.
+            </p>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <input
+                type="text"
+                placeholder="Their name or company (optional)"
+                value={referralSource}
+                onChange={(e) => { setReferralSource(e.target.value); setReferralNoted(false) }}
+                maxLength={200}
+                aria-label="Who referred you (optional)"
+                className="field-input min-w-[200px] flex-1 px-3 py-2 text-sm"
+              />
+              <button type="button" onClick={noteReferral} className="btn-neutral px-4 py-2 text-sm">
+                Note referral
+              </button>
+            </div>
+            {referralNoted && (
+              <p className="mt-2 text-xs text-emerald-200/70">Noted, mention this when you reach out and I will track it.</p>
+            )}
+          </div>
+        </div>
       </section>
 
       <PricingTrustStrip />

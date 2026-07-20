@@ -76,7 +76,7 @@ export function CaseStudiesPage() {
         <div className="mt-5 flex flex-wrap gap-2">
           {SCHEDULING_URL ? (
             <a href={SCHEDULING_URL} target="_blank" rel="noopener noreferrer" className="btn-accent px-5 py-2 text-sm">
-              Book discovery
+              Book a free discovery call
             </a>
           ) : (
             <a href="#/contact" className="btn-accent px-5 py-2 text-sm">Plan the next release</a>

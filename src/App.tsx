@@ -2,6 +2,7 @@ import TopNav from './features/layout/TopNav'
 import { SkipLink } from './features/layout/SkipLink'
 import { HowItWorksSection } from './features/site/HowItWorksSection'
 import { HeroSection } from './features/site/HeroSection'
+import { ProofStrip } from './features/site/ProofStrip'
 import { ContactCTA } from './features/site/ContactCTA'
 import { useSiteContent } from './features/site/useSiteContent'
 import { PricingCard } from './features/consulting/PricingCard'
@@ -28,6 +29,10 @@ function App() {
 
           <main id="main-content" tabIndex={-1} className="mt-6 space-y-6 focus:outline-none">
             <HeroSection content={content} />
+            {/* v1.18.3 (F9): proof strip lands directly under the hero so
+                both audiences (employers, clients) see evidence above most
+                of the fold, not one or two clicks deep. */}
+            <ProofStrip />
             <HowItWorksSection />
             <section className="forge-panel rounded-3xl border border-zinc-500/30 bg-zinc-900/80 p-6 shadow-2xl shadow-black/50 backdrop-blur-xl">
               <div className="flex flex-wrap items-start justify-between gap-5">

@@ -53,7 +53,7 @@ export function PricingPage() {
           </a>
         ) : (
           <a href="#/contact" className="btn-neutral mt-3 inline-block px-5 py-2 text-sm">
-            Book paid discovery →
+            Book a free discovery call →
           </a>
         )}
       </section>
