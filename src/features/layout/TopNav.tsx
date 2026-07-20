@@ -38,6 +38,7 @@ function TopNavComponent() {
         key={item.label}
         href={item.href}
         onClick={handleClick(item)}
+        aria-current={isActive(item) ? 'page' : undefined}
         className={`rounded-lg border px-3 py-1.5 text-xs font-medium whitespace-nowrap transition ${
           isActive(item)
             ? 'border-accent-line bg-accent-soft text-accent-text'
@@ -52,10 +53,10 @@ function TopNavComponent() {
   return (
     <nav className="sticky top-2 z-40 rounded-2xl border border-border-soft bg-surface-2 p-3 shadow-xl shadow-black/40 backdrop-blur-xl">
       <div className="flex items-start justify-between gap-3">
-        <div>
-          <div className="text-sm font-bold tracking-tight text-accent">Managed Hosting</div>
-          <p className="mt-1 text-[11px] text-text-muted">Deployment support, hosting, and ongoing maintenance</p>
-        </div>
+        <a href="#/" className="block rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)]">
+          <div className="text-sm font-bold tracking-tight text-accent">RM Cloud Consulting</div>
+          <p className="mt-1 text-[11px] text-text-muted">Managed hosting, deployment support, and ongoing maintenance</p>
+        </a>
         <div className="flex items-center gap-2">
           {isClient && (
             <span className="hidden items-center gap-2 rounded-lg border border-emerald-600/40 bg-emerald-900/20 px-2.5 py-1.5 text-xs text-emerald-300 sm:flex">
