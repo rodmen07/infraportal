@@ -385,14 +385,45 @@ describe('strangler rule: override-sheet rules for tokenized surfaces stay delet
     // Net effect: this count is expected to stay above zero after v1.18.4.
     // Full deletion needs a follow-up that migrates those ~40 files'
     // raw-utility colour classes onto the surface-*/text-*/border-*/accent-*
-    // tokens (see the portfolio backlog's v1.18.4 entry) - a large,
-    // cross-cutting change deliberately out of this milestone's safely
-    // reviewable scope. This test's job is only to keep that state honest:
-    // it fails if the count either regresses to zero (claiming a deletion
-    // that did not happen) or if a future change adds a large batch of new
-    // rules without updating this comment's accounting.
+    // tokens (see docs/design/V1_18_UX_THEME.md's v1.18.6 milestone and the
+    // portfolio backlog's v1.18.4 entry) - a large, cross-cutting change
+    // deliberately out of this milestone's safely reviewable scope. This
+    // test's job is only to keep that state honest: it fails if the count
+    // either regresses to zero (claiming a deletion that did not happen) or
+    // drops to a value inconsistent with genuine progress. The sibling test
+    // below is what actually enforces the count does not silently climb.
     const remaining = (INDEX_CSS_RULES.match(/\[data-theme="light"\]/g) ?? []).length
     expect(remaining).toBeGreaterThan(0)
+  })
+
+  it('override-sheet size is ratcheted: growing past the ceiling requires a deliberate, reviewed bump', () => {
+    // Pre-merge QA finding on v1.18.4 PR2: the design doc's PR2 "done when"
+    // bar (docs/design/V1_18_UX_THEME.md section 5) called for "a
+    // grep-style Vitest gate: ... no new `[data-theme="light"] .`
+    // utility-keyed overrides", but no such gate existed anywhere - the
+    // test above only ever asserted `remaining > 0`, never an upper bound,
+    // so nothing in CI would have stopped a future PR from adding still
+    // more override rules indefinitely.
+    //
+    // A literal zero-tolerance reading of that gate ("no new overrides,
+    // ever") is incompatible with v1.18.4 PR2's own real fix: 25 further
+    // `[data-theme="light"] .hover\:...`/`.focus\:...`/`.open\:...` rules
+    // were genuinely required to close a bug the bare-class overrides could
+    // never fix (see opacityColorThemeCoverage.test.ts's file header) - a
+    // correctness fix, not sprawl, and zero-tolerance would have blocked it.
+    // What the design doc actually needed, and what this test provides, is
+    // a RATCHET: growth is not silently free, but it is possible when a
+    // human deliberately raises the ceiling in the same PR and explains why
+    // (exactly as this PR does, immediately below).
+    //
+    // Ceiling history: 124 after v1.18.3 QA -> 209 after v1.18.4 PR2's
+    // initial bg-*/border-* widening -> 229 after this fix's 25 variant
+    // (hover:/focus:/open:) overrides, verified against a real `tailwindcss`
+    // CLI build so every added selector is confirmed to match a real
+    // compiled class, not guessed.
+    const CEILING = 229
+    const remaining = (INDEX_CSS_RULES.match(/\[data-theme="light"\]/g) ?? []).length
+    expect(remaining).toBeLessThanOrEqual(CEILING)
   })
 })
 

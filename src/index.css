@@ -681,3 +681,61 @@ textarea:disabled {
 [data-theme="light"] .border-zinc-600\/30 { border-color: rgba(0,0,0,0.14) !important; }
 [data-theme="light"] .border-zinc-700\/20 { border-color: rgba(0,0,0,0.08) !important; }
 [data-theme="light"] .border-zinc-700\/30 { border-color: rgba(0,0,0,0.09) !important; }
+
+/* ---------------------------------------------------------------------------
+   Variant-state (hover:/focus:/open:) opacity-colour overrides.
+
+   Pre-merge QA finding on this PR: every override rule above this block only
+   ever targets the BARE class selector, e.g.
+   `[data-theme="light"] .border-amber-400\/60`. Every real consumer of that
+   exact class in this app applies it only through a `hover:` variant - e.g.
+   the primary CTA button's className carries `hover:border-amber-400/60`,
+   never a bare `border-amber-400/60`. Tailwind compiles a variant class to a
+   DIFFERENT selector token entirely - `.hover\:border-amber-400\/60:hover`,
+   not `.border-amber-400\/60:hover` - so the bare rule above can never match
+   it: a CSS class selector requires an exact whole-token match, and
+   `hover:border-amber-400/60` is a different token than
+   `border-amber-400/60`. Every real consumer of every class below (not just
+   the 2 originally named as "fixed") rendered the raw, un-themed dark-mode
+   colour on hover/focus/open in light mode - this file's whole reason to
+   exist - despite each bare class already having an entry above.
+
+   Fix: an explicit override per variant-compiled selector, reusing the EXACT
+   rgba value the matching bare-class rule above already established for the
+   same shade/opacity - the colour formula does not change based on whether
+   the state is permanent or interactive, only the selector Tailwind emits
+   does. `hover:`/`focus:` compile to a trailing `:hover`/`:focus`
+   pseudo-class; `open:` (the `<details>`/`<dialog>` state variant) compiles
+   to a trailing `[open]` attribute selector instead - confirmed against a
+   real `tailwindcss` CLI build of this repo's content, not guessed. See
+   src/styles/opacityColorThemeCoverage.test.ts's `VARIANT_SELECTOR_SUFFIX`
+   map, which enforces (rather than assumes) this file stays in sync: any
+   future variant-prefixed opacity class this app starts using must be added
+   both there and here, or the test fails loudly instead of silently passing.
+   --------------------------------------------------------------------------- */
+[data-theme="light"] .hover\:border-amber-400\/40:hover   { border-color: rgba(180,100,10,0.45) !important; }
+[data-theme="light"] .hover\:border-amber-400\/50:hover   { border-color: rgba(180,100,10,0.55) !important; }
+[data-theme="light"] .hover\:border-amber-400\/60:hover   { border-color: rgba(180,100,10,0.65) !important; } /* named v1.18.4 bug, hover state */
+[data-theme="light"] .focus\:border-amber-400\/50:focus   { border-color: rgba(180,100,10,0.55) !important; }
+[data-theme="light"] .focus\:border-amber-500\/60:focus   { border-color: rgba(180,100,10,0.65) !important; } /* named v1.18.4 bug, focus state */
+[data-theme="light"] .open\:border-amber-400\/30[open]    { border-color: rgba(180,100,10,0.35) !important; }
+[data-theme="light"] .hover\:border-emerald-400\/60:hover { border-color: rgba(6,95,70,0.5)     !important; } /* named v1.18.4 bug, hover state */
+[data-theme="light"] .hover\:border-red-500\/70:hover     { border-color: rgba(239,68,68,0.7)   !important; }
+[data-theme="light"] .hover\:border-zinc-500\/50:hover    { border-color: rgba(0,0,0,0.12)      !important; } /* named v1.18.4 bug, hover state */
+[data-theme="light"] .hover\:border-zinc-500\/60:hover    { border-color: rgba(0,0,0,0.12)      !important; } /* named v1.18.4 bug, hover state */
+[data-theme="light"] .hover\:border-zinc-600\/50:hover    { border-color: rgba(0,0,0,0.14)      !important; }
+[data-theme="light"] .hover\:border-zinc-600\/60:hover    { border-color: rgba(0,0,0,0.14)      !important; }
+
+[data-theme="light"] .hover\:bg-amber-500\/20:hover   { background-color: rgba(245,158,11,0.15) !important; }
+[data-theme="light"] .hover\:bg-amber-500\/25:hover   { background-color: rgba(245,158,11,0.15) !important; } /* named v1.18.4 bug, hover state */
+[data-theme="light"] .hover\:bg-emerald-500\/25:hover { background-color: rgba(6,95,70,0.18)    !important; } /* named v1.18.4 bug, hover state */
+[data-theme="light"] .hover\:bg-red-500\/20:hover     { background-color: rgba(239,68,68,0.15)  !important; }
+[data-theme="light"] .hover\:bg-red-500\/25:hover     { background-color: rgba(239,68,68,0.18)  !important; } /* named v1.18.4 bug, hover state */
+[data-theme="light"] .hover\:bg-zinc-600\/60:hover    { background-color: rgba(0,0,0,0.09)      !important; }
+[data-theme="light"] .hover\:bg-zinc-700\/60:hover    { background-color: rgba(0,0,0,0.05)      !important; }
+[data-theme="light"] .hover\:bg-zinc-800\/20:hover    { background-color: rgba(0,0,0,0.02)      !important; }
+[data-theme="light"] .hover\:bg-zinc-800\/30:hover    { background-color: rgba(0,0,0,0.03)      !important; }
+[data-theme="light"] .hover\:bg-zinc-800\/40:hover    { background-color: rgba(0,0,0,0.03)      !important; }
+[data-theme="light"] .hover\:bg-zinc-800\/60:hover    { background-color: rgba(0,0,0,0.04)      !important; }
+[data-theme="light"] .hover\:bg-zinc-800\/80:hover    { background-color: rgba(0,0,0,0.07)      !important; }
+[data-theme="light"] .hover\:bg-zinc-900\/40:hover    { background-color: rgba(0,0,0,0.03)      !important; }
