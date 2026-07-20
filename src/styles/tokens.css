@@ -1,0 +1,166 @@
+/* =============================================================================
+   Design tokens (v1.18.1 PR1)
+
+   Semantic roles as CSS custom properties, defined once per theme so both
+   [data-theme="dark"] (the default, see D1) and [data-theme="light"] resolve
+   correctly without hunting call sites. See docs/design/V1_18_UX_THEME.md
+   section 7 for the approved decisions this file encodes, especially:
+     - D1: dark is the default theme for first-time visitors.
+     - D4: keep the zinc + amber identity; emerald/yellow/red are reserved
+       for status only, never used as a second accent.
+
+   Consumers:
+     - Tailwind utilities generated from these variables via
+       tailwind.config.js theme.extend (colors, borderRadius, fontSize),
+       e.g. bg-surface-1, border-border-soft, text-text-muted.
+     - The semantic surface classes below (forge-grid, forge-panel,
+       surface-card, surface-card-strong, interactive-card), which fix F1
+       from the v1.18 UX audit: these classes previously had no dark-mode
+       definition at all (forge-panel/forge-grid/interactive-card existed
+       only as [data-theme="light"] overrides in src/index.css) or no
+       definition anywhere (surface-card, surface-card-strong).
+
+   Import order matters here: this file is imported from src/main.tsx
+   *before* src/index.css (which expands `@tailwind utilities`), so the
+   plain, single-class rules below sit earlier in the final stylesheet than
+   every Tailwind utility class. With equal specificity the later rule wins
+   the cascade, so a Tailwind utility placed alongside these classes in a
+   className (e.g. rounded-3xl, border border-red-500/30 bg-red-500/10)
+   continues to win, leaving deliberate per-instance overrides already in
+   the repo undisturbed. (`@layer components` was tried first, matching
+   Tailwind's documented pattern, but Tailwind requires a matching
+   `@tailwind components` directive in the *same* PostCSS-processed file;
+   that isn't true once this file is its own JS-level import rather than a
+   CSS `@import` inlined into index.css - a CSS `@import` was tried too, but
+   Vite's CSS pipeline either silently dropped it or failed the build
+   depending on its position relative to the `@tailwind` directives. Plain
+   JS-import ordering was the option that actually worked.)
+
+   Out of scope for this PR (see the milestone doc, strangler plan in
+   section 4): deleting the [data-theme="light"] override sheet
+   (src/index.css lines ~222-478), the JS theme-branching in PricingCard, and
+   applying the named type scale below to any component (that is D5 / the
+   v1.18.4 typography pass). The scale is only named and given conservative
+   values here.
+   ============================================================================= */
+
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Surfaces (elevation, low to high) */
+  --surface-0: #09090b;                 /* zinc-950 - page background */
+  --surface-1: rgba(39, 39, 42, 0.66);  /* zinc-800/66 - default panel/card fill */
+  --surface-2: rgba(24, 24, 27, 0.82);  /* zinc-900/82 - elevated panel/modal fill */
+
+  /* Borders */
+  --border-soft: rgba(113, 113, 122, 0.38);   /* zinc-500/38 - default card border */
+  --border-strong: rgba(161, 161, 170, 0.55); /* zinc-400/55 - hover / emphasis border */
+
+  /* Text */
+  --text-primary: #f4f4f5;              /* zinc-100 */
+  --text-secondary: rgb(212, 212, 216); /* zinc-300 */
+  --text-muted: rgb(161, 161, 170);     /* zinc-400 */
+
+  /* Accent - amber stays the only accent hue per D4 */
+  --accent: #f59e0b;          /* amber-500 */
+  --accent-contrast: #1c1207; /* near-black text/icon placed on a solid accent fill */
+
+  /* Status - emerald/yellow/red are status-only per D4, never a second accent */
+  --success: #10b981; /* emerald-500 */
+  --warning: #eab308; /* yellow-500 */
+  --danger: #ef4444;  /* red-500 */
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+
+  --surface-0: #f4f4f5;                   /* zinc-100 - page background */
+  --surface-1: rgba(255, 255, 255, 0.9);  /* default panel/card fill */
+  --surface-2: rgba(248, 248, 248, 0.97); /* elevated panel/modal fill */
+
+  --border-soft: rgba(0, 0, 0, 0.13);
+  --border-strong: rgba(0, 0, 0, 0.28);
+
+  --text-primary: #18181b;       /* zinc-900 */
+  --text-secondary: #27272a;     /* zinc-800 */
+  --text-muted: rgb(82, 82, 91); /* zinc-600 - 6.6:1 on white */
+
+  --accent: #b45309;          /* amber-700 - amber-500 fails contrast on white */
+  --accent-contrast: #fffbeb; /* amber-50 text/icon placed on a solid accent fill */
+
+  --success: #047857; /* emerald-700 */
+  --warning: #a16207; /* yellow-700 */
+  --danger: #b91c1c;  /* red-700 */
+}
+
+/* Radius and spacing steps are theme-invariant. */
+:root {
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 0.9rem;  /* matches the existing --fx-radius-lg used by .btn-accent/.btn-neutral */
+  --radius-xl: 1.15rem; /* matches the existing --fx-radius-xl */
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+
+  /* Named type scale (D5 names the steps now; v1.18.4 applies the 12px
+     floor and migrates components onto it). Conservative values, not yet
+     consumed by any component - establishing the names is this PR's job. */
+  --text-2xs: 0.625rem;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-md: 1.0625rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+}
+
+.forge-grid {
+  background-color: var(--surface-0);
+  background-image:
+    linear-gradient(to right, rgba(245, 158, 11, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(245, 158, 11, 0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Shape only (radius + border). Always used together with .surface-card or
+   .surface-card-strong for fill; on the home page (src/App.tsx) an explicit
+   Tailwind background or border utility already wins via the cascade, so
+   this is a safe, non-conflicting default there too. */
+.forge-panel {
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-soft);
+  transition: border-color 200ms ease;
+}
+.forge-panel:hover {
+  border-color: var(--border-strong);
+}
+
+.surface-card {
+  background-color: var(--surface-1);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-soft);
+}
+
+.surface-card-strong {
+  background-color: var(--surface-2);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-soft);
+}
+
+.interactive-card {
+  background-color: var(--surface-1);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-soft);
+  transition: border-color 200ms ease, background-color 200ms ease, transform 200ms ease;
+}
+.interactive-card:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-2px);
+}

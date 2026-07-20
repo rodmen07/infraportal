@@ -2,6 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Note: src/styles/tokens.css (v1.18.1 PR1 token foundation) is imported
+   from src/main.tsx, before this file, not via a CSS @import here - Vite's
+   CSS pipeline silently drops a same-file @import placed after these
+   @tailwind directives, and placing it before them trips a
+   postcss-selector-parser error elsewhere in this file. Importing it as its
+   own JS-level module, ahead of this one, puts its plain (unlayered) rules
+   earlier in the final stylesheet than the utilities `@tailwind utilities`
+   expands here, which is what lets a same-specificity Tailwind utility
+   still win the cascade over tokens.css's five surface classes. See
+   src/styles/tokens.css for the full explanation. */
+
 :root {
   --fx-radius-lg: 0.9rem;
   --fx-radius-xl: 1.15rem;
