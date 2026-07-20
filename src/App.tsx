@@ -1,6 +1,5 @@
 import TopNav from './features/layout/TopNav'
 import { SkipLink } from './features/layout/SkipLink'
-import { FocusCard } from './features/layout/FocusCard'
 import { HowItWorksSection } from './features/site/HowItWorksSection'
 import { HeroSection } from './features/site/HeroSection'
 import { ContactCTA } from './features/site/ContactCTA'
@@ -28,13 +27,8 @@ function App() {
           <TopNav />
 
           <main id="main-content" tabIndex={-1} className="mt-6 space-y-6 focus:outline-none">
-          <FocusCard>
             <HeroSection content={content} />
-          </FocusCard>
-          <FocusCard>
             <HowItWorksSection />
-          </FocusCard>
-          <FocusCard>
             <section className="forge-panel rounded-3xl border border-zinc-500/30 bg-zinc-900/80 p-6 shadow-2xl shadow-black/50 backdrop-blur-xl">
               <div className="flex flex-wrap items-start justify-between gap-5">
                 <div className="max-w-2xl">
@@ -75,8 +69,6 @@ function App() {
                 )}
               </div>
             </section>
-          </FocusCard>
-          <FocusCard>
             <section className="forge-panel rounded-3xl border border-zinc-500/30 bg-zinc-900/80 p-6 shadow-2xl shadow-black/50 backdrop-blur-xl sm:p-8">
               <div className="grid gap-8 md:grid-cols-2">
                 <div>
@@ -108,10 +100,7 @@ function App() {
                 </div>
               </div>
             </section>
-          </FocusCard>
-          <FocusCard>
             <ContactCTA />
-          </FocusCard>
           </main>
         </div>
       </div>

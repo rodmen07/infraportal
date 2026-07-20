@@ -1,5 +1,4 @@
 import { PageLayout } from './PageLayout'
-import { FocusCard } from '../features/layout/FocusCard'
 import { PricingCard } from '../features/consulting/PricingCard'
 import { ContactCTA } from '../features/site/ContactCTA'
 import { trackPortfolioEvent } from '../utils/analytics'
@@ -82,19 +81,16 @@ export function RetainersPage() {
   if (!retainersData) {
     return (
       <PageLayout>
-        <FocusCard>
-          <div className="forge-panel rounded-3xl p-8 text-center">
-            <p className="text-red-400">Failed to load retainer plans</p>
-          </div>
-        </FocusCard>
+        <div className="forge-panel rounded-3xl p-8 text-center">
+          <p className="text-red-400">Failed to load retainer plans</p>
+        </div>
       </PageLayout>
     )
   }
 
   return (
     <PageLayout>
-      <FocusCard>
-        <section className="forge-panel rounded-3xl border border-zinc-500/30 bg-zinc-900/80 p-8 shadow-2xl shadow-black/50 sm:p-10">
+      <section className="forge-panel rounded-3xl border border-zinc-500/30 bg-zinc-900/80 p-8 shadow-2xl shadow-black/50 sm:p-10">
           <div className="max-w-2xl">
             <h1 className="text-3xl font-bold text-white">Retainer Plans</h1>
             <p className="mt-3 text-sm leading-relaxed text-zinc-300">
@@ -163,12 +159,9 @@ export function RetainersPage() {
               View other services
             </a>
           </div>
-        </section>
-      </FocusCard>
+      </section>
 
-      <FocusCard>
-        <ContactCTA />
-      </FocusCard>
+      <ContactCTA />
     </PageLayout>
   )
 }

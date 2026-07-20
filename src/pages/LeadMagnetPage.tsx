@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { PageLayout } from './PageLayout'
-import { FocusCard } from '../features/layout/FocusCard'
 import { trackPortfolioEvent } from '../utils/analytics'
 import { submitLeadMagnetLead } from '../features/consulting/leadIntake'
 
@@ -138,8 +137,7 @@ export function LeadMagnetPage() {
 
   return (
     <PageLayout>
-      <FocusCard>
-        <section className="forge-panel rounded-3xl border border-zinc-500/30 bg-zinc-900/80 p-8 shadow-2xl shadow-black/50 sm:p-10">
+      <section className="forge-panel rounded-3xl border border-zinc-500/30 bg-zinc-900/80 p-8 shadow-2xl shadow-black/50 sm:p-10">
           <div className="max-w-3xl">
             <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-amber-300/90">
               Free Resource
@@ -210,13 +208,11 @@ export function LeadMagnetPage() {
               </div>
             )}
           </div>
-        </section>
-      </FocusCard>
+      </section>
 
       {!isSubmitted && (
-        <FocusCard>
-          <section className="forge-panel rounded-3xl border border-zinc-500/30 bg-zinc-900/80 p-8 shadow-2xl shadow-black/50">
-            <h2 className="text-xl font-semibold text-white">Checklist Preview</h2>
+        <section className="forge-panel rounded-3xl border border-zinc-500/30 bg-zinc-900/80 p-8 shadow-2xl shadow-black/50">
+          <h2 className="text-xl font-semibold text-white">Checklist Preview</h2>
             <p className="mt-2 text-sm text-zinc-400">
               {content.sections.length} categories, {content.sections.reduce((sum, s) => sum + s.items.length, 0)}{' '}
               items to assess
@@ -241,14 +237,12 @@ export function LeadMagnetPage() {
             <div className="mt-8 rounded-xl border border-zinc-700/40 bg-zinc-800/40 p-5">
               <p className="text-sm text-zinc-300">{content.cta}</p>
             </div>
-          </section>
-        </FocusCard>
+        </section>
       )}
 
       {!isSubmitted && (
-        <FocusCard>
-          <section className="forge-panel rounded-3xl border border-zinc-500/30 bg-zinc-900/80 p-8 shadow-2xl shadow-black/50">
-            <h2 className="text-xl font-semibold text-white">What Happens Next</h2>
+        <section className="forge-panel rounded-3xl border border-zinc-500/30 bg-zinc-900/80 p-8 shadow-2xl shadow-black/50">
+          <h2 className="text-xl font-semibold text-white">What Happens Next</h2>
             <div className="mt-6 space-y-4">
               <div className="flex gap-4">
                 <span className="shrink-0 rounded-full bg-amber-500/20 px-3 py-1 text-sm font-bold text-amber-200">
@@ -295,8 +289,7 @@ export function LeadMagnetPage() {
                 </div>
               </div>
             </div>
-          </section>
-        </FocusCard>
+        </section>
       )}
     </PageLayout>
   )
