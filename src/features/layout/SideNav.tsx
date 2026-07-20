@@ -1,3 +1,10 @@
+// ---------------------------------------------------------------------------
+// Styling note (v1.18.1 PR2): migrated onto the semantic token utilities from
+// src/styles/tokens.css, so the drawer no longer needs the
+// `[data-theme="light"] nav, aside` !important override (deleted in the same
+// PR). Structure is untouched: retiring SideNav in favour of TopNav on every
+// route is D3 / v1.18.2, not this PR.
+// ---------------------------------------------------------------------------
 import { useState } from 'react'
 import { useTheme } from './useTheme'
 import { useAuth } from '../auth/useAuth'
@@ -20,7 +27,7 @@ function SideNavComponent() {
 
   const renderSection = (label: string, items: Array<{ label: string; href: string; scrollTo?: string }>) => (
     <div className="space-y-2">
-      <div className="px-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-zinc-500">{label}</div>
+      <div className="px-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-text-muted">{label}</div>
       {items.map((item) => (
         <a
           key={item.href + item.label}
@@ -36,8 +43,8 @@ function SideNavComponent() {
           }}
           className={`block rounded-lg border px-3 py-2 text-xs font-medium leading-5 transition ${
             isActive(item.href)
-              ? 'border-amber-400/50 bg-gradient-to-r from-amber-500/25 to-orange-500/25 text-amber-100'
-              : 'border-zinc-600/40 bg-zinc-800/60 text-zinc-300 hover:border-zinc-500/50 hover:bg-zinc-700/60 hover:text-zinc-100'
+              ? 'border-accent-line bg-accent-soft text-accent-text'
+              : 'border-border-soft bg-surface-control text-text-secondary hover:border-border-strong hover:bg-surface-hover hover:text-text-primary'
           }`}
         >
           {item.label}
@@ -50,14 +57,14 @@ function SideNavComponent() {
     <>
       <div className="mb-4 flex items-start justify-between gap-2">
         <div>
-          <div className="text-sm font-bold tracking-tight text-amber-300">RMCC</div>
-          <p className="mt-1 text-[11px] text-zinc-400">Client portal and operations view</p>
+          <div className="text-sm font-bold tracking-tight text-accent">RMCC</div>
+          <p className="mt-1 text-[11px] text-text-muted">Client portal and operations view</p>
         </div>
         <button
           type="button"
           onClick={toggle}
           aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-          className="rounded-md border border-zinc-600/40 bg-zinc-800/60 px-1.5 py-0.5 text-xs text-zinc-300 transition hover:border-zinc-500/50 hover:bg-zinc-700/60 hover:text-zinc-100"
+          className="rounded-md border border-border-soft bg-surface-control px-1.5 py-0.5 text-xs text-text-secondary transition hover:border-border-strong hover:bg-surface-hover hover:text-text-primary"
         >
           {theme === 'dark' ? '☀️' : '🌙'}
         </button>
@@ -92,7 +99,7 @@ function SideNavComponent() {
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         aria-label="Toggle navigation"
-        className="fixed left-4 top-4 z-50 rounded-lg border border-zinc-600/40 bg-zinc-800/60 p-2 text-zinc-300 transition hover:border-zinc-500/50 hover:bg-zinc-700/60"
+        className="fixed left-4 top-4 z-50 rounded-lg border border-border-soft bg-surface-2 p-2 text-text-secondary transition hover:border-border-strong hover:bg-surface-hover hover:text-text-primary"
       >
         <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isOpen ? 'M6 18L18 6M6 6l12 12' : 'M4 6h16M4 12h16M4 18h16'} />
@@ -108,7 +115,7 @@ function SideNavComponent() {
       )}
 
       {/* Drawer popout - all screen sizes */}
-      <aside className={`fixed left-0 top-0 z-40 h-screen w-64 transform rounded-r-2xl border border-r border-zinc-500/30 bg-zinc-900/95 p-4 shadow-xl shadow-black/40 backdrop-blur-xl transition-transform duration-300 ease-in-out ${
+      <aside className={`fixed left-0 top-0 z-40 h-screen w-64 transform rounded-r-2xl border border-r border-border-soft bg-surface-2 p-4 shadow-xl shadow-black/40 backdrop-blur-xl transition-transform duration-300 ease-in-out ${
         isOpen ? 'translate-x-0' : '-translate-x-full'
       }`}>
         <div className="mb-4 pt-12">

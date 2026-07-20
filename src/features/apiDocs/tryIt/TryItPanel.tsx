@@ -35,8 +35,12 @@ function statusTone(status: number): string {
   return 'text-rose-300'
 }
 
+// v1.18.1 PR2: the shared, token-built `.field-input` recipe from
+// src/styles/tokens.css owns fill, border, text, and placeholder in both
+// themes; only the size and monospace treatment specific to an API field
+// stays here.
 const inputClass =
-  'w-full rounded-md border border-zinc-700/50 bg-zinc-950/60 px-2 py-1 font-mono text-[11px] text-zinc-200 placeholder:text-zinc-600 focus:border-amber-400/50 focus:outline-none disabled:opacity-50'
+  'field-input px-2 py-1 font-mono text-[11px] focus:outline-none disabled:opacity-50'
 
 function FieldInput({
   field,

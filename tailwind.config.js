@@ -17,6 +17,8 @@ export default {
           0: 'var(--surface-0)',
           1: 'var(--surface-1)',
           2: 'var(--surface-2)',
+          control: 'var(--control-bg)',
+          hover: 'var(--surface-hover)',
         },
         border: {
           soft: 'var(--border-soft)',
@@ -27,9 +29,17 @@ export default {
           secondary: 'var(--text-secondary)',
           muted: 'var(--text-muted)',
         },
+        // v1.18.1 PR2: the translucent accent roles are explicit keys rather
+        // than opacity modifiers (bg-accent/20) because Tailwind cannot apply
+        // an alpha channel to a bare var() colour.
         accent: {
           DEFAULT: 'var(--accent)',
           contrast: 'var(--accent-contrast)',
+          soft: 'var(--accent-soft)',
+          'soft-hover': 'var(--accent-soft-hover)',
+          line: 'var(--accent-line)',
+          'line-hover': 'var(--accent-line-hover)',
+          text: 'var(--accent-text)',
         },
         success: 'var(--success)',
         warning: 'var(--warning)',
