@@ -1,6 +1,6 @@
 # v1.18 Theme Proposal: One Product (Frontend / UI / UX)
 
-- **Status:** PROPOSED, awaiting user review. Nothing in this document is approved for implementation until the decisions in Section 7 are answered.
+- **Status:** APPROVED WITH DEFAULTS (2026-07-19). D1-D11 all accepted as proposed: dark default theme, "RM Cloud Consulting" / "RMCC" branding, TopNav everywhere (SideNav retired), zinc + amber palette with the rose-indigo gradient dropped, system font stack at 16px base with a 12px floor, calm hero motion, full-viewport FocusCard sections retired, "free 30-minute discovery call" first-person copy, the shortened contact form, v1.18.5 performance minor included, axe-core as the only new dev dependency. Implementation is unblocked.
 - **Date:** 2026-07-19
 - **Surface:** infraportal repo only (React 19 + Vite + Tailwind v3, hash router, GitHub Pages at rodmen07.github.io/infraportal).
 - **Mandate:** the user directed development focus to frontend/UI/UX. Process follows the v1.17 precedent (design doc first, explicit user review gate, weekly minors, no new runtime dependencies).
@@ -184,7 +184,7 @@ Cadence: one minor per week, each one or two small PRs, same verification bar as
 
 ## 7. User decisions (the review gate)
 
-Defaults below are inferred from the site's existing identity (dark zinc surfaces, amber accent, generous radii, uppercase kickers, system sans) and are all overridable. **Reply per item, or "defaults approved" to accept all.** D1-D8 block v1.18.1-.3 respectively as noted; none block writing tests.
+**APPROVED 2026-07-19: "defaults approved."** All eleven decisions below are accepted as proposed and are now the binding spec for v1.18.1 through v1.18.5.
 
 | # | Decision | Proposed default | Notes |
 |---|---|---|---|
