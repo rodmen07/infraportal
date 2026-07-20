@@ -368,6 +368,17 @@ textarea:disabled {
 [data-theme="light"] .text-rose-400\/70   { color: #be123c !important; }
 [data-theme="light"] .text-amber-400\/70  { color: #92400e !important; }
 
+/* Opacity-modified emerald referral copy (ContactPage): the bare
+   .text-emerald-200 override above does not apply to the /80 and /70
+   opacity-suffixed variants Tailwind emits as separate class names, so
+   without these two rules the referral panel text composited to roughly
+   1.1-1.3:1 on the light surface-card background (ghost class, QA finding
+   against PR #36). Same solid colour as the bare class: an opacity variant
+   dropping its alpha entirely on light backgrounds is the established
+   pattern above. */
+[data-theme="light"] .text-emerald-200\/80 { color: #065f46 !important; }
+[data-theme="light"] .text-emerald-200\/70 { color: #065f46 !important; }
+
 /* Opacity-modified step-number ambers (HowItWorksSection) */
 [data-theme="light"] .text-amber-500\/50,
 [data-theme="light"] .text-amber-500\/40,
