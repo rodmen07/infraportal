@@ -572,6 +572,18 @@ textarea:disabled {
 [data-theme="light"] .bg-orange-500\/15 { background-color: rgba(249,115,22,0.12) !important; }
 [data-theme="light"] .bg-orange-500\/20 { background-color: rgba(249,115,22,0.15) !important; }
 [data-theme="light"] .bg-orange-500\/60 { background-color: rgba(249,115,22,0.5)  !important; } /* PipelineMetrics data-viz legend swatch, decorative - kept vivid */
+/* bg-red-500\/8 (below) and border-red-500\/60 (further down) were NOT
+   caught by the widened opacityColorThemeCoverage.test.ts sweep - they were
+   already a known bug filed in the portfolio backlog (ContactPage.tsx's
+   invalid-field input state, `field-input ${hasError ? 'border-red-500/60
+   bg-red-500/8' : ''} ...`). The scanner's regex-based literal extraction
+   treats an entire template literal as one opaque match when it contains no
+   second backtick, so a ternary's single-quoted class strings inside it get
+   swallowed with stray leading/trailing quote characters instead of parsed
+   as separate tokens - a real blind spot, not a false negative from these
+   two classes being safe. Fixed here by manual inspection; the scanner
+   limitation itself is filed as a QA finding below. */
+[data-theme="light"] .bg-red-500\/8     { background-color: rgba(239,68,68,0.06)  !important; }
 [data-theme="light"] .bg-red-500\/10    { background-color: rgba(239,68,68,0.08)  !important; }
 [data-theme="light"] .bg-red-500\/15    { background-color: rgba(239,68,68,0.12) !important; }
 [data-theme="light"] .bg-red-500\/20    { background-color: rgba(239,68,68,0.15) !important; }
@@ -646,6 +658,7 @@ textarea:disabled {
 [data-theme="light"] .border-red-400\/40    { border-color: rgba(248,113,113,0.4) !important; }
 [data-theme="light"] .border-red-500\/40    { border-color: rgba(239,68,68,0.4)   !important; }
 [data-theme="light"] .border-red-500\/50    { border-color: rgba(239,68,68,0.5)   !important; }
+[data-theme="light"] .border-red-500\/60    { border-color: rgba(239,68,68,0.6)   !important; }
 [data-theme="light"] .border-red-500\/70    { border-color: rgba(239,68,68,0.7)   !important; }
 [data-theme="light"] .border-orange-700\/40 { border-color: rgba(194,65,12,0.4)  !important; }
 
