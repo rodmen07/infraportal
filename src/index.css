@@ -368,10 +368,52 @@ textarea:disabled {
 [data-theme="light"] .text-rose-400\/70   { color: #be123c !important; }
 [data-theme="light"] .text-amber-400\/70  { color: #92400e !important; }
 
+/* Opacity-modified emerald referral copy (ContactPage): the bare
+   .text-emerald-200 override above does not apply to the /80 and /70
+   opacity-suffixed variants Tailwind emits as separate class names, so
+   without these two rules the referral panel text composited to roughly
+   1.1-1.3:1 on the light surface-card background (ghost class, QA finding
+   against PR #36). Same solid colour as the bare class: an opacity variant
+   dropping its alpha entirely on light backgrounds is the established
+   pattern above. */
+[data-theme="light"] .text-emerald-200\/80 { color: #065f46 !important; }
+[data-theme="light"] .text-emerald-200\/70 { color: #065f46 !important; }
+
 /* Opacity-modified step-number ambers (HowItWorksSection) */
 [data-theme="light"] .text-amber-500\/50,
 [data-theme="light"] .text-amber-500\/40,
 [data-theme="light"] .text-amber-500\/30 { color: #b45309 !important; } /* amber-700 5.2:1 */
+
+/* Opacity-modified text colours found by widening the ghost-class scanner
+   (src/styles/opacityTextColorThemeCoverage.test.ts) from ContactPage.tsx
+   only to every src/**/*.tsx file (PR #37 follow-up, second QA pass). Each
+   was a real ghost class: an opacity-suffixed Tailwind text-colour utility
+   with no light-theme override, composited near-invisible on the light
+   surface-card background exactly like the ContactPage /80 and /70 rules
+   above. Where a bare (non-opacity) override for the same colour/shade
+   already exists elsewhere in this file, these reuse its exact value -
+   same "solid colour, drop the alpha" pattern as every rule above. */
+[data-theme="light"] .text-amber-200\/80,
+[data-theme="light"] .text-amber-200\/90 { color: #92400e !important; } /* matches bare .text-amber-200 */
+[data-theme="light"] .text-amber-300\/80,
+[data-theme="light"] .text-amber-300\/85,
+[data-theme="light"] .text-amber-300\/90 { color: #b45309 !important; } /* matches bare .text-amber-300 */
+[data-theme="light"] .text-amber-400\/80 { color: #92400e !important; } /* matches bare .text-amber-400 */
+[data-theme="light"] .text-emerald-100\/85 { color: #064e3b !important; } /* matches bare .text-emerald-100 */
+[data-theme="light"] .text-emerald-200\/60,
+[data-theme="light"] .text-emerald-200\/90 { color: #065f46 !important; } /* matches bare .text-emerald-200 */
+[data-theme="light"] .text-emerald-300\/90 { color: #065f46 !important; } /* matches bare .text-emerald-300 */
+[data-theme="light"] .text-zinc-400\/70 { color: #3f3f46 !important; } /* matches bare .text-zinc-400 */
+
+/* No bare-class precedent for these two (still out of scope for this file
+   per the scanner's documented boundary - see the test's header), so the
+   value instead follows this file's existing shade-jump convention: a
+   "400" source shade darkens to "700" (text-blue-400 -> #1d4ed8 above,
+   text-red-400 -> #b91c1c above), and a "100" source shade darkens to "900"
+   (text-emerald-100 -> #064e3b above). */
+[data-theme="light"] .text-green-400\/70,
+[data-theme="light"] .text-green-400\/80 { color: #15803d !important; } /* green-700 */
+[data-theme="light"] .text-red-100\/90 { color: #7f1d1d !important; } /* red-900 */
 
 /* Background: dark tiles → near-transparent light equivalents */
 [data-theme="light"] .bg-zinc-900\/60  { background-color: rgba(0,0,0,0.03) !important; }
