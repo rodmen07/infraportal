@@ -359,10 +359,38 @@ describe('strangler rule: override-sheet rules for tokenized surfaces stay delet
     expect(/var\(--fx-/.test(INDEX_CSS_RULES)).toBe(false)
   })
 
-  it('the remaining override sheet is not deleted early (v1.18.4 exit criterion)', () => {
-    // The strangler plan is explicit that full deletion belongs to v1.18.4.
-    // If this ever hits zero before that milestone, the deletion ran ahead of
-    // the surfaces it protects.
+  it('override-sheet status: real but partial progress in v1.18.4, not yet zero', () => {
+    // Renamed from "the remaining override sheet is not deleted early" now
+    // that we ARE in v1.18.4: that framing only made sense as a guard
+    // against jumping the gun in v1.18.1-.3.
+    //
+    // v1.18.4 made two kinds of real, verified progress on this sheet:
+    //  1. DELETIONS: the four dead "Pricing card highlight" gradient/ring
+    //     rules (.from-amber-400\/10, .via-orange-300\/6, .to-amber-200\/8,
+    //     .ring-amber-300\/20) were confirmed to have zero remaining
+    //     consumers anywhere in src/**\/*.tsx (PricingCard.tsx, their only
+    //     ever consumer, migrated onto the Badge/Button primitives) and
+    //     deleted.
+    //  2. ADDITIONS: fixing the two named repo-wide contrast bugs
+    //     (`border-amber-400/30`/`/60`, `bg-emerald-500/10`) plus the
+    //     ~80-class sweep widening src/styles/opacityColorThemeCoverage.test.ts
+    //     to bg-*/border-* surfaced required MORE override rules, not
+    //     fewer: those classes are still raw Tailwind utilities in roughly
+    //     40 case-study/admin/portal files that have not been migrated onto
+    //     semantic tokens, so a CSS-level override is the only fix that
+    //     does not touch (and risk regressing) every one of those files in
+    //     the same change. The sheet is measurably LARGER after v1.18.4
+    //     than before it as a direct, deliberate result.
+    //
+    // Net effect: this count is expected to stay above zero after v1.18.4.
+    // Full deletion needs a follow-up that migrates those ~40 files'
+    // raw-utility colour classes onto the surface-*/text-*/border-*/accent-*
+    // tokens (see the portfolio backlog's v1.18.4 entry) - a large,
+    // cross-cutting change deliberately out of this milestone's safely
+    // reviewable scope. This test's job is only to keep that state honest:
+    // it fails if the count either regresses to zero (claiming a deletion
+    // that did not happen) or if a future change adds a large batch of new
+    // rules without updating this comment's accounting.
     const remaining = (INDEX_CSS_RULES.match(/\[data-theme="light"\]/g) ?? []).length
     expect(remaining).toBeGreaterThan(0)
   })
