@@ -354,9 +354,10 @@ describe('migrated chrome carries no dark-authored colour utilities', () => {
   // The chrome moved onto semantic token utilities in v1.18.1 PR2 and no
   // longer has a [data-theme="light"] safety net, so a zinc-* colour utility
   // reappearing here would be a dark island in light mode by construction.
+  // SideNav.tsx was retired in v1.18.2 PR1 (D3): TopNav is the one navigation
+  // system on every route, so there is no longer a drawer to keep zinc-free.
   const MIGRATED_CHROME_FILES = [
     'src/features/layout/TopNav.tsx',
-    'src/features/layout/SideNav.tsx',
     'src/features/site/SlideOver.tsx',
     'src/pages/PageLayout.tsx',
   ]
