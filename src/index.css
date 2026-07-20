@@ -348,17 +348,32 @@ textarea:disabled {
 [data-theme="light"] .to-orange-500\/25 { --tw-gradient-to: rgba(251,146,60,0.15) !important; }
 [data-theme="light"] .text-amber-100 { color: #92400e !important; }
 
-/* Pricing card highlight - light mode */
-[data-theme="light"] .from-amber-400\/10 { --tw-gradient-from: rgba(245,158,11,0.07) !important; }
-[data-theme="light"] .via-orange-300\/6 { --tw-gradient-via: rgba(253,186,116,0.04) !important; }
-[data-theme="light"] .to-amber-200\/8 { --tw-gradient-to: rgba(253,230,138,0.06) !important; }
-[data-theme="light"] .ring-amber-300\/20 { --tw-ring-color: rgba(252,211,77,0.18) !important; }
+/* Deleted in v1.18.4 (strangler rule, doc section 4): the four
+   "Pricing card highlight - light mode" gradient/ring rules
+   (.from-amber-400\/10, .via-orange-300\/6, .to-amber-200\/8,
+   .ring-amber-300\/20) patched PricingCard's old per-theme gradient/ring
+   classes. PricingCard.tsx now reads --accent-soft/--accent-line via the
+   Badge/Button primitives instead (mechanism 2 of F2), and grepping
+   src/**/*.tsx confirms zero remaining uses of any of those four classes
+   anywhere in the app - a genuinely dead rule, not just an unused one for
+   this component. */
 [data-theme="light"] .text-amber-200 { color: #92400e !important; }
 
-/* Dark theme contrast fix: bump zinc-500 callouts to zinc-400 for WCAG AA */
-/* Note: zinc-500 (#71717a) on zinc-900 (#18181b) = 3.5:1 - fails AA for body text.
-   Components should use text-zinc-400 (#a1a1aa) for muted body text on dark.
-   This rule won't fire in light mode (overridden above). */
+/* Dark theme contrast fix (v1.18.4, F11): zinc-500 (#71717a) on the
+   zinc-900/950 dark surfaces this app actually uses composites to roughly
+   3.3-3.5:1 - fails WCAG AA (4.5:1) for body text. This was documented here
+   as a comment recommending components switch to text-zinc-400 instead, but
+   never actually fixed - the acknowledged-but-unfixed gap F11 names. A
+   component-by-component rewrite would touch every one of the many files
+   using `text-zinc-500` as a caption/timestamp/muted-label colour; a single
+   dark-mode rule fixes all of them at once and is reverted automatically
+   the moment a component migrates onto `text-text-muted` (src/styles/
+   tokens.css's --text-muted is zinc-400 in dark mode already), same as
+   every other override in this sheet. Scoped to `.text-zinc-500` (not
+   border-/bg-, which are not body-text contrast concerns) and to dark mode
+   only - the existing `[data-theme="light"] .text-zinc-500` rule above
+   already fixes the light-mode case with its own value. */
+[data-theme="dark"] .text-zinc-500 { color: #a1a1aa !important; }
 
 /* ── Additional light-mode dark-island remediation ──────────────────────── */
 
@@ -489,3 +504,238 @@ textarea:disabled {
 [data-theme="light"] pre.text-zinc-300,
 [data-theme="light"] pre.text-zinc-200,
 [data-theme="light"] pre.text-zinc-400 { color: #cdd6f4 !important; background: #1e1e2e !important; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   v1.18.4 contrast fix: opacity-suffixed bg-*/border-* ghost classes.
+
+   src/styles/opacityColorThemeCoverage.test.ts was widened this milestone
+   from text-* only to also scan bg-*/border-*, per the two repo-wide bugs
+   named in the portfolio backlog: `border-amber-400/30` and
+   `border-amber-400/60` (the primary CTA button's border and hover-border,
+   used across a dozen-plus files) and `bg-emerald-500/10` (used in 16
+   files) had no light-theme override anywhere. Widening the scan the same
+   way PR #37 widened the text-* one surfaced the same shape of gap much
+   more broadly: every opacity-suffixed bg-*/border-* colour class actually
+   used anywhere in src/**/*.tsx, all fixed below in one pass rather than
+   piecemeal.
+
+   Formula (reasoned, not per-class guesswork, so it stays auditable):
+     - BACKGROUND tints (bg-{hue}-{shade}/{opacity}): a background wash is
+       legible at low alpha regardless of how bright the source hue is, so
+       these keep the SAME hue and scale the opacity down (matching the
+       existing precedent above, e.g. .bg-amber-500\/15 -> the SAME amber
+       hex at a lower alpha) - EXCEPT emerald/green, which the existing
+       .bg-emerald-950\/20 rule above already darkens to emerald-800; green
+       follows its status-colour sibling for the same reason.
+     - BORDER lines (border-{hue}-{shade}/{opacity}): a border must read as
+       a visible line against the surface, so pale/bright accent shades
+       (amber, this app's own accent hue) darken to amber-700 - reusing the
+       EXACT rgb triple the existing .border-amber-300\/20 /
+       .border-amber-400\/40 rules above already established - while
+       already-saturated mid shades (red/orange/blue/purple/violet/sky/
+       rose-500, emerald/green at their existing darker tone) pass through
+       unchanged, matching the existing .border-red-500\/30 /
+       .border-orange-500\/40 / .border-blue-500\/40 precedent of keeping
+       the same rgba outright.
+     - ZINC tints follow the same near-black-wash-in-light-mode logic as the
+       zinc rules above; a handful at very high source opacity (used as a
+       floating panel/backdrop, not a subtle fill - the NotificationBell
+       dropdown, the top-level error card) instead follow the existing
+       .bg-zinc-900\/80 -> near-opaque WHITE precedent.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* Backgrounds: amber (accent-hue soft tints, same hue as dark mode) */
+[data-theme="light"] .bg-amber-400\/10 { background-color: rgba(251,191,36,0.07) !important; }
+[data-theme="light"] .bg-amber-400\/60 { background-color: rgba(251,191,36,0.5)  !important; }
+[data-theme="light"] .bg-amber-400\/70 { background-color: rgba(251,191,36,0.6)  !important; }
+[data-theme="light"] .bg-amber-500\/5  { background-color: rgba(245,158,11,0.04) !important; }
+[data-theme="light"] .bg-amber-500\/10 { background-color: rgba(245,158,11,0.07) !important; }
+[data-theme="light"] .bg-amber-500\/20 { background-color: rgba(245,158,11,0.15) !important; }
+[data-theme="light"] .bg-amber-500\/80 { background-color: rgba(245,158,11,0.8)  !important; }
+[data-theme="light"] .bg-amber-950\/15 { background-color: rgba(245,158,11,0.06) !important; }
+
+/* Backgrounds: blue / cyan / purple / violet / sky / rose / orange / red
+   (soft status/category chip tints, same hue as dark mode) */
+[data-theme="light"] .bg-blue-500\/8    { background-color: rgba(59,130,246,0.06)  !important; }
+[data-theme="light"] .bg-blue-500\/10   { background-color: rgba(59,130,246,0.08)  !important; }
+[data-theme="light"] .bg-blue-500\/15   { background-color: rgba(59,130,246,0.12)  !important; }
+[data-theme="light"] .bg-blue-500\/20   { background-color: rgba(59,130,246,0.15)  !important; }
+[data-theme="light"] .bg-cyan-500\/20   { background-color: rgba(6,182,212,0.15)   !important; }
+[data-theme="light"] .bg-purple-500\/15 { background-color: rgba(168,85,247,0.12) !important; }
+[data-theme="light"] .bg-purple-500\/20 { background-color: rgba(168,85,247,0.15) !important; }
+[data-theme="light"] .bg-violet-500\/15 { background-color: rgba(139,92,246,0.12) !important; }
+[data-theme="light"] .bg-sky-500\/15    { background-color: rgba(14,165,233,0.12) !important; }
+[data-theme="light"] .bg-rose-500\/10   { background-color: rgba(244,63,94,0.08)  !important; }
+[data-theme="light"] .bg-rose-500\/15   { background-color: rgba(244,63,94,0.12) !important; }
+[data-theme="light"] .bg-rose-950\/20   { background-color: rgba(244,63,94,0.08) !important; }
+[data-theme="light"] .bg-orange-500\/10 { background-color: rgba(249,115,22,0.08) !important; }
+[data-theme="light"] .bg-orange-500\/15 { background-color: rgba(249,115,22,0.12) !important; }
+[data-theme="light"] .bg-orange-500\/20 { background-color: rgba(249,115,22,0.15) !important; }
+[data-theme="light"] .bg-orange-500\/60 { background-color: rgba(249,115,22,0.5)  !important; } /* PipelineMetrics data-viz legend swatch, decorative - kept vivid */
+/* bg-red-500\/8 (below) and border-red-500\/60 (further down) were NOT
+   caught by the widened opacityColorThemeCoverage.test.ts sweep - they were
+   already a known bug filed in the portfolio backlog (ContactPage.tsx's
+   invalid-field input state, `field-input ${hasError ? 'border-red-500/60
+   bg-red-500/8' : ''} ...`). The scanner's regex-based literal extraction
+   treats an entire template literal as one opaque match when it contains no
+   second backtick, so a ternary's single-quoted class strings inside it get
+   swallowed with stray leading/trailing quote characters instead of parsed
+   as separate tokens - a real blind spot, not a false negative from these
+   two classes being safe. Fixed here by manual inspection; the scanner
+   limitation itself is filed as a QA finding below. */
+[data-theme="light"] .bg-red-500\/8     { background-color: rgba(239,68,68,0.06)  !important; }
+[data-theme="light"] .bg-red-500\/10    { background-color: rgba(239,68,68,0.08)  !important; }
+[data-theme="light"] .bg-red-500\/15    { background-color: rgba(239,68,68,0.12) !important; }
+[data-theme="light"] .bg-red-500\/20    { background-color: rgba(239,68,68,0.15) !important; }
+[data-theme="light"] .bg-red-500\/25    { background-color: rgba(239,68,68,0.18) !important; }
+
+/* Backgrounds: emerald / green (status-success family, darkened to the
+   emerald-800/green-800 tone like the existing .bg-emerald-950\/20 rule) */
+[data-theme="light"] .bg-emerald-500\/8  { background-color: rgba(6,95,70,0.06)  !important; }
+[data-theme="light"] .bg-emerald-500\/10 { background-color: rgba(6,95,70,0.08)  !important; } /* named v1.18.4 bug */
+[data-theme="light"] .bg-emerald-500\/15 { background-color: rgba(6,95,70,0.12) !important; }
+[data-theme="light"] .bg-emerald-500\/20 { background-color: rgba(6,95,70,0.15) !important; }
+[data-theme="light"] .bg-emerald-500\/25 { background-color: rgba(6,95,70,0.18) !important; }
+[data-theme="light"] .bg-emerald-900\/20 { background-color: rgba(6,95,70,0.08) !important; }
+[data-theme="light"] .bg-green-500\/10   { background-color: rgba(22,101,52,0.08) !important; }
+[data-theme="light"] .bg-green-500\/15   { background-color: rgba(22,101,52,0.12) !important; }
+[data-theme="light"] .bg-green-500\/20   { background-color: rgba(22,101,52,0.15) !important; }
+[data-theme="light"] .bg-green-950\/20   { background-color: rgba(22,101,52,0.08) !important; }
+
+/* Backgrounds: zinc subtle fills (near-black wash, same tier as the
+   existing bg-zinc-800\/* family above) */
+[data-theme="light"] .bg-zinc-500\/15 { background-color: rgba(0,0,0,0.1)   !important; }
+[data-theme="light"] .bg-zinc-600\/60 { background-color: rgba(0,0,0,0.09)  !important; }
+[data-theme="light"] .bg-zinc-700\/40 { background-color: rgba(0,0,0,0.03)  !important; }
+[data-theme="light"] .bg-zinc-700\/50 { background-color: rgba(0,0,0,0.04)  !important; }
+[data-theme="light"] .bg-zinc-700\/60 { background-color: rgba(0,0,0,0.05)  !important; }
+[data-theme="light"] .bg-zinc-900\/30 { background-color: rgba(0,0,0,0.025) !important; }
+[data-theme="light"] .bg-zinc-900\/50 { background-color: rgba(0,0,0,0.035) !important; }
+[data-theme="light"] .bg-zinc-900\/55 { background-color: rgba(0,0,0,0.04)  !important; }
+[data-theme="light"] .bg-zinc-900\/70 { background-color: rgba(0,0,0,0.05)  !important; }
+[data-theme="light"] .bg-zinc-950\/40 { background-color: rgba(0,0,0,0.03)  !important; }
+[data-theme="light"] .bg-zinc-950\/50 { background-color: rgba(0,0,0,0.035) !important; }
+
+/* PipelineMetrics uses `bg-zinc-400/60` as a data-viz legend swatch colour,
+   not a surface fill - a mid-grey stays meaningfully visible on white
+   without the near-black-wash treatment above washing it out entirely. */
+[data-theme="light"] .bg-zinc-400\/60 { background-color: rgba(0,0,0,0.35) !important; }
+
+/* Backgrounds: near-opaque zinc-900 used as a floating panel/backdrop fill
+   (NotificationBell's dropdown, the top-level error boundary card), not a
+   subtle wash - same near-opaque-WHITE treatment as the existing
+   .bg-zinc-900\/80 / .bg-zinc-900\/75 rules above, extended up the scale. */
+[data-theme="light"] .bg-zinc-900\/90 { background-color: rgba(255,255,255,0.92) !important; }
+[data-theme="light"] .bg-zinc-900\/95 { background-color: rgba(255,255,255,0.97) !important; }
+
+/* Borders: amber (this app's accent hue) darkens to amber-700, reusing the
+   EXACT rgb triple the existing .border-amber-300\/20 / .border-amber-400\/40
+   rules above already established for the same reason - a pale/bright
+   amber line does not read against a white page. */
+[data-theme="light"] .border-amber-400\/20 { border-color: rgba(180,100,10,0.25) !important; }
+[data-theme="light"] .border-amber-400\/25 { border-color: rgba(180,100,10,0.3)  !important; }
+[data-theme="light"] .border-amber-400\/30 { border-color: rgba(180,100,10,0.35) !important; } /* named v1.18.4 bug */
+[data-theme="light"] .border-amber-400\/50 { border-color: rgba(180,100,10,0.55) !important; }
+[data-theme="light"] .border-amber-400\/60 { border-color: rgba(180,100,10,0.65) !important; } /* named v1.18.4 bug */
+[data-theme="light"] .border-amber-500\/20 { border-color: rgba(180,100,10,0.25) !important; }
+[data-theme="light"] .border-amber-500\/25 { border-color: rgba(180,100,10,0.3)  !important; }
+[data-theme="light"] .border-amber-500\/30 { border-color: rgba(180,100,10,0.35) !important; }
+[data-theme="light"] .border-amber-500\/40 { border-color: rgba(180,100,10,0.45) !important; }
+[data-theme="light"] .border-amber-500\/60 { border-color: rgba(180,100,10,0.65) !important; }
+[data-theme="light"] .border-amber-600\/40 { border-color: rgba(180,100,10,0.45) !important; }
+
+/* Borders: already-saturated mid shades pass through unchanged, matching
+   the existing .border-red-500\/30 / .border-orange-500\/40 /
+   .border-blue-500\/40 precedent above (visible enough on both themes at
+   these opacities without darkening). */
+[data-theme="light"] .border-blue-500\/30   { border-color: rgba(59,130,246,0.3)  !important; }
+[data-theme="light"] .border-purple-500\/30 { border-color: rgba(168,85,247,0.3) !important; }
+[data-theme="light"] .border-violet-500\/40 { border-color: rgba(139,92,246,0.4) !important; }
+[data-theme="light"] .border-sky-400\/40    { border-color: rgba(14,165,233,0.4) !important; }
+[data-theme="light"] .border-sky-500\/40    { border-color: rgba(14,165,233,0.4) !important; }
+[data-theme="light"] .border-rose-500\/25   { border-color: rgba(244,63,94,0.25) !important; }
+[data-theme="light"] .border-rose-500\/40   { border-color: rgba(244,63,94,0.4)  !important; }
+[data-theme="light"] .border-red-400\/40    { border-color: rgba(248,113,113,0.4) !important; }
+[data-theme="light"] .border-red-500\/40    { border-color: rgba(239,68,68,0.4)   !important; }
+[data-theme="light"] .border-red-500\/50    { border-color: rgba(239,68,68,0.5)   !important; }
+[data-theme="light"] .border-red-500\/60    { border-color: rgba(239,68,68,0.6)   !important; }
+[data-theme="light"] .border-red-500\/70    { border-color: rgba(239,68,68,0.7)   !important; }
+[data-theme="light"] .border-orange-700\/40 { border-color: rgba(194,65,12,0.4)  !important; }
+
+/* Borders: emerald / green (status-success family), matching the existing
+   .border-emerald-500\/30 rule's emerald-800 tone above. */
+[data-theme="light"] .border-emerald-400\/40 { border-color: rgba(6,95,70,0.4)  !important; }
+[data-theme="light"] .border-emerald-400\/60 { border-color: rgba(6,95,70,0.5)  !important; }
+[data-theme="light"] .border-emerald-500\/25 { border-color: rgba(6,95,70,0.25) !important; }
+[data-theme="light"] .border-emerald-500\/40 { border-color: rgba(6,95,70,0.4)  !important; }
+[data-theme="light"] .border-emerald-600\/40 { border-color: rgba(6,95,70,0.4)  !important; }
+[data-theme="light"] .border-green-500\/30   { border-color: rgba(22,101,52,0.3) !important; }
+[data-theme="light"] .border-green-700\/40   { border-color: rgba(22,101,52,0.4) !important; }
+
+/* Borders: zinc, matching the existing flat-per-shade tiers above
+   (zinc-500 family -> 0.12, zinc-600 family -> 0.14, zinc-700 family ->
+   0.08-0.1 scaling with source opacity). */
+[data-theme="light"] .border-zinc-500\/35 { border-color: rgba(0,0,0,0.12) !important; }
+[data-theme="light"] .border-zinc-500\/50 { border-color: rgba(0,0,0,0.12) !important; }
+[data-theme="light"] .border-zinc-500\/60 { border-color: rgba(0,0,0,0.12) !important; }
+[data-theme="light"] .border-zinc-600\/30 { border-color: rgba(0,0,0,0.14) !important; }
+[data-theme="light"] .border-zinc-700\/20 { border-color: rgba(0,0,0,0.08) !important; }
+[data-theme="light"] .border-zinc-700\/30 { border-color: rgba(0,0,0,0.09) !important; }
+
+/* ---------------------------------------------------------------------------
+   Variant-state (hover:/focus:/open:) opacity-colour overrides.
+
+   Pre-merge QA finding on this PR: every override rule above this block only
+   ever targets the BARE class selector, e.g.
+   `[data-theme="light"] .border-amber-400\/60`. Every real consumer of that
+   exact class in this app applies it only through a `hover:` variant - e.g.
+   the primary CTA button's className carries `hover:border-amber-400/60`,
+   never a bare `border-amber-400/60`. Tailwind compiles a variant class to a
+   DIFFERENT selector token entirely - `.hover\:border-amber-400\/60:hover`,
+   not `.border-amber-400\/60:hover` - so the bare rule above can never match
+   it: a CSS class selector requires an exact whole-token match, and
+   `hover:border-amber-400/60` is a different token than
+   `border-amber-400/60`. Every real consumer of every class below (not just
+   the 2 originally named as "fixed") rendered the raw, un-themed dark-mode
+   colour on hover/focus/open in light mode - this file's whole reason to
+   exist - despite each bare class already having an entry above.
+
+   Fix: an explicit override per variant-compiled selector, reusing the EXACT
+   rgba value the matching bare-class rule above already established for the
+   same shade/opacity - the colour formula does not change based on whether
+   the state is permanent or interactive, only the selector Tailwind emits
+   does. `hover:`/`focus:` compile to a trailing `:hover`/`:focus`
+   pseudo-class; `open:` (the `<details>`/`<dialog>` state variant) compiles
+   to a trailing `[open]` attribute selector instead - confirmed against a
+   real `tailwindcss` CLI build of this repo's content, not guessed. See
+   src/styles/opacityColorThemeCoverage.test.ts's `VARIANT_SELECTOR_SUFFIX`
+   map, which enforces (rather than assumes) this file stays in sync: any
+   future variant-prefixed opacity class this app starts using must be added
+   both there and here, or the test fails loudly instead of silently passing.
+   --------------------------------------------------------------------------- */
+[data-theme="light"] .hover\:border-amber-400\/40:hover   { border-color: rgba(180,100,10,0.45) !important; }
+[data-theme="light"] .hover\:border-amber-400\/50:hover   { border-color: rgba(180,100,10,0.55) !important; }
+[data-theme="light"] .hover\:border-amber-400\/60:hover   { border-color: rgba(180,100,10,0.65) !important; } /* named v1.18.4 bug, hover state */
+[data-theme="light"] .focus\:border-amber-400\/50:focus   { border-color: rgba(180,100,10,0.55) !important; }
+[data-theme="light"] .focus\:border-amber-500\/60:focus   { border-color: rgba(180,100,10,0.65) !important; } /* named v1.18.4 bug, focus state */
+[data-theme="light"] .open\:border-amber-400\/30[open]    { border-color: rgba(180,100,10,0.35) !important; }
+[data-theme="light"] .hover\:border-emerald-400\/60:hover { border-color: rgba(6,95,70,0.5)     !important; } /* named v1.18.4 bug, hover state */
+[data-theme="light"] .hover\:border-red-500\/70:hover     { border-color: rgba(239,68,68,0.7)   !important; }
+[data-theme="light"] .hover\:border-zinc-500\/50:hover    { border-color: rgba(0,0,0,0.12)      !important; } /* named v1.18.4 bug, hover state */
+[data-theme="light"] .hover\:border-zinc-500\/60:hover    { border-color: rgba(0,0,0,0.12)      !important; } /* named v1.18.4 bug, hover state */
+[data-theme="light"] .hover\:border-zinc-600\/50:hover    { border-color: rgba(0,0,0,0.14)      !important; }
+[data-theme="light"] .hover\:border-zinc-600\/60:hover    { border-color: rgba(0,0,0,0.14)      !important; }
+
+[data-theme="light"] .hover\:bg-amber-500\/20:hover   { background-color: rgba(245,158,11,0.15) !important; }
+[data-theme="light"] .hover\:bg-amber-500\/25:hover   { background-color: rgba(245,158,11,0.15) !important; } /* named v1.18.4 bug, hover state */
+[data-theme="light"] .hover\:bg-emerald-500\/25:hover { background-color: rgba(6,95,70,0.18)    !important; } /* named v1.18.4 bug, hover state */
+[data-theme="light"] .hover\:bg-red-500\/20:hover     { background-color: rgba(239,68,68,0.15)  !important; }
+[data-theme="light"] .hover\:bg-red-500\/25:hover     { background-color: rgba(239,68,68,0.18)  !important; } /* named v1.18.4 bug, hover state */
+[data-theme="light"] .hover\:bg-zinc-600\/60:hover    { background-color: rgba(0,0,0,0.09)      !important; }
+[data-theme="light"] .hover\:bg-zinc-700\/60:hover    { background-color: rgba(0,0,0,0.05)      !important; }
+[data-theme="light"] .hover\:bg-zinc-800\/20:hover    { background-color: rgba(0,0,0,0.02)      !important; }
+[data-theme="light"] .hover\:bg-zinc-800\/30:hover    { background-color: rgba(0,0,0,0.03)      !important; }
+[data-theme="light"] .hover\:bg-zinc-800\/40:hover    { background-color: rgba(0,0,0,0.03)      !important; }
+[data-theme="light"] .hover\:bg-zinc-800\/60:hover    { background-color: rgba(0,0,0,0.04)      !important; }
+[data-theme="light"] .hover\:bg-zinc-800\/80:hover    { background-color: rgba(0,0,0,0.07)      !important; }
+[data-theme="light"] .hover\:bg-zinc-900\/40:hover    { background-color: rgba(0,0,0,0.03)      !important; }
