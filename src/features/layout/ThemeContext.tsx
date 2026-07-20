@@ -7,13 +7,20 @@ interface ThemeContextValue {
   toggle: () => void
 }
 
-const ThemeContext = createContext<ThemeContextValue>({ theme: 'light', toggle: () => {} })
+// Default theme is 'dark' (v1.18.1 D1): index.html hardcodes
+// data-theme="dark" and its pre-mount script only overrides it from a saved
+// localStorage value, so this fallback must match exactly. A mismatch here
+// was F3 from the v1.18 UX audit (docs/design/V1_18_UX_THEME.md section 2):
+// first-time visitors booted dark, then flipped to light once React mounted.
+const DEFAULT_THEME: Theme = 'dark'
 
-export { ThemeContext }
+const ThemeContext = createContext<ThemeContextValue>({ theme: DEFAULT_THEME, toggle: () => {} })
+
+export { ThemeContext, DEFAULT_THEME }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<Theme>(() => {
-    return (localStorage.getItem('theme') as Theme | null) ?? 'light'
+    return (localStorage.getItem('theme') as Theme | null) ?? DEFAULT_THEME
   })
 
   useEffect(() => {
