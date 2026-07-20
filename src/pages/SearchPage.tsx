@@ -81,7 +81,7 @@ function SearchEmptyState({
           <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
       </div>
-      <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.24em] text-amber-300/90">{badge}</p>
+      <p className="mt-4 text-scale-xs font-semibold uppercase tracking-[0.24em] text-amber-300/90">{badge}</p>
       <p className="mt-2 text-lg font-semibold text-zinc-100">{title}</p>
       <p className="mx-auto mt-2 max-w-xl text-sm text-zinc-400">{description}</p>
       <div className="mt-5 flex justify-center">
@@ -261,7 +261,7 @@ function SearchView() {
       <div className="forge-panel surface-card-strong p-4 sm:p-5">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-amber-300/90">Search workspace</p>
+            <p className="text-scale-xs font-semibold uppercase tracking-[0.24em] text-amber-300/90">Search workspace</p>
             <h2 className="mt-1 text-lg font-semibold text-zinc-100">Find accounts, contacts, opportunities, and activities quickly</h2>
             <p className="mt-1 max-w-2xl text-sm text-zinc-400">Use short client names, deal stages, or workflow keywords to surface related records across the CRM tools.</p>
           </div>
@@ -328,7 +328,7 @@ function SearchView() {
       {!loading && !error && query && results.length > 0 && (
         <div className="forge-panel surface-card-strong flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-amber-300/90">{searchCopy.badge}</p>
+            <p className="text-scale-xs font-semibold uppercase tracking-[0.24em] text-amber-300/90">{searchCopy.badge}</p>
             <p className="mt-1 text-sm text-zinc-400">{searchCopy.description}</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -367,7 +367,7 @@ function SearchView() {
               <EntityBadge type={entityType} />
               <span className="text-xs text-zinc-500">{grouped[entityType].length} result{grouped[entityType].length !== 1 ? 's' : ''}</span>
             </div>
-            <span className="text-[11px] uppercase tracking-[0.2em] text-zinc-500">Grouped view</span>
+            <span className="text-scale-xs uppercase tracking-[0.2em] text-zinc-500">Grouped view</span>
           </div>
           <div className="grid gap-2 lg:grid-cols-2">
             {grouped[entityType].map(r => <ResultCard key={r.id} result={r} />)}

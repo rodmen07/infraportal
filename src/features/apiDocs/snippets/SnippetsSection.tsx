@@ -22,15 +22,15 @@ function SnippetBlock({ label, text, note }: { label: string; text: string; note
   return (
     <div>
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
+        <span className="text-scale-xs font-semibold uppercase tracking-wider text-zinc-400">
           {label}
         </span>
         <CopyButton text={text} />
       </div>
-      <pre className="mt-1 max-h-72 overflow-auto rounded-md bg-zinc-900/80 p-2.5 font-mono text-[11px] leading-4 text-zinc-300">
+      <pre className="mt-1 max-h-72 overflow-auto rounded-md bg-zinc-900/80 p-2.5 font-mono text-scale-xs leading-4 text-zinc-300">
         {text}
       </pre>
-      {note && <p className="mt-1 text-[10px] leading-4 text-zinc-600">{note}</p>}
+      {note && <p className="mt-1 text-scale-xs leading-4 text-zinc-600">{note}</p>}
     </div>
   )
 }
@@ -58,11 +58,11 @@ export function SnippetsSection({
       data-snippets={operation.operationId}
       className="mt-2 rounded-lg border border-zinc-700/40 bg-zinc-950/40"
     >
-      <summary className="cursor-pointer p-3 text-[10px] font-semibold uppercase tracking-widest text-zinc-300 hover:text-amber-200">
+      <summary className="cursor-pointer p-3 text-scale-xs font-semibold uppercase tracking-widest text-zinc-300 hover:text-amber-200">
         Snippets: curl + TypeScript SDK
       </summary>
       <div className="space-y-3 border-t border-zinc-700/30 p-3">
-        <p className="text-[10px] leading-4 text-amber-300/80">{OFFLINE_NOTE}</p>
+        <p className="text-scale-xs leading-4 text-amber-300/80">{OFFLINE_NOTE}</p>
         <SnippetBlock label="curl" text={curl} note={POWERSHELL_NOTE} />
         <SnippetBlock label="TypeScript SDK" text={sdk} note={SDK_SOURCE_NOTE} />
       </div>

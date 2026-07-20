@@ -16,7 +16,7 @@ export function ProofStrip() {
     <section className="reveal forge-panel surface-card rounded-3xl border border-zinc-500/30 p-6 shadow-2xl shadow-black/50 backdrop-blur-xl sm:p-8">
       <div className="grid gap-6 sm:grid-cols-[1fr_auto] sm:items-center">
         <div className="max-w-2xl">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-accent">Proof, not promises</p>
+          <p className="text-scale-xs font-semibold uppercase tracking-[0.24em] text-accent">Proof, not promises</p>
           <p className="mt-2 text-sm leading-relaxed text-text-secondary">
             I shipped a 16-service platform end to end, then decommissioned it to $0 in recurring cost on purpose
             once its job was done. Real infrastructure work includes knowing when to turn things off.
@@ -54,7 +54,7 @@ export function ProofStrip() {
           {PROOF_STATS.map((stat) => (
             <div key={stat.label} className="surface-card rounded-xl px-3 py-2 text-center">
               <div className="text-lg font-bold text-text-primary">{stat.value}</div>
-              <div className="text-[11px] text-text-muted">{stat.label}</div>
+              <div className="text-scale-xs text-text-muted">{stat.label}</div>
             </div>
           ))}
         </div>

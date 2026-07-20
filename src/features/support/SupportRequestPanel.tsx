@@ -124,13 +124,13 @@ export function SupportRequestPanel({ projectId }: { projectId: string }) {
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="text-sm font-medium text-zinc-100">{request.subject}</span>
-                      <span className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold ${meta.badge}`}>
+                      <span className={`rounded-full border px-2 py-0.5 text-scale-xs font-semibold ${meta.badge}`}>
                         {meta.label}
                       </span>
                     </div>
-                    <p className="mt-0.5 text-[11px] uppercase tracking-wide text-zinc-500">{request.category}</p>
+                    <p className="mt-0.5 text-scale-xs uppercase tracking-wide text-zinc-500">{request.category}</p>
                   </div>
-                  <span className="shrink-0 text-[11px] text-zinc-500">{formatRelativeTime(request.createdAt)}</span>
+                  <span className="shrink-0 text-scale-xs text-zinc-500">{formatRelativeTime(request.createdAt)}</span>
                 </div>
                 {request.message && (
                   <p className="mt-2 whitespace-pre-wrap text-sm text-zinc-300">{request.message}</p>
@@ -140,7 +140,7 @@ export function SupportRequestPanel({ projectId }: { projectId: string }) {
                     <button
                       type="button"
                       onClick={() => handleWithdraw(request.id)}
-                      className="rounded-lg border border-zinc-600/50 px-2.5 py-1 text-[11px] font-medium text-zinc-400 transition hover:border-zinc-500/60 hover:text-zinc-200"
+                      className="rounded-lg border border-zinc-600/50 px-2.5 py-1 text-scale-xs font-medium text-zinc-400 transition hover:border-zinc-500/60 hover:text-zinc-200"
                     >
                       Withdraw
                     </button>

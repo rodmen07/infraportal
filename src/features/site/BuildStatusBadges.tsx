@@ -70,7 +70,7 @@ export function BuildStatusBadges({ repos, owner = 'rodmen07' }: BuildStatusBadg
                 <span className={`h-2 w-2 shrink-0 rounded-full ${DOT_CLASS[ds]}`} />
                 <span className="font-medium text-zinc-200">{item.repo}</span>
                 <span
-                  className={`shrink-0 rounded border px-1.5 py-px text-[10px] font-semibold uppercase tracking-wide ${STATUS_CLASS[ds]}`}
+                  className={`shrink-0 rounded border px-1.5 py-px text-scale-xs font-semibold uppercase tracking-wide ${STATUS_CLASS[ds]}`}
                 >
                   {STATUS_TEXT[ds]}
                 </span>

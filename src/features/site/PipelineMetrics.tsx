@@ -95,7 +95,7 @@ export function PipelineMetrics() {
           <h2 className="text-sm font-semibold text-white">Live Pipeline</h2>
           <p className="text-xs text-zinc-500">DynamoDB record counts</p>
         </div>
-        <p className="shrink-0 text-[10px] text-zinc-600">Updated {fmtTime(fetchedAt)}</p>
+        <p className="shrink-0 text-scale-xs text-zinc-600">Updated {fmtTime(fetchedAt)}</p>
       </div>
       <div className="flex flex-col gap-3">
         {stages.map(({ label, count, color, yieldLabel }) => (

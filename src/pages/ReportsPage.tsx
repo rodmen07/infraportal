@@ -99,7 +99,7 @@ function EmptyReportsState({ onCreate }: { onCreate: () => void }) {
           <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75M6.75 3H5.25A2.25 2.25 0 003 5.25v13.5A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V5.25A2.25 2.25 0 0018.75 3H6.75z" />
         </svg>
       </div>
-      <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.24em] text-amber-300/90">Reports workspace</p>
+      <p className="mt-4 text-scale-xs font-semibold uppercase tracking-[0.24em] text-amber-300/90">Reports workspace</p>
       <p className="mt-2 text-lg font-semibold text-zinc-100">No saved reports yet</p>
       <p className="mx-auto mt-2 max-w-xl text-sm text-zinc-400">Create a report to track pipeline trends, review key metrics, and share exports with stakeholders.</p>
       <div className="mt-5 flex justify-center">
@@ -464,7 +464,7 @@ function ReportsView() {
       <div className="forge-panel surface-card-strong p-4 sm:p-5">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-amber-300/90">Reports workspace</p>
+            <p className="text-scale-xs font-semibold uppercase tracking-[0.24em] text-amber-300/90">Reports workspace</p>
             <h2 className="mt-1 text-lg font-semibold text-zinc-100">Manage reusable reporting views and quick exports</h2>
             <p className="mt-1 max-w-2xl text-sm text-zinc-400">Save the metrics you revisit most often, then export them in a format that is easy to share.</p>
           </div>

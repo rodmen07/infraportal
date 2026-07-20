@@ -1,4 +1,5 @@
 import { PageLayout } from './PageLayout'
+import { Badge, type BadgeTone } from '../components/ui/Badge'
 import {
   GROUP_META,
   VERSIONS,
@@ -7,40 +8,38 @@ import {
   type Version,
 } from './patchNotesData'
 
-const SEVERITY_STYLES: Record<Severity, string> = {
-  'high':        'bg-red-500/15 text-red-300 border-red-500/30',
-  'medium-high': 'bg-orange-500/15 text-orange-300 border-orange-500/30',
-  'medium':      'bg-yellow-500/15 text-yellow-300 border-yellow-500/30',
-  'low-medium':  'bg-zinc-500/15 text-zinc-300 border-zinc-500/30',
+// v1.18.4: severity/completion badges migrated onto the shared Badge
+// primitive (src/components/ui/Badge.tsx). Previously each rendered its own
+// `bg-*/15 text-*-300 border-*/30` combination with no [data-theme="light"]
+// override for several of them, so this page's badges were a ghost-class
+// contributor in light mode; Badge's tones already resolve in both themes.
+const SEVERITY_TONE: Record<Severity, BadgeTone> = {
+  'high': 'danger',
+  'medium-high': 'caution',
+  'medium': 'warning',
+  'low-medium': 'neutral',
 }
 
-const COMPLETION_STYLES: Record<CompletionState, { badge: string; label: string }> = {
-  planned:     { badge: 'bg-zinc-500/15 text-zinc-400 ring-zinc-500/30',    label: 'Planned' },
-  implemented: { badge: 'bg-blue-500/15 text-blue-300 ring-blue-500/30',    label: 'Implemented' },
-  published:   { badge: 'bg-green-500/15 text-green-300 ring-green-500/30', label: 'Published' },
+const SEVERITY_LABEL: Record<Severity, string> = {
+  'high': 'HIGH',
+  'medium-high': 'MED-HIGH',
+  'medium': 'MED',
+  'low-medium': 'LOW-MED',
+}
+
+const COMPLETION_META: Record<CompletionState, { tone: BadgeTone; label: string }> = {
+  planned: { tone: 'neutral', label: 'Planned' },
+  implemented: { tone: 'info', label: 'Implemented' },
+  published: { tone: 'success', label: 'Published' },
 }
 
 function SeverityBadge({ severity }: { severity: Severity }) {
-  const label: Record<Severity, string> = {
-    'high':        'HIGH',
-    'medium-high': 'MED-HIGH',
-    'medium':      'MED',
-    'low-medium':  'LOW-MED',
-  }
-  return (
-    <span className={`inline-block rounded border px-1.5 py-0.5 text-[10px] font-semibold tracking-wide ${SEVERITY_STYLES[severity]}`}>
-      {label[severity]}
-    </span>
-  )
+  return <Badge tone={SEVERITY_TONE[severity]}>{SEVERITY_LABEL[severity]}</Badge>
 }
 
 function CompletionBadge({ state }: { state: CompletionState }) {
-  const { badge, label } = COMPLETION_STYLES[state]
-  return (
-    <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ${badge}`}>
-      {label}
-    </span>
-  )
+  const { tone, label } = COMPLETION_META[state]
+  return <Badge tone={tone}>{label}</Badge>
 }
 
 function GroupHeader({ group }: { group: string }) {
@@ -48,14 +47,12 @@ function GroupHeader({ group }: { group: string }) {
   if (!meta) return null
   return (
     <div className="flex items-center gap-3 px-1">
-      <span className="rounded-xl bg-amber-500/10 px-3 py-1 text-base font-bold text-amber-400 ring-1 ring-amber-500/20">
+      <span className="rounded-xl bg-accent-soft px-3 py-1 text-base font-bold text-accent-text ring-1 ring-accent-line">
         {group}
       </span>
-      <span className="text-sm font-semibold text-zinc-300">{meta.label}</span>
-      <span className="rounded-full bg-blue-500/15 px-2.5 py-0.5 text-xs font-medium text-blue-300 ring-1 ring-blue-500/30">
-        {meta.status}
-      </span>
-      <div className="flex-1 border-t border-zinc-700/40" />
+      <span className="text-sm font-semibold text-text-secondary">{meta.label}</span>
+      <Badge tone="info">{meta.status}</Badge>
+      <div className="flex-1 border-t border-border-soft" />
     </div>
   )
 }
@@ -64,28 +61,20 @@ function VersionCard({ version, isLatest }: { version: Version; isLatest: boolea
   const isUpcoming = version.status === 'upcoming'
 
   return (
-    <article className={`forge-panel surface-card-strong rounded-3xl p-6 shadow-2xl shadow-black/50 ${isUpcoming ? 'border border-dashed border-zinc-600/50' : ''}`}>
+    <article className={`forge-panel surface-card-strong rounded-3xl p-6 shadow-2xl shadow-black/50 ${isUpcoming ? 'border border-dashed border-border-strong' : ''}`}>
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <div className="flex flex-wrap items-center gap-3">
-            <span className={`rounded-xl px-3 py-1 text-lg font-bold ring-1 ${isUpcoming ? 'bg-zinc-700/30 text-zinc-400 ring-zinc-600/40' : 'bg-amber-500/15 text-amber-300 ring-amber-500/30'}`}>
+            <span className={`rounded-xl px-3 py-1 text-lg font-bold ring-1 ${isUpcoming ? 'bg-neutral-bg text-text-muted ring-neutral-border' : 'bg-accent-soft text-accent-text ring-accent-line'}`}>
               {version.tag}
             </span>
-            {isUpcoming && (
-              <span className="rounded-full bg-blue-500/15 px-2.5 py-0.5 text-xs font-medium text-blue-300 ring-1 ring-blue-500/30">
-                Upcoming
-              </span>
-            )}
-            {isLatest && (
-              <span className="rounded-full bg-green-500/15 px-2.5 py-0.5 text-xs font-medium text-green-300 ring-1 ring-green-500/30">
-                Latest
-              </span>
-            )}
-            <span className="text-sm font-semibold text-zinc-200">{version.label}</span>
+            {isUpcoming && <Badge tone="info">Upcoming</Badge>}
+            {isLatest && <Badge tone="success">Latest</Badge>}
+            <span className="text-sm font-semibold text-text-primary">{version.label}</span>
           </div>
           <div className="mt-1.5 flex items-center gap-2">
-            <p className="text-xs text-zinc-500">{version.date}</p>
+            <p className="text-xs text-text-muted">{version.date}</p>
             <CompletionBadge state={version.completionState} />
           </div>
         </div>
@@ -99,19 +88,19 @@ function VersionCard({ version, isLatest }: { version: Version; isLatest: boolea
         </a>
       </div>
 
-      <p className="mt-4 text-sm leading-relaxed text-zinc-300">{version.summary}</p>
+      <p className="mt-4 text-sm leading-relaxed text-text-secondary">{version.summary}</p>
 
       {/* Change highlights */}
       <div className="mt-6 space-y-5">
         {version.highlights.map((group) => (
           <div key={group.heading}>
-            <h3 className="mb-2 text-xs font-semibold uppercase tracking-widest text-amber-400/70">
+            <h3 className="mb-2 text-scale-xs font-semibold uppercase tracking-widest text-accent">
               {group.heading}
             </h3>
             <ul className="space-y-1.5">
               {group.items.map((item, i) => (
-                <li key={i} className="flex gap-2 text-sm text-zinc-300">
-                  <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-amber-500/60" />
+                <li key={i} className="flex gap-2 text-sm text-text-secondary">
+                  <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-accent" />
                   {item}
                 </li>
               ))}
@@ -123,13 +112,13 @@ function VersionCard({ version, isLatest }: { version: Version; isLatest: boolea
       {/* Findings table (v0.2 only) */}
       {version.findings && (
         <div className="mt-6">
-          <h3 className="mb-3 text-xs font-semibold uppercase tracking-widest text-amber-400/70">
+          <h3 className="mb-3 text-scale-xs font-semibold uppercase tracking-widest text-accent">
             Findings Addressed
           </h3>
-          <div className="overflow-x-auto rounded-xl border border-zinc-700/40">
+          <div className="overflow-x-auto rounded-xl border border-border-soft">
             <table className="w-full min-w-[560px] text-xs">
               <thead>
-                <tr className="border-b border-zinc-700/40 text-left text-zinc-500">
+                <tr className="border-b border-border-soft text-left text-text-muted">
                   <th className="px-3 py-2 font-medium">ID</th>
                   <th className="px-3 py-2 font-medium">Finding</th>
                   <th className="px-3 py-2 font-medium">Severity</th>
@@ -141,13 +130,13 @@ function VersionCard({ version, isLatest }: { version: Version; isLatest: boolea
                 {version.findings.map((f, i) => (
                   <tr
                     key={f.id}
-                    className={`border-b border-zinc-700/20 ${i % 2 === 0 ? 'bg-zinc-800/20' : ''}`}
+                    className={`border-b border-border-soft ${i % 2 === 0 ? 'bg-surface-hover' : ''}`}
                   >
-                    <td className="px-3 py-2 font-mono text-zinc-400">{f.id}</td>
-                    <td className="px-3 py-2 text-zinc-200">{f.title}</td>
+                    <td className="px-3 py-2 font-mono text-text-muted">{f.id}</td>
+                    <td className="px-3 py-2 text-text-primary">{f.title}</td>
                     <td className="px-3 py-2"><SeverityBadge severity={f.severity} /></td>
-                    <td className="px-3 py-2 text-zinc-400">{f.category}</td>
-                    <td className="px-3 py-2 text-zinc-300">{f.resolution}</td>
+                    <td className="px-3 py-2 text-text-muted">{f.category}</td>
+                    <td className="px-3 py-2 text-text-secondary">{f.resolution}</td>
                   </tr>
                 ))}
               </tbody>
@@ -159,13 +148,13 @@ function VersionCard({ version, isLatest }: { version: Version; isLatest: boolea
       {/* Positive controls (v0.1 only) */}
       {version.positive && (
         <div className="mt-6">
-          <h3 className="mb-2 text-xs font-semibold uppercase tracking-widest text-green-400/70">
+          <h3 className="mb-2 text-scale-xs font-semibold uppercase tracking-widest text-success">
             Security Controls Already in Place
           </h3>
           <ul className="space-y-1.5">
             {version.positive.map((item, i) => (
-              <li key={i} className="flex gap-2 text-sm text-zinc-300">
-                <span className="mt-1 text-green-400">✓</span>
+              <li key={i} className="flex gap-2 text-sm text-text-secondary">
+                <span className="mt-1 text-success">✓</span>
                 {item}
               </li>
             ))}
@@ -202,24 +191,24 @@ export function PatchNotesPage() {
       <section className="forge-panel surface-card-strong rounded-3xl p-6 shadow-2xl shadow-black/50">
         <div className="flex flex-wrap items-start justify-between gap-5">
           <div className="max-w-2xl">
-            <h1 className="text-2xl font-bold text-white">Patch Notes</h1>
-            <p className="mt-2 text-sm leading-relaxed text-zinc-300">
+            <h1 className="text-2xl font-bold text-text-primary">Patch Notes</h1>
+            <p className="mt-2 text-sm leading-relaxed text-text-secondary">
               Release history for the InfraPortal microservices platform and DynamoDB pipeline prototype.
               Each entry documents what changed, why, and, for security releases, every finding addressed.
             </p>
           </div>
           <div className="grid w-full max-w-xs grid-cols-3 gap-2 text-center sm:w-auto">
             <div className="surface-card rounded-xl px-3 py-2">
-              <div className="text-base font-bold text-white">{completedCount}</div>
-              <div className="text-[11px] text-zinc-400">Released</div>
+              <div className="text-base font-bold text-text-primary">{completedCount}</div>
+              <div className="text-scale-xs text-text-muted">Released</div>
             </div>
             <div className="surface-card rounded-xl px-3 py-2">
-              <div className="text-base font-bold text-white">9</div>
-              <div className="text-[11px] text-zinc-400">Findings</div>
+              <div className="text-base font-bold text-text-primary">9</div>
+              <div className="text-scale-xs text-text-muted">Findings</div>
             </div>
             <div className="surface-card rounded-xl px-3 py-2">
-              <div className="text-base font-bold text-white">0</div>
-              <div className="text-[11px] text-zinc-400">Open</div>
+              <div className="text-base font-bold text-text-primary">0</div>
+              <div className="text-scale-xs text-text-muted">Open</div>
             </div>
           </div>
         </div>

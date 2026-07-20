@@ -37,7 +37,7 @@ function App() {
             <section className="forge-panel rounded-3xl border border-zinc-500/30 bg-zinc-900/80 p-6 shadow-2xl shadow-black/50 backdrop-blur-xl">
               <div className="flex flex-wrap items-start justify-between gap-5">
                 <div className="max-w-2xl">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-amber-300/90">Productionized offers</p>
+                  <p className="text-scale-xs font-semibold uppercase tracking-[0.24em] text-amber-300/90">Productionized offers</p>
                   <h2 className="mt-2 text-xl font-semibold text-white sm:text-2xl">Turn interest into a paid engagement.</h2>
                   <p className="mt-2 text-sm leading-relaxed text-zinc-300">
                     Start with a short architecture review, move into a launch sprint, or keep a retainer open after delivery.
@@ -77,7 +77,7 @@ function App() {
             <section className="forge-panel rounded-3xl border border-zinc-500/30 bg-zinc-900/80 p-6 shadow-2xl shadow-black/50 backdrop-blur-xl sm:p-8">
               <div className="grid gap-8 md:grid-cols-2">
                 <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-emerald-300/90">Free Resource</p>
+                  <p className="text-scale-xs font-semibold uppercase tracking-[0.24em] text-emerald-300/90">Free Resource</p>
                   <h2 className="mt-2 text-xl font-semibold text-white sm:text-2xl">20-point infrastructure audit checklist</h2>
                   <p className="mt-2 text-sm leading-relaxed text-zinc-300">
                     Self-assess your cloud setup against DevSecOps best practices. Identifies gaps in auto-scaling, security, compliance, and cost optimization.

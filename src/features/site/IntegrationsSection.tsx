@@ -148,7 +148,7 @@ export function IntegrationsSection() {
             key={s}
             type="button"
             onClick={() => setActiveStatus(s)}
-            className={`rounded-full border px-3 py-1 text-[11px] font-semibold transition ${
+            className={`rounded-full border px-3 py-1 text-scale-xs font-semibold transition ${
               activeStatus === s
                 ? 'border-amber-400/50 bg-amber-500/15 text-amber-300'
                 : 'border-zinc-700/40 bg-zinc-800/50 text-zinc-400 hover:border-zinc-600/50 hover:text-zinc-300'
@@ -170,12 +170,12 @@ export function IntegrationsSection() {
             <div className="mb-2 flex items-start justify-between gap-2">
               <div className="min-w-0">
                 <span className="block text-sm font-semibold text-white leading-snug">{integration.name}</span>
-                <span className={`text-[11px] font-medium ${CATEGORY_CLASS[integration.category] ?? 'text-zinc-500'}`}>
+                <span className={`text-scale-xs font-medium ${CATEGORY_CLASS[integration.category] ?? 'text-zinc-500'}`}>
                   {integration.category}
                 </span>
               </div>
               <span
-                className={`shrink-0 rounded border px-1.5 py-px text-[10px] font-semibold uppercase tracking-wide ${STATUS_CLASS[integration.status]}`}
+                className={`shrink-0 rounded border px-1.5 py-px text-scale-xs font-semibold uppercase tracking-wide ${STATUS_CLASS[integration.status]}`}
               >
                 {STATUS_LABEL[integration.status]}
               </span>

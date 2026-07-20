@@ -321,7 +321,7 @@ export function CloudMigrationCaseStudyPage() {
             'Update frontend VITE_ env vars in repo settings with new Cloud Run URL',
           ].map((item, i) => (
             <div key={item} className="flex items-start gap-2">
-              <span className="mt-0.5 shrink-0 rounded bg-amber-500/20 px-1.5 py-0.5 text-[10px] font-bold text-amber-300">
+              <span className="mt-0.5 shrink-0 rounded bg-amber-500/20 px-1.5 py-0.5 text-scale-xs font-bold text-amber-300">
                 {String(i + 1).padStart(2, '0')}
               </span>
               <span>{item}</span>

@@ -7,6 +7,9 @@ import {
   type SupportStatus,
 } from '../features/support/supportStore'
 import { formatRelativeTime } from '../utils/time'
+import { Badge, type BadgeTone } from '../components/ui/Badge'
+import { Button } from '../components/ui/Button'
+import { EmptyState } from '../components/ui/EmptyState'
 
 // ---------------------------------------------------------------------------
 // Config
@@ -15,10 +18,25 @@ const ADMIN_KEY = import.meta.env.VITE_ADMIN_KEY ?? 'dev-admin'
 
 const STATUS_ORDER: SupportStatus[] = ['open', 'in_progress', 'resolved']
 
-const STATUS_META: Record<SupportStatus, { label: string; badge: string }> = {
-  open: { label: 'Open', badge: 'border-amber-400/40 bg-amber-500/15 text-amber-200' },
-  in_progress: { label: 'In progress', badge: 'border-sky-400/40 bg-sky-500/15 text-sky-200' },
-  resolved: { label: 'Resolved', badge: 'border-emerald-400/40 bg-emerald-500/15 text-emerald-200' },
+// v1.18.4: migrated onto the shared Badge primitive (see ConsultationsPage
+// for the identical `sky` -> `info` rationale: outside D4's sanctioned
+// status vocabulary, and this exact class combination had no
+// [data-theme="light"] override).
+const STATUS_META: Record<SupportStatus, { label: string; tone: BadgeTone }> = {
+  open: { label: 'Open', tone: 'accent' },
+  in_progress: { label: 'In progress', tone: 'info' },
+  resolved: { label: 'Resolved', tone: 'success' },
+}
+
+const SUMMARY_VALUE_CLASSES: Record<BadgeTone | 'primary', string> = {
+  primary: 'text-text-primary',
+  accent: 'text-accent',
+  info: 'text-info',
+  success: 'text-success',
+  warning: 'text-warning',
+  caution: 'text-caution',
+  danger: 'text-danger',
+  neutral: 'text-text-secondary',
 }
 
 function nextStatus(status: SupportStatus): SupportStatus | null {
@@ -27,11 +45,11 @@ function nextStatus(status: SupportStatus): SupportStatus | null {
   return STATUS_ORDER[index + 1]
 }
 
-function SummaryCard({ label, value, accent }: { label: string; value: number; accent: string }) {
+function SummaryCard({ label, value, tone }: { label: string; value: number; tone: BadgeTone | 'primary' }) {
   return (
     <div className="forge-panel surface-card-strong flex flex-col gap-1 rounded-2xl p-4">
-      <span className={`text-2xl font-semibold tracking-tight ${accent}`}>{value}</span>
-      <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-zinc-500">{label}</span>
+      <span className={`text-2xl font-semibold tracking-tight ${SUMMARY_VALUE_CLASSES[tone]}`}>{value}</span>
+      <span className="text-scale-xs font-semibold uppercase tracking-[0.2em] text-text-muted">{label}</span>
     </div>
   )
 }
@@ -56,19 +74,19 @@ function AuthGate({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-[60vh] items-center justify-center">
       <form onSubmit={submit} className="forge-panel surface-card-strong w-full max-w-sm space-y-4 p-6">
-        <h2 className="text-base font-semibold text-zinc-100">Admin access required</h2>
+        <h2 className="text-base font-semibold text-text-primary">Admin access required</h2>
         <input
           autoFocus
           type="password"
           placeholder="Admin key"
           value={input}
           onChange={e => setInput(e.target.value)}
-          className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 outline-none focus:border-amber-400/50 focus:ring-1 focus:ring-amber-400/30"
+          className="field-input px-3 py-2 text-sm"
         />
-        {error && <p className="text-xs text-rose-400">Incorrect admin key</p>}
-        <button type="submit" className="w-full rounded-lg bg-amber-500/20 py-2 text-sm font-semibold text-amber-200 hover:bg-amber-500/30">
+        {error && <p className="text-xs text-danger">Incorrect admin key</p>}
+        <Button type="submit" variant="accent" className="w-full">
           Unlock
-        </button>
+        </Button>
       </form>
     </div>
   )
@@ -115,10 +133,10 @@ function SupportQueueView() {
       subtitle="Triage client maintenance and support requests and move each one to resolution."
     >
       <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <SummaryCard label="Total" value={counts.total} accent="text-zinc-100" />
-        <SummaryCard label="Open" value={counts.open} accent="text-amber-300" />
-        <SummaryCard label="In progress" value={counts.in_progress} accent="text-sky-300" />
-        <SummaryCard label="Resolved" value={counts.resolved} accent="text-emerald-300" />
+        <SummaryCard label="Total" value={counts.total} tone="primary" />
+        <SummaryCard label="Open" value={counts.open} tone="accent" />
+        <SummaryCard label="In progress" value={counts.in_progress} tone="info" />
+        <SummaryCard label="Resolved" value={counts.resolved} tone="success" />
       </section>
 
       <section className="forge-panel surface-card-strong flex flex-col gap-4 p-5 sm:p-6">
@@ -131,8 +149,8 @@ function SupportQueueView() {
                 onClick={() => setFilter(option.value)}
                 className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition ${
                   filter === option.value
-                    ? 'border-amber-400/50 bg-amber-500/15 text-amber-100'
-                    : 'border-zinc-600/40 bg-zinc-800/60 text-zinc-300 hover:border-zinc-500/50 hover:bg-zinc-700/60 hover:text-zinc-100'
+                    ? 'border-accent-line-hover bg-accent-soft text-accent-text'
+                    : 'border-border-soft bg-surface-control text-text-secondary hover:border-border-strong hover:bg-surface-hover hover:text-text-primary'
                 }`}
               >
                 {option.label}
@@ -142,18 +160,18 @@ function SupportQueueView() {
           <button
             type="button"
             onClick={handleRefresh}
-            className="rounded-lg border border-zinc-600/40 bg-zinc-800/60 px-3 py-1.5 text-xs font-medium text-zinc-300 transition hover:border-zinc-500/50 hover:bg-zinc-700/60 hover:text-zinc-100"
+            className="rounded-lg border border-border-soft bg-surface-control px-3 py-1.5 text-xs font-medium text-text-secondary transition hover:border-border-strong hover:bg-surface-hover hover:text-text-primary"
           >
             Refresh
           </button>
         </div>
 
         {visibleRequests.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-zinc-700/60 bg-zinc-900/40 px-5 py-10 text-center text-sm text-zinc-400">
+          <EmptyState>
             {requests.length === 0
               ? 'No support requests yet. Client submissions from the portal will appear here.'
               : 'No requests match this filter.'}
-          </div>
+          </EmptyState>
         ) : (
           <ul className="flex flex-col gap-3">
             {visibleRequests.map((request) => {
@@ -162,36 +180,30 @@ function SupportQueueView() {
               return (
                 <li
                   key={request.id}
-                  className="rounded-2xl border border-zinc-700/50 bg-zinc-900/50 p-4 transition hover:border-zinc-600/60"
+                  className="rounded-2xl border border-border-soft bg-surface-1 p-4 transition hover:border-border-strong"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="font-semibold text-zinc-100">{request.subject}</span>
-                        <span className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${meta.badge}`}>
-                          {meta.label}
-                        </span>
+                        <span className="font-semibold text-text-primary">{request.subject}</span>
+                        <Badge tone={meta.tone}>{meta.label}</Badge>
                       </div>
-                      <p className="mt-0.5 text-[11px] uppercase tracking-wide text-zinc-500">
+                      <p className="mt-0.5 text-scale-xs uppercase tracking-wide text-text-muted">
                         {request.category} · project {request.projectId}
                       </p>
                     </div>
-                    <span className="shrink-0 text-[11px] text-zinc-500">{formatRelativeTime(request.createdAt)}</span>
+                    <span className="shrink-0 text-scale-xs text-text-muted">{formatRelativeTime(request.createdAt)}</span>
                   </div>
 
                   {request.message && (
-                    <p className="mt-3 whitespace-pre-wrap text-sm text-zinc-300">{request.message}</p>
+                    <p className="mt-3 whitespace-pre-wrap text-sm text-text-secondary">{request.message}</p>
                   )}
 
                   {target && (
                     <div className="mt-4 flex justify-end">
-                      <button
-                        type="button"
-                        onClick={() => handleAdvance(request)}
-                        className="rounded-lg border border-amber-400/40 bg-amber-500/15 px-3 py-1.5 text-xs font-semibold text-amber-200 transition hover:border-amber-400/60 hover:bg-amber-500/25 hover:text-amber-100"
-                      >
+                      <Button variant="accent" size="sm" onClick={() => handleAdvance(request)}>
                         Move to {STATUS_META[target].label.toLowerCase()} →
-                      </button>
+                      </Button>
                     </div>
                   )}
                 </li>

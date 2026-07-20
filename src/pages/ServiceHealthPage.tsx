@@ -268,7 +268,7 @@ function ServiceCard({ svc }: { svc: ServiceHealth }) {
       <div className="flex items-start justify-between gap-2">
         <div>
           <p className="text-sm font-semibold text-zinc-100">{svc.name}</p>
-          <span className="inline-block rounded-full border border-zinc-700/40 bg-zinc-800/60 px-2 py-0.5 text-[10px] text-zinc-500 mt-1">
+          <span className="inline-block rounded-full border border-zinc-700/40 bg-zinc-800/60 px-2 py-0.5 text-scale-xs text-zinc-500 mt-1">
             {svc.group}
           </span>
         </div>
@@ -295,7 +295,7 @@ function ServiceCard({ svc }: { svc: ServiceHealth }) {
         {svc.baseUrl && (
           <div className="flex items-center justify-between text-xs">
             <span className="text-zinc-500">URL</span>
-            <span className="text-zinc-600 max-w-[180px] truncate text-right font-mono text-[10px]" title={svc.baseUrl}>
+            <span className="text-zinc-600 max-w-[180px] truncate text-right font-mono text-scale-xs" title={svc.baseUrl}>
               {svc.baseUrl.replace(/^https?:\/\//, '')}
             </span>
           </div>

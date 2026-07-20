@@ -22,7 +22,7 @@ export function CodeBlock({ code, language = 'rust', file }: {
     <div className="overflow-hidden rounded-xl border border-zinc-800/60 bg-zinc-950">
       {file && (
         <div className="border-b border-zinc-800/60 px-4 py-2">
-          <span className="text-[11px] text-zinc-500">{file}</span>
+          <span className="text-scale-xs text-zinc-500">{file}</span>
         </div>
       )}
       <pre className="overflow-x-auto p-4">

@@ -16,7 +16,7 @@ export function AboutSection() {
       <div className="grid gap-3 sm:grid-cols-2">
         {FACTS.map(({ label, value }) => (
           <div key={label} className="about-fact-card rounded-xl border border-zinc-800/60 bg-zinc-800/40 px-4 py-3">
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-amber-400/70">{label}</p>
+            <p className="text-scale-xs font-semibold uppercase tracking-wide text-amber-400/70">{label}</p>
             <p className="mt-1 text-xs leading-relaxed text-zinc-300">{value}</p>
           </div>
         ))}

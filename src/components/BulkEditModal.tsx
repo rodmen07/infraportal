@@ -72,7 +72,7 @@ export function BulkEditModal({ entity, targets: initialTargets, api = mockBulkE
             <h3 id="bulk-edit-title" className="text-base font-bold text-white">Bulk edit</h3>
             <span
               title={MOCK_EDIT_BOUNDARY}
-              className="rounded-full bg-amber-500/15 px-2 py-0.5 text-[11px] text-amber-300 ring-1 ring-amber-500/30"
+              className="rounded-full bg-amber-500/15 px-2 py-0.5 text-scale-xs text-amber-300 ring-1 ring-amber-500/30"
             >
               Demo mode
             </span>

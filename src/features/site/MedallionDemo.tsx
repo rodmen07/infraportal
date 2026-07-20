@@ -226,7 +226,7 @@ function CvssHistogram({ histogram }: { histogram: number[] }) {
               minHeight: count > 0 ? '4px' : '0',
             }}
           />
-          <span className="text-[10px] text-zinc-500">{labels[i]}</span>
+          <span className="text-scale-xs text-zinc-500">{labels[i]}</span>
         </div>
       ))}
     </div>

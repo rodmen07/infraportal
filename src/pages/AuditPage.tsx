@@ -148,7 +148,7 @@ function EmptyState({
           <path d="M8 11h8M8 15h5" />
         </svg>
       </div>
-      <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.24em] text-amber-300/90">{badge}</p>
+      <p className="mt-4 text-scale-xs font-semibold uppercase tracking-[0.24em] text-amber-300/90">{badge}</p>
       <h3 className="mt-2 text-xl font-semibold text-zinc-50">{title}</h3>
       <p className="mx-auto mt-2 max-w-2xl text-sm text-zinc-400">{message}</p>
       <div className="mt-5 flex justify-center">
@@ -171,7 +171,7 @@ function actionBadge(action: string) {
 function StatCard({ label, value, hint }: { label: string; value: string | number; hint: string }) {
   return (
     <div className="rounded-xl border border-zinc-700/40 bg-zinc-900/50 p-3">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zinc-500">{label}</p>
+      <p className="text-scale-xs font-semibold uppercase tracking-[0.22em] text-zinc-500">{label}</p>
       <p className="mt-2 text-2xl font-semibold text-zinc-100">{value}</p>
       <p className="mt-1 text-xs text-zinc-500">{hint}</p>
     </div>
@@ -206,7 +206,7 @@ function FilterBar({
     <div className="forge-panel surface-card-strong p-4">
       <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-amber-300/90">Audit workspace</p>
+          <p className="text-scale-xs font-semibold uppercase tracking-[0.24em] text-amber-300/90">Audit workspace</p>
           <h2 className="mt-1 text-sm font-semibold text-zinc-100">Filter the event stream by entity, action, actor, or time window</h2>
           <p className="mt-1 text-xs text-zinc-500">Quick presets help you recover from empty results and focus on the highest-signal changes.</p>
         </div>

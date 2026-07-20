@@ -55,7 +55,7 @@ function TopNavComponent() {
       <div className="flex items-start justify-between gap-3">
         <a href="#/" className="block rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)]">
           <div className="text-sm font-bold tracking-tight text-accent">RM Cloud Consulting</div>
-          <p className="mt-1 text-[11px] text-text-muted">Managed hosting, deployment support, and ongoing maintenance</p>
+          <p className="mt-1 text-scale-xs text-text-muted">Managed hosting, deployment support, and ongoing maintenance</p>
         </a>
         <div className="flex items-center gap-2">
           {isClient && (
@@ -91,7 +91,7 @@ function TopNavComponent() {
 
         {isClient && ADMIN_NAV_ITEMS.length > 0 && (
           <div className="overflow-x-auto pb-1 [scrollbar-width:none]">
-            <div className="mb-1 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-text-muted">
+            <div className="mb-1 flex items-center gap-2 text-scale-xs font-semibold uppercase tracking-[0.2em] text-text-muted">
               <span>Admin</span>
               <div className="h-px flex-1 bg-border-soft" />
             </div>

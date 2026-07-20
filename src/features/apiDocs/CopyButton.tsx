@@ -38,7 +38,7 @@ export function CopyButton({
     <button
       type="button"
       onClick={copy}
-      className={`rounded border px-1.5 py-0.5 text-[10px] transition ${
+      className={`rounded border px-1.5 py-0.5 text-scale-xs transition ${
         copied
           ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300'
           : 'border-zinc-700/50 bg-zinc-800/60 text-zinc-400 hover:border-amber-400/40 hover:text-amber-200'
