@@ -97,8 +97,8 @@
      foreground (text). Consolidates the ad hoc per-page badge palettes
      (PatchNotes' SEVERITY_STYLES, Consultations' STATUS_META/PRIORITY_META,
      SupportQueue's STATUS_META, Portal's STATUS_STYLES) onto one set of
-     tokens instead of each page hand-tuning its own bg-*/15 + text-*
-     combination. */
+     tokens instead of each page hand-tuning its own translucent background
+     plus foreground text colour combination. */
   --success-soft: rgba(16, 185, 129, 0.18);  /* emerald-500/18 */
   --success-line: rgba(52, 211, 153, 0.5);   /* emerald-400/50 */
   --success-text: #a7f3d0;                   /* emerald-200 */
