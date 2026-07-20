@@ -354,7 +354,7 @@ textarea:disabled {
    .ring-amber-300\/20) patched PricingCard's old per-theme gradient/ring
    classes. PricingCard.tsx now reads --accent-soft/--accent-line via the
    Badge/Button primitives instead (mechanism 2 of F2), and grepping
-   src/**/*.tsx confirms zero remaining uses of any of those four classes
+   every .tsx file under src/ confirms zero remaining uses of any of those four classes
    anywhere in the app - a genuinely dead rule, not just an unused one for
    this component. */
 [data-theme="light"] .text-amber-200 { color: #92400e !important; }
@@ -409,7 +409,7 @@ textarea:disabled {
 
 /* Opacity-modified text colours found by widening the ghost-class scanner
    (src/styles/opacityTextColorThemeCoverage.test.ts) from ContactPage.tsx
-   only to every src/**/*.tsx file (PR #37 follow-up, second QA pass). Each
+   only to every .tsx file under src/ (PR #37 follow-up, second QA pass). Each
    was a real ghost class: an opacity-suffixed Tailwind text-colour utility
    with no light-theme override, composited near-invisible on the light
    surface-card background exactly like the ContactPage /80 and /70 rules
@@ -506,17 +506,17 @@ textarea:disabled {
 [data-theme="light"] pre.text-zinc-400 { color: #cdd6f4 !important; background: #1e1e2e !important; }
 
 /* ═══════════════════════════════════════════════════════════════════════
-   v1.18.4 contrast fix: opacity-suffixed bg-*/border-* ghost classes.
+   v1.18.4 contrast fix: opacity-suffixed bg-* and border-* ghost classes.
 
    src/styles/opacityColorThemeCoverage.test.ts was widened this milestone
-   from text-* only to also scan bg-*/border-*, per the two repo-wide bugs
+   from text-* only to also scan bg-* and border-*, per the two repo-wide bugs
    named in the portfolio backlog: `border-amber-400/30` and
    `border-amber-400/60` (the primary CTA button's border and hover-border,
    used across a dozen-plus files) and `bg-emerald-500/10` (used in 16
    files) had no light-theme override anywhere. Widening the scan the same
    way PR #37 widened the text-* one surfaced the same shape of gap much
-   more broadly: every opacity-suffixed bg-*/border-* colour class actually
-   used anywhere in src/**/*.tsx, all fixed below in one pass rather than
+   more broadly: every opacity-suffixed bg-* or border-* colour class actually
+   used anywhere in a .tsx file under src/, all fixed below in one pass rather than
    piecemeal.
 
    Formula (reasoned, not per-class guesswork, so it stays auditable):
