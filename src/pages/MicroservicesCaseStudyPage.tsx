@@ -341,7 +341,7 @@ export function MicroservicesCaseStudyPage() {
                   <span className="shrink-0 text-amber-400">›</span>
                   <span className="font-medium text-zinc-200">{label}</span>
                 </span>
-                <span className="shrink-0 text-[10px] text-zinc-500">
+                <span className="shrink-0 text-scale-xs text-zinc-500">
                   {openIdx === idx ? '▲' : '▼'}
                 </span>
               </button>

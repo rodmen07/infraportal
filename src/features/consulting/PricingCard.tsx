@@ -1,7 +1,8 @@
-import { useTheme } from '../layout/useTheme'
 import type { PricingTier } from '../../types'
 import { trackPortfolioEvent } from '../../utils/analytics'
 import { resolvePricingCheckout } from './pricingCheckout'
+import { Badge } from '../../components/ui/Badge'
+import { Button } from '../../components/ui/Button'
 
 type HighlightLevel = 0 | 1 | 2
 
@@ -9,40 +10,27 @@ interface PricingCardProps extends PricingTier {
   highlightLevel?: HighlightLevel
 }
 
-const darkCardStyles: Record<HighlightLevel, string> = {
-  0: 'border-zinc-500/35 bg-zinc-800/70',
-  1: 'border-amber-400/35 bg-gradient-to-br from-amber-400/8 to-amber-300/5 shadow-lg shadow-amber-400/8 ring-1 ring-amber-300/15',
-  2: 'border-amber-300/60 bg-gradient-to-br from-amber-400/18 via-orange-300/10 to-amber-200/12 shadow-xl shadow-amber-400/20 ring-2 ring-amber-300/30',
+// v1.18.4: migrated off a runtime theme-detection hook with a parallel
+// light/dark class-string branch (mechanism 2 of the v1.18 audit's finding
+// F2) onto the same --accent-* tokens `.btn-accent` already reads from
+// src/styles/tokens.css. Both themes now resolve from one class string per
+// level instead of two hand-tuned literal palettes, so there is no longer a
+// second place a colour choice can drift from the rest of the app - and one
+// of that old light palette's own classes (an amber border utility at 60
+// percent opacity on the "Recommended" badge) was one of the two contrast
+// bugs this milestone is scoped to fix (no light-theme override existed for
+// it anywhere). See PricingCard.test.ts for the regression lock on both the
+// removed hook and that literal class string.
+const CARD_LEVEL_CLASSES: Record<HighlightLevel, string> = {
+  0: 'border-border-soft bg-surface-1',
+  1: 'border-accent-line bg-accent-soft',
+  2: 'border-accent-line-hover bg-accent-soft-hover shadow-xl shadow-black/10 ring-1 ring-accent-line',
 }
 
-const lightCardStyles: Record<HighlightLevel, string> = {
-  0: 'border-zinc-200 bg-zinc-50',
-  1: 'border-amber-300/70 bg-amber-50 shadow-sm shadow-amber-100',
-  2: 'border-amber-400 bg-amber-100/70 shadow-lg shadow-amber-200/60 ring-1 ring-amber-300/60',
-}
-
-const darkPriceStyles: Record<HighlightLevel, string> = {
-  0: 'text-zinc-100',
-  1: 'text-amber-200/90',
-  2: 'text-amber-200',
-}
-
-const lightPriceStyles: Record<HighlightLevel, string> = {
-  0: 'text-zinc-800',
-  1: 'text-amber-700',
-  2: 'text-amber-800',
-}
-
-const darkCtaStyles: Record<HighlightLevel, string> = {
-  0: 'border-zinc-600/50 bg-zinc-700/50 text-zinc-300 hover:border-zinc-500/60 hover:bg-zinc-600/60 hover:text-zinc-100',
-  1: 'border-amber-400/40 bg-amber-400/10 text-amber-200 hover:border-amber-300/60 hover:bg-amber-400/20 hover:text-amber-100',
-  2: 'border-amber-300/60 bg-amber-400/18 text-amber-100 hover:border-amber-300/80 hover:bg-amber-400/28 hover:text-white',
-}
-
-const lightCtaStyles: Record<HighlightLevel, string> = {
-  0: 'border-zinc-300 bg-zinc-100 text-zinc-700 hover:border-zinc-400 hover:bg-zinc-200 hover:text-zinc-900',
-  1: 'border-amber-300 bg-amber-100/80 text-amber-800 hover:border-amber-400 hover:bg-amber-100 hover:text-amber-900',
-  2: 'border-amber-400 bg-amber-200/60 text-amber-900 font-bold hover:border-amber-500 hover:bg-amber-200 hover:text-amber-950',
+const PRICE_LEVEL_CLASSES: Record<HighlightLevel, string> = {
+  0: 'text-text-primary',
+  1: 'text-accent-text',
+  2: 'text-accent-text',
 }
 
 const badgeLabel: Partial<Record<HighlightLevel, string>> = {
@@ -50,69 +38,43 @@ const badgeLabel: Partial<Record<HighlightLevel, string>> = {
 }
 
 export function PricingCard({ tier, price, description, features, ctaLabel, ctaHref, checkoutUrl, scarcity, highlighted, highlightLevel = 0 }: PricingCardProps) {
-  const { theme } = useTheme()
-  const isLight = theme === 'light'
   const emphasisLevel: HighlightLevel = highlighted ? 2 : highlightLevel
-
-  const cardStyles = isLight ? lightCardStyles : darkCardStyles
-  const priceStyles = isLight ? lightPriceStyles : darkPriceStyles
-  const ctaStyles = isLight ? lightCtaStyles : darkCtaStyles
-
-  const titleClass = isLight ? 'text-zinc-900' : 'text-white'
-  const descClass = isLight ? 'text-zinc-600' : 'text-zinc-400'
-  const featureClass = isLight ? 'text-zinc-700' : 'text-zinc-300'
-  const checkClass = isLight ? 'text-emerald-600' : 'text-emerald-400'
-
   const badge = highlighted ? 'Recommended' : badgeLabel[emphasisLevel]
   const checkout = resolvePricingCheckout(checkoutUrl ?? undefined, ctaHref)
 
   return (
-    <article className={`flex flex-col gap-4 rounded-2xl border p-6 transition-transform duration-200 hover:-translate-y-1 ${cardStyles[emphasisLevel]}`}>
+    <article className={`flex flex-col gap-4 rounded-2xl border p-6 transition-transform duration-200 hover:-translate-y-1 ${CARD_LEVEL_CLASSES[emphasisLevel]}`}>
       <div className="flex flex-wrap gap-2">
-        {badge && (
-          <span className={`self-start rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${
-            isLight
-              ? 'border-amber-400/60 bg-amber-200/60 text-amber-800'
-              : 'border-amber-300/50 bg-amber-400/12 text-amber-200'
-          }`}>
-            {badge}
-          </span>
-        )}
-        {scarcity && (
-          <span className={`self-start rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${
-            isLight
-              ? 'border-orange-300/60 bg-orange-100/60 text-orange-700'
-              : 'border-orange-400/40 bg-orange-500/12 text-orange-300'
-          }`}>
-            {scarcity}
-          </span>
-        )}
+        {badge && <Badge tone="accent">{badge}</Badge>}
+        {scarcity && <Badge tone="caution">{scarcity}</Badge>}
       </div>
       <div>
-        <h3 className={`text-base font-semibold ${titleClass}`}>{tier}</h3>
-        <p className={`mt-1 text-2xl font-bold ${priceStyles[emphasisLevel]}`}>{price}</p>
-        <p className={`mt-2 text-sm leading-relaxed ${descClass}`}>{description}</p>
+        <h3 className="text-scale-md font-semibold text-text-primary">{tier}</h3>
+        <p className={`mt-1 text-2xl font-bold ${PRICE_LEVEL_CLASSES[emphasisLevel]}`}>{price}</p>
+        <p className="mt-2 text-sm leading-relaxed text-text-muted">{description}</p>
       </div>
 
       <ul className="flex flex-1 flex-col gap-2">
         {features.map((f) => (
-          <li key={f} className={`flex items-start gap-2 text-sm ${featureClass}`}>
-            <span className={`mt-px shrink-0 ${checkClass}`}>✓</span>
+          <li key={f} className="flex items-start gap-2 text-sm text-text-secondary">
+            <span className="mt-px shrink-0 text-success">✓</span>
             <span>{f}</span>
           </li>
         ))}
       </ul>
 
-      <a
+      <Button
+        as="a"
         href={checkout.href}
         {...(checkout.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
         onClick={() => trackPortfolioEvent(checkout.eventName, { tier, label: ctaLabel })}
-        className={`mt-auto rounded-xl border px-4 py-2.5 text-center text-sm font-semibold transition ${ctaStyles[emphasisLevel]}`}
+        variant={emphasisLevel === 0 ? 'neutral' : 'accent'}
+        className="mt-auto"
       >
         {ctaLabel}
-      </a>
+      </Button>
       {checkout.external && (
-        <p className="-mt-2 text-center text-[11px] text-zinc-500">Secure checkout</p>
+        <p className="-mt-2 text-center text-scale-xs text-text-muted">Secure checkout</p>
       )}
     </article>
   )

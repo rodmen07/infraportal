@@ -28,7 +28,7 @@ export function PageHeader({ kicker, title, subtitle, stats, actions, aside }: P
       <div className="flex flex-wrap items-start justify-between gap-5">
         <div className="max-w-2xl">
           {kicker && (
-            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-accent">{kicker}</p>
+            <p className="text-scale-xs font-semibold uppercase tracking-[0.24em] text-accent">{kicker}</p>
           )}
           <h1 className={`text-2xl font-bold text-text-primary sm:text-3xl ${kicker ? 'mt-2' : ''}`}>{title}</h1>
           {subtitle && (
@@ -41,7 +41,7 @@ export function PageHeader({ kicker, title, subtitle, stats, actions, aside }: P
             {stats.map((stat) => (
               <div key={stat.label} className="surface-card rounded-xl px-3 py-2">
                 <div className="text-base font-bold text-text-primary">{stat.value}</div>
-                <div className="text-[11px] text-text-muted">{stat.label}</div>
+                <div className="text-scale-xs text-text-muted">{stat.label}</div>
               </div>
             ))}
           </div>

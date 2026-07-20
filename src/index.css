@@ -18,8 +18,16 @@
    and .fx-chip - and all three now read the semantic roles in
    src/styles/tokens.css, so the parallel set had no remaining reference. */
 
+/* v1.18.4 (D5): returns the root size to 16px, the browser default and the
+   base the named type scale in src/styles/tokens.css (--text-xs through
+   --text-2xl) is anchored to - at 16px, --text-xs resolves to exactly the
+   12px interface floor D5 specifies. The 18px value inflated every
+   rem-based Tailwind utility site-wide (text-sm rendered 15.75px, text-2xl
+   27px, ...), which combined with 10-11px arbitrary interface text
+   (`text-[10px]`/`text-[11px]`, fixed in this same milestone) produced audit
+   finding F10's "oversized body default, undersized interface text". */
 html {
-  font-size: 18px;
+  font-size: 16px;
 }
 
 body {

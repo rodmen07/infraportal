@@ -39,7 +39,7 @@ export function PageLayout({ title, subtitle, children }: PageLayoutProps) {
               <header className="forge-panel surface-card-strong overflow-hidden p-5 sm:p-6">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                   <div>
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-accent">Operations workspace</p>
+                    <p className="text-scale-xs font-semibold uppercase tracking-[0.24em] text-accent">Operations workspace</p>
                     {title && <h1 className="mt-2 text-2xl font-semibold tracking-tight text-text-primary sm:text-3xl">{title}</h1>}
                     {subtitle && <p className="mt-2 max-w-3xl text-sm text-text-muted sm:text-base">{subtitle}</p>}
                   </div>

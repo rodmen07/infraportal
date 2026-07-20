@@ -100,7 +100,7 @@ export function ContactPage() {
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => trackPortfolioEvent('consulting_cta_click', { location: 'contact-page', label: 'Book a 30-minute call' })}
-                className="mt-3 inline-flex rounded-lg border border-amber-400/30 bg-amber-500/15 px-3 py-2 text-[11px] font-semibold text-amber-200 transition hover:border-amber-400/60 hover:bg-amber-500/25 hover:text-amber-100"
+                className="mt-3 inline-flex rounded-lg border border-amber-400/30 bg-amber-500/15 px-3 py-2 text-scale-xs font-semibold text-amber-200 transition hover:border-amber-400/60 hover:bg-amber-500/25 hover:text-amber-100"
               >
                 Book a 30-minute call →
               </a>

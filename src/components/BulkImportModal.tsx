@@ -129,7 +129,7 @@ export function BulkImportModal({ initialEntity = 'contacts', api = mockBulkImpo
             <h3 id="bulk-import-title" className="text-base font-bold text-white">Bulk CSV import</h3>
             <span
               title={MOCK_BOUNDARY}
-              className="rounded-full bg-amber-500/15 px-2 py-0.5 text-[11px] text-amber-300 ring-1 ring-amber-500/30"
+              className="rounded-full bg-amber-500/15 px-2 py-0.5 text-scale-xs text-amber-300 ring-1 ring-amber-500/30"
             >
               Demo mode
             </span>

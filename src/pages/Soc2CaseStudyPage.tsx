@@ -252,7 +252,7 @@ export function Soc2CaseStudyPage() {
                     <span className="ml-2 text-zinc-500">{desc}</span>
                   </td>
                   <td className="px-4 py-2.5">
-                    <span className={`rounded border px-1.5 py-0.5 text-[10px] font-semibold ${cloudColor(cloud)}`}>{cloud}</span>
+                    <span className={`rounded border px-1.5 py-0.5 text-scale-xs font-semibold ${cloudColor(cloud)}`}>{cloud}</span>
                   </td>
                   <td className="px-4 py-2.5 text-zinc-300">{impl}</td>
                   <td className="px-4 py-2.5 font-mono text-zinc-500 hidden sm:table-cell">{file}</td>
@@ -291,7 +291,7 @@ export function Soc2CaseStudyPage() {
                   <span className="shrink-0 text-amber-400">›</span>
                   <span className="font-medium text-zinc-200">{label}</span>
                 </span>
-                <span className="shrink-0 text-[10px] text-zinc-500">
+                <span className="shrink-0 text-scale-xs text-zinc-500">
                   {openIdx === idx ? '▲' : '▼'}
                 </span>
               </button>

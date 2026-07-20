@@ -40,7 +40,7 @@ function statusTone(status: number): string {
 // themes; only the size and monospace treatment specific to an API field
 // stays here.
 const inputClass =
-  'field-input px-2 py-1 font-mono text-[11px] focus:outline-none disabled:opacity-50'
+  'field-input px-2 py-1 font-mono text-scale-xs focus:outline-none disabled:opacity-50'
 
 function FieldInput({
   field,
@@ -55,14 +55,14 @@ function FieldInput({
 }) {
   return (
     <label className="block">
-      <span className="flex flex-wrap items-center gap-1.5 text-[11px]">
+      <span className="flex flex-wrap items-center gap-1.5 text-scale-xs">
         <span className="font-mono font-semibold text-zinc-200">{field.name}</span>
         {field.required && (
-          <span className="rounded bg-rose-500/15 px-1 py-0.5 text-[10px] font-medium text-rose-300">
+          <span className="rounded bg-rose-500/15 px-1 py-0.5 text-scale-xs font-medium text-rose-300">
             required
           </span>
         )}
-        <span className="font-mono text-[10px] text-zinc-500">{field.kind}</span>
+        <span className="font-mono text-scale-xs text-zinc-500">{field.kind}</span>
       </span>
       {field.kind === 'enum' ? (
         <select value={value} onChange={(e) => onChange(e.target.value)} className={`${inputClass} mt-1`}>
@@ -84,13 +84,13 @@ function FieldInput({
       )}
       {idHints && idHints.length > 0 && (
         <span className="mt-1 flex flex-wrap items-center gap-1">
-          <span className="text-[10px] text-zinc-600">demo ids:</span>
+          <span className="text-scale-xs text-zinc-600">demo ids:</span>
           {idHints.slice(0, 4).map((id) => (
             <button
               key={id}
               type="button"
               onClick={() => onChange(id)}
-              className="rounded border border-zinc-700/50 bg-zinc-800/60 px-1.5 py-0.5 font-mono text-[10px] text-amber-300/90 hover:border-amber-400/40 hover:text-amber-200"
+              className="rounded border border-zinc-700/50 bg-zinc-800/60 px-1.5 py-0.5 font-mono text-scale-xs text-amber-300/90 hover:border-amber-400/40 hover:text-amber-200"
             >
               {id}
             </button>
@@ -108,14 +108,14 @@ function ResponseViewer({ response }: { response: SimulatedResponse }) {
         <span className={`font-mono font-bold ${statusTone(response.status)}`}>
           {response.status} {response.statusText}
         </span>
-        <span className="rounded border border-amber-500/25 bg-amber-500/10 px-1.5 py-0.5 text-[10px] text-amber-300">
+        <span className="rounded border border-amber-500/25 bg-amber-500/10 px-1.5 py-0.5 text-scale-xs text-amber-300">
           simulated
         </span>
       </div>
       {response.headers.length > 0 && (
         <ul className="mt-2 space-y-0.5">
           {response.headers.map((header) => (
-            <li key={header.name} className="font-mono text-[10px] text-zinc-500">
+            <li key={header.name} className="font-mono text-scale-xs text-zinc-500">
               <span className="text-zinc-400">{header.name}:</span> {header.value}
               <span className="ml-1.5 rounded bg-zinc-800/80 px-1 py-px text-[9px] text-zinc-500">
                 simulated
@@ -126,9 +126,9 @@ function ResponseViewer({ response }: { response: SimulatedResponse }) {
       )}
       <div className="mt-2">
         {response.body.kind === 'empty' ? (
-          <p className="text-[11px] italic text-zinc-600">(no response body)</p>
+          <p className="text-scale-xs italic text-zinc-600">(no response body)</p>
         ) : (
-          <pre className="max-h-72 overflow-auto rounded-md bg-zinc-900/80 p-2.5 font-mono text-[11px] leading-4 text-zinc-300">
+          <pre className="max-h-72 overflow-auto rounded-md bg-zinc-900/80 p-2.5 font-mono text-scale-xs leading-4 text-zinc-300">
             {response.body.kind === 'json'
               ? JSON.stringify(response.body.value, null, 2)
               : response.body.value}
@@ -138,7 +138,7 @@ function ResponseViewer({ response }: { response: SimulatedResponse }) {
       {response.notes.length > 0 && (
         <ul className="mt-2 space-y-1">
           {response.notes.map((note) => (
-            <li key={note} className="text-[10px] leading-4 text-amber-300/80">
+            <li key={note} className="text-scale-xs leading-4 text-amber-300/80">
               {note}
             </li>
           ))}
@@ -201,15 +201,15 @@ export function TryItPanel({
       className="rounded-lg border border-amber-500/20 bg-zinc-900/50 p-3"
     >
       <div className="flex flex-wrap items-center gap-2">
-        <h5 className="text-[10px] font-semibold uppercase tracking-widest text-zinc-300">Try it</h5>
-        <span className="rounded border border-emerald-500/25 bg-emerald-500/10 px-1.5 py-0.5 text-[10px] text-emerald-300">
+        <h5 className="text-scale-xs font-semibold uppercase tracking-widest text-zinc-300">Try it</h5>
+        <span className="rounded border border-emerald-500/25 bg-emerald-500/10 px-1.5 py-0.5 text-scale-xs text-emerald-300">
           in-browser demo
         </span>
       </div>
 
       {!support.executable ? (
         <div className="mt-2">
-          <p className="text-[11px] leading-4 text-zinc-500">{support.reason}</p>
+          <p className="text-scale-xs leading-4 text-zinc-500">{support.reason}</p>
           <button
             type="button"
             disabled
@@ -220,11 +220,11 @@ export function TryItPanel({
         </div>
       ) : (
         <div className="mt-2 space-y-3">
-          <p className="text-[10px] leading-4 text-zinc-500">{EXECUTABLE_NOTE}</p>
+          <p className="text-scale-xs leading-4 text-zinc-500">{EXECUTABLE_NOTE}</p>
 
           {model.pathFields.length > 0 && (
             <div className="space-y-2">
-              <h6 className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
+              <h6 className="text-scale-xs font-semibold uppercase tracking-wider text-zinc-400">
                 Path parameters
               </h6>
               {model.pathFields.map((field) => (
@@ -241,7 +241,7 @@ export function TryItPanel({
 
           {model.queryFields.length > 0 && (
             <div className="space-y-2">
-              <h6 className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
+              <h6 className="text-scale-xs font-semibold uppercase tracking-wider text-zinc-400">
                 Query parameters
               </h6>
               {model.queryFields.map((field) => (
@@ -258,10 +258,10 @@ export function TryItPanel({
           {model.bodyMode !== 'none' && (
             <div className="space-y-2">
               <div className="flex flex-wrap items-center gap-2">
-                <h6 className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
+                <h6 className="text-scale-xs font-semibold uppercase tracking-wider text-zinc-400">
                   Request body
                   {model.bodyRequired && (
-                    <span className="ml-1.5 rounded bg-rose-500/15 px-1 py-0.5 text-[10px] font-medium normal-case tracking-normal text-rose-300">
+                    <span className="ml-1.5 rounded bg-rose-500/15 px-1 py-0.5 text-scale-xs font-medium normal-case tracking-normal text-rose-300">
                       required
                     </span>
                   )}
@@ -271,14 +271,14 @@ export function TryItPanel({
                     <button
                       type="button"
                       onClick={() => setJsonMode(false)}
-                      className={`rounded border px-1.5 py-0.5 text-[10px] ${!jsonMode ? 'border-amber-400/50 bg-amber-500/15 text-amber-200' : 'border-zinc-700/50 text-zinc-500 hover:text-zinc-300'}`}
+                      className={`rounded border px-1.5 py-0.5 text-scale-xs ${!jsonMode ? 'border-amber-400/50 bg-amber-500/15 text-amber-200' : 'border-zinc-700/50 text-zinc-500 hover:text-zinc-300'}`}
                     >
                       Form
                     </button>
                     <button
                       type="button"
                       onClick={switchToJson}
-                      className={`rounded border px-1.5 py-0.5 text-[10px] ${jsonMode ? 'border-amber-400/50 bg-amber-500/15 text-amber-200' : 'border-zinc-700/50 text-zinc-500 hover:text-zinc-300'}`}
+                      className={`rounded border px-1.5 py-0.5 text-scale-xs ${jsonMode ? 'border-amber-400/50 bg-amber-500/15 text-amber-200' : 'border-zinc-700/50 text-zinc-500 hover:text-zinc-300'}`}
                     >
                       JSON
                     </button>
@@ -314,12 +314,12 @@ export function TryItPanel({
             >
               Execute
             </button>
-            <code className="break-all font-mono text-[10px] text-zinc-500">
+            <code className="break-all font-mono text-scale-xs text-zinc-500">
               {buildRequestPreview(operation, model, values)}
             </code>
           </div>
 
-          {formError && <p className="text-[11px] text-rose-300">{formError}</p>}
+          {formError && <p className="text-scale-xs text-rose-300">{formError}</p>}
           {response && <ResponseViewer response={response} />}
         </div>
       )}

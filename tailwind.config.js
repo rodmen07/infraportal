@@ -41,9 +41,57 @@ export default {
           'line-hover': 'var(--accent-line-hover)',
           text: 'var(--accent-text)',
         },
-        success: 'var(--success)',
-        warning: 'var(--warning)',
-        danger: 'var(--danger)',
+        // v1.18.4: soft/line/text triples so the Badge primitive can express
+        // every ad hoc per-page status colour (PatchNotes severity,
+        // Consultations status/priority, SupportQueue status, Portal status)
+        // through one recipe, mirroring the accent set above exactly.
+        success: {
+          DEFAULT: 'var(--success)',
+          soft: 'var(--success-soft)',
+          line: 'var(--success-line)',
+          text: 'var(--success-text)',
+        },
+        warning: {
+          DEFAULT: 'var(--warning)',
+          soft: 'var(--warning-soft)',
+          line: 'var(--warning-line)',
+          text: 'var(--warning-text)',
+        },
+        danger: {
+          DEFAULT: 'var(--danger)',
+          soft: 'var(--danger-soft)',
+          line: 'var(--danger-line)',
+          text: 'var(--danger-text)',
+        },
+        // A fourth status rung (D4 sanctions orange as status-only,
+        // distinct from amber-as-accent) and a fifth for "new"/"pending"/
+        // "informational" states that are neither success nor a problem.
+        caution: {
+          DEFAULT: 'var(--caution)',
+          soft: 'var(--caution-soft)',
+          line: 'var(--caution-line)',
+          text: 'var(--caution-text)',
+        },
+        info: {
+          DEFAULT: 'var(--info)',
+          soft: 'var(--info-soft)',
+          line: 'var(--info-line)',
+          text: 'var(--info-text)',
+        },
+        // v1.18.4: the Badge primitive's `neutral` tone (and PatchNotesPage's
+        // upcoming-version pill) read `bg-neutral-bg` / `border-neutral-border`
+        // / `ring-neutral-border`. Tailwind ships its own built-in `neutral`
+        // grey scale (numeric shades only), which does not define a `bg` or
+        // `border` sub-key, so without this entry those three classes were
+        // ghost classes - exactly audit finding F1's failure mode, just for a
+        // config-level colour role instead of a hand-authored CSS class.
+        // `--neutral-bg` / `--neutral-border` already existed in
+        // src/styles/tokens.css (v1.18.1 PR2) for `.btn-neutral`; this just
+        // exposes the same two roles as Tailwind utilities.
+        neutral: {
+          bg: 'var(--neutral-bg)',
+          border: 'var(--neutral-border)',
+        },
       },
       borderRadius: {
         'radius-sm': 'var(--radius-sm)',

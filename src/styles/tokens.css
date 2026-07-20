@@ -45,12 +45,18 @@
    src/index.css in the same PR (the strangler rule from section 4: a rule
    goes only when its surface has moved onto tokens).
 
-   Out of scope (see the milestone doc, strangler plan in section 4):
-   deleting the rest of the [data-theme="light"] override sheet in
-   src/index.css - that is a v1.18.4 exit criterion, not a starting move -
-   the JS theme-branching in PricingCard, and applying the named type scale
-   below to any component (that is D5 / the v1.18.4 typography pass). The
-   scale is only named and given conservative values here.
+   v1.18.4 PR1 adds the status soft/line/text triples (--success-*,
+   --warning-*, --danger-*, --caution-*, --info-*) so the new Badge/Button/
+   Card primitives in src/components/ui/ can express every ad hoc per-page
+   badge palette through one recipe, migrates PricingCard off its JS
+   useTheme() branching (mechanism 2 of F2) onto these tokens, and applies
+   the named type scale below (with a 12px interface floor) to every
+   text-[10px]/text-[11px] call site that carries real content. The
+   remaining [data-theme="light"] override-sheet deletion in src/index.css
+   (mechanism 1 of F2, the exit criterion for the whole v1.18 theme) is
+   PR2's job, once the primitives adopted here have removed enough raw
+   Tailwind colour utilities from components to make each override rule
+   provably dead.
    ============================================================================= */
 
 :root,
@@ -75,10 +81,43 @@
   --accent: #f59e0b;          /* amber-500 */
   --accent-contrast: #1c1207; /* near-black text/icon placed on a solid accent fill */
 
-  /* Status - emerald/yellow/red are status-only per D4, never a second accent */
+  /* Status - emerald/yellow/red/orange/blue are status-only per D4, never a
+     second accent */
   --success: #10b981; /* emerald-500 */
   --warning: #eab308; /* yellow-500 */
   --danger: #ef4444;  /* red-500 */
+  --caution: #f97316; /* orange-500 - a fourth status rung between warning and danger */
+  --info: #3b82f6;    /* blue-500 - "new"/"in review"/"informational", not a brand accent */
+
+  /* --- Status soft/line/text triples (v1.18.4) --------------------------
+     Same shape as --accent-soft/--accent-line/--accent-text above, so the
+     new Badge primitive (src/components/ui/Badge.tsx) can express every
+     status tone through the identical recipe .btn-accent already uses:
+     a translucent fill (soft), a semi-opaque border (line), and a legible
+     foreground (text). Consolidates the ad hoc per-page badge palettes
+     (PatchNotes' SEVERITY_STYLES, Consultations' STATUS_META/PRIORITY_META,
+     SupportQueue's STATUS_META, Portal's STATUS_STYLES) onto one set of
+     tokens instead of each page hand-tuning its own bg-*/15 + text-*
+     combination. */
+  --success-soft: rgba(16, 185, 129, 0.18);  /* emerald-500/18 */
+  --success-line: rgba(52, 211, 153, 0.5);   /* emerald-400/50 */
+  --success-text: #a7f3d0;                   /* emerald-200 */
+
+  --warning-soft: rgba(234, 179, 8, 0.18);   /* yellow-500/18 */
+  --warning-line: rgba(250, 204, 21, 0.5);   /* yellow-400/50 */
+  --warning-text: #fef08a;                   /* yellow-200 */
+
+  --danger-soft: rgba(239, 68, 68, 0.18);    /* red-500/18 */
+  --danger-line: rgba(248, 113, 113, 0.5);   /* red-400/50 */
+  --danger-text: #fecaca;                    /* red-200 */
+
+  --caution-soft: rgba(249, 115, 22, 0.18);  /* orange-500/18 */
+  --caution-line: rgba(251, 146, 60, 0.5);   /* orange-400/50 */
+  --caution-text: #fed7aa;                   /* orange-200 */
+
+  --info-soft: rgba(59, 130, 246, 0.18);     /* blue-500/18 */
+  --info-line: rgba(96, 165, 250, 0.5);      /* blue-400/50 */
+  --info-text: #bfdbfe;                      /* blue-200 */
 
   /* --- Chrome and control roles (v1.18.1 PR2) ---------------------------
      Added so the shared chrome (TopNav, SideNav, PageLayout, SlideOver) and
@@ -143,6 +182,34 @@
   --success: #047857; /* emerald-700 */
   --warning: #a16207; /* yellow-700 */
   --danger: #b91c1c;  /* red-700 */
+  --caution: #c2410c; /* orange-700 */
+  --info: #1d4ed8;    /* blue-700 */
+
+  /* Status soft/line/text triples (v1.18.4). Soft keeps the same bright
+     500-shade hue at low alpha in both themes (matching --accent-soft's
+     established pattern above); line and text switch to the darker
+     700/800-shade for legibility on a light surface, reusing the exact
+     darkened values the deleted override-sheet text rules already proved
+     correct (e.g. text-emerald-200 -> #065f46, text-orange-300 -> #9a3412). */
+  --success-soft: rgba(16, 185, 129, 0.12);
+  --success-line: rgba(4, 120, 87, 0.5);   /* emerald-700/50 */
+  --success-text: #065f46;                 /* emerald-800 */
+
+  --warning-soft: rgba(234, 179, 8, 0.12);
+  --warning-line: rgba(161, 98, 7, 0.5);   /* yellow-700/50 */
+  --warning-text: #854d0e;                 /* yellow-800 */
+
+  --danger-soft: rgba(239, 68, 68, 0.12);
+  --danger-line: rgba(185, 28, 28, 0.5);   /* red-700/50 */
+  --danger-text: #991b1b;                  /* red-800 */
+
+  --caution-soft: rgba(249, 115, 22, 0.12);
+  --caution-line: rgba(194, 65, 12, 0.5);  /* orange-700/50 */
+  --caution-text: #9a3412;                 /* orange-800 */
+
+  --info-soft: rgba(59, 130, 246, 0.12);
+  --info-line: rgba(29, 78, 216, 0.5);     /* blue-700/50 */
+  --info-text: #1e40af;                    /* blue-800 */
 
   /* Chrome and control roles (v1.18.1 PR2). Values carried over from the
      [data-theme="light"] rules this PR deletes from src/index.css, so the

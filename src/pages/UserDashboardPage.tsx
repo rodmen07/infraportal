@@ -371,7 +371,7 @@ export function UserDashboardPage() {
           <div className="forge-panel surface-card-strong p-4 sm:p-5">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-amber-300/90">Workspace summary</p>
+                <p className="text-scale-xs font-semibold uppercase tracking-[0.24em] text-amber-300/90">Workspace summary</p>
                 <h2 className="mt-1 text-lg font-semibold text-zinc-100">Monitor account activity and reporting health from one place</h2>
                 <p className="mt-1 max-w-2xl text-sm text-zinc-400">Switch between a broad admin overview and a scoped user view for faster triage.</p>
               </div>

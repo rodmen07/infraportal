@@ -84,6 +84,11 @@ export function NotificationBell() {
       >
         <BellIcon />
         {unreadCount > 0 && (
+          // v1.18.4 type-scale allowlist: a fixed 16x16px counter badge
+          // capped at 2 characters ("9+"). The real information (the count)
+          // is already announced by the button's own aria-label above; a
+          // 12px floor here would not fit the circle. See
+          // src/styles/typeScaleFloor.test.ts.
           <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-amber-500 text-[10px] font-bold text-zinc-900">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
@@ -101,7 +106,7 @@ export function NotificationBell() {
               <button
                 type="button"
                 onClick={() => notifications.forEach((n) => dismiss(n.id))}
-                className="text-[11px] text-zinc-500 hover:text-zinc-300"
+                className="text-scale-xs text-zinc-500 hover:text-zinc-300"
               >
                 Clear all
               </button>
@@ -119,12 +124,12 @@ export function NotificationBell() {
                 >
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
-                      <span className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${SOURCE_COLORS[n.type.split('.')[0]] ?? 'bg-zinc-700/60 text-zinc-300'}`}>
+                      <span className={`rounded px-1.5 py-0.5 text-scale-xs font-medium ${SOURCE_COLORS[n.type.split('.')[0]] ?? 'bg-zinc-700/60 text-zinc-300'}`}>
                         {n.type}
                       </span>
-                      <span className="text-[10px] text-zinc-500">{formatAge(now - n.receivedAt)}</span>
+                      <span className="text-scale-xs text-zinc-500">{formatAge(now - n.receivedAt)}</span>
                     </div>
-                    <p className="mt-0.5 truncate text-[11px] text-zinc-400">
+                    <p className="mt-0.5 truncate text-scale-xs text-zinc-400">
                       {Object.entries(n.payload)
                         .slice(0, 2)
                         .map(([k, v]) => `${k}: ${String(v)}`)

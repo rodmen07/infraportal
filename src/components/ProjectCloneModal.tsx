@@ -122,7 +122,7 @@ export function ProjectCloneModal({ projects, initialSourceId, store = projectsS
             <h3 id="project-clone-title" className="text-base font-bold text-white">Clone project</h3>
             <span
               title={PROJECTS_STORE_BOUNDARY}
-              className="rounded-full bg-amber-500/15 px-2 py-0.5 text-[11px] text-amber-300 ring-1 ring-amber-500/30"
+              className="rounded-full bg-amber-500/15 px-2 py-0.5 text-scale-xs text-amber-300 ring-1 ring-amber-500/30"
             >
               Demo mode
             </span>
@@ -143,7 +143,7 @@ export function ProjectCloneModal({ projects, initialSourceId, store = projectsS
                 <select id="clone-source" className={INPUT_CLS} value={sourceId} onChange={e => handleSourceChange(e.target.value)}>
                   {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                 </select>
-                <p className="mt-1 text-[11px] text-zinc-500">
+                <p className="mt-1 text-scale-xs text-zinc-500">
                   {plural(counts.milestones, 'milestone')}, {plural(counts.deliverables, 'deliverable')}
                 </p>
               </div>

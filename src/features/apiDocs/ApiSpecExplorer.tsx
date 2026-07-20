@@ -143,16 +143,16 @@ export function ApiSpecExplorer() {
                 </span>
                 <span className="flex shrink-0 items-center gap-1">
                   {COVERED_SERVICE_IDS.includes(service.id) && (
-                    <span className="rounded border border-emerald-500/25 bg-emerald-500/10 px-1.5 py-0.5 text-[10px] text-emerald-300">
+                    <span className="rounded border border-emerald-500/25 bg-emerald-500/10 px-1.5 py-0.5 text-scale-xs text-emerald-300">
                       try-it demo
                     </span>
                   )}
-                  <span className="rounded bg-zinc-800/70 px-1.5 py-0.5 text-[10px] text-zinc-400">
+                  <span className="rounded bg-zinc-800/70 px-1.5 py-0.5 text-scale-xs text-zinc-400">
                     {service.operationCount} ops
                   </span>
                 </span>
               </div>
-              <p className="mt-1 line-clamp-2 text-[11px] leading-4 text-zinc-500">{service.summary}</p>
+              <p className="mt-1 line-clamp-2 text-scale-xs leading-4 text-zinc-500">{service.summary}</p>
             </button>
           )
         })}

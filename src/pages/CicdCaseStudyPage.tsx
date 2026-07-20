@@ -202,8 +202,8 @@ export function CicdCaseStudyPage() {
             <div className="mt-1 text-zinc-400">OIDC auth</div>
             <div className="mt-0.5 text-zinc-400">build + push</div>
             <div className="mt-0.5 text-zinc-400">deploy</div>
-            <div className="mt-1 text-emerald-400 text-[10px]">✓ health check</div>
-            <div className="text-red-400 text-[10px]">↩ rollback on fail</div>
+            <div className="mt-1 text-emerald-400 text-scale-xs">✓ health check</div>
+            <div className="text-red-400 text-scale-xs">↩ rollback on fail</div>
           </div>
           <div className="flex items-center text-zinc-600 pt-3">→</div>
           {/* approval gate */}
@@ -219,8 +219,8 @@ export function CicdCaseStudyPage() {
             <div className="mt-1 text-zinc-400">OIDC auth</div>
             <div className="mt-0.5 text-zinc-400">promote image</div>
             <div className="mt-0.5 text-zinc-400">deploy</div>
-            <div className="mt-1 text-emerald-400 text-[10px]">✓ health check</div>
-            <div className="text-red-400 text-[10px]">↩ rollback on fail</div>
+            <div className="mt-1 text-emerald-400 text-scale-xs">✓ health check</div>
+            <div className="text-red-400 text-scale-xs">↩ rollback on fail</div>
           </div>
         </div>
         <div className="mt-4 grid gap-2 text-xs sm:grid-cols-2">
@@ -252,7 +252,7 @@ export function CicdCaseStudyPage() {
                   <span className="shrink-0 text-amber-400">›</span>
                   <span className="font-medium text-zinc-200">{label}</span>
                 </span>
-                <span className="shrink-0 text-[10px] text-zinc-500">
+                <span className="shrink-0 text-scale-xs text-zinc-500">
                   {openIdx === idx ? '▲' : '▼'}
                 </span>
               </button>

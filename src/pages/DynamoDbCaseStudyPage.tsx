@@ -411,7 +411,7 @@ export function DynamoDbCaseStudyPage() {
                   <span className="shrink-0 text-amber-400">›</span>
                   <span className="font-medium text-zinc-200">{label}</span>
                 </span>
-                <span className="shrink-0 text-[10px] text-zinc-500">
+                <span className="shrink-0 text-scale-xs text-zinc-500">
                   {openIdx === idx ? '▲' : '▼'}
                 </span>
               </button>
@@ -438,7 +438,7 @@ export function DynamoDbCaseStudyPage() {
             <span className="text-sm font-medium text-zinc-200">Full source</span>
             <span className="ml-2 text-xs text-zinc-500">src/main.rs</span>
           </div>
-          <span className="text-[10px] text-zinc-500">{showSource ? '▲' : '▼'}</span>
+          <span className="text-scale-xs text-zinc-500">{showSource ? '▲' : '▼'}</span>
         </button>
         <div className={`grid transition-all duration-200 ease-out ${showSource ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
           <div className="overflow-hidden">

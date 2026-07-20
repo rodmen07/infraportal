@@ -96,6 +96,24 @@ const THEMED_ROLE_VARIABLES = [
   '--success',
   '--warning',
   '--danger',
+  // v1.18.4: status soft/line/text triples the Badge primitive consumes.
+  '--success-soft',
+  '--success-line',
+  '--success-text',
+  '--warning-soft',
+  '--warning-line',
+  '--warning-text',
+  '--danger-soft',
+  '--danger-line',
+  '--danger-text',
+  '--caution',
+  '--caution-soft',
+  '--caution-line',
+  '--caution-text',
+  '--info',
+  '--info-soft',
+  '--info-line',
+  '--info-text',
 ] as const
 
 /**

@@ -91,7 +91,7 @@ export function TemplateLibrary({ projects, store = projectsStore }: TemplateLib
         <h4 className="text-sm font-semibold text-zinc-200">Template library</h4>
         <span
           title={PROJECTS_STORE_BOUNDARY}
-          className="rounded-full bg-amber-500/15 px-2 py-0.5 text-[11px] text-amber-300 ring-1 ring-amber-500/30"
+          className="rounded-full bg-amber-500/15 px-2 py-0.5 text-scale-xs text-amber-300 ring-1 ring-amber-500/30"
         >
           Demo data
         </span>
@@ -150,7 +150,7 @@ export function TemplateLibrary({ projects, store = projectsStore }: TemplateLib
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="min-w-0">
               <p className="text-sm font-medium text-zinc-200">{template.name}</p>
-              <p className="mt-0.5 text-[11px] text-zinc-500">
+              <p className="mt-0.5 text-scale-xs text-zinc-500">
                 from {template.source_project_name} · {plural(template.milestones.length, 'milestone')},{' '}
                 {plural(templateDeliverableCount(template), 'deliverable')} · saved {template.created_at.slice(0, 10)}
               </p>

@@ -139,7 +139,7 @@ export function LeadMagnetPage() {
     <PageLayout>
       <section className="forge-panel rounded-3xl border border-zinc-500/30 bg-zinc-900/80 p-8 shadow-2xl shadow-black/50 sm:p-10">
           <div className="max-w-3xl">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-amber-300/90">
+            <p className="text-scale-xs font-semibold uppercase tracking-[0.24em] text-amber-300/90">
               Free Resource
             </p>
             <h1 className="mt-2 text-3xl font-bold text-white">{content.title}</h1>

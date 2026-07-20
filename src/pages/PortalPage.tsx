@@ -8,6 +8,7 @@ import { OnboardingChecklist } from '../features/onboarding/OnboardingChecklist'
 import { SupportRequestPanel } from '../features/support/SupportRequestPanel'
 import { ServiceHealthIndicators } from '../features/health/ServiceHealthIndicators'
 import { formatRelativeTime } from '../utils/time'
+import { Badge, type BadgeTone } from '../components/ui/Badge'
 import DOMPurify from 'dompurify'
 
 // --- Types ---
@@ -309,24 +310,27 @@ function ClientHeader({ claims, onLogout }: { claims: { sub: string; email?: str
 
 // --- Sub-components ---
 
-const STATUS_STYLES: Record<string, string> = {
-  planning:    'bg-zinc-700/40 text-zinc-300',
-  active:      'bg-emerald-500/15 text-emerald-300',
-  on_hold:     'bg-amber-500/15 text-amber-300',
-  completed:   'bg-blue-500/15 text-blue-300',
-  cancelled:   'bg-red-500/15 text-red-300',
-  pending:     'bg-zinc-700/40 text-zinc-400',
-  in_progress: 'bg-amber-500/15 text-amber-300',
-  blocked:     'bg-red-500/15 text-red-400',
-  done:        'bg-emerald-500/15 text-emerald-300',
+// v1.18.4: migrated onto the shared Badge primitive. `blue` (completed) had
+// no [data-theme="light"] override anywhere and is outside D4's sanctioned
+// status vocabulary, so it moves onto `info` alongside the rest.
+const STATUS_TONE: Record<string, BadgeTone> = {
+  planning: 'neutral',
+  active: 'success',
+  on_hold: 'accent',
+  completed: 'info',
+  cancelled: 'danger',
+  pending: 'neutral',
+  in_progress: 'accent',
+  blocked: 'danger',
+  done: 'success',
 }
 
 function StatusBadge({ status }: { status: string }) {
-  const cls = STATUS_STYLES[status.toLowerCase()] ?? 'bg-zinc-700/40 text-zinc-400'
+  const tone = STATUS_TONE[status.toLowerCase()] ?? 'neutral'
   return (
-    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${cls}`}>
+    <Badge tone={tone}>
       {status.replace('_', ' ')}
-    </span>
+    </Badge>
   )
 }
 
@@ -502,6 +506,10 @@ function DeliverableRow({ d }: { d: Deliverable }) {
   const done = d.status === 'completed' || d.status === 'done'
   return (
     <div className="flex items-start gap-2.5 py-1.5">
+      {/* v1.18.4 type-scale allowlist: a fixed 16x16px checkbox glyph (a
+          checkmark or nothing), redundant with the strike-through name and
+          the StatusBadge below - not real text content, and a 12px floor
+          would not fit the box. See src/styles/typeScaleFloor.test.ts. */}
       <span className={`mt-0.5 h-4 w-4 shrink-0 rounded border text-center text-[10px] leading-[14px] ${
         done ? 'border-emerald-500/40 bg-emerald-500/15 text-emerald-300' : 'border-zinc-600/40 bg-zinc-800/40 text-zinc-500'
       }`}>
@@ -589,13 +597,17 @@ function CollaboratorsSection({ collaborators }: { collaborators: Collaborator[]
             {c.avatar_url ? (
               <img src={c.avatar_url} alt={c.name} className="h-5 w-5 rounded-full object-cover" />
             ) : (
+              // v1.18.4 type-scale allowlist: a fixed 20x20px avatar-initial
+              // fallback, redundant with the collaborator's full name
+              // rendered right beside it. See
+              // src/styles/typeScaleFloor.test.ts.
               <span className="flex h-5 w-5 items-center justify-center rounded-full bg-amber-500/20 text-[10px] font-semibold text-amber-300">
                 {c.name[0]?.toUpperCase() ?? '?'}
               </span>
             )}
             <div>
               <p className="text-xs font-medium text-zinc-200">{c.name}</p>
-              <p className="text-[10px] text-zinc-500">{c.role}</p>
+              <p className="text-scale-xs text-zinc-500">{c.role}</p>
             </div>
           </div>
         ))}
@@ -665,6 +677,10 @@ function MessageThread({
           const isMe = m.author_id === currentUserId
           return (
             <div key={m.id} className={`flex gap-2 ${isMe ? 'flex-row-reverse' : ''}`}>
+              {/* v1.18.4 type-scale allowlist: a fixed 24x24px avatar-initial
+                  glyph ("A"/"C"), redundant with the message bubble's own
+                  side and colour coding. See
+                  src/styles/typeScaleFloor.test.ts. */}
               <span className={`mt-1 h-6 w-6 shrink-0 rounded-full text-center text-[10px] leading-6 ${
                 m.author_role === 'admin'
                   ? 'bg-amber-500/20 text-amber-300'
@@ -676,7 +692,7 @@ function MessageThread({
                 isMe ? 'bg-amber-500/15 text-zinc-100' : 'bg-zinc-800/60 text-zinc-200'
               }`}>
                 {m.body}
-                <p className="mt-1 text-[10px] text-zinc-500">{m.created_at.slice(0, 16).replace('T', ' ')}</p>
+                <p className="mt-1 text-scale-xs text-zinc-500">{m.created_at.slice(0, 16).replace('T', ' ')}</p>
               </div>
             </div>
           )
@@ -787,7 +803,7 @@ function RepoBadge({ item }: { item: GhBuildItem }) {
     >
       <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${DOT_CLASS[ds]}`} />
       <span className="font-medium text-zinc-200">{item.repo}</span>
-      <span className={`shrink-0 rounded border px-1.5 py-px text-[10px] font-semibold uppercase tracking-wide ${STATUS_CLASS[ds]}`}>
+      <span className={`shrink-0 rounded border px-1.5 py-px text-scale-xs font-semibold uppercase tracking-wide ${STATUS_CLASS[ds]}`}>
         {STATUS_TEXT[ds]}
       </span>
       {item.run_at && (
@@ -815,22 +831,22 @@ function ManagedServiceSnapshot({ project }: { project: Project }) {
 
       <div className="mt-4 grid gap-3 md:grid-cols-4">
         <div className="rounded-2xl border border-zinc-700/50 bg-zinc-800/40 p-3">
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-zinc-500">Deployment</p>
+          <p className="text-scale-xs font-semibold uppercase tracking-wide text-zinc-500">Deployment</p>
           <p className="mt-1 text-sm font-semibold text-zinc-100">Configured</p>
           <p className="mt-1 text-xs text-zinc-400">Domain and SSL are ready</p>
         </div>
         <div className="rounded-2xl border border-zinc-700/50 bg-zinc-800/40 p-3">
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-zinc-500">Support</p>
+          <p className="text-scale-xs font-semibold uppercase tracking-wide text-zinc-500">Support</p>
           <p className="mt-1 text-sm font-semibold text-zinc-100">Priority queue</p>
           <p className="mt-1 text-xs text-zinc-400">Questions are routed quickly</p>
         </div>
         <div className="rounded-2xl border border-zinc-700/50 bg-zinc-800/40 p-3">
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-zinc-500">Maintenance</p>
+          <p className="text-scale-xs font-semibold uppercase tracking-wide text-zinc-500">Maintenance</p>
           <p className="mt-1 text-sm font-semibold text-zinc-100">Weekly review</p>
           <p className="mt-1 text-xs text-zinc-400">Updates and checks happen on schedule</p>
         </div>
         <div className="rounded-2xl border border-zinc-700/50 bg-zinc-800/40 p-3">
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-zinc-500">Project status</p>
+          <p className="text-scale-xs font-semibold uppercase tracking-wide text-zinc-500">Project status</p>
           <p className="mt-1 text-sm font-semibold text-zinc-100">{project.status.replace('_', ' ')}</p>
           <p className="mt-1 text-xs text-zinc-400">Managed with clear milestones</p>
         </div>

@@ -33,7 +33,7 @@ const FALLBACK_METHOD_STYLE = 'border-zinc-500/40 bg-zinc-500/15 text-zinc-300'
 export function MethodBadge({ method }: { method: string }) {
   return (
     <span
-      className={`inline-block w-16 shrink-0 rounded-md border px-1.5 py-0.5 text-center font-mono text-[11px] font-bold uppercase ${METHOD_STYLES[method] ?? FALLBACK_METHOD_STYLE}`}
+      className={`inline-block w-16 shrink-0 rounded-md border px-1.5 py-0.5 text-center font-mono text-scale-xs font-bold uppercase ${METHOD_STYLES[method] ?? FALLBACK_METHOD_STYLE}`}
     >
       {method}
     </span>
@@ -56,7 +56,7 @@ function ConstraintChips({ node }: { node: SchemaNodeView }) {
       {chips.map((chip) => (
         <span
           key={chip}
-          className="rounded bg-zinc-800/80 px-1.5 py-0.5 font-mono text-[10px] text-zinc-400"
+          className="rounded bg-zinc-800/80 px-1.5 py-0.5 font-mono text-scale-xs text-zinc-400"
         >
           {chip}
         </span>
@@ -71,7 +71,7 @@ function EnumChips({ values }: { values: (string | number)[] }) {
       {values.map((value) => (
         <span
           key={String(value)}
-          className="rounded border border-amber-500/25 bg-amber-500/10 px-1.5 py-0.5 font-mono text-[10px] text-amber-300"
+          className="rounded border border-amber-500/25 bg-amber-500/10 px-1.5 py-0.5 font-mono text-scale-xs text-amber-300"
         >
           {String(value)}
         </span>
@@ -86,17 +86,17 @@ export function SchemaTree({ node, depth = 0 }: { node: SchemaNodeView; depth?: 
       <div className="text-xs leading-6">
         <span className="font-mono text-amber-300/90">{node.refName ?? node.label}</span>
         {node.refName && node.label !== node.refName && (
-          <span className="ml-2 font-mono text-[10px] text-zinc-500">{node.label}</span>
+          <span className="ml-2 font-mono text-scale-xs text-zinc-500">{node.label}</span>
         )}
         {node.cyclic && (
-          <span className="ml-2 rounded bg-zinc-800/80 px-1.5 py-0.5 font-mono text-[10px] text-zinc-400">
+          <span className="ml-2 rounded bg-zinc-800/80 px-1.5 py-0.5 font-mono text-scale-xs text-zinc-400">
             recursive reference
           </span>
         )}
         {node.enumValues && <EnumChips values={node.enumValues} />}
         <ConstraintChips node={node} />
       </div>
-      {node.description && <p className="mt-0.5 text-[11px] leading-4 text-zinc-500">{node.description}</p>}
+      {node.description && <p className="mt-0.5 text-scale-xs leading-4 text-zinc-500">{node.description}</p>}
       {node.fields && node.fields.length > 0 && (
         <ul className="mt-1.5 space-y-1.5">
           {node.fields.map((field) => (
@@ -104,18 +104,18 @@ export function SchemaTree({ node, depth = 0 }: { node: SchemaNodeView; depth?: 
               <div className="text-xs leading-5">
                 <span className="font-mono font-semibold text-zinc-200">{field.name}</span>
                 {field.required && (
-                  <span className="ml-1.5 rounded bg-rose-500/15 px-1 py-0.5 text-[10px] font-medium text-rose-300">
+                  <span className="ml-1.5 rounded bg-rose-500/15 px-1 py-0.5 text-scale-xs font-medium text-rose-300">
                     required
                   </span>
                 )}
-                <span className="ml-2 font-mono text-[11px] text-amber-300/80">
+                <span className="ml-2 font-mono text-scale-xs text-amber-300/80">
                   {field.node.refName ?? field.node.label}
                 </span>
                 {field.node.enumValues && <EnumChips values={field.node.enumValues} />}
                 <ConstraintChips node={field.node} />
               </div>
               {field.node.description && (
-                <p className="mt-0.5 text-[11px] leading-4 text-zinc-500">{field.node.description}</p>
+                <p className="mt-0.5 text-scale-xs leading-4 text-zinc-500">{field.node.description}</p>
               )}
               {(field.node.fields || field.node.items) && (
                 <div className="mt-1">
@@ -128,7 +128,7 @@ export function SchemaTree({ node, depth = 0 }: { node: SchemaNodeView; depth?: 
       )}
       {node.items && (
         <div className="mt-1.5 border-l border-zinc-700/40 pl-3">
-          <div className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
+          <div className="text-scale-xs font-semibold uppercase tracking-wider text-zinc-500">
             {node.label.startsWith('map of') ? 'values' : 'items'}
           </div>
           <SchemaTree node={node.items} depth={depth + 1} />
@@ -156,7 +156,7 @@ export function ParametersTable({ parameters }: { parameters: ParameterView[] })
               <td className="px-3 py-2 font-mono text-zinc-200">
                 {param.name}
                 {param.required && (
-                  <span className="ml-1.5 rounded bg-rose-500/15 px-1 py-0.5 text-[10px] font-medium text-rose-300">
+                  <span className="ml-1.5 rounded bg-rose-500/15 px-1 py-0.5 text-scale-xs font-medium text-rose-300">
                     required
                   </span>
                 )}
@@ -180,10 +180,10 @@ function ExampleBlock({ label, value }: { label?: string; value: unknown }) {
   const text = typeof value === 'string' ? value : JSON.stringify(value, null, 2)
   return (
     <details className="mt-1.5">
-      <summary className="cursor-pointer text-[11px] text-zinc-500 hover:text-zinc-300">
+      <summary className="cursor-pointer text-scale-xs text-zinc-500 hover:text-zinc-300">
         Example{label ? `: ${label}` : ''}
       </summary>
-      <pre className="mt-1 overflow-x-auto rounded-lg bg-zinc-900/70 p-3 font-mono text-[11px] leading-4 text-zinc-300">
+      <pre className="mt-1 overflow-x-auto rounded-lg bg-zinc-900/70 p-3 font-mono text-scale-xs leading-4 text-zinc-300">
         {text}
       </pre>
     </details>
@@ -193,7 +193,7 @@ function ExampleBlock({ label, value }: { label?: string; value: unknown }) {
 export function MediaContentView({ media }: { media: MediaTypeView }) {
   return (
     <div className="mt-2 rounded-lg border border-zinc-700/30 bg-zinc-900/30 p-3">
-      <div className="font-mono text-[10px] uppercase tracking-wider text-zinc-500">{media.mediaType}</div>
+      <div className="font-mono text-scale-xs uppercase tracking-wider text-zinc-500">{media.mediaType}</div>
       {media.schema && (
         <div className="mt-2">
           <SchemaTree node={media.schema} />
@@ -229,7 +229,7 @@ export function OperationCard({
         <span className="text-zinc-600 transition-transform group-open:rotate-90">›</span>
       </summary>
       <div className="space-y-4 border-t border-zinc-700/30 p-4">
-        <div className="flex flex-wrap items-center gap-2 text-[11px]">
+        <div className="flex flex-wrap items-center gap-2 text-scale-xs">
           <span className="font-mono text-zinc-500">{operation.operationId}</span>
           <span
             className={`rounded-md border px-2 py-0.5 font-medium ${
@@ -262,23 +262,23 @@ export function OperationCard({
 
         {operation.parameters.length > 0 && (
           <div>
-            <h5 className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-zinc-400">Parameters</h5>
+            <h5 className="mb-2 text-scale-xs font-semibold uppercase tracking-widest text-zinc-400">Parameters</h5>
             <ParametersTable parameters={operation.parameters} />
           </div>
         )}
 
         {operation.requestBody && (
           <div>
-            <h5 className="mb-1 text-[10px] font-semibold uppercase tracking-widest text-zinc-400">
+            <h5 className="mb-1 text-scale-xs font-semibold uppercase tracking-widest text-zinc-400">
               Request body
               {operation.requestBody.required && (
-                <span className="ml-1.5 rounded bg-rose-500/15 px-1 py-0.5 text-[10px] font-medium normal-case tracking-normal text-rose-300">
+                <span className="ml-1.5 rounded bg-rose-500/15 px-1 py-0.5 text-scale-xs font-medium normal-case tracking-normal text-rose-300">
                   required
                 </span>
               )}
             </h5>
             {operation.requestBody.description && (
-              <p className="mb-1 text-[11px] text-zinc-500">{operation.requestBody.description}</p>
+              <p className="mb-1 text-scale-xs text-zinc-500">{operation.requestBody.description}</p>
             )}
             {operation.requestBody.content.map((media) => (
               <MediaContentView key={media.mediaType} media={media} />
@@ -287,7 +287,7 @@ export function OperationCard({
         )}
 
         <div>
-          <h5 className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-zinc-400">Responses</h5>
+          <h5 className="mb-2 text-scale-xs font-semibold uppercase tracking-widest text-zinc-400">Responses</h5>
           <ul className="space-y-2">
             {operation.responses.map((response) => (
               <li key={response.status} className="rounded-lg border border-zinc-700/30 p-3">
@@ -295,13 +295,13 @@ export function OperationCard({
                   <span className={`font-mono font-bold ${statusTone(response.status)}`}>{response.status}</span>
                   <span className="flex-1 text-zinc-400">{response.description.trim()}</span>
                   {response.isErrorEnvelope && (
-                    <span className="rounded border border-rose-500/25 bg-rose-500/10 px-1.5 py-0.5 font-mono text-[10px] text-rose-300">
+                    <span className="rounded border border-rose-500/25 bg-rose-500/10 px-1.5 py-0.5 font-mono text-scale-xs text-rose-300">
                       ApiError envelope
                     </span>
                   )}
                 </div>
                 {response.headerNames.length > 0 && (
-                  <p className="mt-1.5 font-mono text-[10px] text-zinc-600">
+                  <p className="mt-1.5 font-mono text-scale-xs text-zinc-600">
                     Headers: {response.headerNames.join(', ')}
                   </p>
                 )}
@@ -365,10 +365,10 @@ export function ServiceSpecView({
       <div className="rounded-xl border border-zinc-700/40 bg-zinc-900/40 p-4">
         <div className="flex flex-wrap items-baseline gap-2">
           <h3 className="text-base font-semibold text-zinc-100">{spec.info.title}</h3>
-          <span className="rounded bg-zinc-800/80 px-1.5 py-0.5 font-mono text-[10px] text-zinc-400">
+          <span className="rounded bg-zinc-800/80 px-1.5 py-0.5 font-mono text-scale-xs text-zinc-400">
             v{spec.info.version}
           </span>
-          <span className="rounded bg-zinc-800/80 px-1.5 py-0.5 font-mono text-[10px] text-zinc-400">
+          <span className="rounded bg-zinc-800/80 px-1.5 py-0.5 font-mono text-scale-xs text-zinc-400">
             OpenAPI {spec.openapi}
           </span>
         </div>
@@ -385,7 +385,7 @@ export function ServiceSpecView({
         {spec.servers && spec.servers.length > 0 && (
           <ul className="mt-3 space-y-1">
             {spec.servers.map((server) => (
-              <li key={server.url} className="text-[11px] text-zinc-500">
+              <li key={server.url} className="text-scale-xs text-zinc-500">
                 <code className="font-mono text-zinc-400">{server.url}</code>
                 {server.description && <span className="ml-2">{server.description}</span>}
               </li>
