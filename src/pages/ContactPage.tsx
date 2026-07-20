@@ -61,9 +61,14 @@ export function ContactPage() {
     setMessage('')
   }
 
+  // v1.18.1 PR2: the shared, token-built `.field-input` recipe (defined in
+  // src/styles/tokens.css) carries fill, border, text, and placeholder for
+  // both themes. Only the per-instance error state and the size utilities
+  // stay here; tokens.css is imported before Tailwind's utilities, so the
+  // error border/fill below still win the cascade.
   const fieldClass = (hasError: boolean) =>
-    `w-full rounded-lg border ${hasError ? 'border-red-500/60 bg-red-500/8' : 'border-zinc-700/60 bg-zinc-800/70'} px-4 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 outline-none transition hover:border-zinc-600 focus:border-amber-400/55 focus:ring-2 focus:ring-amber-400/35`
-  const labelClass = 'mb-1.5 block text-sm font-medium text-zinc-400'
+    `field-input ${hasError ? 'border-red-500/60 bg-red-500/8' : ''} px-4 py-2.5 text-sm outline-none`
+  const labelClass = 'mb-1.5 block text-sm font-medium text-text-muted'
 
   return (
     <PageLayout>

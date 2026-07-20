@@ -36,12 +36,21 @@
    depending on its position relative to the `@tailwind` directives. Plain
    JS-import ordering was the option that actually worked.)
 
-   Out of scope for this PR (see the milestone doc, strangler plan in
-   section 4): deleting the [data-theme="light"] override sheet
-   (src/index.css lines ~222-478), the JS theme-branching in PricingCard, and
-   applying the named type scale below to any component (that is D5 / the
-   v1.18.4 typography pass). The scale is only named and given conservative
-   values here.
+   v1.18.1 PR2 extends this file with the chrome and control roles the shared
+   surfaces need (--surface-hover, the translucent accent set, --focus-ring,
+   --grid-line-*, --field-*, --neutral-*) plus the shared .field-input recipe,
+   so TopNav, SideNav, PageLayout, SlideOver, .btn-accent, .btn-neutral, and
+   .fx-chip can stop being dark-authored utilities patched in light mode. The
+   [data-theme="light"] rules those surfaces relied on are deleted from
+   src/index.css in the same PR (the strangler rule from section 4: a rule
+   goes only when its surface has moved onto tokens).
+
+   Out of scope (see the milestone doc, strangler plan in section 4):
+   deleting the rest of the [data-theme="light"] override sheet in
+   src/index.css - that is a v1.18.4 exit criterion, not a starting move -
+   the JS theme-branching in PricingCard, and applying the named type scale
+   below to any component (that is D5 / the v1.18.4 typography pass). The
+   scale is only named and given conservative values here.
    ============================================================================= */
 
 :root,
@@ -70,6 +79,48 @@
   --success: #10b981; /* emerald-500 */
   --warning: #eab308; /* yellow-500 */
   --danger: #ef4444;  /* red-500 */
+
+  /* --- Chrome and control roles (v1.18.1 PR2) ---------------------------
+     Added so the shared chrome (TopNav, SideNav, PageLayout, SlideOver) and
+     the shared controls (.btn-accent, .btn-neutral, .field-input, .fx-chip)
+     can be expressed once instead of as dark-authored utilities patched by
+     the [data-theme="light"] override sheet. */
+
+  /* Resting and hover fill for controls that sit *on* chrome (nav pills,
+     icon buttons, inset notes). Distinct from --surface-1, which is a card
+     fill and is near-white in light mode: a near-white pill on a near-white
+     nav bar would have no separation. */
+  --control-bg: rgba(39, 39, 42, 0.6);    /* zinc-800/60 */
+  --surface-hover: rgba(63, 63, 70, 0.6); /* zinc-700/60 */
+
+  /* Translucent accent set: selected nav item, .btn-accent, focus borders.
+     Kept as explicit roles because Tailwind opacity modifiers (bg-accent/20)
+     cannot be applied to a var() colour. */
+  --accent-soft: rgba(245, 158, 11, 0.2);        /* resting accent fill */
+  --accent-soft-hover: rgba(245, 158, 11, 0.28); /* hovered accent fill */
+  --accent-line: rgba(251, 191, 36, 0.5);        /* accent-tinted border */
+  --accent-line-hover: rgba(251, 191, 36, 0.66);
+  --accent-text: #fef3c7;                        /* amber-100 on --accent-soft */
+
+  /* Keyboard focus ring, shared by buttons and form fields. */
+  --focus-ring: rgba(251, 191, 36, 0.7);
+
+  /* forge-grid backdrop lines. */
+  --grid-line-x: rgba(245, 158, 11, 0.05);
+  --grid-line-y: rgba(245, 158, 11, 0.04);
+
+  /* Form fields. */
+  --field-bg: rgba(39, 39, 42, 0.7);       /* zinc-800/70 */
+  --field-placeholder: rgb(113, 113, 122); /* zinc-500 */
+
+  /* Neutral (secondary) button. */
+  --neutral-bg: rgba(63, 63, 70, 0.45);
+  --neutral-border: rgba(113, 113, 122, 0.52);
+
+  /* .fx-chip. Its own roles because a chip sits *on* a surface-1 card and
+     needs to stay legible against it in both themes. */
+  --chip-bg: rgba(39, 39, 42, 0.85);
+  --chip-border: rgba(113, 113, 122, 0.5);
 }
 
 [data-theme="light"] {
@@ -92,14 +143,40 @@
   --success: #047857; /* emerald-700 */
   --warning: #a16207; /* yellow-700 */
   --danger: #b91c1c;  /* red-700 */
+
+  /* Chrome and control roles (v1.18.1 PR2). Values carried over from the
+     [data-theme="light"] rules this PR deletes from src/index.css, so the
+     light rendering of the migrated surfaces is unchanged. */
+  --control-bg: rgba(0, 0, 0, 0.04);
+  --surface-hover: rgba(0, 0, 0, 0.06);
+
+  --accent-soft: rgba(245, 158, 11, 0.14);
+  --accent-soft-hover: rgba(245, 158, 11, 0.22);
+  --accent-line: rgba(180, 100, 10, 0.5);
+  --accent-line-hover: rgba(180, 100, 10, 0.65);
+  --accent-text: #92400e; /* amber-800 - 6.9:1 on the light accent fill */
+
+  --focus-ring: rgba(180, 100, 10, 0.75);
+
+  --grid-line-x: rgba(180, 83, 9, 0.06);
+  --grid-line-y: rgba(180, 83, 9, 0.05);
+
+  --field-bg: rgba(255, 255, 255, 0.85);
+  --field-placeholder: rgb(113, 113, 122); /* zinc-500 - 4.6:1 on white */
+
+  --neutral-bg: rgba(0, 0, 0, 0.04);
+  --neutral-border: rgba(0, 0, 0, 0.18);
+
+  --chip-bg: rgba(0, 0, 0, 0.05);
+  --chip-border: rgba(0, 0, 0, 0.15);
 }
 
 /* Radius and spacing steps are theme-invariant. */
 :root {
   --radius-sm: 0.5rem;
   --radius-md: 0.75rem;
-  --radius-lg: 0.9rem;  /* matches the existing --fx-radius-lg used by .btn-accent/.btn-neutral */
-  --radius-xl: 1.15rem; /* matches the existing --fx-radius-xl */
+  --radius-lg: 0.9rem;  /* .btn-accent / .btn-neutral (was --fx-radius-lg, deleted in PR2) */
+  --radius-xl: 1.15rem; /* panels and cards (was --fx-radius-xl, deleted in PR2) */
 
   --space-1: 0.25rem;
   --space-2: 0.5rem;
@@ -124,8 +201,8 @@
 .forge-grid {
   background-color: var(--surface-0);
   background-image:
-    linear-gradient(to right, rgba(245, 158, 11, 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(245, 158, 11, 0.04) 1px, transparent 1px);
+    linear-gradient(to right, var(--grid-line-x) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line-y) 1px, transparent 1px);
   background-size: 40px 40px;
 }
 
@@ -163,4 +240,39 @@
 .interactive-card:hover {
   border-color: var(--border-strong);
   transform: translateY(-2px);
+}
+
+/* ---------------------------------------------------------------------------
+   Shared form field recipe (v1.18.1 PR2).
+
+   Replaces three hand-copied per-file recipes that were dark-authored and
+   relied on the [data-theme="light"] override sheet to be legible in light
+   mode: ContactPage's `fieldClass`, TryItPanel's `inputClass`, and
+   TemplateEditorModal's `FIELD_CLS`.
+
+   Deliberately sets colour, border, and radius only. Padding, font size, and
+   font family stay with the call site, because the three recipes legitimately
+   differ there (a monospace 11px API field is not a 14px contact field), and
+   because this file is imported before Tailwind's utilities so a per-instance
+   utility (e.g. the red border on an invalid contact field) still wins.
+   --------------------------------------------------------------------------- */
+.field-input {
+  width: 100%;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-soft);
+  background-color: var(--field-bg);
+  color: var(--text-primary);
+  transition: border-color 180ms ease;
+}
+
+.field-input::placeholder {
+  color: var(--field-placeholder);
+}
+
+.field-input:hover:not(:disabled) {
+  border-color: var(--border-strong);
+}
+
+.field-input:focus {
+  border-color: var(--accent-line);
 }

@@ -9,19 +9,23 @@
 // `src/lib/projectsStore.mock.ts`; nothing here talks to a live backend
 // (decommissioned 2026-06-04).
 //
-// Styling note: the panel deliberately uses concrete utilities that render in
-// both themes instead of the legacy `surface-card-strong` / `forge-panel`
-// classes flagged as ghosts by the v1.18 UX audit (docs/design/V1_18_UX_THEME.md
-// section 2); the D1-D11 decisions are pending, so this only avoids adding
-// new debt without starting that refactor.
+// Styling note: the panel uses concrete utilities that render in both themes
+// rather than `surface-card-strong` / `forge-panel`, which were ghost classes
+// when this was written (v1.18 UX audit finding F1). Those two now have real,
+// token-built definitions as of v1.18.1 PR1; adopting them here is part of the
+// v1.18.4 component-consolidation pass, not this one. The text fields below
+// did move onto the shared token-built `.field-input` recipe in v1.18.1 PR2.
 // ---------------------------------------------------------------------------
 
 import { useState } from 'react'
 import { PROJECTS_STORE_BOUNDARY, projectsStore, type ProjectsStore } from '../lib/projectsStore.mock'
 import type { ProjectTemplate, TemplateDraftMilestone } from '../lib/projectClone'
 
+// v1.18.1 PR2: on the shared, token-built `.field-input` recipe from
+// src/styles/tokens.css. `min-w-0 flex-1` and the size utilities stay here
+// because they are layout, not theme.
 const FIELD_CLS =
-  'min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-800/60 px-2 py-1.5 text-xs text-zinc-200 outline-none focus:border-amber-500/60 placeholder-zinc-500'
+  'field-input min-w-0 flex-1 px-2 py-1.5 text-xs outline-none'
 
 // React list keys for draft rows. Module-scoped so key generation is safe
 // during render (no ref reads); rows only need uniqueness, not continuity.

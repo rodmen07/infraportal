@@ -1,3 +1,12 @@
+// ---------------------------------------------------------------------------
+// Styling note (v1.18.1 PR2): this component's chrome is expressed in the
+// semantic token utilities generated from src/styles/tokens.css
+// (bg-surface-*, border-border-*, text-text-*, the accent-* set) instead of
+// dark-authored zinc/amber utilities. It therefore no longer depends on the
+// `[data-theme="light"] nav, aside` !important override that used to repaint
+// it in light mode; that rule is deleted in the same PR. Emerald here is a
+// status colour (signed-in state) per D4, not chrome.
+// ---------------------------------------------------------------------------
 import { useTheme } from './useTheme'
 import { useAuth } from '../auth/useAuth'
 import { ADMIN_NAV_ITEMS, PRIMARY_NAV_ITEMS, type NavItem } from './navItems'
@@ -31,8 +40,8 @@ function TopNavComponent() {
         onClick={handleClick(item)}
         className={`rounded-lg border px-3 py-1.5 text-xs font-medium whitespace-nowrap transition ${
           isActive(item)
-            ? 'border-amber-400/50 bg-gradient-to-r from-amber-500/25 to-orange-500/25 text-amber-100'
-            : 'border-zinc-600/40 bg-zinc-800/60 text-zinc-300 hover:border-zinc-500/50 hover:bg-zinc-700/60 hover:text-zinc-100'
+            ? 'border-accent-line bg-accent-soft text-accent-text'
+            : 'border-border-soft bg-surface-control text-text-secondary hover:border-border-strong hover:bg-surface-hover hover:text-text-primary'
         }`}
       >
         {item.label}
@@ -41,11 +50,11 @@ function TopNavComponent() {
   )
 
   return (
-    <nav className="sticky top-2 z-40 rounded-2xl border border-zinc-500/30 bg-zinc-900/80 p-3 shadow-xl shadow-black/40 backdrop-blur-xl">
+    <nav className="sticky top-2 z-40 rounded-2xl border border-border-soft bg-surface-2 p-3 shadow-xl shadow-black/40 backdrop-blur-xl">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <div className="text-sm font-bold tracking-tight text-amber-300">Managed Hosting</div>
-          <p className="mt-1 text-[11px] text-zinc-400">Deployment support, hosting, and ongoing maintenance</p>
+          <div className="text-sm font-bold tracking-tight text-accent">Managed Hosting</div>
+          <p className="mt-1 text-[11px] text-text-muted">Deployment support, hosting, and ongoing maintenance</p>
         </div>
         <div className="flex items-center gap-2">
           {isClient && (
@@ -64,7 +73,7 @@ function TopNavComponent() {
             type="button"
             onClick={toggle}
             aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-            className="rounded-lg border border-zinc-600/40 bg-zinc-800/60 px-2.5 py-1.5 text-xs text-zinc-300 transition hover:border-zinc-500/50 hover:bg-zinc-700/60 hover:text-zinc-100"
+            className="rounded-lg border border-border-soft bg-surface-control px-2.5 py-1.5 text-xs text-text-secondary transition hover:border-border-strong hover:bg-surface-hover hover:text-text-primary"
           >
             {theme === 'dark' ? '☀️' : '🌙'}
           </button>
@@ -81,9 +90,9 @@ function TopNavComponent() {
 
         {isClient && ADMIN_NAV_ITEMS.length > 0 && (
           <div className="overflow-x-auto pb-1 [scrollbar-width:none]">
-            <div className="mb-1 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500">
+            <div className="mb-1 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-text-muted">
               <span>Admin</span>
-              <div className="h-px flex-1 bg-zinc-800" />
+              <div className="h-px flex-1 bg-border-soft" />
             </div>
             <div className="flex min-w-max items-center gap-2">
               {renderItems(ADMIN_NAV_ITEMS)}
@@ -92,7 +101,7 @@ function TopNavComponent() {
         )}
       </div>
 
-      <div className="mt-2.5 h-0.5 overflow-hidden rounded-full bg-zinc-800/90">
+      <div className="mt-2.5 h-0.5 overflow-hidden rounded-full bg-border-soft">
         <div className="h-full w-full rounded-full bg-gradient-to-r from-amber-400 via-orange-400 to-emerald-400" />
       </div>
     </nav>
