@@ -30,29 +30,14 @@ body {
   font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
 }
 
-@keyframes pulse-strong {
-  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245,158,11,0.08); }
-  50% { transform: scale(1.06); box-shadow: 0 18px 40px -12px rgba(245,158,11,0.22), 0 0 0 10px rgba(245,158,11,0.06); }
-  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245,158,11,0); }
-}
-
-.animate-pulse-strong {
-  animation: rise-in 380ms ease-out forwards, pulse-strong 1.9s cubic-bezier(.4,0,.2,1) 380ms infinite;
-  transform-origin: center;
-}
-
-@keyframes float-y {
-  0% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
-  100% { transform: translateY(0); }
-}
-.animate-float-slow { animation: rise-in 380ms ease-out forwards, float-y 6s ease-in-out 380ms infinite; }
-
-@keyframes wiggle { 0% { transform: rotate(-1.5deg); } 50% { transform: rotate(1.5deg); } 100% { transform: rotate(-1.5deg); } }
-.animate-wiggle { animation: rise-in 380ms ease-out forwards, wiggle 900ms ease-in-out 380ms infinite; }
-
-@keyframes pop-in { from { transform: scale(.98); opacity: 0 } to { transform: scale(1); opacity: 1 } }
-.animate-pop { animation: pop-in 320ms cubic-bezier(.2,.8,.2,1) forwards; }
+/* animate-pulse-strong, animate-float-slow, animate-wiggle, animate-pop, and
+   glow-ring (the infinite-loop hero badge/h1 flourishes: pulse-strong,
+   float-y, wiggle keyframes, plus the one-time pop-in) were deleted in
+   v1.18.3 (D6, calm hero motion, finding F6): HeroSection.tsx was their only
+   consumer, and that component no longer renders the pulsing gradient badge
+   or the floating h1 they animated. The one-time `.reveal`/`.reveal-delay-N`
+   entrance below is what survives per D6 and is what the hero (and every
+   other one-time entrance in the app) uses instead. */
 
 @keyframes slide-in { from { transform: translateX(18px); opacity: 0 } to { transform: translateX(0); opacity: 1 } }
 .slide-over-enter { animation: slide-in 260ms cubic-bezier(.2,.8,.2,1) forwards; }
@@ -72,8 +57,6 @@ body {
   animation: shimmer 2s infinite;
 }
 
-.glow-ring { box-shadow: 0 6px 26px rgba(245,158,11,0.12), 0 0 0 6px rgba(245,158,11,0.06); transition: box-shadow 220ms ease; }
-
 @media (prefers-reduced-motion: reduce) {
   .forge-panel,
   .interactive-card,
@@ -85,10 +68,6 @@ body {
   .reveal-delay-4,
   .reveal-delay-5,
   .reveal-delay-6,
-  .animate-pulse-strong,
-  .animate-float-slow,
-  .animate-wiggle,
-  .animate-pop,
   .slide-over-enter,
   .overlay-fade,
   .bg-shimmer {
