@@ -32,8 +32,18 @@ const SIZE_PATTERN = /text-\[(10|11)px\]/g
  * - CrmAdminPage.tsx: explicitly fenced off from this milestone (2187 lines;
  *   docs/design/V1_18_UX_THEME.md section 8 names it as a scope-creep risk,
  *   and the v1.18.4 task scope confirms it must not be touched here).
+ * - features/crm/{ui,LiveFeedTab,ProjectsTab}.tsx: hold the sub-12px classes
+ *   moved verbatim out of CrmAdminPage.tsx by the behavior-preserving CRM
+ *   admin split. The exemption follows the relocated code unchanged - these
+ *   are the same fenced-off lines, not new content, so the same v1.18.4
+ *   scope-creep fence still applies to them.
  */
-const EXEMPT_FILES = new Set(['src/pages/CrmAdminPage.tsx'])
+const EXEMPT_FILES = new Set([
+  'src/pages/CrmAdminPage.tsx',
+  'src/features/crm/ui.tsx',
+  'src/features/crm/LiveFeedTab.tsx',
+  'src/features/crm/ProjectsTab.tsx',
+])
 
 /**
  * `file:line` locations deliberately kept below the floor: fixed-diameter
