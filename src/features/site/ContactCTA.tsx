@@ -79,7 +79,7 @@ export function ContactCTA() {
   return (
     <section className="forge-panel rounded-3xl border border-zinc-500/30 bg-zinc-900/80 p-8 shadow-2xl shadow-black/50 backdrop-blur-xl">
       <h2 className="text-xl font-semibold text-white">Tell me what you need</h2>
-      <p className="mt-2 text-sm text-zinc-400">
+      <p className="mt-2 text-sm text-text-muted">
         Share a few details and I will follow up with the right scope and next step, or skip the form and book
         a free 30-minute discovery call directly.
       </p>
@@ -87,7 +87,7 @@ export function ContactCTA() {
       {SCHEDULING_URL && (
         <div className="mt-4 rounded-2xl border border-amber-400/20 bg-amber-500/10 px-4 py-3 text-sm text-zinc-200">
           <p className="font-medium text-amber-100">Want to skip the form?</p>
-          <p className="mt-1 text-zinc-300">Book a 30-minute call directly and I can scope the right engagement on the spot.</p>
+          <p className="mt-1 text-text-secondary">Book a 30-minute call directly and I can scope the right engagement on the spot.</p>
           <a
             href={SCHEDULING_URL}
             target="_blank"
@@ -152,7 +152,7 @@ export function ContactCTA() {
             <p className="text-sm text-red-400">Something went wrong, please try again.</p>
           )}
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-sm text-zinc-500">I typically reply within one business day.</p>
+            <p className="text-sm text-text-subtle">I typically reply within one business day.</p>
             <button
               type="submit"
               disabled={phase === 'sending'}

@@ -27,11 +27,11 @@ export function HomeSections({ content }: HomeSectionsProps) {
               />
             )}
             <h3 className="text-sm font-semibold text-amber-200">{card.heading}</h3>
-            <p className="mt-2 flex-1 text-sm text-zinc-300">{card.body}</p>
+            <p className="mt-2 flex-1 text-sm text-text-secondary">{card.body}</p>
             {card.link && (
               <a
                 href={card.link}
-                className="mt-4 inline-block rounded-lg border border-zinc-600/50 bg-zinc-700/50 px-3 py-1.5 text-xs font-medium text-zinc-300 transition hover:border-zinc-500/60 hover:bg-zinc-600/60 hover:text-white"
+                className="mt-4 inline-block rounded-lg border border-zinc-600/50 bg-zinc-700/50 px-3 py-1.5 text-xs font-medium text-text-secondary transition hover:border-zinc-500/60 hover:bg-zinc-600/60 hover:text-white"
               >
                 Learn more →
               </a>

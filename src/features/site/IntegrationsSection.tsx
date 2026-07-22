@@ -92,7 +92,7 @@ const STATUS_LABEL: Record<IntegrationStatus, string> = {
 const STATUS_CLASS: Record<IntegrationStatus, string> = {
   'live':           'border-emerald-400/40 bg-emerald-500/10 text-emerald-300',
   'in-development': 'border-amber-400/40 bg-amber-500/10 text-amber-300',
-  'coming-soon':    'border-zinc-600/40 bg-zinc-700/30 text-zinc-500',
+  'coming-soon':    'border-zinc-600/40 bg-zinc-700/30 text-text-subtle',
 }
 
 const CATEGORY_CLASS: Record<string, string> = {
@@ -121,11 +121,11 @@ export function IntegrationsSection() {
       <div className="mb-4 flex items-center justify-between gap-3">
         <div>
           <h2 className="text-xl font-semibold text-white">Integrations</h2>
-          <p className="mt-1 text-sm text-zinc-400">
+          <p className="mt-1 text-sm text-text-muted">
             InfraPortal is built on a microservice architecture. Each service extends the platform.
           </p>
         </div>
-        <div className="flex shrink-0 flex-col items-end gap-1 text-xs text-zinc-500">
+        <div className="flex shrink-0 flex-col items-end gap-1 text-xs text-text-subtle">
           <span className="flex items-center gap-1.5">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
             Live
@@ -151,7 +151,7 @@ export function IntegrationsSection() {
             className={`rounded-full border px-3 py-1 text-scale-xs font-semibold transition ${
               activeStatus === s
                 ? 'border-amber-400/50 bg-amber-500/15 text-amber-300'
-                : 'border-zinc-700/40 bg-zinc-800/50 text-zinc-400 hover:border-zinc-600/50 hover:text-zinc-300'
+                : 'border-zinc-700/40 bg-zinc-800/50 text-text-muted hover:border-zinc-600/50 hover:text-text-secondary'
             }`}
           >
             {s === 'all' ? `All (${INTEGRATIONS.length})` : STATUS_LABEL[s as IntegrationStatus]}
@@ -170,7 +170,7 @@ export function IntegrationsSection() {
             <div className="mb-2 flex items-start justify-between gap-2">
               <div className="min-w-0">
                 <span className="block text-sm font-semibold text-white leading-snug">{integration.name}</span>
-                <span className={`text-scale-xs font-medium ${CATEGORY_CLASS[integration.category] ?? 'text-zinc-500'}`}>
+                <span className={`text-scale-xs font-medium ${CATEGORY_CLASS[integration.category] ?? 'text-text-subtle'}`}>
                   {integration.category}
                 </span>
               </div>
@@ -180,7 +180,7 @@ export function IntegrationsSection() {
                 {STATUS_LABEL[integration.status]}
               </span>
             </div>
-            <p className="text-xs leading-relaxed text-zinc-400">{integration.description}</p>
+            <p className="text-xs leading-relaxed text-text-muted">{integration.description}</p>
           </div>
         ))}
       </div>

@@ -146,7 +146,7 @@ function SpeakButton({ text, label = 'Read aloud' }: { text: string; label?: str
       onClick={handle}
       aria-label={speaking ? 'Stop reading' : label}
       title={speaking ? 'Stop reading' : label}
-      className="shrink-0 rounded-lg border border-zinc-600/50 bg-zinc-800/40 px-2.5 py-1 text-xs text-zinc-400 transition hover:border-zinc-500 hover:text-zinc-200"
+      className="shrink-0 rounded-lg border border-zinc-600/50 bg-zinc-800/40 px-2.5 py-1 text-xs text-text-muted transition hover:border-zinc-500 hover:text-zinc-200"
     >
       {speaking ? '⏹' : '🔊'}
     </button>
@@ -160,8 +160,8 @@ const SEV_BADGE: Record<Severity, string> = {
   HIGH:     'text-orange-400 border-orange-500/40 bg-orange-900/20',
   MEDIUM:   'text-yellow-400 border-yellow-500/40 bg-yellow-900/20',
   LOW:      'text-blue-400 border-blue-500/40 bg-blue-900/20',
-  NONE:     'text-zinc-400 border-zinc-600/40 bg-zinc-800/20',
-  UNKNOWN:  'text-zinc-500 border-zinc-700/40 bg-zinc-800/10',
+  NONE:     'text-text-muted border-zinc-600/40 bg-zinc-800/20',
+  UNKNOWN:  'text-text-subtle border-zinc-700/40 bg-zinc-800/10',
 }
 
 const SEV_BAR: Record<Severity, string> = {
@@ -179,11 +179,11 @@ function StatCard({ label, value, sub, ttsText }: { label: string; value: string
   return (
     <div className="flex flex-col gap-1.5 rounded-xl border border-zinc-700/50 bg-zinc-800/50 p-4">
       <div className="flex items-center justify-between gap-2">
-        <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">{label}</p>
+        <p className="text-xs font-semibold uppercase tracking-wide text-text-subtle">{label}</p>
         <SpeakButton text={ttsText} label={`Read ${label}`} />
       </div>
-      <p className="text-3xl font-bold text-zinc-100">{value}</p>
-      {sub && <p className="text-sm text-zinc-400">{sub}</p>}
+      <p className="text-3xl font-bold text-text-primary">{value}</p>
+      {sub && <p className="text-sm text-text-muted">{sub}</p>}
     </div>
   )
 }
@@ -202,7 +202,7 @@ function SeverityBars({ dist }: { dist: Record<Severity, number> }) {
               style={{ width: `${(dist[s] / max) * 100}%`, minWidth: dist[s] > 0 ? '4px' : '0' }}
             />
           </div>
-          <span className="w-10 text-right text-sm font-semibold text-zinc-300">{dist[s]}</span>
+          <span className="w-10 text-right text-sm font-semibold text-text-secondary">{dist[s]}</span>
         </div>
       ))}
     </div>
@@ -226,7 +226,7 @@ function CvssHistogram({ histogram }: { histogram: number[] }) {
               minHeight: count > 0 ? '4px' : '0',
             }}
           />
-          <span className="text-scale-xs text-zinc-500">{labels[i]}</span>
+          <span className="text-scale-xs text-text-subtle">{labels[i]}</span>
         </div>
       ))}
     </div>
@@ -243,14 +243,14 @@ function AttackVectorBars({ dist }: { dist: Record<AttackVector, number> }) {
     <div className="space-y-3">
       {order.map(v => (
         <div key={v} className="flex items-center gap-3">
-          <span className="w-20 shrink-0 text-sm text-zinc-400">{labels[v]}</span>
+          <span className="w-20 shrink-0 text-sm text-text-muted">{labels[v]}</span>
           <div className="flex-1 rounded-full bg-zinc-800/80">
             <div
               className="h-3 rounded-full bg-sky-500 transition-all duration-500"
               style={{ width: `${(dist[v] / max) * 100}%`, opacity: 0.8, minWidth: dist[v] > 0 ? '4px' : '0' }}
             />
           </div>
-          <span className="w-10 text-right text-sm font-semibold text-zinc-300">{dist[v]}</span>
+          <span className="w-10 text-right text-sm font-semibold text-text-secondary">{dist[v]}</span>
         </div>
       ))}
     </div>
@@ -264,8 +264,8 @@ function GoldView({ gold, windowDays }: { gold: SecurityGold; windowDays: number
     <div className="space-y-5">
       <div className="flex flex-wrap items-center gap-2">
         <span className="rounded border border-amber-600/40 bg-amber-900/20 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-amber-300">Aggregated</span>
-        <span className="rounded border border-zinc-700/40 bg-zinc-800/40 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-zinc-400">Analytics-ready</span>
-        <span className="rounded border border-zinc-700/40 bg-zinc-800/40 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-zinc-400">{gold.total} CVEs · {windowDays}d</span>
+        <span className="rounded border border-zinc-700/40 bg-zinc-800/40 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-text-muted">Analytics-ready</span>
+        <span className="rounded border border-zinc-700/40 bg-zinc-800/40 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-text-muted">{gold.total} CVEs · {windowDays}d</span>
         <SpeakButton text={summary} label="Read full summary" />
       </div>
 
@@ -298,11 +298,11 @@ function GoldView({ gold, windowDays }: { gold: SecurityGold; windowDays: number
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="rounded-xl border border-zinc-800/60 bg-zinc-950 p-4">
-          <h3 className="mb-4 text-sm font-semibold text-zinc-300">Severity distribution</h3>
+          <h3 className="mb-4 text-sm font-semibold text-text-secondary">Severity distribution</h3>
           <SeverityBars dist={gold.severityDist} />
         </div>
         <div className="rounded-xl border border-zinc-800/60 bg-zinc-950 p-4">
-          <h3 className="mb-4 text-sm font-semibold text-zinc-300">CVSS score histogram</h3>
+          <h3 className="mb-4 text-sm font-semibold text-text-secondary">CVSS score histogram</h3>
           <CvssHistogram histogram={gold.cvssHistogram} />
           <p className="mt-2 text-center text-xs text-zinc-600">Score buckets 0 → 10</p>
         </div>
@@ -310,18 +310,18 @@ function GoldView({ gold, windowDays }: { gold: SecurityGold; windowDays: number
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="rounded-xl border border-zinc-800/60 bg-zinc-950 p-4">
-          <h3 className="mb-4 text-sm font-semibold text-zinc-300">Attack vectors</h3>
+          <h3 className="mb-4 text-sm font-semibold text-text-secondary">Attack vectors</h3>
           <AttackVectorBars dist={gold.vectorDist} />
         </div>
         <div className="rounded-xl border border-zinc-800/60 bg-zinc-950 p-4">
-          <h3 className="mb-4 text-sm font-semibold text-zinc-300">Top weakness types</h3>
+          <h3 className="mb-4 text-sm font-semibold text-text-secondary">Top weakness types</h3>
           <div className="space-y-2">
             {gold.topCwes.length === 0
               ? <p className="text-sm text-zinc-600">No CWE data available.</p>
               : gold.topCwes.map(({ cwe, count }) => (
                 <div key={cwe} className="flex items-center justify-between gap-2">
-                  <span className="text-sm text-zinc-400">{cwe}</span>
-                  <span className="rounded bg-zinc-800 px-2 py-0.5 text-xs font-semibold text-zinc-300">{count}</span>
+                  <span className="text-sm text-text-muted">{cwe}</span>
+                  <span className="rounded bg-zinc-800 px-2 py-0.5 text-xs font-semibold text-text-secondary">{count}</span>
                 </div>
               ))
             }
@@ -342,13 +342,13 @@ function SilverView({ records }: { records: CveRecord[] }) {
   return (
     <div>
       <div className="mb-3 flex flex-wrap gap-2">
-        <span className="rounded border border-zinc-500/40 bg-zinc-700/20 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-zinc-300">Parsed</span>
-        <span className="rounded border border-zinc-700/40 bg-zinc-800/40 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-zinc-400">Typed · {records.length} records</span>
+        <span className="rounded border border-zinc-500/40 bg-zinc-700/20 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-text-secondary">Parsed</span>
+        <span className="rounded border border-zinc-700/40 bg-zinc-800/40 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-text-muted">Typed · {records.length} records</span>
       </div>
       <div className="overflow-x-auto rounded-xl border border-zinc-800/60 bg-zinc-950">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-zinc-800/60 text-left text-zinc-500">
+            <tr className="border-b border-zinc-800/60 text-left text-text-subtle">
               <th className="px-3 py-2.5 font-medium">CVE ID</th>
               <th className="px-3 py-2.5 font-medium">Severity</th>
               <th className="px-3 py-2.5 font-medium">CVSS</th>
@@ -359,24 +359,24 @@ function SilverView({ records }: { records: CveRecord[] }) {
           </thead>
           <tbody className="divide-y divide-zinc-800/40">
             {visible.map((r) => (
-              <tr key={r.id} className="text-zinc-300 hover:bg-zinc-900/40">
-                <td className="px-3 py-2 font-mono text-xs text-zinc-400">{r.id}</td>
+              <tr key={r.id} className="text-text-secondary hover:bg-zinc-900/40">
+                <td className="px-3 py-2 font-mono text-xs text-text-muted">{r.id}</td>
                 <td className="px-3 py-2">
                   <span className={`rounded border px-1.5 py-0.5 text-xs font-semibold ${SEV_BADGE[r.severity]}`}>
                     {r.severity}
                   </span>
                 </td>
                 <td className="px-3 py-2 font-mono">{r.cvssScore?.toFixed(1) ?? '–'}</td>
-                <td className="px-3 py-2 text-xs text-zinc-400">{r.attackVector}</td>
-                <td className="px-3 py-2 text-xs text-zinc-400">{r.cwe}</td>
-                <td className="px-3 py-2 text-xs text-zinc-500">{r.ageDays}d</td>
+                <td className="px-3 py-2 text-xs text-text-muted">{r.attackVector}</td>
+                <td className="px-3 py-2 text-xs text-text-muted">{r.cwe}</td>
+                <td className="px-3 py-2 text-xs text-text-subtle">{r.ageDays}d</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
       {records.length > LIMIT && (
-        <button onClick={() => setShowAll(v => !v)} className="mt-2 text-sm text-zinc-500 hover:text-zinc-300">
+        <button onClick={() => setShowAll(v => !v)} className="mt-2 text-sm text-text-subtle hover:text-text-secondary">
           {showAll ? '▲ collapse' : `▼ show all ${records.length} records`}
         </button>
       )}
@@ -398,11 +398,11 @@ function BronzeView({ raw }: { raw: NvdResponse }) {
     <div>
       <div className="mb-3 flex flex-wrap gap-2">
         <span className="rounded border border-orange-700/40 bg-orange-900/20 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-orange-300">Raw</span>
-        <span className="rounded border border-zinc-700/40 bg-zinc-800/40 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-zinc-400">NVD API v2.0</span>
-        <span className="rounded border border-zinc-700/40 bg-zinc-800/40 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-zinc-400">{raw.totalResults.toLocaleString()} total results</span>
+        <span className="rounded border border-zinc-700/40 bg-zinc-800/40 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-text-muted">NVD API v2.0</span>
+        <span className="rounded border border-zinc-700/40 bg-zinc-800/40 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-text-muted">{raw.totalResults.toLocaleString()} total results</span>
       </div>
       <div className="overflow-x-auto rounded-xl border border-zinc-800/60 bg-zinc-950">
-        <pre className="p-4 text-xs leading-relaxed text-zinc-300">
+        <pre className="p-4 text-xs leading-relaxed text-text-secondary">
           {visible.join('\n')}
           {!showAll && lines.length > LIMIT && (
             <span className="text-zinc-600">{'\n'}… showing 2 of {raw.vulnerabilities.length} fetched records</span>
@@ -410,7 +410,7 @@ function BronzeView({ raw }: { raw: NvdResponse }) {
         </pre>
       </div>
       {lines.length > LIMIT && (
-        <button onClick={() => setShowAll(v => !v)} className="mt-2 text-sm text-zinc-500 hover:text-zinc-300">
+        <button onClick={() => setShowAll(v => !v)} className="mt-2 text-sm text-text-subtle hover:text-text-secondary">
           {showAll ? '▲ collapse' : '▼ show full JSON'}
         </button>
       )}
@@ -459,12 +459,12 @@ export function MedallionDemo({ defaultLayer = 'gold' as Layer }: { defaultLayer
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2 className="text-base font-semibold text-white">Security Intelligence Pipeline</h2>
-            <p className="mt-0.5 text-sm text-zinc-500">NVD CVE data · NIST API · Bronze → Silver → Gold</p>
-            <p className="mt-2 max-w-md text-sm text-zinc-400">
+            <p className="mt-0.5 text-sm text-text-subtle">NVD CVE data · NIST API · Bronze → Silver → Gold</p>
+            <p className="mt-2 max-w-md text-sm text-text-muted">
               Live CVE feed from NIST — the same database security teams use to track software vulnerabilities.
-              <span className="text-zinc-500"> Bronze</span> shows raw API records,
-              <span className="text-zinc-500"> Silver</span> parses and classifies them,
-              <span className="text-zinc-500"> Gold</span> aggregates into charts a security team would act on.
+              <span className="text-text-subtle"> Bronze</span> shows raw API records,
+              <span className="text-text-subtle"> Silver</span> parses and classifies them,
+              <span className="text-text-subtle"> Gold</span> aggregates into charts a security team would act on.
             </p>
           </div>
           <div className="flex gap-1 rounded-lg border border-zinc-700/40 bg-zinc-900/60 p-0.5">
@@ -475,7 +475,7 @@ export function MedallionDemo({ defaultLayer = 'gold' as Layer }: { defaultLayer
                 className={`rounded-md px-3 py-1.5 text-sm font-semibold transition ${
                   activeLayer === id
                     ? 'border border-amber-400/50 bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-100'
-                    : 'text-zinc-400 hover:text-zinc-200'
+                    : 'text-text-muted hover:text-zinc-200'
                 }`}
               >
                 {label}
@@ -486,7 +486,7 @@ export function MedallionDemo({ defaultLayer = 'gold' as Layer }: { defaultLayer
       </div>
 
       <div className="p-5">
-        {error && <p className="text-sm text-zinc-500">Could not load data from NVD API. Try refreshing.</p>}
+        {error && <p className="text-sm text-text-subtle">Could not load data from NVD API. Try refreshing.</p>}
         {!raw && !error && (
           <div className="flex flex-col gap-3">
             {[...Array(4)].map((_, i) => (

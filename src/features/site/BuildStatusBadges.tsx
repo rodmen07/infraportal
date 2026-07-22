@@ -19,7 +19,7 @@ const STATUS_CLASS: Record<string, string> = {
   green:   'border-emerald-400/40 bg-emerald-500/10 text-emerald-300',
   yellow:  'border-amber-400/40 bg-amber-500/10 text-amber-300',
   red:     'border-red-400/40 bg-red-500/10 text-red-300',
-  unknown: 'border-zinc-600/40 bg-zinc-700/30 text-zinc-500',
+  unknown: 'border-zinc-600/40 bg-zinc-700/30 text-text-subtle',
 }
 
 interface BuildStatusBadgesProps {
@@ -35,12 +35,12 @@ export function BuildStatusBadges({ repos, owner = 'rodmen07' }: BuildStatusBadg
   return (
     <section className="forge-panel rounded-2xl border border-zinc-500/30 bg-zinc-900/80 p-5 backdrop-blur-xl">
       <div className="mb-3 flex items-center justify-between gap-3">
-        <span className="text-sm font-semibold text-zinc-300">Live CI/CD</span>
+        <span className="text-sm font-semibold text-text-secondary">Live CI/CD</span>
         <a
           href={`https://github.com/${owner}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-xs text-zinc-500 transition hover:text-zinc-300"
+          className="text-xs text-text-subtle transition hover:text-text-secondary"
         >
           GitHub →
         </a>
@@ -75,7 +75,7 @@ export function BuildStatusBadges({ repos, owner = 'rodmen07' }: BuildStatusBadg
                   {STATUS_TEXT[ds]}
                 </span>
                 {item.run_at && (
-                  <span className="text-xs text-zinc-500">{formatRelativeTime(item.run_at)}</span>
+                  <span className="text-xs text-text-subtle">{formatRelativeTime(item.run_at)}</span>
                 )}
               </a>
             )

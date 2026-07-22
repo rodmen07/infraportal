@@ -45,8 +45,8 @@ function FaqRow({ question, answer }: FaqItem) {
   const isLight = theme === 'light'
 
   const borderClass = isLight ? 'border-zinc-200' : 'border-zinc-700/50'
-  const questionClass = isLight ? 'text-zinc-900' : 'text-zinc-100'
-  const answerClass = isLight ? 'text-zinc-600' : 'text-zinc-400'
+  const questionClass = isLight ? 'text-zinc-900' : 'text-text-primary'
+  const answerClass = isLight ? 'text-zinc-600' : 'text-text-muted'
   const iconClass = isLight ? 'text-amber-600' : 'text-amber-400'
 
   return (
@@ -78,7 +78,7 @@ export function PricingFaq() {
     : 'rounded-2xl border border-zinc-700/40 bg-zinc-800/40 p-6'
 
   const headingClass = isLight ? 'text-zinc-900' : 'text-white'
-  const subClass = isLight ? 'text-zinc-500' : 'text-zinc-500'
+  const subClass = isLight ? 'text-text-subtle' : 'text-text-subtle'
 
   return (
     <section className={sectionClass}>

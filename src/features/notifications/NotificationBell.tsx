@@ -80,7 +80,7 @@ export function NotificationBell() {
         type="button"
         onClick={handleToggle}
         aria-label={unreadCount > 0 ? `${unreadCount} new notifications` : 'Notifications'}
-        className="relative rounded-lg border border-zinc-600/40 bg-zinc-800/60 px-2.5 py-1.5 text-xs text-zinc-300 transition hover:border-zinc-500/50 hover:bg-zinc-700/60 hover:text-zinc-100"
+        className="relative rounded-lg border border-zinc-600/40 bg-zinc-800/60 px-2.5 py-1.5 text-xs text-text-secondary transition hover:border-zinc-500/50 hover:bg-zinc-700/60 hover:text-text-primary"
       >
         <BellIcon />
         {unreadCount > 0 && (
@@ -101,12 +101,12 @@ export function NotificationBell() {
           className="absolute right-0 top-10 z-50 w-80 rounded-xl border border-zinc-700/60 bg-zinc-900/95 shadow-2xl shadow-black/60 backdrop-blur-xl"
         >
           <div className="flex items-center justify-between border-b border-zinc-700/50 px-3 py-2">
-            <span className="text-xs font-semibold text-zinc-300">Live Events</span>
+            <span className="text-xs font-semibold text-text-secondary">Live Events</span>
             {notifications.length > 0 && (
               <button
                 type="button"
                 onClick={() => notifications.forEach((n) => dismiss(n.id))}
-                className="text-scale-xs text-zinc-500 hover:text-zinc-300"
+                className="text-scale-xs text-text-subtle hover:text-text-secondary"
               >
                 Clear all
               </button>
@@ -115,7 +115,7 @@ export function NotificationBell() {
 
           <div className="max-h-72 overflow-y-auto [scrollbar-width:thin]">
             {notifications.length === 0 ? (
-              <p className="px-3 py-4 text-center text-xs text-zinc-500">No events yet</p>
+              <p className="px-3 py-4 text-center text-xs text-text-subtle">No events yet</p>
             ) : (
               notifications.map((n) => (
                 <div
@@ -124,12 +124,12 @@ export function NotificationBell() {
                 >
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
-                      <span className={`rounded px-1.5 py-0.5 text-scale-xs font-medium ${SOURCE_COLORS[n.type.split('.')[0]] ?? 'bg-zinc-700/60 text-zinc-300'}`}>
+                      <span className={`rounded px-1.5 py-0.5 text-scale-xs font-medium ${SOURCE_COLORS[n.type.split('.')[0]] ?? 'bg-zinc-700/60 text-text-secondary'}`}>
                         {n.type}
                       </span>
-                      <span className="text-scale-xs text-zinc-500">{formatAge(now - n.receivedAt)}</span>
+                      <span className="text-scale-xs text-text-subtle">{formatAge(now - n.receivedAt)}</span>
                     </div>
-                    <p className="mt-0.5 truncate text-scale-xs text-zinc-400">
+                    <p className="mt-0.5 truncate text-scale-xs text-text-muted">
                       {Object.entries(n.payload)
                         .slice(0, 2)
                         .map(([k, v]) => `${k}: ${String(v)}`)
@@ -140,7 +140,7 @@ export function NotificationBell() {
                     type="button"
                     onClick={() => dismiss(n.id)}
                     aria-label="Dismiss notification"
-                    className="mt-0.5 shrink-0 text-zinc-600 hover:text-zinc-400"
+                    className="mt-0.5 shrink-0 text-zinc-600 hover:text-text-muted"
                   >
                     <svg viewBox="0 0 12 12" className="h-3 w-3" fill="currentColor" aria-hidden="true">
                       <path d="M6.707 6l2.647-2.646a.5.5 0 0 0-.708-.708L6 5.293 3.354 2.646a.5.5 0 1 0-.708.708L5.293 6 2.646 8.646a.5.5 0 1 0 .708.708L6 6.707l2.646 2.647a.5.5 0 0 0 .708-.708L6.707 6z" />

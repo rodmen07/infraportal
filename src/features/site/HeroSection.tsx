@@ -27,10 +27,10 @@ export function HeroSection({ content }: HeroSectionProps) {
       <h1 className="reveal reveal-delay-1 mt-4 text-3xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
         {content.title}
       </h1>
-      <p className="reveal reveal-delay-2 mx-auto mt-4 max-w-2xl text-base leading-relaxed text-zinc-300 sm:text-lg">
+      <p className="reveal reveal-delay-2 mx-auto mt-4 max-w-2xl text-base leading-relaxed text-text-secondary sm:text-lg">
         {content.subtitle}
       </p>
-      <p className="reveal reveal-delay-2 mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-zinc-400">
+      <p className="reveal reveal-delay-2 mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-text-muted">
         I help founders and product teams launch reliable, well-monitored infrastructure, starting with a
         free discovery call and carrying through deployment, hosting, and ongoing support.
       </p>
@@ -58,7 +58,7 @@ export function HeroSection({ content }: HeroSectionProps) {
         <a
           href="#/case-studies"
           onClick={() => trackPortfolioEvent('consulting_cta_click', { location: 'hero', label: 'View case studies' })}
-          className="rounded-xl border border-zinc-600/50 bg-zinc-800/60 px-5 py-2.5 text-sm font-semibold text-zinc-300 transition hover:border-zinc-500/60 hover:bg-zinc-700/60 hover:text-zinc-100"
+          className="rounded-xl border border-zinc-600/50 bg-zinc-800/60 px-5 py-2.5 text-sm font-semibold text-text-secondary transition hover:border-zinc-500/60 hover:bg-zinc-700/60 hover:text-text-primary"
         >
           View case studies →
         </a>

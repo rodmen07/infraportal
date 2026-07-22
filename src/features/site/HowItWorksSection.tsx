@@ -40,7 +40,7 @@ export function HowItWorksSection() {
               {step.number}
             </span>
             <h3 className="text-sm font-semibold text-white">{step.heading}</h3>
-            <p className="text-sm leading-relaxed text-zinc-400">{step.body}</p>
+            <p className="text-sm leading-relaxed text-text-muted">{step.body}</p>
           </article>
         ))}
       </div>

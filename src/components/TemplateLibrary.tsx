@@ -103,7 +103,7 @@ export function TemplateLibrary({ projects, store = projectsStore }: TemplateLib
           New template
         </button>
       </div>
-      <p className="text-xs text-zinc-500">
+      <p className="text-xs text-text-subtle">
         Templates keep structure only: milestone and deliverable titles and their order. Projects created from a
         template start fresh ({STATUS_RESET_DESCRIPTION}).
       </p>
@@ -141,7 +141,7 @@ export function TemplateLibrary({ projects, store = projectsStore }: TemplateLib
 
       {/* Template list */}
       {templates.length === 0 && (
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs text-text-subtle">
           No templates yet. Save a project's structure above, or use "New template" to write one from scratch.
         </p>
       )}
@@ -150,7 +150,7 @@ export function TemplateLibrary({ projects, store = projectsStore }: TemplateLib
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="min-w-0">
               <p className="text-sm font-medium text-zinc-200">{template.name}</p>
-              <p className="mt-0.5 text-scale-xs text-zinc-500">
+              <p className="mt-0.5 text-scale-xs text-text-subtle">
                 from {template.source_project_name} · {plural(template.milestones.length, 'milestone')},{' '}
                 {plural(templateDeliverableCount(template), 'deliverable')} · saved {template.created_at.slice(0, 10)}
               </p>
@@ -175,7 +175,7 @@ export function TemplateLibrary({ projects, store = projectsStore }: TemplateLib
                   onClick={() => setConfirmDeleteId(template.id)}
                   aria-label={`Delete template ${template.name}`}
                   title="Delete template"
-                  className="rounded px-1.5 py-0.5 text-xs text-zinc-500 transition-colors hover:bg-red-500/20 hover:text-red-300"
+                  className="rounded px-1.5 py-0.5 text-xs text-text-subtle transition-colors hover:bg-red-500/20 hover:text-red-300"
                 >
                   ✕
                 </button>
