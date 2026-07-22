@@ -7,7 +7,7 @@ import { AUTH_SERVICE_URL } from '../../config'
 
 export function Spinner() {
   return (
-    <div className="flex items-center gap-2 py-8 text-sm text-zinc-400">
+    <div className="flex items-center gap-2 py-8 text-sm text-text-muted">
       <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
@@ -82,8 +82,8 @@ export function ClientLoginGate() {
     <div className="flex min-h-[55vh] items-center justify-center px-4">
       <div className="forge-panel surface-card-strong w-full max-w-sm rounded-3xl p-8 shadow-2xl shadow-black/50 space-y-5">
         <div>
-          <h2 className="text-base font-semibold text-zinc-100">Client portal</h2>
-          <p className="mt-1 text-xs text-zinc-400">
+          <h2 className="text-base font-semibold text-text-primary">Client portal</h2>
+          <p className="mt-1 text-xs text-text-muted">
             Sign in with the account associated with your project.
           </p>
         </div>
@@ -92,14 +92,14 @@ export function ClientLoginGate() {
           <button
             type="button"
             onClick={() => setTab('oauth')}
-            className={`flex-1 rounded-md py-1.5 font-medium transition ${tab === 'oauth' ? 'bg-zinc-700 text-zinc-100' : 'text-zinc-400 hover:text-zinc-200'}`}
+            className={`flex-1 rounded-md py-1.5 font-medium transition ${tab === 'oauth' ? 'bg-zinc-700 text-text-primary' : 'text-text-muted hover:text-zinc-200'}`}
           >
             Social sign-in
           </button>
           <button
             type="button"
             onClick={() => setTab('email')}
-            className={`flex-1 rounded-md py-1.5 font-medium transition ${tab === 'email' ? 'bg-zinc-700 text-zinc-100' : 'text-zinc-400 hover:text-zinc-200'}`}
+            className={`flex-1 rounded-md py-1.5 font-medium transition ${tab === 'email' ? 'bg-zinc-700 text-text-primary' : 'text-text-muted hover:text-zinc-200'}`}
           >
             Email & password
           </button>
@@ -110,14 +110,14 @@ export function ClientLoginGate() {
             <div className="space-y-3">
               <a
                 href={oauthUrl('github')}
-                className="flex w-full items-center justify-center gap-2 rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-4 py-2.5 text-sm font-medium text-zinc-100 transition hover:border-zinc-500/60 hover:bg-zinc-700/60"
+                className="flex w-full items-center justify-center gap-2 rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-4 py-2.5 text-sm font-medium text-text-primary transition hover:border-zinc-500/60 hover:bg-zinc-700/60"
               >
                 <GithubIcon />
                 Continue with GitHub
               </a>
               <a
                 href={oauthUrl('google')}
-                className="flex w-full items-center justify-center gap-2 rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-4 py-2.5 text-sm font-medium text-zinc-100 transition hover:border-zinc-500/60 hover:bg-zinc-700/60"
+                className="flex w-full items-center justify-center gap-2 rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-4 py-2.5 text-sm font-medium text-text-primary transition hover:border-zinc-500/60 hover:bg-zinc-700/60"
               >
                 <GoogleIcon />
                 Continue with Google
@@ -136,26 +136,26 @@ export function ClientLoginGate() {
               </p>
             )}
             <div>
-              <label className="mb-1 block text-xs text-zinc-400">Email</label>
+              <label className="mb-1 block text-xs text-text-muted">Email</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 autoComplete="email"
-                className="w-full rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
+                className="w-full rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
                 placeholder="you@example.com"
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs text-zinc-400">Password</label>
+              <label className="mb-1 block text-xs text-text-muted">Password</label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 autoComplete="current-password"
-                className="w-full rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
+                className="w-full rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
                 placeholder="••••••••"
               />
             </div>
@@ -167,14 +167,14 @@ export function ClientLoginGate() {
               {submitting ? 'Signing in…' : 'Sign in'}
             </button>
             <div className="flex justify-center">
-              <a href="#/portal/forgot-password" className="text-xs text-zinc-500 hover:text-amber-300 transition">
+              <a href="#/portal/forgot-password" className="text-xs text-text-subtle hover:text-amber-300 transition">
                 Forgot password?
               </a>
             </div>
           </form>
         )}
 
-        <p className="text-center text-xs text-zinc-500">
+        <p className="text-center text-xs text-text-subtle">
           Have an invite?{' '}
           <a href="#/portal/register" className="text-amber-400 hover:text-amber-300">
             Create your account
@@ -195,12 +195,12 @@ export function ClientHeader({ claims, onLogout }: { claims: { sub: string; emai
         <span className="h-7 w-7 shrink-0 rounded-full bg-amber-500/20 text-center text-xs font-semibold leading-7 text-amber-300">
           {display[0]?.toUpperCase() ?? 'C'}
         </span>
-        <span className="text-sm text-zinc-300">{display}</span>
+        <span className="text-sm text-text-secondary">{display}</span>
       </div>
       <button
         type="button"
         onClick={onLogout}
-        className="text-xs text-zinc-500 transition hover:text-zinc-300"
+        className="text-xs text-text-subtle transition hover:text-text-secondary"
       >
         Sign out
       </button>

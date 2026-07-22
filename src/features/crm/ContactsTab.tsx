@@ -116,7 +116,7 @@ export function ContactsTab({ stageFilter }: { stageFilter?: string }) {
         <div>
           <div className="mb-3 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <p className="text-xs text-zinc-500">{rows.length} record{rows.length !== 1 ? 's' : ''}</p>
+              <p className="text-xs text-text-subtle">{rows.length} record{rows.length !== 1 ? 's' : ''}</p>
               {CONTACTS_DEMO && <DemoDataBadge />}
               <SelectionToolbar count={selected.size} onBulkEdit={() => setBulkEditOpen(true)} onClear={() => setSelected(clearSelection())} />
             </div>
@@ -128,7 +128,7 @@ export function ContactsTab({ stageFilter }: { stageFilter?: string }) {
           <div className="overflow-x-auto rounded-xl border border-zinc-700/40">
             <table className="w-full min-w-[620px] text-xs">
               <thead>
-                <tr className="border-b border-zinc-700/40 text-left text-zinc-500">
+                <tr className="border-b border-zinc-700/40 text-left text-text-subtle">
                   {CONTACTS_DEMO && (
                     <th className="w-8 px-3 py-2">
                       <SelectAllCheckbox pageIds={pageIds} selected={selected} onToggle={() => setSelected(s => toggleAll(s, pageIds))} />
@@ -157,10 +157,10 @@ export function ContactsTab({ stageFilter }: { stageFilter?: string }) {
                       </td>
                     )}
                     <td className="px-3 py-2 text-zinc-200">{c.first_name} {c.last_name}</td>
-                    <td className="px-3 py-2 text-zinc-300">{c.email ?? '—'}</td>
-                    <td className="px-3 py-2 text-zinc-400">{c.phone ?? '—'}</td>
+                    <td className="px-3 py-2 text-text-secondary">{c.email ?? '—'}</td>
+                    <td className="px-3 py-2 text-text-muted">{c.phone ?? '—'}</td>
                     <td className="px-3 py-2"><Badge value={c.lifecycle_stage} map={LIFECYCLE_COLOR} /></td>
-                    <td className="px-3 py-2 font-mono text-zinc-500">{c.created_at.slice(0, 10)}</td>
+                    <td className="px-3 py-2 font-mono text-text-subtle">{c.created_at.slice(0, 10)}</td>
                     <ActionButtons onEdit={() => openEdit(c)} onDelete={() => openDelete(c)} />
                   </tr>
                 ))}

@@ -296,12 +296,11 @@ textarea:disabled {
    --------------------------------------------------------------------------- */
 
 [data-theme="light"] .text-white,
-[data-theme="light"] .text-zinc-100,
 [data-theme="light"] .text-zinc-200 { color: #18181b !important; }
 
-[data-theme="light"] .text-zinc-300 { color: #27272a !important; }
-[data-theme="light"] .text-zinc-400 { color: #3f3f46 !important; }
-[data-theme="light"] .text-zinc-500 { color: #52525b !important; }
+/* .text-zinc-100/300/400/500 light overrides retired (v1.18.6): every bare
+   consumer migrated onto text-text-primary/secondary/muted/subtle, whose token
+   values equal these exact colours in both themes, so removal is zero-change. */
 
 /* Amber on white needs darkening for contrast - amber-300 (#fcd34d) on white = 1.3:1 (fails) */
 [data-theme="light"] .text-amber-100,

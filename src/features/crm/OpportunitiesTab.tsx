@@ -104,8 +104,8 @@ export function OpportunitiesTab() {
         <div>
           <div className="mb-3 flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <p className="text-xs text-zinc-500">{rows.length} record{rows.length !== 1 ? 's' : ''}</p>
-              <p className="text-xs text-zinc-500">Total: <span className="text-zinc-300">${totalValue.toLocaleString('en-US', { minimumFractionDigits: 0 })}</span></p>
+              <p className="text-xs text-text-subtle">{rows.length} record{rows.length !== 1 ? 's' : ''}</p>
+              <p className="text-xs text-text-subtle">Total: <span className="text-text-secondary">${totalValue.toLocaleString('en-US', { minimumFractionDigits: 0 })}</span></p>
               {OPPS_DEMO && <DemoDataBadge />}
               <SelectionToolbar count={selected.size} onBulkEdit={() => setBulkEditOpen(true)} onClear={() => setSelected(clearSelection())} />
             </div>
@@ -117,7 +117,7 @@ export function OpportunitiesTab() {
           <div className="overflow-x-auto rounded-xl border border-zinc-700/40">
             <table className="w-full min-w-[600px] text-xs">
               <thead>
-                <tr className="border-b border-zinc-700/40 text-left text-zinc-500">
+                <tr className="border-b border-zinc-700/40 text-left text-text-subtle">
                   {OPPS_DEMO && (
                     <th className="w-8 px-3 py-2">
                       <SelectAllCheckbox pageIds={pageIds} selected={selected} onToggle={() => setSelected(s => toggleAll(s, pageIds))} />
@@ -147,9 +147,9 @@ export function OpportunitiesTab() {
                     )}
                     <td className="px-3 py-2 text-zinc-200">{o.name}</td>
                     <td className="px-3 py-2"><Badge value={o.stage} map={STAGE_COLOR} /></td>
-                    <td className="px-3 py-2 text-zinc-300">{o.amount > 0 ? `$${o.amount.toLocaleString('en-US', { minimumFractionDigits: 0 })}` : '—'}</td>
-                    <td className="px-3 py-2 font-mono text-zinc-400">{o.close_date?.slice(0, 10) ?? '—'}</td>
-                    <td className="px-3 py-2 font-mono text-zinc-500">{o.created_at.slice(0, 10)}</td>
+                    <td className="px-3 py-2 text-text-secondary">{o.amount > 0 ? `$${o.amount.toLocaleString('en-US', { minimumFractionDigits: 0 })}` : '—'}</td>
+                    <td className="px-3 py-2 font-mono text-text-muted">{o.close_date?.slice(0, 10) ?? '—'}</td>
+                    <td className="px-3 py-2 font-mono text-text-subtle">{o.created_at.slice(0, 10)}</td>
                     <ActionButtons onEdit={() => openEdit(o)} onDelete={() => openDelete(o)} />
                   </tr>
                 ))}

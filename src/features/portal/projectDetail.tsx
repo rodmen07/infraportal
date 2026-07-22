@@ -70,9 +70,9 @@ export function ProjectSummaryCard({
     <div className="forge-panel surface-card-strong p-5 space-y-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold text-zinc-100">{project.name}</h2>
+          <h2 className="text-lg font-semibold text-text-primary">{project.name}</h2>
           {project.description && (
-            <p className="mt-1 text-sm text-zinc-400">{project.description}</p>
+            <p className="mt-1 text-sm text-text-muted">{project.description}</p>
           )}
         </div>
         <StatusBadge status={project.status} />
@@ -80,7 +80,7 @@ export function ProjectSummaryCard({
 
       {total > 0 && (
         <div className="space-y-1">
-          <div className="flex justify-between text-xs text-zinc-400">
+          <div className="flex justify-between text-xs text-text-muted">
             <span>Overall progress</span>
             <span>{doneCount}/{total} deliverables ({pct}%)</span>
           </div>
@@ -93,16 +93,16 @@ export function ProjectSummaryCard({
         </div>
       )}
 
-      <div className="flex flex-wrap gap-4 text-xs text-zinc-500">
+      <div className="flex flex-wrap gap-4 text-xs text-text-subtle">
         {project.start_date && (
-          <span>Started <span className="text-zinc-300">{project.start_date.slice(0, 10)}</span></span>
+          <span>Started <span className="text-text-secondary">{project.start_date.slice(0, 10)}</span></span>
         )}
         {project.target_end_date && daysLeft !== null && (
           <span>
             Target{' '}
-            <span className="text-zinc-300">{project.target_end_date.slice(0, 10)}</span>
+            <span className="text-text-secondary">{project.target_end_date.slice(0, 10)}</span>
             {' — '}
-            <span className={daysLeft < 0 ? 'text-red-400' : 'text-zinc-300'}>
+            <span className={daysLeft < 0 ? 'text-red-400' : 'text-text-secondary'}>
               {daysLeft < 0 ? `${Math.abs(daysLeft)}d overdue` : `${daysLeft}d remaining`}
             </span>
           </span>
@@ -110,13 +110,13 @@ export function ProjectSummaryCard({
         {totalHours > 0 && (
           <span>
             Est. effort{' '}
-            <span className="text-zinc-300">{doneHours.toFixed(1)}h / {totalHours.toFixed(1)}h</span>
+            <span className="text-text-secondary">{doneHours.toFixed(1)}h / {totalHours.toFixed(1)}h</span>
           </span>
         )}
         {project.budget != null && (
           <span>
             Budget{' '}
-            <span className="text-zinc-300">
+            <span className="text-text-secondary">
               {project.budget.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })}
             </span>
           </span>
@@ -138,7 +138,7 @@ export function LinksSection({ links }: { links: ProjectLink[] }) {
   if (!links.length) return null
   return (
     <div className="forge-panel surface-card-strong p-4">
-      <h3 className="mb-3 text-xs font-semibold uppercase tracking-widest text-zinc-400">Project links</h3>
+      <h3 className="mb-3 text-xs font-semibold uppercase tracking-widest text-text-muted">Project links</h3>
       <div className="flex flex-wrap gap-2">
         {links.map((link) => (
           <a
@@ -178,24 +178,24 @@ export function EmailsSection({ emails }: { emails: ProjectEmail[] }) {
               >
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium text-zinc-200">{email.subject}</p>
-                  <p className="text-xs text-zinc-500">{email.from_email}</p>
+                  <p className="text-xs text-text-subtle">{email.from_email}</p>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
-                  <span className="text-xs text-zinc-500">{email.received_at.slice(0, 10)}</span>
-                  <span className="text-xs text-zinc-500">{isOpen ? '▲' : '▼'}</span>
+                  <span className="text-xs text-text-subtle">{email.received_at.slice(0, 10)}</span>
+                  <span className="text-xs text-text-subtle">{isOpen ? '▲' : '▼'}</span>
                 </div>
               </button>
               {isOpen && (
                 <div className="border-t border-zinc-700/20 px-4 py-3">
                   {email.body_html ? (
                     <div
-                      className="prose prose-invert prose-sm max-w-none text-zinc-300"
+                      className="prose prose-invert prose-sm max-w-none text-text-secondary"
                       dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(email.body_html) }}
                     />
                   ) : email.snippet ? (
-                    <p className="text-sm text-zinc-400">{email.snippet}</p>
+                    <p className="text-sm text-text-muted">{email.snippet}</p>
                   ) : (
-                    <p className="text-xs text-zinc-500">No content available.</p>
+                    <p className="text-xs text-text-subtle">No content available.</p>
                   )}
                 </div>
               )}
@@ -216,16 +216,16 @@ function DeliverableRow({ d }: { d: Deliverable }) {
           the StatusBadge below - not real text content, and a 12px floor
           would not fit the box. See src/styles/typeScaleFloor.test.ts. */}
       <span className={`mt-0.5 h-4 w-4 shrink-0 rounded border text-center text-[10px] leading-[14px] ${
-        done ? 'border-emerald-500/40 bg-emerald-500/15 text-emerald-300' : 'border-zinc-600/40 bg-zinc-800/40 text-zinc-500'
+        done ? 'border-emerald-500/40 bg-emerald-500/15 text-emerald-300' : 'border-zinc-600/40 bg-zinc-800/40 text-text-subtle'
       }`}>
         {done ? '✓' : ''}
       </span>
       <div className="min-w-0 flex-1">
-        <p className={`text-sm ${done ? 'text-zinc-500 line-through' : 'text-zinc-200'}`}>{d.name}</p>
-        {d.description && <p className="mt-0.5 text-xs text-zinc-500">{d.description}</p>}
+        <p className={`text-sm ${done ? 'text-text-subtle line-through' : 'text-zinc-200'}`}>{d.name}</p>
+        {d.description && <p className="mt-0.5 text-xs text-text-subtle">{d.description}</p>}
       </div>
       {d.estimated_hours != null && d.estimated_hours > 0 && (
-        <span className="shrink-0 text-xs text-zinc-500">{d.estimated_hours}h</span>
+        <span className="shrink-0 text-xs text-text-subtle">{d.estimated_hours}h</span>
       )}
       <StatusBadge status={d.status} />
     </div>
@@ -249,25 +249,25 @@ export function MilestoneCard({ milestone, deliverables }: { milestone: Mileston
         className="flex w-full items-center justify-between gap-3 p-4 text-left"
       >
         <div className="flex items-center gap-3">
-          <span className="text-sm font-semibold text-zinc-100">{milestone.name}</span>
+          <span className="text-sm font-semibold text-text-primary">{milestone.name}</span>
           <StatusBadge status={milestone.status} />
         </div>
         <div className="flex shrink-0 items-center gap-3">
           {milestone.due_date && (
-            <span className="text-xs text-zinc-500">Due {milestone.due_date.slice(0, 10)}</span>
+            <span className="text-xs text-text-subtle">Due {milestone.due_date.slice(0, 10)}</span>
           )}
-          {total > 0 && <span className="text-xs text-zinc-400">{done}/{total}</span>}
+          {total > 0 && <span className="text-xs text-text-muted">{done}/{total}</span>}
           {totalHours > 0 && (
-            <span className="text-xs text-zinc-500">{doneHours.toFixed(1)}/{totalHours.toFixed(1)}h</span>
+            <span className="text-xs text-text-subtle">{doneHours.toFixed(1)}/{totalHours.toFixed(1)}h</span>
           )}
-          <span className="text-xs text-zinc-500">{open ? '▲' : '▼'}</span>
+          <span className="text-xs text-text-subtle">{open ? '▲' : '▼'}</span>
         </div>
       </button>
 
       {open && (
         <div className="border-t border-zinc-700/40 px-4 pb-3">
           {milestone.description && (
-            <p className="py-2 text-xs text-zinc-400">{milestone.description}</p>
+            <p className="py-2 text-xs text-text-muted">{milestone.description}</p>
           )}
           {total > 0 && (
             <>
@@ -284,7 +284,7 @@ export function MilestoneCard({ milestone, deliverables }: { milestone: Mileston
               </div>
             </>
           )}
-          {total === 0 && <p className="py-2 text-xs text-zinc-500">No deliverables yet.</p>}
+          {total === 0 && <p className="py-2 text-xs text-text-subtle">No deliverables yet.</p>}
         </div>
       )}
     </div>
@@ -295,7 +295,7 @@ export function CollaboratorsSection({ collaborators }: { collaborators: Collabo
   if (!collaborators.length) return null
   return (
     <div className="forge-panel surface-card-strong p-4">
-      <h3 className="mb-3 text-xs font-semibold uppercase tracking-widest text-zinc-400">Team</h3>
+      <h3 className="mb-3 text-xs font-semibold uppercase tracking-widest text-text-muted">Team</h3>
       <div className="flex flex-wrap gap-3">
         {collaborators.map((c) => (
           <div key={c.id} className="flex items-center gap-2 rounded-full border border-zinc-600/40 bg-zinc-800/60 px-3 py-1.5">
@@ -312,7 +312,7 @@ export function CollaboratorsSection({ collaborators }: { collaborators: Collabo
             )}
             <div>
               <p className="text-xs font-medium text-zinc-200">{c.name}</p>
-              <p className="text-scale-xs text-zinc-500">{c.role}</p>
+              <p className="text-scale-xs text-text-subtle">{c.role}</p>
             </div>
           </div>
         ))}
@@ -331,8 +331,8 @@ export function ProgressUpdatesSection({ updates }: { updates: ProgressUpdate[] 
       <div className="divide-y divide-zinc-700/20">
         {updates.map((u) => (
           <div key={u.id} className="px-4 py-3">
-            <p className="text-xs text-zinc-500">{u.created_at.slice(0, 10)}</p>
-            <p className="mt-1 text-sm text-zinc-300 whitespace-pre-line">{u.content}</p>
+            <p className="text-xs text-text-subtle">{u.created_at.slice(0, 10)}</p>
+            <p className="mt-1 text-sm text-text-secondary whitespace-pre-line">{u.content}</p>
           </div>
         ))}
       </div>
@@ -376,7 +376,7 @@ export function MessageThread({
 
       <div className="max-h-80 overflow-y-auto px-4 py-3 space-y-3">
         {messages.length === 0 && (
-          <p className="text-xs text-zinc-500">No messages yet. Ask a question below.</p>
+          <p className="text-xs text-text-subtle">No messages yet. Ask a question below.</p>
         )}
         {messages.map((m) => {
           const isMe = m.author_id === currentUserId
@@ -389,15 +389,15 @@ export function MessageThread({
               <span className={`mt-1 h-6 w-6 shrink-0 rounded-full text-center text-[10px] leading-6 ${
                 m.author_role === 'admin'
                   ? 'bg-amber-500/20 text-amber-300'
-                  : 'bg-zinc-700/60 text-zinc-300'
+                  : 'bg-zinc-700/60 text-text-secondary'
               }`}>
                 {m.author_role === 'admin' ? 'A' : 'C'}
               </span>
               <div className={`max-w-[75%] rounded-xl px-3 py-2 text-sm ${
-                isMe ? 'bg-amber-500/15 text-zinc-100' : 'bg-zinc-800/60 text-zinc-200'
+                isMe ? 'bg-amber-500/15 text-text-primary' : 'bg-zinc-800/60 text-zinc-200'
               }`}>
                 {m.body}
-                <p className="mt-1 text-scale-xs text-zinc-500">{m.created_at.slice(0, 16).replace('T', ' ')}</p>
+                <p className="mt-1 text-scale-xs text-text-subtle">{m.created_at.slice(0, 16).replace('T', ' ')}</p>
               </div>
             </div>
           )
@@ -413,7 +413,7 @@ export function MessageThread({
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             placeholder="Ask a question or request an update…"
-            className="min-w-0 flex-1 rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
+            className="min-w-0 flex-1 rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
           />
           <button
             type="submit"
@@ -443,15 +443,15 @@ export function NoProjectPanel({ sub }: { sub: string }) {
   return (
     <div className="space-y-4">
       <div className="forge-panel surface-card-strong p-6 text-center">
-        <p className="text-sm text-zinc-300">No project has been linked to your account yet.</p>
-        <p className="mt-1 text-xs text-zinc-500">
+        <p className="text-sm text-text-secondary">No project has been linked to your account yet.</p>
+        <p className="mt-1 text-xs text-text-subtle">
           Once a project is assigned you'll see the full dashboard here.
         </p>
       </div>
 
       <div className="forge-panel surface-card-strong p-4 space-y-2">
-        <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400">Your account ID</p>
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs font-semibold uppercase tracking-widest text-text-muted">Your account ID</p>
+        <p className="text-xs text-text-subtle">
           Share this with your account manager to link your project.
         </p>
         <div className="flex items-center gap-2">
@@ -461,7 +461,7 @@ export function NoProjectPanel({ sub }: { sub: string }) {
           <button
             type="button"
             onClick={copy}
-            className="shrink-0 rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-xs text-zinc-300 transition hover:border-zinc-500/60 hover:text-zinc-100"
+            className="shrink-0 rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-xs text-text-secondary transition hover:border-zinc-500/60 hover:text-text-primary"
           >
             {copied ? 'Copied!' : 'Copy'}
           </button>

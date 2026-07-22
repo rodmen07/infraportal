@@ -54,7 +54,7 @@ export function CrmAdminPage() {
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-white">CRM — Admin</h1>
-            <p className="mt-1 text-sm text-zinc-400">Live data from the microservices. Requires service URLs configured and either <code className="rounded bg-zinc-800 px-1 py-0.5 text-xs">VITE_ADMIN_JWT</code> set or an active portal login.</p>
+            <p className="mt-1 text-sm text-text-muted">Live data from the microservices. Requires service URLs configured and either <code className="rounded bg-zinc-800 px-1 py-0.5 text-xs">VITE_ADMIN_JWT</code> set or an active portal login.</p>
           </div>
           <div className="flex gap-2">
             <button type="button" onClick={() => setBulkImportOpen(true)} className="btn-neutral px-3 py-1.5 text-xs">Bulk import</button>
@@ -68,7 +68,7 @@ export function CrmAdminPage() {
             {TABS.map(t => (
               <button key={t.id} type="button" onClick={() => setTab(t.id)}
                 className={`rounded-lg px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-colors ${
-                  tab === t.id ? 'bg-amber-500/20 text-amber-300' : 'text-zinc-400 hover:text-zinc-200'
+                  tab === t.id ? 'bg-amber-500/20 text-amber-300' : 'text-text-muted hover:text-zinc-200'
                 }`}>
                 {t.label}
               </button>

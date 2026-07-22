@@ -19,7 +19,7 @@ const PLATFORM_COLOR: Record<string, string> = {
   aws:            'bg-orange-500/15 text-orange-300 ring-orange-500/30',
 }
 const SOURCE_COLOR: Record<string, string> = {
-  manual:              'bg-zinc-500/15 text-zinc-400 ring-zinc-500/30',
+  manual:              'bg-zinc-500/15 text-text-muted ring-zinc-500/30',
   bigquery:            'bg-blue-500/15 text-blue-300 ring-blue-500/30',
   flyio_graphql:       'bg-purple-500/15 text-purple-300 ring-purple-500/30',
   github_api:          'bg-green-500/15 text-green-300 ring-green-500/30',
@@ -122,12 +122,12 @@ export function SpendTab() {
       {summary && (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
           <div className="rounded-xl border border-zinc-700/50 bg-zinc-800/40 p-4">
-            <p className="text-xs font-medium text-zinc-500 uppercase">Total</p>
+            <p className="text-xs font-medium text-text-subtle uppercase">Total</p>
             <p className="mt-1 text-xl font-bold text-white">{fmt(summary.total_usd)}</p>
           </div>
           {summary.by_platform.map(p => (
             <div key={p.platform} className="rounded-xl border border-zinc-700/50 bg-zinc-800/40 p-4">
-              <p className="text-xs font-medium text-zinc-500 uppercase">{PLATFORM_LABELS[p.platform] ?? p.platform}</p>
+              <p className="text-xs font-medium text-text-subtle uppercase">{PLATFORM_LABELS[p.platform] ?? p.platform}</p>
               <p className="mt-1 text-xl font-bold text-white">{fmt(p.total_usd)}</p>
             </div>
           ))}
@@ -156,7 +156,7 @@ export function SpendTab() {
       </div>
 
       {syncMsg && (
-        <p className="rounded-lg bg-zinc-800 px-3 py-2 text-xs text-zinc-300">{syncMsg}</p>
+        <p className="rounded-lg bg-zinc-800 px-3 py-2 text-xs text-text-secondary">{syncMsg}</p>
       )}
 
       {/* Filters */}
@@ -169,7 +169,7 @@ export function SpendTab() {
         <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} placeholder="From" className={`${INPUT_CLS} w-auto`} />
         <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} placeholder="To" className={`${INPUT_CLS} w-auto`} />
         {(filterPlatform || dateFrom || dateTo) && (
-          <button type="button" onClick={() => { setFilterPlatform(''); setDateFrom(''); setDateTo('') }} className="text-xs text-zinc-400 hover:text-white">Clear</button>
+          <button type="button" onClick={() => { setFilterPlatform(''); setDateFrom(''); setDateTo('') }} className="text-xs text-text-muted hover:text-white">Clear</button>
         )}
       </div>
 
@@ -187,7 +187,7 @@ export function SpendTab() {
         <div className="overflow-x-auto rounded-xl border border-zinc-700/50">
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="border-b border-zinc-700/50 bg-zinc-800/30 text-xs text-zinc-500">
+              <tr className="border-b border-zinc-700/50 bg-zinc-800/30 text-xs text-text-subtle">
                 <th className="px-3 py-2 font-medium">Date</th>
                 <th className="px-3 py-2 font-medium">Platform</th>
                 <th className="px-3 py-2 font-medium">Service</th>
@@ -200,12 +200,12 @@ export function SpendTab() {
             <tbody>
               {rows.map((r, i) => (
                 <tr key={r.id} className={i % 2 ? 'bg-zinc-800/20' : ''}>
-                  <td className="px-3 py-2 text-zinc-300 whitespace-nowrap">{r.date}</td>
+                  <td className="px-3 py-2 text-text-secondary whitespace-nowrap">{r.date}</td>
                   <td className="px-3 py-2"><Badge value={PLATFORM_LABELS[r.platform] ?? r.platform} map={Object.fromEntries(Object.entries(PLATFORM_LABELS).map(([k, v]) => [v, PLATFORM_COLOR[k] ?? FALLBACK_BADGE]))} /></td>
-                  <td className="px-3 py-2 text-zinc-400">{r.service_label ?? '—'}</td>
+                  <td className="px-3 py-2 text-text-muted">{r.service_label ?? '—'}</td>
                   <td className="px-3 py-2 text-right font-mono text-zinc-200">{fmt(r.amount_usd)}</td>
                   <td className="px-3 py-2"><Badge value={r.source} map={SOURCE_COLOR} /></td>
-                  <td className="px-3 py-2 text-zinc-500 max-w-[200px] truncate">{r.notes ?? ''}</td>
+                  <td className="px-3 py-2 text-text-subtle max-w-[200px] truncate">{r.notes ?? ''}</td>
                   {r.source === 'manual' ? (
                     <ActionButtons
                       onEdit={() => { setModal({ mode: 'edit', record: r }); setSaveError(null) }}
@@ -222,11 +222,11 @@ export function SpendTab() {
       {/* Monthly breakdown */}
       {summary && summary.by_month.length > 0 && (
         <div>
-          <h3 className="mb-2 text-xs font-medium text-zinc-500 uppercase">Monthly Totals</h3>
+          <h3 className="mb-2 text-xs font-medium text-text-subtle uppercase">Monthly Totals</h3>
           <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-2">
             {summary.by_month.map(m => (
               <div key={m.month} className="rounded-lg border border-zinc-700/50 bg-zinc-800/40 px-3 py-2">
-                <p className="text-xs text-zinc-500">{m.month}</p>
+                <p className="text-xs text-text-subtle">{m.month}</p>
                 <p className="text-sm font-semibold text-white">{fmt(m.total_usd)}</p>
               </div>
             ))}
