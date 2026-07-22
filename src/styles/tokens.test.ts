@@ -426,7 +426,10 @@ describe('strangler rule: override-sheet rules for tokenized surfaces stay delet
     // suite until opacityColorThemeCoverage's ternary-in-template-literal
     // extraction bug was fixed in the same PR. A single correctness override,
     // not sprawl.
-    const CEILING = 230
+    // 227 after v1.18.6's first retirement: 3 zero-consumer override rules
+    // deleted (bg-zinc-900/75, text-amber-200/90, text-green-400/70) - dead in
+    // JSX, only the sheet referenced them. The ratchet now guards downward too.
+    const CEILING = 227
     const remaining = (INDEX_CSS_RULES.match(/\[data-theme="light"\]/g) ?? []).length
     expect(remaining).toBeLessThanOrEqual(CEILING)
   })
