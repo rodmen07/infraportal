@@ -252,6 +252,28 @@ describe('tokens.css - semantic roles are defined for both themes', () => {
   })
 })
 
+describe('F11: --text-subtle stays AA-legible on dark surfaces (v1.18.6)', () => {
+  // zinc-500 (rgb(113, 113, 122)) on this app's dark surfaces composites to
+  // ~3.3:1 and fails WCAG AA - the exact gap the retired
+  // `[data-theme="dark"] .text-zinc-500` bump (v1.18.4 F11) existed to close.
+  // When every text-zinc-500 usage migrated onto text-text-subtle, that bump
+  // had to move into the token, so --text-subtle must be zinc-400
+  // (rgb(161, 161, 170)) in dark, NOT its own zinc-500. Slice 1 briefly set it
+  // to zinc-500 and silently refailed F11 for ~49 caption/timestamp surfaces;
+  // this lock stops that from recurring.
+  it('is zinc-400, not zinc-500, in the dark block', () => {
+    const darkBlock = blockFor('[data-theme="dark"]')
+    const value = darkBlock.match(/--text-subtle:\s*([^;]+);/)?.[1].trim()
+    expect(value).toBe('rgb(161, 161, 170)')
+  })
+
+  it('the [data-theme="dark"] .text-zinc-500 bump it replaced stays retired', () => {
+    // The token now carries the fix; re-adding a palette-class override would
+    // mean a component is relying on the raw class again instead of the token.
+    expect(INDEX_CSS_RULES).not.toMatch(/\[data-theme="dark"\]\s+\.text-zinc-500\s*\{/)
+  })
+})
+
 describe('tokens.css is imported before index.css (cascade order)', () => {
   // tokens.css intentionally has no @layer wrapper (Tailwind's @layer
   // requires a matching @tailwind directive in the same PostCSS-processed

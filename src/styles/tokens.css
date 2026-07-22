@@ -76,7 +76,7 @@
   --text-primary: #f4f4f5;              /* zinc-100 */
   --text-secondary: rgb(212, 212, 216); /* zinc-300 */
   --text-muted: rgb(161, 161, 170);     /* zinc-400 */
-  --text-subtle: rgb(113, 113, 122);    /* zinc-500 - 4th, more-muted rung matching the app's heavy text-zinc-500 usage */
+  --text-subtle: rgb(161, 161, 170);    /* zinc-400 in dark - the 4th, more-muted rung for the app's heavy text-zinc-500 usage. NOT zinc-500: zinc-500 (#71717a) on this app's dark surfaces composites to ~3.3:1 and fails WCAG AA. The retired [data-theme="dark"] .text-zinc-500 bump (v1.18.4 F11) raised bare usage to zinc-400 for exactly this reason, so the token that replaced it must match zinc-400 in dark to preserve that fix. Coincides with --text-muted in dark; the two rungs stay distinct only in light (zinc-600 vs zinc-700), which faithfully reproduces the pre-migration rendering where the F11 bump already collapsed 500 onto 400 in dark. */
 
   /* Accent - amber stays the only accent hue per D4 */
   --accent: #f59e0b;          /* amber-500 */
