@@ -319,9 +319,7 @@ textarea:disabled {
 
 /* Background overrides */
 [data-theme="light"] .bg-zinc-950 { background-color: #f4f4f5 !important; }
-[data-theme="light"] .bg-zinc-900\/80 { background-color: rgba(255,255,255,0.9) !important; }
-[data-theme="light"] .bg-zinc-900\/75 { background-color: rgba(255,255,255,0.88) !important; }
-[data-theme="light"] .bg-zinc-800\/60 { background-color: rgba(0,0,0,0.04) !important; }
+[data-theme="light"] .bg-zinc-900\/80 { background-color: rgba(255,255,255,0.9) !important; }[data-theme="light"] .bg-zinc-800\/60 { background-color: rgba(0,0,0,0.04) !important; }
 [data-theme="light"] .bg-zinc-800\/70 { background-color: rgba(0,0,0,0.05) !important; }
 [data-theme="light"] .bg-amber-500\/15 { background-color: rgba(245,158,11,0.1) !important; }
 [data-theme="light"] .bg-amber-500\/25 { background-color: rgba(245,158,11,0.15) !important; }
@@ -416,9 +414,7 @@ textarea:disabled {
    above. Where a bare (non-opacity) override for the same colour/shade
    already exists elsewhere in this file, these reuse its exact value -
    same "solid colour, drop the alpha" pattern as every rule above. */
-[data-theme="light"] .text-amber-200\/80,
-[data-theme="light"] .text-amber-200\/90 { color: #92400e !important; } /* matches bare .text-amber-200 */
-[data-theme="light"] .text-amber-300\/80,
+[data-theme="light"] .text-amber-200\/80,[data-theme="light"] .text-amber-300\/80,
 [data-theme="light"] .text-amber-300\/85,
 [data-theme="light"] .text-amber-300\/90 { color: #b45309 !important; } /* matches bare .text-amber-300 */
 [data-theme="light"] .text-amber-400\/80 { color: #92400e !important; } /* matches bare .text-amber-400 */
@@ -434,7 +430,6 @@ textarea:disabled {
    "400" source shade darkens to "700" (text-blue-400 -> #1d4ed8 above,
    text-red-400 -> #b91c1c above), and a "100" source shade darkens to "900"
    (text-emerald-100 -> #064e3b above). */
-[data-theme="light"] .text-green-400\/70,
 [data-theme="light"] .text-green-400\/80 { color: #15803d !important; } /* green-700 */
 [data-theme="light"] .text-red-100\/90 { color: #7f1d1d !important; } /* red-900 */
 
