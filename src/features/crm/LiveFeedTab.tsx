@@ -87,7 +87,7 @@ export function LiveFeedTab() {
               {Boolean(ev.payload) && (
                 <details className="mt-2">
                   <summary className="cursor-pointer text-[11px] text-text-subtle hover:text-text-secondary">payload</summary>
-                  <pre className="mt-1 overflow-x-auto rounded-lg bg-zinc-900/60 p-2 text-[11px] text-text-secondary">{JSON.stringify(ev.payload, null, 2)}</pre>
+                  <pre className="code-surface mt-1 overflow-x-auto rounded-lg bg-zinc-900/60 p-2 text-[11px] text-text-secondary">{JSON.stringify(ev.payload, null, 2)}</pre>
                 </details>
               )}
             </div>

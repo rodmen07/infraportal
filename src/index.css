@@ -488,11 +488,14 @@ textarea:disabled {
 [data-theme="light"] .hover\:border-zinc-600\/50:hover { border-color: rgba(0,0,0,0.16) !important; }
 [data-theme="light"] .hover\:border-zinc-500\/50:hover { border-color: rgba(0,0,0,0.14) !important; }
 
-/* Code blocks: keep dark on both themes.
-   Higher-specificity selectors beat Tailwind text-* class overrides above. */
-[data-theme="light"] pre.text-zinc-300,
-[data-theme="light"] pre.text-zinc-200,
-[data-theme="light"] pre.text-zinc-400 { color: #cdd6f4 !important; background: #1e1e2e !important; }
+/* Code blocks: keep dark on both themes. Keyed on the explicit `code-surface`
+   marker, NOT the text-* colour class. The old form (pre.text-zinc-200/300/400)
+   silently orphaned in v1.18.6 the moment those <pre> elements migrated their
+   text colour onto tokens (text-text-secondary), so code blocks lost their dark
+   background in light mode. A marker can't be renamed out from under this rule.
+   Only the light override is needed; in dark mode the pre's own bg-zinc-900/950
+   already renders dark. */
+[data-theme="light"] pre.code-surface { color: #cdd6f4 !important; background: #1e1e2e !important; }
 
 /* ═══════════════════════════════════════════════════════════════════════
    v1.18.4 contrast fix: opacity-suffixed bg-* and border-* ghost classes.

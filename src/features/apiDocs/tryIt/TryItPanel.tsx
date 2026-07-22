@@ -128,7 +128,7 @@ function ResponseViewer({ response }: { response: SimulatedResponse }) {
         {response.body.kind === 'empty' ? (
           <p className="text-scale-xs italic text-zinc-600">(no response body)</p>
         ) : (
-          <pre className="max-h-72 overflow-auto rounded-md bg-zinc-900/80 p-2.5 font-mono text-scale-xs leading-4 text-text-secondary">
+          <pre className="code-surface max-h-72 overflow-auto rounded-md bg-zinc-900/80 p-2.5 font-mono text-scale-xs leading-4 text-text-secondary">
             {response.body.kind === 'json'
               ? JSON.stringify(response.body.value, null, 2)
               : response.body.value}
