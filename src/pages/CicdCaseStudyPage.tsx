@@ -151,7 +151,7 @@ export function CicdCaseStudyPage() {
           <div className="flex gap-2">
             <a
               href="#/case-studies"
-              className="rounded-lg border border-zinc-600/50 bg-zinc-700/50 px-3 py-1.5 text-xs font-medium text-zinc-300 transition hover:border-zinc-500/60 hover:text-zinc-100"
+              className="rounded-lg border border-zinc-600/50 bg-zinc-700/50 px-3 py-1.5 text-xs font-medium text-text-secondary transition hover:border-zinc-500/60 hover:text-text-primary"
             >
               ← Case studies
             </a>
@@ -159,13 +159,13 @@ export function CicdCaseStudyPage() {
               href="https://github.com/rodmen07/microservices/tree/main/.github/workflows"
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-lg border border-zinc-600/50 bg-zinc-700/50 px-3 py-1.5 text-xs font-medium text-zinc-300 transition hover:border-zinc-500/60 hover:text-zinc-100"
+              className="rounded-lg border border-zinc-600/50 bg-zinc-700/50 px-3 py-1.5 text-xs font-medium text-text-secondary transition hover:border-zinc-500/60 hover:text-text-primary"
             >
               GitHub →
             </a>
           </div>
         </div>
-        <p className="mt-4 text-sm leading-relaxed text-zinc-300">
+        <p className="mt-4 text-sm leading-relaxed text-text-secondary">
           A cloud-agnostic GitHub Actions reference architecture for multi-environment deployments.
           Extends the InfraPortal CI/CD with dev → staging → prod promotion gates, automated
           health-check rollback on both GCP Cloud Run and AWS ECS, and environment-scoped OIDC
@@ -178,7 +178,7 @@ export function CicdCaseStudyPage() {
         {TECH_STACK.map((tech) => (
           <span
             key={tech}
-            className="rounded border border-zinc-700/50 bg-zinc-800/60 px-2.5 py-1 text-xs font-medium text-zinc-300"
+            className="rounded border border-zinc-700/50 bg-zinc-800/60 px-2.5 py-1 text-xs font-medium text-text-secondary"
           >
             {tech}
           </span>
@@ -192,16 +192,16 @@ export function CicdCaseStudyPage() {
           {/* test */}
           <div className="rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-center">
             <div className="font-semibold text-zinc-200">test</div>
-            <div className="mt-1 text-zinc-500">clippy · tests</div>
-            <div className="mt-0.5 text-zinc-500">audit · lint</div>
+            <div className="mt-1 text-text-subtle">clippy · tests</div>
+            <div className="mt-0.5 text-text-subtle">audit · lint</div>
           </div>
           <div className="flex items-center text-zinc-600 pt-3">→</div>
           {/* staging */}
           <div className="rounded-lg border border-blue-500/40 bg-blue-500/8 px-3 py-2 text-center">
             <div className="font-semibold text-blue-200">deploy-staging</div>
-            <div className="mt-1 text-zinc-400">OIDC auth</div>
-            <div className="mt-0.5 text-zinc-400">build + push</div>
-            <div className="mt-0.5 text-zinc-400">deploy</div>
+            <div className="mt-1 text-text-muted">OIDC auth</div>
+            <div className="mt-0.5 text-text-muted">build + push</div>
+            <div className="mt-0.5 text-text-muted">deploy</div>
             <div className="mt-1 text-emerald-400 text-scale-xs">✓ health check</div>
             <div className="text-red-400 text-scale-xs">↩ rollback on fail</div>
           </div>
@@ -209,28 +209,28 @@ export function CicdCaseStudyPage() {
           {/* approval gate */}
           <div className="rounded-lg border border-amber-400/50 bg-amber-500/10 px-3 py-2 text-center">
             <div className="font-semibold text-amber-200">⏸ approval</div>
-            <div className="mt-1 text-zinc-400">required reviewers</div>
-            <div className="mt-0.5 text-zinc-400">GitHub env gate</div>
+            <div className="mt-1 text-text-muted">required reviewers</div>
+            <div className="mt-0.5 text-text-muted">GitHub env gate</div>
           </div>
           <div className="flex items-center text-zinc-600 pt-3">→</div>
           {/* prod */}
           <div className="rounded-lg border border-emerald-500/40 bg-emerald-500/8 px-3 py-2 text-center">
             <div className="font-semibold text-emerald-200">deploy-prod</div>
-            <div className="mt-1 text-zinc-400">OIDC auth</div>
-            <div className="mt-0.5 text-zinc-400">promote image</div>
-            <div className="mt-0.5 text-zinc-400">deploy</div>
+            <div className="mt-1 text-text-muted">OIDC auth</div>
+            <div className="mt-0.5 text-text-muted">promote image</div>
+            <div className="mt-0.5 text-text-muted">deploy</div>
             <div className="mt-1 text-emerald-400 text-scale-xs">✓ health check</div>
             <div className="text-red-400 text-scale-xs">↩ rollback on fail</div>
           </div>
         </div>
         <div className="mt-4 grid gap-2 text-xs sm:grid-cols-2">
           <div className="rounded border border-zinc-700/40 bg-zinc-800/40 px-3 py-2">
-            <span className="font-semibold text-zinc-300">GCP rollback</span>
-            <span className="ml-2 text-zinc-500">gcloud run update-traffic → PREVIOUS=100</span>
+            <span className="font-semibold text-text-secondary">GCP rollback</span>
+            <span className="ml-2 text-text-subtle">gcloud run update-traffic → PREVIOUS=100</span>
           </div>
           <div className="rounded border border-zinc-700/40 bg-zinc-800/40 px-3 py-2">
-            <span className="font-semibold text-zinc-300">AWS rollback</span>
-            <span className="ml-2 text-zinc-500">ecs update-service → previous task definition</span>
+            <span className="font-semibold text-text-secondary">AWS rollback</span>
+            <span className="ml-2 text-text-subtle">ecs update-service → previous task definition</span>
           </div>
         </div>
       </section>
@@ -239,7 +239,7 @@ export function CicdCaseStudyPage() {
       <section className="forge-panel overflow-hidden rounded-2xl border border-zinc-500/30 bg-zinc-900/80 backdrop-blur-xl">
         <div className="border-b border-zinc-700/40 px-5 py-4">
           <h2 className="text-base font-semibold text-white">Implementation highlights</h2>
-          <p className="mt-0.5 text-xs text-zinc-500">Click any item to see the workflow or script</p>
+          <p className="mt-0.5 text-xs text-text-subtle">Click any item to see the workflow or script</p>
         </div>
         <div className="divide-y divide-zinc-800/60">
           {HIGHLIGHTS.map(({ label, detail, file, code, language }, idx) => (
@@ -252,14 +252,14 @@ export function CicdCaseStudyPage() {
                   <span className="shrink-0 text-amber-400">›</span>
                   <span className="font-medium text-zinc-200">{label}</span>
                 </span>
-                <span className="shrink-0 text-scale-xs text-zinc-500">
+                <span className="shrink-0 text-scale-xs text-text-subtle">
                   {openIdx === idx ? '▲' : '▼'}
                 </span>
               </button>
               <div className={`grid transition-all duration-200 ease-out ${openIdx === idx ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
                 <div className="overflow-hidden">
                   <div className="space-y-3 px-5 pb-5 pt-1">
-                    <p className="pl-4 text-sm leading-relaxed text-zinc-400">{detail}</p>
+                    <p className="pl-4 text-sm leading-relaxed text-text-muted">{detail}</p>
                     <CodeBlock code={code} language={language ?? 'yaml'} file={file} />
                   </div>
                 </div>
@@ -273,7 +273,7 @@ export function CicdCaseStudyPage() {
 
       {/* CTA */}
       <div className="forge-panel rounded-3xl border border-zinc-500/30 bg-zinc-900/80 p-6 text-center shadow-2xl shadow-black/50 backdrop-blur-xl">
-        <p className="text-sm text-zinc-400">Want this pipeline pattern for your team?</p>
+        <p className="text-sm text-text-muted">Want this pipeline pattern for your team?</p>
         <a
           href="#/contact"
           className="mt-3 inline-block rounded-xl border border-amber-400/40 bg-amber-500/15 px-5 py-2 text-sm font-semibold text-amber-100 transition hover:border-amber-400/60 hover:bg-amber-500/25"

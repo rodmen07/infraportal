@@ -43,13 +43,13 @@ function AuthGate({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-[60vh] items-center justify-center">
       <form onSubmit={submit} className="forge-panel surface-card-strong w-full max-w-sm space-y-4 p-6">
-        <h2 className="text-base font-semibold text-zinc-100">Admin access required</h2>
+        <h2 className="text-base font-semibold text-text-primary">Admin access required</h2>
         <input
           type="password"
           value={input}
           onChange={e => { setInput(e.target.value); setError(false) }}
           placeholder="Admin key"
-          className="w-full rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
+          className="w-full rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
         />
         {error && <p className="text-xs text-red-400">Invalid key</p>}
         <button type="submit" className="btn-accent w-full">Unlock</button>
@@ -82,8 +82,8 @@ function SearchEmptyState({
         </svg>
       </div>
       <p className="mt-4 text-scale-xs font-semibold uppercase tracking-[0.24em] text-amber-300/90">{badge}</p>
-      <p className="mt-2 text-lg font-semibold text-zinc-100">{title}</p>
-      <p className="mx-auto mt-2 max-w-xl text-sm text-zinc-400">{description}</p>
+      <p className="mt-2 text-lg font-semibold text-text-primary">{title}</p>
+      <p className="mx-auto mt-2 max-w-xl text-sm text-text-muted">{description}</p>
       <div className="mt-5 flex justify-center">
         <button className="btn-accent px-4 py-2 text-sm" onClick={onAction}>{actionLabel}</button>
       </div>
@@ -114,7 +114,7 @@ const ENTITY_COLORS: Record<string, string> = {
 }
 
 function EntityBadge({ type }: { type: string }) {
-  const cls = ENTITY_COLORS[type] ?? 'bg-zinc-700/40 text-zinc-300 border-zinc-600/30'
+  const cls = ENTITY_COLORS[type] ?? 'bg-zinc-700/40 text-text-secondary border-zinc-600/30'
   return (
     <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium ${cls}`}>
       {type}
@@ -129,11 +129,11 @@ function ResultCard({ result }: { result: SearchResult }) {
   return (
     <div className="forge-panel surface-card-strong space-y-1.5 p-4">
       <div className="flex items-start justify-between gap-3">
-        <span className="text-sm font-medium text-zinc-100">{result.title}</span>
+        <span className="text-sm font-medium text-text-primary">{result.title}</span>
         <EntityBadge type={result.entity_type} />
       </div>
       {result.snippet && (
-        <p className="text-xs leading-relaxed text-zinc-400">{result.snippet}</p>
+        <p className="text-xs leading-relaxed text-text-muted">{result.snippet}</p>
       )}
       <p className="text-xs text-zinc-600">id: {result.entity_id}</p>
     </div>
@@ -262,10 +262,10 @@ function SearchView() {
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="text-scale-xs font-semibold uppercase tracking-[0.24em] text-amber-300/90">Search workspace</p>
-            <h2 className="mt-1 text-lg font-semibold text-zinc-100">Find accounts, contacts, opportunities, and activities quickly</h2>
-            <p className="mt-1 max-w-2xl text-sm text-zinc-400">Use short client names, deal stages, or workflow keywords to surface related records across the CRM tools.</p>
+            <h2 className="mt-1 text-lg font-semibold text-text-primary">Find accounts, contacts, opportunities, and activities quickly</h2>
+            <p className="mt-1 max-w-2xl text-sm text-text-muted">Use short client names, deal stages, or workflow keywords to surface related records across the CRM tools.</p>
           </div>
-          <div className="rounded-xl border border-zinc-700/40 bg-zinc-900/50 px-3 py-2 text-xs text-zinc-400">
+          <div className="rounded-xl border border-zinc-700/40 bg-zinc-900/50 px-3 py-2 text-xs text-text-muted">
             Best for triage, renewals, and onboarding lookups
           </div>
         </div>
@@ -277,10 +277,10 @@ function SearchView() {
             onChange={e => handleInput(e.target.value)}
             placeholder={SEARCH_URL ? 'Search across accounts, contacts, opportunities, activities…' : 'VITE_SEARCH_API_BASE_URL not configured'}
             disabled={!SEARCH_URL}
-            className="w-full rounded-xl border border-zinc-600/50 bg-zinc-800/60 px-4 py-3 pr-16 text-sm text-zinc-100 placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none disabled:opacity-40"
+            className="w-full rounded-xl border border-zinc-600/50 bg-zinc-800/60 px-4 py-3 pr-16 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none disabled:opacity-40"
           />
           {loading ? (
-            <div className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500">
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 text-text-subtle">
               <svg className="h-5 w-5 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
@@ -289,7 +289,7 @@ function SearchView() {
             <button
               type="button"
               onClick={clearSearch}
-              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md px-2 py-1 text-xs text-zinc-400 transition hover:bg-zinc-800 hover:text-zinc-200"
+              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md px-2 py-1 text-xs text-text-muted transition hover:bg-zinc-800 hover:text-zinc-200"
             >
               Clear
             </button>
@@ -297,13 +297,13 @@ function SearchView() {
         </div>
 
         <div className="mt-3 flex flex-wrap items-center gap-2">
-          <span className="text-xs text-zinc-500">Try:</span>
+          <span className="text-xs text-text-subtle">Try:</span>
           {sampleQueries.map((sample) => (
             <button
               key={sample}
               type="button"
               onClick={() => handleInput(sample)}
-              className="fx-chip transition hover:border-amber-400/40 hover:text-zinc-100"
+              className="fx-chip transition hover:border-amber-400/40 hover:text-text-primary"
             >
               {sample}
             </button>
@@ -329,11 +329,11 @@ function SearchView() {
         <div className="forge-panel surface-card-strong flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-scale-xs font-semibold uppercase tracking-[0.24em] text-amber-300/90">{searchCopy.badge}</p>
-            <p className="mt-1 text-sm text-zinc-400">{searchCopy.description}</p>
+            <p className="mt-1 text-sm text-text-muted">{searchCopy.description}</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full border border-zinc-700/50 bg-zinc-900/60 px-2.5 py-1 text-xs text-zinc-300">{resultCountLabel}</span>
-            <span className="rounded-full border border-zinc-700/50 bg-zinc-900/60 px-2.5 py-1 text-xs text-zinc-300">{groupCountLabel}</span>
+            <span className="rounded-full border border-zinc-700/50 bg-zinc-900/60 px-2.5 py-1 text-xs text-text-secondary">{resultCountLabel}</span>
+            <span className="rounded-full border border-zinc-700/50 bg-zinc-900/60 px-2.5 py-1 text-xs text-text-secondary">{groupCountLabel}</span>
             <button className="btn-neutral px-3 py-2 text-xs" onClick={clearSearch}>Clear search</button>
           </div>
         </div>
@@ -365,9 +365,9 @@ function SearchView() {
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <EntityBadge type={entityType} />
-              <span className="text-xs text-zinc-500">{grouped[entityType].length} result{grouped[entityType].length !== 1 ? 's' : ''}</span>
+              <span className="text-xs text-text-subtle">{grouped[entityType].length} result{grouped[entityType].length !== 1 ? 's' : ''}</span>
             </div>
-            <span className="text-scale-xs uppercase tracking-[0.2em] text-zinc-500">Grouped view</span>
+            <span className="text-scale-xs uppercase tracking-[0.2em] text-text-subtle">Grouped view</span>
           </div>
           <div className="grid gap-2 lg:grid-cols-2">
             {grouped[entityType].map(r => <ResultCard key={r.id} result={r} />)}

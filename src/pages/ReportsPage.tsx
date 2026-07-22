@@ -56,13 +56,13 @@ function AuthGate({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-[60vh] items-center justify-center">
       <form onSubmit={submit} className="forge-panel surface-card-strong w-full max-w-sm space-y-4 p-6">
-        <h2 className="text-base font-semibold text-zinc-100">Admin access required</h2>
+        <h2 className="text-base font-semibold text-text-primary">Admin access required</h2>
         <input
           type="password"
           value={input}
           onChange={e => { setInput(e.target.value); setError(false) }}
           placeholder="Admin key"
-          className="w-full rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
+          className="w-full rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
         />
         {error && <p className="text-xs text-red-400">Invalid key</p>}
         <button type="submit" className="btn-accent w-full">Unlock</button>
@@ -100,8 +100,8 @@ function EmptyReportsState({ onCreate }: { onCreate: () => void }) {
         </svg>
       </div>
       <p className="mt-4 text-scale-xs font-semibold uppercase tracking-[0.24em] text-amber-300/90">Reports workspace</p>
-      <p className="mt-2 text-lg font-semibold text-zinc-100">No saved reports yet</p>
-      <p className="mx-auto mt-2 max-w-xl text-sm text-zinc-400">Create a report to track pipeline trends, review key metrics, and share exports with stakeholders.</p>
+      <p className="mt-2 text-lg font-semibold text-text-primary">No saved reports yet</p>
+      <p className="mx-auto mt-2 max-w-xl text-sm text-text-muted">Create a report to track pipeline trends, review key metrics, and share exports with stakeholders.</p>
       <div className="mt-5 flex justify-center">
         <button className="btn-accent px-4 py-2 text-sm" onClick={onCreate}>Create your first report</button>
       </div>
@@ -116,13 +116,13 @@ function SaveError({ message }: { message: string }) {
 function FormField({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="flex flex-col gap-1">
-      <span className="text-xs font-medium text-zinc-400">{label}</span>
+      <span className="text-xs font-medium text-text-muted">{label}</span>
       {children}
     </label>
   )
 }
 
-const INPUT = 'w-full rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none'
+const INPUT = 'w-full rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none'
 
 // ---------------------------------------------------------------------------\
 // Skeleton components
@@ -167,7 +167,7 @@ function ReportTableSkeleton() {
     <div className="overflow-x-auto rounded-xl border border-zinc-700/40 animate-pulse">
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-zinc-700/40 bg-zinc-800/40 text-left text-xs text-zinc-400">
+          <tr className="border-b border-zinc-700/40 bg-zinc-800/40 text-left text-xs text-text-muted">
             <th className="px-4 py-2.5 font-medium">Name</th>
             <th className="px-4 py-2.5 font-medium">Metric</th>
             <th className="px-4 py-2.5 font-medium">Dimension</th>
@@ -221,7 +221,7 @@ function Modal({ title, onClose, children }: { title: string; onClose: () => voi
         className="forge-panel surface-card-strong w-full max-w-md space-y-4 p-6"
         onClick={e => e.stopPropagation()}
       >
-        <h3 className="text-sm font-semibold text-zinc-100">{title}</h3>
+        <h3 className="text-sm font-semibold text-text-primary">{title}</h3>
         {children}
       </div>
     </div>
@@ -336,7 +336,7 @@ function ExportForm({ onClose, metrics }: { onClose: () => void; metrics: string
               className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition ${
                 format === f
                   ? 'border-amber-400/50 bg-amber-400/10 text-amber-300'
-                  : 'border-zinc-600/50 bg-zinc-800/60 text-zinc-400 hover:text-zinc-200'
+                  : 'border-zinc-600/50 bg-zinc-800/60 text-text-muted hover:text-zinc-200'
               }`}
             >
               {f.toUpperCase()}
@@ -374,12 +374,12 @@ function DashboardCard({ summary }: { summary: DashboardSummary }) {
       <div className="flex items-center gap-6">
         <div className="text-center">
           <div className="text-3xl font-bold text-amber-300">{summary.active_reports}</div>
-          <div className="mt-0.5 text-xs text-zinc-500">active reports</div>
+          <div className="mt-0.5 text-xs text-text-subtle">active reports</div>
         </div>
         {summary.core_metrics.length > 0 && (
           <div className="flex flex-wrap gap-2">
             {summary.core_metrics.map(m => (
-              <span key={m} className="rounded-full border border-zinc-600/40 bg-zinc-800/60 px-2.5 py-1 text-xs text-zinc-300">{m}</span>
+              <span key={m} className="rounded-full border border-zinc-600/40 bg-zinc-800/60 px-2.5 py-1 text-xs text-text-secondary">{m}</span>
             ))}
           </div>
         )}
@@ -465,8 +465,8 @@ function ReportsView() {
         <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="text-scale-xs font-semibold uppercase tracking-[0.24em] text-amber-300/90">Reports workspace</p>
-            <h2 className="mt-1 text-lg font-semibold text-zinc-100">Manage reusable reporting views and quick exports</h2>
-            <p className="mt-1 max-w-2xl text-sm text-zinc-400">Save the metrics you revisit most often, then export them in a format that is easy to share.</p>
+            <h2 className="mt-1 text-lg font-semibold text-text-primary">Manage reusable reporting views and quick exports</h2>
+            <p className="mt-1 max-w-2xl text-sm text-text-muted">Save the metrics you revisit most often, then export them in a format that is easy to share.</p>
           </div>
           <div className="flex gap-2">
             <button className="btn-neutral text-xs" onClick={() => setModal({ mode: 'export' })}>Export</button>
@@ -482,7 +482,7 @@ function ReportsView() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-sm font-semibold text-zinc-200">Saved Reports</h2>
-          <p className="mt-1 text-xs text-zinc-500">{reports.length} saved view{reports.length === 1 ? '' : 's'} available</p>
+          <p className="mt-1 text-xs text-text-subtle">{reports.length} saved view{reports.length === 1 ? '' : 's'} available</p>
         </div>
       </div>
 
@@ -493,7 +493,7 @@ function ReportsView() {
         <div className="overflow-x-auto rounded-xl border border-zinc-700/40">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-zinc-700/40 bg-zinc-800/40 text-left text-xs text-zinc-400">
+              <tr className="border-b border-zinc-700/40 bg-zinc-800/40 text-left text-xs text-text-muted">
                 <th className="px-4 py-2.5 font-medium">Name</th>
                 <th className="px-4 py-2.5 font-medium">Metric</th>
                 <th className="px-4 py-2.5 font-medium">Dimension</th>
@@ -504,14 +504,14 @@ function ReportsView() {
             <tbody>
               {reports.map(r => (
                 <tr key={r.id} className="border-b border-zinc-700/20 hover:bg-zinc-800/30">
-                  <td className="px-4 py-3 font-medium text-zinc-100">{r.name}</td>
-                  <td className="px-4 py-3 text-zinc-300">{r.metric}</td>
-                  <td className="px-4 py-3 text-zinc-400">{r.dimension ?? '—'}</td>
-                  <td className="px-4 py-3 text-zinc-500 text-xs">{r.created_at.slice(0, 10)}</td>
+                  <td className="px-4 py-3 font-medium text-text-primary">{r.name}</td>
+                  <td className="px-4 py-3 text-text-secondary">{r.metric}</td>
+                  <td className="px-4 py-3 text-text-muted">{r.dimension ?? '—'}</td>
+                  <td className="px-4 py-3 text-text-subtle text-xs">{r.created_at.slice(0, 10)}</td>
                   <td className="px-4 py-3">
                     <div className="flex gap-2 justify-end">
                       <button
-                        className="text-xs text-zinc-400 hover:text-zinc-100 transition"
+                        className="text-xs text-text-muted hover:text-text-primary transition"
                         onClick={() => setModal({ mode: 'edit', record: r })}
                       >Edit</button>
                       <button
@@ -545,7 +545,7 @@ function ReportsView() {
       )}
       {modal?.mode === 'delete' && (
         <Modal title="Delete Report" onClose={() => setModal(null)}>
-          <p className="text-sm text-zinc-300">Delete <strong className="text-zinc-100">{modal.label}</strong>? This cannot be undone.</p>
+          <p className="text-sm text-text-secondary">Delete <strong className="text-text-primary">{modal.label}</strong>? This cannot be undone.</p>
           <div className="flex gap-2 pt-1">
             <button className="btn-accent flex-1 !bg-red-500/20 !border-red-500/40 !text-red-300 hover:!bg-red-500/30" onClick={handleDelete} disabled={deleting}>
               {deleting ? 'Deleting…' : 'Delete'}

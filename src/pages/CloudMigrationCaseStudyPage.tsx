@@ -157,7 +157,7 @@ export function CloudMigrationCaseStudyPage() {
           <div className="flex gap-2">
             <a
               href="#/case-studies"
-              className="rounded-lg border border-zinc-600/50 bg-zinc-700/50 px-3 py-1.5 text-xs font-medium text-zinc-300 transition hover:border-zinc-500/60 hover:text-zinc-100"
+              className="rounded-lg border border-zinc-600/50 bg-zinc-700/50 px-3 py-1.5 text-xs font-medium text-text-secondary transition hover:border-zinc-500/60 hover:text-text-primary"
             >
               &larr; Case studies
             </a>
@@ -165,13 +165,13 @@ export function CloudMigrationCaseStudyPage() {
               href="https://github.com/rodmen07/microservices"
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-lg border border-zinc-600/50 bg-zinc-700/50 px-3 py-1.5 text-xs font-medium text-zinc-300 transition hover:border-zinc-500/60 hover:text-zinc-100"
+              className="rounded-lg border border-zinc-600/50 bg-zinc-700/50 px-3 py-1.5 text-xs font-medium text-text-secondary transition hover:border-zinc-500/60 hover:text-text-primary"
             >
               GitHub &rarr;
             </a>
           </div>
         </div>
-        <p className="mt-4 text-sm leading-relaxed text-zinc-300">
+        <p className="mt-4 text-sm leading-relaxed text-text-secondary">
           Two stateless services - the Python/FastAPI AI orchestrator and the Go SSE event hub -
           were migrated from Fly.io to GCP Cloud Run as part of InfraPortal v1.4. The migration
           consolidates the platform onto a single cloud provider, replaces static Fly API tokens
@@ -185,7 +185,7 @@ export function CloudMigrationCaseStudyPage() {
         {TECH_STACK.map((tech) => (
           <span
             key={tech}
-            className="rounded border border-zinc-700/50 bg-zinc-800/60 px-2.5 py-1 text-xs font-medium text-zinc-300"
+            className="rounded border border-zinc-700/50 bg-zinc-800/60 px-2.5 py-1 text-xs font-medium text-text-secondary"
           >
             {tech}
           </span>
@@ -202,25 +202,25 @@ export function CloudMigrationCaseStudyPage() {
             <div className="space-y-2">
               <div className="flex items-start gap-2">
                 <span className="mt-0.5 text-red-400">&#x25CF;</span>
-                <span className="text-zinc-400">
+                <span className="text-text-muted">
                   ai-orchestrator-service on Fly.io — port 8081 — static Fly API token secret
                 </span>
               </div>
               <div className="flex items-start gap-2">
                 <span className="mt-0.5 text-red-400">&#x25CF;</span>
-                <span className="text-zinc-400">
+                <span className="text-text-muted">
                   event-stream-service on Fly.io — port 8085 — separate Fly region config
                 </span>
               </div>
               <div className="flex items-start gap-2">
                 <span className="mt-0.5 text-red-400">&#x25CF;</span>
-                <span className="text-zinc-400">
+                <span className="text-text-muted">
                   Two separate CI/CD systems: Fly deploy tokens + GCP OIDC for other services
                 </span>
               </div>
               <div className="flex items-start gap-2">
                 <span className="mt-0.5 text-red-400">&#x25CF;</span>
-                <span className="text-zinc-400">
+                <span className="text-text-muted">
                   No automated test step before deploy for either service
                 </span>
               </div>
@@ -233,25 +233,25 @@ export function CloudMigrationCaseStudyPage() {
             <div className="space-y-2">
               <div className="flex items-start gap-2">
                 <span className="mt-0.5 text-green-400">&#x25CF;</span>
-                <span className="text-zinc-400">
+                <span className="text-text-muted">
                   Both services on Cloud Run us-central1 — port 8080 — co-located with other 10 services
                 </span>
               </div>
               <div className="flex items-start gap-2">
                 <span className="mt-0.5 text-green-400">&#x25CF;</span>
-                <span className="text-zinc-400">
+                <span className="text-text-muted">
                   Keyless OIDC via Workload Identity Federation — zero static credentials
                 </span>
               </div>
               <div className="flex items-start gap-2">
                 <span className="mt-0.5 text-green-400">&#x25CF;</span>
-                <span className="text-zinc-400">
+                <span className="text-text-muted">
                   SHA-pinned image tags in Artifact Registry — every deploy reproducible
                 </span>
               </div>
               <div className="flex items-start gap-2">
                 <span className="mt-0.5 text-green-400">&#x25CF;</span>
-                <span className="text-zinc-400">
+                <span className="text-text-muted">
                   pytest + go test steps run before every deploy — regressions blocked at CI
                 </span>
               </div>
@@ -270,7 +270,7 @@ export function CloudMigrationCaseStudyPage() {
         ].map(({ value, label }) => (
           <div key={label} className="rounded-xl border border-zinc-700/50 bg-zinc-800/50 p-4 text-center">
             <div className="text-xl font-bold text-white">{value}</div>
-            <div className="mt-0.5 text-xs text-zinc-400">{label}</div>
+            <div className="mt-0.5 text-xs text-text-muted">{label}</div>
           </div>
         ))}
       </div>
@@ -291,13 +291,13 @@ export function CloudMigrationCaseStudyPage() {
                 aria-expanded={openIdx === idx}
               >
                 <span>{h.label}</span>
-                <span className="shrink-0 text-zinc-500">{openIdx === idx ? '▲' : '▼'}</span>
+                <span className="shrink-0 text-text-subtle">{openIdx === idx ? '▲' : '▼'}</span>
               </button>
 
               {openIdx === idx && (
                 <div className="border-t border-zinc-700/50 px-4 pb-4 pt-3">
-                  <p className="mb-3 text-sm text-zinc-400">{h.detail}</p>
-                  <div className="text-xs text-zinc-500 mb-1 font-mono">{h.file}</div>
+                  <p className="mb-3 text-sm text-text-muted">{h.detail}</p>
+                  <div className="text-xs text-text-subtle mb-1 font-mono">{h.file}</div>
                   <CodeBlock code={h.code} language={h.language ?? 'bash'} />
                 </div>
               )}
@@ -309,7 +309,7 @@ export function CloudMigrationCaseStudyPage() {
       {/* Migration checklist */}
       <section className="forge-panel rounded-2xl border border-zinc-700/40 bg-zinc-900/60 p-5">
         <h2 className="mb-4 text-base font-semibold text-white">Migration checklist (reusable pattern)</h2>
-        <div className="space-y-2 text-sm text-zinc-400">
+        <div className="space-y-2 text-sm text-text-muted">
           {[
             'Normalise container port to 8080 (Cloud Run reads $PORT env var)',
             'Add OIDC permissions block (id-token: write) to workflow job',
@@ -333,7 +333,7 @@ export function CloudMigrationCaseStudyPage() {
       {/* CTA */}
       <section className="forge-panel rounded-2xl border border-zinc-700/40 bg-zinc-900/60 p-5">
         <h2 className="text-base font-semibold text-white">Plan a similar migration</h2>
-        <p className="mt-2 text-sm text-zinc-400">
+        <p className="mt-2 text-sm text-text-muted">
           Whether you are consolidating clouds, retiring static deploy credentials, or standardising
           CI/CD across a multi-service platform, this pattern scales to any number of services.
         </p>

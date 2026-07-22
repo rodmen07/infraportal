@@ -51,18 +51,18 @@ export function CheckoutThankYouPage() {
         }
       />
 
-      <section className="grid gap-3 rounded-2xl border border-zinc-700/40 bg-zinc-900/50 p-5 text-sm text-zinc-300 sm:grid-cols-3">
+      <section className="grid gap-3 rounded-2xl border border-zinc-700/40 bg-zinc-900/50 p-5 text-sm text-text-secondary sm:grid-cols-3">
         <div>
-          <p className="font-semibold text-zinc-100">1. Confirmation</p>
-          <p className="mt-1 text-zinc-400">Stripe sends your receipt instantly.</p>
+          <p className="font-semibold text-text-primary">1. Confirmation</p>
+          <p className="mt-1 text-text-muted">Stripe sends your receipt instantly.</p>
         </div>
         <div>
-          <p className="font-semibold text-zinc-100">2. Follow-up</p>
-          <p className="mt-1 text-zinc-400">I reach out within one business day.</p>
+          <p className="font-semibold text-text-primary">2. Follow-up</p>
+          <p className="mt-1 text-text-muted">I reach out within one business day.</p>
         </div>
         <div>
-          <p className="font-semibold text-zinc-100">3. Delivery</p>
-          <p className="mt-1 text-zinc-400">I start with your scoped plan and timeline.</p>
+          <p className="font-semibold text-text-primary">3. Delivery</p>
+          <p className="mt-1 text-text-muted">I start with your scoped plan and timeline.</p>
         </div>
       </section>
     </PageLayout>

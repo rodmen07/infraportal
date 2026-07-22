@@ -79,7 +79,7 @@ function RecentActivitiesSkeleton() {
     <div className="overflow-x-auto rounded-xl border border-zinc-700/40 animate-pulse">
       <table className="min-w-full text-sm">
         <thead>
-          <tr className="border-b border-zinc-700/40 bg-zinc-800/40 text-left text-xs text-zinc-400">
+          <tr className="border-b border-zinc-700/40 bg-zinc-800/40 text-left text-xs text-text-muted">
             <th className="px-3 py-2"><div className="h-3 w-16 rounded bg-zinc-700" /></th>
             <th className="px-3 py-2"><div className="h-3 w-24 rounded bg-zinc-700" /></th>
             <th className="px-3 py-2"><div className="h-3 w-20 rounded bg-zinc-700" /></th>
@@ -107,7 +107,7 @@ function EmptyOpportunityStagesState() {
       <svg className="h-8 w-8 text-zinc-600" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75H6A2.25 2.25 0 003.75 6v12A2.25 2.25 0 006 20.25z" />
       </svg>
-      <p className="text-sm font-medium text-zinc-400">No opportunity stages yet</p>
+      <p className="text-sm font-medium text-text-muted">No opportunity stages yet</p>
       <p className="text-xs text-zinc-600">Opportunity stages will appear here as you create and update opportunities.</p>
     </div>
   )
@@ -119,7 +119,7 @@ function EmptyRecentActivitiesState() {
       <svg className="h-8 w-8 text-zinc-600" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
       </svg>
-      <p className="text-sm font-medium text-zinc-400">No recent activities</p>
+      <p className="text-sm font-medium text-text-muted">No recent activities</p>
       <p className="text-xs text-zinc-600">Recent activities will be shown here as they are recorded in the system.</p>
     </div>
   )
@@ -131,7 +131,7 @@ function EmptyCoreMetricsState() {
       <svg className="h-8 w-8 text-zinc-600" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75M6.75 3H5.25A2.25 2.25 0 003 5.25v13.5A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V5.25A2.25 2.25 0 0018.75 3H6.75z" />
       </svg>
-      <p className="text-sm font-medium text-zinc-400">No core metrics available</p>
+      <p className="text-sm font-medium text-text-muted">No core metrics available</p>
       <p className="text-xs text-zinc-600">Core metrics are configured by administrators and will appear here.</p>
     </div>
   )
@@ -159,13 +159,13 @@ function AuthGate({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-[60vh] items-center justify-center">
       <form onSubmit={submit} className="forge-panel surface-card-strong w-full max-w-sm space-y-4 p-6">
-        <h2 className="text-base font-semibold text-zinc-100">Admin access required</h2>
+        <h2 className="text-base font-semibold text-text-primary">Admin access required</h2>
         <input
           type="password"
           value={input}
           onChange={(e) => { setInput(e.target.value); setError(false) }}
           placeholder="Admin key"
-          className="w-full rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
+          className="w-full rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
         />
         {error && <p className="text-xs text-red-400">Invalid key</p>}
         <button type="submit" className="btn-accent w-full">Unlock</button>
@@ -201,7 +201,7 @@ async function api<T>(url: string, opts: RequestInit = {}): Promise<T> {
 function Card({ label, value }: { label: string; value: string | number }) {
   return (
     <div className="forge-panel surface-card-strong p-4">
-      <p className="text-xs uppercase tracking-widest text-zinc-400">{label}</p>
+      <p className="text-xs uppercase tracking-widest text-text-muted">{label}</p>
       <p className="text-3xl font-bold text-amber-300">{value}</p>
     </div>
   )
@@ -221,7 +221,7 @@ function StageDistribution({ stages }: { stages: Record<string, number> }) {
         const width = total > 0 ? Math.max(Math.min((count / total) * 100, 100), 1) : 0
         return (
           <div key={stage} className="space-y-1">
-            <div className="flex justify-between text-xs text-zinc-400">
+            <div className="flex justify-between text-xs text-text-muted">
               <span>{stage}</span>
               <span>{count}/{total}</span>
             </div>
@@ -247,7 +247,7 @@ function RecentActivities({ rows }: { rows: Activity[] }) {
     <div className="overflow-x-auto rounded-xl border border-zinc-700/40">
       <table className="min-w-full text-sm">
         <thead>
-          <tr className="border-b border-zinc-700/40 bg-zinc-800/40 text-left text-xs text-zinc-400">
+          <tr className="border-b border-zinc-700/40 bg-zinc-800/40 text-left text-xs text-text-muted">
             <th className="px-3 py-2">Type</th>
             <th className="px-3 py-2">Subject</th>
             <th className="px-3 py-2">Created</th>
@@ -258,8 +258,8 @@ function RecentActivities({ rows }: { rows: Activity[] }) {
           {rows.map((a) => (
             <tr key={a.id} className="border-b border-zinc-700/20 hover:bg-zinc-800/30">
               <td className="px-3 py-2 text-zinc-200">{a.activity_type}</td>
-              <td className="px-3 py-2 text-zinc-300">{a.subject}</td>
-              <td className="px-3 py-2 text-zinc-400">{a.created_at.slice(0, 10)}</td>
+              <td className="px-3 py-2 text-text-secondary">{a.subject}</td>
+              <td className="px-3 py-2 text-text-muted">{a.created_at.slice(0, 10)}</td>
               <td className="px-3 py-2 text-xs">
                 <span className={`rounded-full px-2 py-0.5 ${a.completed ? 'bg-green-500/20 text-green-300' : 'bg-amber-500/15 text-amber-300'}`}>
                   {a.completed ? 'done' : 'pending'}
@@ -372,8 +372,8 @@ export function UserDashboardPage() {
             <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
               <div>
                 <p className="text-scale-xs font-semibold uppercase tracking-[0.24em] text-amber-300/90">Workspace summary</p>
-                <h2 className="mt-1 text-lg font-semibold text-zinc-100">Monitor account activity and reporting health from one place</h2>
-                <p className="mt-1 max-w-2xl text-sm text-zinc-400">Switch between a broad admin overview and a scoped user view for faster triage.</p>
+                <h2 className="mt-1 text-lg font-semibold text-text-primary">Monitor account activity and reporting health from one place</h2>
+                <p className="mt-1 max-w-2xl text-sm text-text-muted">Switch between a broad admin overview and a scoped user view for faster triage.</p>
               </div>
               <div className={`rounded-xl border px-3 py-2 text-xs ${statusTone}`}>
                 {statusLabel}
@@ -382,11 +382,11 @@ export function UserDashboardPage() {
 
             <div className="mt-4 flex flex-wrap items-center gap-3">
               <div className="flex items-center gap-2">
-                <label className="text-xs uppercase tracking-wider text-zinc-400">View mode</label>
+                <label className="text-xs uppercase tracking-wider text-text-muted">View mode</label>
                 <select
                   value={viewMode}
                   onChange={(e) => setViewMode(e.target.value as 'admin' | 'user')}
-                  className="rounded-lg border border-zinc-600 bg-zinc-900 px-2 py-1 text-xs text-zinc-100"
+                  className="rounded-lg border border-zinc-600 bg-zinc-900 px-2 py-1 text-xs text-text-primary"
                 >
                   <option value="admin">Admin</option>
                   <option value="user">User</option>
@@ -394,11 +394,11 @@ export function UserDashboardPage() {
               </div>
               {viewMode === 'user' && (
                 <div className="flex items-center gap-2">
-                  <label className="text-xs uppercase tracking-wider text-zinc-400">User</label>
+                  <label className="text-xs uppercase tracking-wider text-text-muted">User</label>
                   <select
                     value={selectedUserId ?? ''}
                     onChange={(e) => setSelectedUserId(e.target.value)}
-                    className="rounded-lg border border-zinc-600 bg-zinc-900 px-2 py-1 text-xs text-zinc-100"
+                    className="rounded-lg border border-zinc-600 bg-zinc-900 px-2 py-1 text-xs text-text-primary"
                   >
                     <option value="">Select user</option>
                     {userCandidates.map((userId) => (
@@ -443,14 +443,14 @@ export function UserDashboardPage() {
           <div className="forge-panel surface-card-strong p-4">
             <div className="mb-3">
               <h3 className="text-sm font-semibold text-zinc-200">Core report metrics</h3>
-              <p className="mt-1 text-xs text-zinc-500">Quick indicators available to the current view.</p>
+              <p className="mt-1 text-xs text-text-subtle">Quick indicators available to the current view.</p>
             </div>
             {status === 'loading' ? (
               <CoreMetricsSkeleton />
             ) : counts?.core_metrics.length ? (
               <div className="mt-2 flex flex-wrap gap-2">
                 {counts.core_metrics.map((m) => (
-                  <span key={m} className="rounded-full border border-zinc-600/40 bg-zinc-800/60 px-2.5 py-1 text-xs text-zinc-300">{m}</span>
+                  <span key={m} className="rounded-full border border-zinc-600/40 bg-zinc-800/60 px-2.5 py-1 text-xs text-text-secondary">{m}</span>
                 ))}
               </div>
             ) : (
@@ -461,7 +461,7 @@ export function UserDashboardPage() {
           <div className="forge-panel surface-card-strong p-4">
             <div className="mb-3">
               <h3 className="text-sm font-semibold text-zinc-200">Opportunity stage distribution</h3>
-              <p className="mt-1 text-xs text-zinc-500">A quick breakdown of the active pipeline by stage.</p>
+              <p className="mt-1 text-xs text-text-subtle">A quick breakdown of the active pipeline by stage.</p>
             </div>
             {status === 'loading' ? (
               <OpportunityStageDistributionSkeleton />
@@ -473,7 +473,7 @@ export function UserDashboardPage() {
           <div className="forge-panel surface-card-strong p-4">
             <div className="mb-3">
               <h3 className="text-sm font-semibold text-zinc-200">Recent activities</h3>
-              <p className="mt-1 text-xs text-zinc-500">Latest actions captured across the connected workflows.</p>
+              <p className="mt-1 text-xs text-text-subtle">Latest actions captured across the connected workflows.</p>
             </div>
             {status === 'loading' ? (
               <RecentActivitiesSkeleton />

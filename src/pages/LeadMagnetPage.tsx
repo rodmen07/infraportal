@@ -144,7 +144,7 @@ export function LeadMagnetPage() {
             </p>
             <h1 className="mt-2 text-3xl font-bold text-white">{content.title}</h1>
             <p className="mt-2 text-lg text-amber-200/80">{content.subtitle}</p>
-            <p className="mt-4 text-sm leading-relaxed text-zinc-300">{content.description}</p>
+            <p className="mt-4 text-sm leading-relaxed text-text-secondary">{content.description}</p>
 
             {!isSubmitted ? (
               <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-3 sm:flex-row">
@@ -154,7 +154,7 @@ export function LeadMagnetPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="flex-1 rounded-xl border border-zinc-700/60 bg-zinc-800/60 px-4 py-3 text-sm text-zinc-100 placeholder-zinc-500 outline-none focus:border-amber-400/50 focus:ring-1 focus:ring-amber-400/20"
+                  className="flex-1 rounded-xl border border-zinc-700/60 bg-zinc-800/60 px-4 py-3 text-sm text-text-primary placeholder-zinc-500 outline-none focus:border-amber-400/50 focus:ring-1 focus:ring-amber-400/20"
                 />
                 <button
                   type="submit"
@@ -213,7 +213,7 @@ export function LeadMagnetPage() {
       {!isSubmitted && (
         <section className="forge-panel rounded-3xl border border-zinc-500/30 bg-zinc-900/80 p-8 shadow-2xl shadow-black/50">
           <h2 className="text-xl font-semibold text-white">Checklist Preview</h2>
-            <p className="mt-2 text-sm text-zinc-400">
+            <p className="mt-2 text-sm text-text-muted">
               {content.sections.length} categories, {content.sections.reduce((sum, s) => sum + s.items.length, 0)}{' '}
               items to assess
             </p>
@@ -224,7 +224,7 @@ export function LeadMagnetPage() {
                   <h3 className="text-base font-semibold text-amber-200">{section.category}</h3>
                   <ul className="mt-3 space-y-2">
                     {section.items.map((item, idx) => (
-                      <li key={idx} className="flex items-start gap-2 text-sm text-zinc-300">
+                      <li key={idx} className="flex items-start gap-2 text-sm text-text-secondary">
                         <span className="mt-1 shrink-0 text-emerald-400">✓</span>
                         <span>{item}</span>
                       </li>
@@ -235,7 +235,7 @@ export function LeadMagnetPage() {
             </div>
 
             <div className="mt-8 rounded-xl border border-zinc-700/40 bg-zinc-800/40 p-5">
-              <p className="text-sm text-zinc-300">{content.cta}</p>
+              <p className="text-sm text-text-secondary">{content.cta}</p>
             </div>
         </section>
       )}
@@ -249,8 +249,8 @@ export function LeadMagnetPage() {
                   Day 0
                 </span>
                 <div>
-                  <p className="font-medium text-zinc-100">Instant download</p>
-                  <p className="mt-1 text-sm text-zinc-400">
+                  <p className="font-medium text-text-primary">Instant download</p>
+                  <p className="mt-1 text-sm text-text-muted">
                     Get immediate access to the web checklist and a printable version you can save as PDF.
                   </p>
                 </div>
@@ -260,8 +260,8 @@ export function LeadMagnetPage() {
                   Day 3
                 </span>
                 <div>
-                  <p className="font-medium text-zinc-100">First deep dive</p>
-                  <p className="mt-1 text-sm text-zinc-400">
+                  <p className="font-medium text-text-primary">First deep dive</p>
+                  <p className="mt-1 text-sm text-text-muted">
                     Email 1: Common gaps I see (and quick fixes) for teams in your situation.
                   </p>
                 </div>
@@ -271,8 +271,8 @@ export function LeadMagnetPage() {
                   Day 7
                 </span>
                 <div>
-                  <p className="font-medium text-zinc-100">Custom recommendations</p>
-                  <p className="mt-1 text-sm text-zinc-400">
+                  <p className="font-medium text-text-primary">Custom recommendations</p>
+                  <p className="mt-1 text-sm text-text-muted">
                     Email 2: Based on your stack, a prioritized roadmap to tighten security and cut costs.
                   </p>
                 </div>
@@ -282,8 +282,8 @@ export function LeadMagnetPage() {
                   Day 14
                 </span>
                 <div>
-                  <p className="font-medium text-zinc-100">Office hours offer</p>
-                  <p className="mt-1 text-sm text-zinc-400">
+                  <p className="font-medium text-text-primary">Office hours offer</p>
+                  <p className="mt-1 text-sm text-text-muted">
                     Email 3: Free 30-minute session to walk through next steps and answer questions.
                   </p>
                 </div>

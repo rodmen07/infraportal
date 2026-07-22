@@ -178,7 +178,7 @@ export function Soc2CaseStudyPage() {
           <div className="flex gap-2">
             <a
               href="#/case-studies"
-              className="rounded-lg border border-zinc-600/50 bg-zinc-700/50 px-3 py-1.5 text-xs font-medium text-zinc-300 transition hover:border-zinc-500/60 hover:text-zinc-100"
+              className="rounded-lg border border-zinc-600/50 bg-zinc-700/50 px-3 py-1.5 text-xs font-medium text-text-secondary transition hover:border-zinc-500/60 hover:text-text-primary"
             >
               ← Case studies
             </a>
@@ -186,13 +186,13 @@ export function Soc2CaseStudyPage() {
               href="https://github.com/rodmen07/microservices/tree/main/terraform-soc2-baseline"
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-lg border border-zinc-600/50 bg-zinc-700/50 px-3 py-1.5 text-xs font-medium text-zinc-300 transition hover:border-zinc-500/60 hover:text-zinc-100"
+              className="rounded-lg border border-zinc-600/50 bg-zinc-700/50 px-3 py-1.5 text-xs font-medium text-text-secondary transition hover:border-zinc-500/60 hover:text-text-primary"
             >
               GitHub →
             </a>
           </div>
         </div>
-        <p className="mt-4 text-sm leading-relaxed text-zinc-300">
+        <p className="mt-4 text-sm leading-relaxed text-text-secondary">
           A standalone, reusable Terraform module extracted from the InfraPortal v0.2 security hardening
           release. Cloud-agnostic by design: parallel GCP and AWS sub-modules implement the same 9 SOC 2
           Type II controls with an identical variable interface. Each control maps directly to the
@@ -205,7 +205,7 @@ export function Soc2CaseStudyPage() {
         {TECH_STACK.map((tech) => (
           <span
             key={tech}
-            className="rounded border border-zinc-700/50 bg-zinc-800/60 px-2.5 py-1 text-xs font-medium text-zinc-300"
+            className="rounded border border-zinc-700/50 bg-zinc-800/60 px-2.5 py-1 text-xs font-medium text-text-secondary"
           >
             {tech}
           </span>
@@ -215,16 +215,16 @@ export function Soc2CaseStudyPage() {
       {/* Cloud-agnostic callout */}
       <section className="forge-panel rounded-2xl border border-amber-500/30 bg-amber-950/15 p-5 backdrop-blur-xl">
         <h2 className="text-base font-semibold text-amber-200">Cloud-agnostic design</h2>
-        <p className="mt-2 text-sm leading-relaxed text-zinc-300">
+        <p className="mt-2 text-sm leading-relaxed text-text-secondary">
           The module exposes two sub-modules — <code className="rounded bg-zinc-800 px-1 text-amber-300">modules/gcp/</code> and <code className="rounded bg-zinc-800 px-1 text-amber-300">modules/aws/</code> — with identical variable names and output shapes. Switching clouds means changing the module source path, not rewriting your infrastructure configuration.
         </p>
         <div className="mt-3 flex gap-2">
           <span className={`rounded border px-2 py-0.5 text-xs font-semibold ${cloudColor('GCP')}`}>GCP</span>
-          <span className="text-xs text-zinc-500">Secret Manager · Cloud Audit Logs · Workload Identity · Artifact Registry · VPC</span>
+          <span className="text-xs text-text-subtle">Secret Manager · Cloud Audit Logs · Workload Identity · Artifact Registry · VPC</span>
         </div>
         <div className="mt-1.5 flex gap-2">
           <span className={`rounded border px-2 py-0.5 text-xs font-semibold ${cloudColor('AWS')}`}>AWS</span>
-          <span className="text-xs text-zinc-500">Secrets Manager · CloudTrail · OIDC · ECR · VPC + NAT</span>
+          <span className="text-xs text-text-subtle">Secrets Manager · CloudTrail · OIDC · ECR · VPC + NAT</span>
         </div>
       </section>
 
@@ -232,16 +232,16 @@ export function Soc2CaseStudyPage() {
       <section className="forge-panel overflow-hidden rounded-2xl border border-zinc-500/30 bg-zinc-900/80 backdrop-blur-xl">
         <div className="border-b border-zinc-700/40 px-5 py-4">
           <h2 className="text-base font-semibold text-white">SOC 2 Type II — Control Mapping</h2>
-          <p className="mt-0.5 text-xs text-zinc-500">9 controls · each maps to the Terraform file that implements it</p>
+          <p className="mt-0.5 text-xs text-text-subtle">9 controls · each maps to the Terraform file that implements it</p>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
               <tr className="border-b border-zinc-700/40 text-left">
-                <th className="px-4 py-2.5 font-semibold text-zinc-400">Control</th>
-                <th className="px-4 py-2.5 font-semibold text-zinc-400">Cloud</th>
-                <th className="px-4 py-2.5 font-semibold text-zinc-400">Implementation</th>
-                <th className="px-4 py-2.5 font-semibold text-zinc-400 hidden sm:table-cell">Evidence File</th>
+                <th className="px-4 py-2.5 font-semibold text-text-muted">Control</th>
+                <th className="px-4 py-2.5 font-semibold text-text-muted">Cloud</th>
+                <th className="px-4 py-2.5 font-semibold text-text-muted">Implementation</th>
+                <th className="px-4 py-2.5 font-semibold text-text-muted hidden sm:table-cell">Evidence File</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-800/50">
@@ -249,13 +249,13 @@ export function Soc2CaseStudyPage() {
                 <tr key={`${control}-${cloud}`} className="transition hover:bg-zinc-800/20">
                   <td className="whitespace-nowrap px-4 py-2.5">
                     <span className="font-mono font-semibold text-amber-300">{control}</span>
-                    <span className="ml-2 text-zinc-500">{desc}</span>
+                    <span className="ml-2 text-text-subtle">{desc}</span>
                   </td>
                   <td className="px-4 py-2.5">
                     <span className={`rounded border px-1.5 py-0.5 text-scale-xs font-semibold ${cloudColor(cloud)}`}>{cloud}</span>
                   </td>
-                  <td className="px-4 py-2.5 text-zinc-300">{impl}</td>
-                  <td className="px-4 py-2.5 font-mono text-zinc-500 hidden sm:table-cell">{file}</td>
+                  <td className="px-4 py-2.5 text-text-secondary">{impl}</td>
+                  <td className="px-4 py-2.5 font-mono text-text-subtle hidden sm:table-cell">{file}</td>
                 </tr>
               ))}
             </tbody>
@@ -267,7 +267,7 @@ export function Soc2CaseStudyPage() {
       <section className="space-y-3">
         <div>
           <h2 className="text-base font-semibold text-white">Audit logs in the medallion pipeline</h2>
-          <p className="mt-1 text-sm text-zinc-400">
+          <p className="mt-1 text-sm text-text-muted">
             CloudTrail events (CC7.2) land directly in Bronze as raw payloads, get normalised into Silver, and roll up into Gold metrics — the same idempotency guarantees from the DynamoDB prototype applied to compliance data.
           </p>
         </div>
@@ -278,7 +278,7 @@ export function Soc2CaseStudyPage() {
       <section className="forge-panel overflow-hidden rounded-2xl border border-zinc-500/30 bg-zinc-900/80 backdrop-blur-xl">
         <div className="border-b border-zinc-700/40 px-5 py-4">
           <h2 className="text-base font-semibold text-white">Implementation highlights</h2>
-          <p className="mt-0.5 text-xs text-zinc-500">Click any item to see the Terraform</p>
+          <p className="mt-0.5 text-xs text-text-subtle">Click any item to see the Terraform</p>
         </div>
         <div className="divide-y divide-zinc-800/60">
           {HIGHLIGHTS.map(({ label, detail, file, code, language }, idx) => (
@@ -291,14 +291,14 @@ export function Soc2CaseStudyPage() {
                   <span className="shrink-0 text-amber-400">›</span>
                   <span className="font-medium text-zinc-200">{label}</span>
                 </span>
-                <span className="shrink-0 text-scale-xs text-zinc-500">
+                <span className="shrink-0 text-scale-xs text-text-subtle">
                   {openIdx === idx ? '▲' : '▼'}
                 </span>
               </button>
               <div className={`grid transition-all duration-200 ease-out ${openIdx === idx ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
                 <div className="overflow-hidden">
                   <div className="space-y-3 px-5 pb-5 pt-1">
-                    <p className="pl-4 text-sm leading-relaxed text-zinc-400">{detail}</p>
+                    <p className="pl-4 text-sm leading-relaxed text-text-muted">{detail}</p>
                     <CodeBlock code={code} language={language ?? 'hcl'} file={file} />
                   </div>
                 </div>
@@ -310,7 +310,7 @@ export function Soc2CaseStudyPage() {
 
       {/* CTA */}
       <div className="forge-panel rounded-3xl border border-zinc-500/30 bg-zinc-900/80 p-6 text-center shadow-2xl shadow-black/50 backdrop-blur-xl">
-        <p className="text-sm text-zinc-400">Need a SOC 2 baseline for your infrastructure?</p>
+        <p className="text-sm text-text-muted">Need a SOC 2 baseline for your infrastructure?</p>
         <a
           href="#/contact"
           className="mt-3 inline-block rounded-xl border border-amber-400/40 bg-amber-500/15 px-5 py-2 text-sm font-semibold text-amber-100 transition hover:border-amber-400/60 hover:bg-amber-500/25"

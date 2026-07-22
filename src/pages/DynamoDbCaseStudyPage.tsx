@@ -338,7 +338,7 @@ export function DynamoDbCaseStudyPage() {
           <div className="flex gap-2">
             <a
               href="#/case-studies"
-              className="rounded-lg border border-zinc-600/50 bg-zinc-700/50 px-3 py-1.5 text-xs font-medium text-zinc-300 transition hover:border-zinc-500/60 hover:text-zinc-100"
+              className="rounded-lg border border-zinc-600/50 bg-zinc-700/50 px-3 py-1.5 text-xs font-medium text-text-secondary transition hover:border-zinc-500/60 hover:text-text-primary"
             >
               ← Case studies
             </a>
@@ -346,13 +346,13 @@ export function DynamoDbCaseStudyPage() {
               href="https://github.com/rodmen07/dynamodb_prototype"
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-lg border border-zinc-600/50 bg-zinc-700/50 px-3 py-1.5 text-xs font-medium text-zinc-300 transition hover:border-zinc-500/60 hover:text-zinc-100"
+              className="rounded-lg border border-zinc-600/50 bg-zinc-700/50 px-3 py-1.5 text-xs font-medium text-text-secondary transition hover:border-zinc-500/60 hover:text-text-primary"
             >
               GitHub →
             </a>
           </div>
         </div>
-        <p className="mt-4 text-sm leading-relaxed text-zinc-300">
+        <p className="mt-4 text-sm leading-relaxed text-text-secondary">
           A Rust prototype implementing exactly-once log delivery for cloud audit events to a
           Splunk HEC endpoint, with AWS and GCP treated as equal focus areas. DynamoDB acts as a
           distributed idempotency store: a conditional write atomically acquires a per-event lock
@@ -365,7 +365,7 @@ export function DynamoDbCaseStudyPage() {
 
       <section className="forge-panel rounded-2xl border border-zinc-500/30 bg-zinc-900/80 p-5 backdrop-blur-xl">
         <h2 className="text-base font-semibold text-white">Medallion architecture extension</h2>
-        <p className="mt-2 text-sm leading-relaxed text-zinc-400">
+        <p className="mt-2 text-sm leading-relaxed text-text-muted">
           This keeps idempotency as the ingestion contract, then layers transformation and
           analytics outputs without coupling ingestion reliability to reporting concerns.
         </p>
@@ -373,7 +373,7 @@ export function DynamoDbCaseStudyPage() {
           {MEDALLION_LAYERS.map((item) => (
             <div key={item.layer} className="rounded-xl border border-zinc-700/50 bg-zinc-800/50 p-3">
               <h3 className="text-sm font-semibold text-amber-300">{item.layer}</h3>
-              <p className="mt-1 text-xs leading-relaxed text-zinc-400">{item.description}</p>
+              <p className="mt-1 text-xs leading-relaxed text-text-muted">{item.description}</p>
             </div>
           ))}
         </div>
@@ -387,7 +387,7 @@ export function DynamoDbCaseStudyPage() {
         {TECH_STACK.map((tech) => (
           <span
             key={tech}
-            className="rounded border border-zinc-700/50 bg-zinc-800/60 px-2.5 py-1 text-xs font-medium text-zinc-300"
+            className="rounded border border-zinc-700/50 bg-zinc-800/60 px-2.5 py-1 text-xs font-medium text-text-secondary"
           >
             {tech}
           </span>
@@ -398,7 +398,7 @@ export function DynamoDbCaseStudyPage() {
       <section className="forge-panel overflow-hidden rounded-2xl border border-zinc-500/30 bg-zinc-900/80 backdrop-blur-xl">
         <div className="border-b border-zinc-700/40 px-5 py-4">
           <h2 className="text-base font-semibold text-white">How it works</h2>
-          <p className="mt-0.5 text-xs text-zinc-500">Click any item to see the implementation</p>
+          <p className="mt-0.5 text-xs text-text-subtle">Click any item to see the implementation</p>
         </div>
         <div className="divide-y divide-zinc-800/60">
           {HIGHLIGHTS.map(({ label, detail, file, code, language }, idx) => (
@@ -411,14 +411,14 @@ export function DynamoDbCaseStudyPage() {
                   <span className="shrink-0 text-amber-400">›</span>
                   <span className="font-medium text-zinc-200">{label}</span>
                 </span>
-                <span className="shrink-0 text-scale-xs text-zinc-500">
+                <span className="shrink-0 text-scale-xs text-text-subtle">
                   {openIdx === idx ? '▲' : '▼'}
                 </span>
               </button>
               <div className={`grid transition-all duration-200 ease-out ${openIdx === idx ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
                 <div className="overflow-hidden">
                   <div className="space-y-3 px-5 pb-5 pt-1">
-                    <p className="pl-4 text-sm leading-relaxed text-zinc-400">{detail}</p>
+                    <p className="pl-4 text-sm leading-relaxed text-text-muted">{detail}</p>
                     <CodeBlock code={code} language={language ?? 'rust'} file={file} />
                   </div>
                 </div>
@@ -436,9 +436,9 @@ export function DynamoDbCaseStudyPage() {
         >
           <div>
             <span className="text-sm font-medium text-zinc-200">Full source</span>
-            <span className="ml-2 text-xs text-zinc-500">src/main.rs</span>
+            <span className="ml-2 text-xs text-text-subtle">src/main.rs</span>
           </div>
-          <span className="text-scale-xs text-zinc-500">{showSource ? '▲' : '▼'}</span>
+          <span className="text-scale-xs text-text-subtle">{showSource ? '▲' : '▼'}</span>
         </button>
         <div className={`grid transition-all duration-200 ease-out ${showSource ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
           <div className="overflow-hidden">
