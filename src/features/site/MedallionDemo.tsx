@@ -402,7 +402,7 @@ function BronzeView({ raw }: { raw: NvdResponse }) {
         <span className="rounded border border-zinc-700/40 bg-zinc-800/40 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-text-muted">{raw.totalResults.toLocaleString()} total results</span>
       </div>
       <div className="overflow-x-auto rounded-xl border border-zinc-800/60 bg-zinc-950">
-        <pre className="p-4 text-xs leading-relaxed text-text-secondary">
+        <pre className="code-surface p-4 text-xs leading-relaxed text-text-secondary">
           {visible.join('\n')}
           {!showAll && lines.length > LIMIT && (
             <span className="text-zinc-600">{'\n'}… showing 2 of {raw.vulnerabilities.length} fetched records</span>

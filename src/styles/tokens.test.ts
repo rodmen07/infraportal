@@ -455,9 +455,33 @@ describe('strangler rule: override-sheet rules for tokenized surfaces stay delet
     // CH-1 page split freed the last (formerly fenced) consumers: the 4 bare
     // .text-zinc-{100,300,400,500} light overrides retired (their token values
     // match in both themes, so removal is zero-change).
-    const CEILING = 223
+    // 221 after the code-block override was decoupled from the text-* colour
+    // class: the three `pre.text-zinc-{200,300,400}` selectors (which had
+    // orphaned when those <pre> elements migrated their text onto tokens)
+    // collapsed to one `pre.code-surface` selector keyed on an explicit marker.
+    const CEILING = 221
     const remaining = (INDEX_CSS_RULES.match(/\[data-theme="light"\]/g) ?? []).length
     expect(remaining).toBeLessThanOrEqual(CEILING)
+  })
+})
+
+describe('code blocks stay dark in both themes via a decoupled marker (v1.18.6)', () => {
+  // Regression guard. The "keep code blocks dark" override used to key on
+  // pre.text-zinc-{200,300,400}; when those <pre> elements migrated their text
+  // colour onto tokens it silently orphaned, and code blocks lost their dark
+  // background in light mode. It now keys on an explicit `code-surface` marker
+  // that a colour migration cannot rename away.
+  it('the light override keys on pre.code-surface, not the text-zinc colour class', () => {
+    expect(INDEX_CSS_RULES).toMatch(/\[data-theme="light"\]\s+pre\.code-surface\s*\{/)
+    expect(INDEX_CSS_RULES).not.toMatch(/pre\.text-zinc-/)
+  })
+
+  it('the code-surface marker is applied to real <pre> elements (rule not orphaned)', () => {
+    const marked = COMPONENT_FILES.reduce((count, relPath) => {
+      const source = readFileSync(path.join(ROOT, relPath), 'utf-8')
+      return count + (source.match(/<pre[^>]*\bcode-surface\b/g)?.length ?? 0)
+    }, 0)
+    expect(marked).toBeGreaterThanOrEqual(4)
   })
 })
 

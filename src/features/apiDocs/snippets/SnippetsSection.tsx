@@ -27,7 +27,7 @@ function SnippetBlock({ label, text, note }: { label: string; text: string; note
         </span>
         <CopyButton text={text} />
       </div>
-      <pre className="mt-1 max-h-72 overflow-auto rounded-md bg-zinc-900/80 p-2.5 font-mono text-scale-xs leading-4 text-text-secondary">
+      <pre className="code-surface mt-1 max-h-72 overflow-auto rounded-md bg-zinc-900/80 p-2.5 font-mono text-scale-xs leading-4 text-text-secondary">
         {text}
       </pre>
       {note && <p className="mt-1 text-scale-xs leading-4 text-zinc-600">{note}</p>}

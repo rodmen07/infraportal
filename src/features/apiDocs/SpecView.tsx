@@ -183,7 +183,7 @@ function ExampleBlock({ label, value }: { label?: string; value: unknown }) {
       <summary className="cursor-pointer text-scale-xs text-text-subtle hover:text-text-secondary">
         Example{label ? `: ${label}` : ''}
       </summary>
-      <pre className="mt-1 overflow-x-auto rounded-lg bg-zinc-900/70 p-3 font-mono text-scale-xs leading-4 text-text-secondary">
+      <pre className="code-surface mt-1 overflow-x-auto rounded-lg bg-zinc-900/70 p-3 font-mono text-scale-xs leading-4 text-text-secondary">
         {text}
       </pre>
     </details>
