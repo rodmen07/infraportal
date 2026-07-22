@@ -40,7 +40,10 @@ export function RetainersPage() {
         highlighted: false,
         ctaLabel: 'Start Starter Retainer',
         ctaHref: '#/contact',
-        checkoutUrl: 'https://buy.stripe.com/bJe4gy3TR8fq5Y8cF4ffy00'
+        // No dedicated Stripe payment link for this retainer tier yet; route to
+        // the discuss/contact flow. (The old hardcoded link pointed at the
+        // one-time "Architecture Review" checkout - wrong product and price.)
+        checkoutUrl: null
       },
       {
         tier: 'Standard Retainer',
@@ -56,7 +59,10 @@ export function RetainersPage() {
         highlighted: true,
         ctaLabel: 'Start Standard Retainer',
         ctaHref: '#/contact',
-        checkoutUrl: 'https://buy.stripe.com/bJedR87632V6euEfRgffy01'
+        // No dedicated Stripe payment link yet; route to discuss/contact.
+        // (The old hardcoded link pointed at the one-time "Project" deposit
+        // checkout - wrong product and price.)
+        checkoutUrl: null
       },
       {
         tier: 'Premium Retainer',
@@ -73,7 +79,10 @@ export function RetainersPage() {
         highlighted: false,
         ctaLabel: 'Discuss Premium Retainer',
         ctaHref: '#/contact',
-        checkoutUrl: 'https://buy.stripe.com/bJedR87632V6euEfRgffy02'
+        // No dedicated Stripe payment link yet; route to discuss/contact.
+        // (The old hardcoded link was a fabricated id - "Project" checkout's id
+        // with its last char incremented - so it 404'd on Stripe: the reported bug.)
+        checkoutUrl: null
       }
     ]
   }
