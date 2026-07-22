@@ -219,29 +219,29 @@ export function DeleteModal({ label, onConfirm, onClose, saving, error }: {
 // eslint-disable-next-line react-refresh/only-export-components
 export const LIFECYCLE_COLOR: Record<string, string> = {
   lead:       'bg-amber-500/15 text-amber-300 ring-amber-500/30',
-  prospect:   'bg-blue-500/15 text-blue-300 ring-blue-500/30',
-  customer:   'bg-green-500/15 text-green-300 ring-green-500/30',
+  prospect:   'bg-blue-500/15 text-info-text ring-blue-500/30',
+  customer:   'bg-green-500/15 text-success-text ring-green-500/30',
   churned:    'bg-red-500/15 text-danger-text ring-red-500/30',
   evangelist: 'bg-purple-500/15 text-purple-300 ring-purple-500/30',
 }
 // eslint-disable-next-line react-refresh/only-export-components
 export const STATUS_COLOR: Record<string, string> = {
-  active:   'bg-green-500/15 text-green-300 ring-green-500/30',
+  active:   'bg-green-500/15 text-success-text ring-green-500/30',
   inactive: 'bg-zinc-500/15 text-text-muted ring-zinc-500/30',
   churned:  'bg-red-500/15 text-danger-text ring-red-500/30',
 }
 // eslint-disable-next-line react-refresh/only-export-components
 export const STAGE_COLOR: Record<string, string> = {
   qualification: 'bg-amber-500/15 text-amber-300 ring-amber-500/30',
-  proposal:      'bg-blue-500/15 text-blue-300 ring-blue-500/30',
+  proposal:      'bg-blue-500/15 text-info-text ring-blue-500/30',
   negotiation:   'bg-purple-500/15 text-purple-300 ring-purple-500/30',
-  'closed-won':  'bg-green-500/15 text-green-300 ring-green-500/30',
+  'closed-won':  'bg-green-500/15 text-success-text ring-green-500/30',
   'closed-lost': 'bg-red-500/15 text-danger-text ring-red-500/30',
 }
 // eslint-disable-next-line react-refresh/only-export-components
 export const ACTIVITY_COLOR: Record<string, string> = {
-  email:   'bg-blue-500/15 text-blue-300 ring-blue-500/30',
-  call:    'bg-green-500/15 text-green-300 ring-green-500/30',
+  email:   'bg-blue-500/15 text-info-text ring-blue-500/30',
+  call:    'bg-green-500/15 text-success-text ring-green-500/30',
   meeting: 'bg-purple-500/15 text-purple-300 ring-purple-500/30',
   task:    'bg-amber-500/15 text-amber-300 ring-amber-500/30',
 }

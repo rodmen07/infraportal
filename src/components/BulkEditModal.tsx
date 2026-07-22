@@ -146,7 +146,7 @@ export function BulkEditModal({ entity, targets: initialTargets, api = mockBulkE
           {finished && editor.summary && (
             <div className="space-y-3">
               <div className={`rounded-xl border px-4 py-3 ${editor.summary.failed > 0 || editor.summary.cancelled ? 'border-amber-500/30 bg-amber-500/10' : 'border-green-500/30 bg-green-500/10'}`}>
-                <p className={`text-sm font-medium ${editor.summary.failed > 0 || editor.summary.cancelled ? 'text-amber-300' : 'text-green-300'}`}>
+                <p className={`text-sm font-medium ${editor.summary.failed > 0 || editor.summary.cancelled ? 'text-amber-300' : 'text-success-text'}`}>
                   {editor.status === 'cancelled'
                     ? `Edit cancelled: ${editor.summary.edited} of ${editor.summary.total} rows updated before cancelling.`
                     : `Updated ${editor.summary.edited} of ${editor.summary.total} rows${editor.summary.failed > 0 ? `, ${editor.summary.failed} failed` : ''}.`}

@@ -62,7 +62,7 @@ export function PortalResetPasswordPage() {
           {done ? (
             <div className="space-y-4">
               <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-3">
-                <p className="text-sm text-emerald-300">Password updated successfully!</p>
+                <p className="text-sm text-success-text">Password updated successfully!</p>
               </div>
               <a href="#/portal/login" className="btn-accent block w-full text-center">
                 Sign in

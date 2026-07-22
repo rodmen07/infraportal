@@ -85,7 +85,7 @@ function App() {
                   <p className="mt-4 text-xs text-text-muted">
                     After download, I'll send a 3-email sequence with specific recommendations for your stack (Day 0, Day 3, Day 7).
                   </p>
-                  <a href="#/lead-magnet" className="mt-4 inline-block rounded-lg border border-emerald-400/40 bg-emerald-500/15 px-4 py-2 text-sm font-semibold text-emerald-200 transition hover:border-emerald-400/60 hover:bg-emerald-500/25">
+                  <a href="#/lead-magnet" className="mt-4 inline-block rounded-lg border border-emerald-400/40 bg-emerald-500/15 px-4 py-2 text-sm font-semibold text-success-text transition hover:border-emerald-400/60 hover:bg-emerald-500/25">
                     Get the checklist →
                   </a>
                 </div>

@@ -163,8 +163,8 @@ export function Soc2CaseStudyPage() {
 
   const cloudColor = (cloud: string) =>
     cloud === 'GCP'
-      ? 'border-blue-500/40 bg-blue-500/10 text-blue-300'
-      : 'border-orange-500/40 bg-orange-500/10 text-orange-300'
+      ? 'border-blue-500/40 bg-blue-500/10 text-info-text'
+      : 'border-orange-500/40 bg-orange-500/10 text-caution-text'
 
   return (
     <PageLayout>

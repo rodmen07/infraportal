@@ -95,7 +95,7 @@ function SearchErrorState({ message, onRetry, onClear }: { message: string; onRe
   return (
     <div className="forge-panel surface-card-strong flex flex-col gap-3 border border-red-500/30 bg-red-500/10 p-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
-        <p className="text-sm font-semibold text-red-200">Search is temporarily unavailable</p>
+        <p className="text-sm font-semibold text-danger-text">Search is temporarily unavailable</p>
         <p className="mt-1 text-sm text-red-100/90">{message}</p>
       </div>
       <div className="flex gap-2">
@@ -107,8 +107,8 @@ function SearchErrorState({ message, onRetry, onClear }: { message: string; onRe
 }
 
 const ENTITY_COLORS: Record<string, string> = {
-  account:     'bg-blue-500/20 text-blue-300 border-blue-500/30',
-  contact:     'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
+  account:     'bg-blue-500/20 text-info-text border-blue-500/30',
+  contact:     'bg-emerald-500/20 text-success-text border-emerald-500/30',
   opportunity: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
   activity:    'bg-purple-500/20 text-purple-300 border-purple-500/30',
 }

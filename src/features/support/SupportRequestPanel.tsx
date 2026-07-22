@@ -13,7 +13,7 @@ import { formatRelativeTime } from '../../utils/time'
 const STATUS_META: Record<SupportStatus, { label: string; badge: string }> = {
   open: { label: 'Open', badge: 'border-amber-400/40 bg-amber-500/15 text-amber-200' },
   in_progress: { label: 'In progress', badge: 'border-sky-400/40 bg-sky-500/15 text-sky-200' },
-  resolved: { label: 'Resolved', badge: 'border-emerald-400/40 bg-emerald-500/15 text-emerald-200' },
+  resolved: { label: 'Resolved', badge: 'border-emerald-400/40 bg-emerald-500/15 text-success-text' },
 }
 
 export function SupportRequestPanel({ projectId }: { projectId: string }) {
@@ -97,7 +97,7 @@ export function SupportRequestPanel({ projectId }: { projectId: string }) {
         />
         <div className="flex flex-wrap items-center justify-between gap-3">
           {justSent ? (
-            <p className="text-sm text-emerald-300">Request logged. I will pick it up from the queue.</p>
+            <p className="text-sm text-success-text">Request logged. I will pick it up from the queue.</p>
           ) : (
             <p className="text-sm text-text-subtle">Requests are tracked here until they are resolved.</p>
           )}

@@ -40,9 +40,9 @@ export function LiveFeedTab() {
   }, []) // Empty dependency array as STREAM_URL is a constant.
 
   const SOURCE_COLORS: Record<string, string> = {
-    'accounts-service':     'bg-blue-500/15 text-blue-300 ring-blue-500/30',
+    'accounts-service':     'bg-blue-500/15 text-info-text ring-blue-500/30',
     'contacts-service':     'bg-amber-500/15 text-amber-300 ring-amber-500/30',
-    'opportunities-service':'bg-green-500/15 text-green-300 ring-green-500/30',
+    'opportunities-service':'bg-green-500/15 text-success-text ring-green-500/30',
     'activities-service':   'bg-purple-500/15 text-purple-300 ring-purple-500/30',
   }
 
@@ -50,7 +50,7 @@ export function LiveFeedTab() {
     <div>
       {/* Status bar */}
       <div className="mb-4 flex items-center gap-2">
-        {status === 'connected' && <><span className="h-2 w-2 rounded-full bg-green-400 animate-pulse" /><span className="text-xs text-green-400">Connected</span></>}
+        {status === 'connected' && <><span className="h-2 w-2 rounded-full bg-green-400 animate-pulse" /><span className="text-xs text-success-text">Connected</span></>}
         {status === 'connecting' && <><span className="h-2 w-2 rounded-full bg-amber-400 animate-pulse" /><span className="text-xs text-amber-400">Connecting…</span></>}
         {status === 'error'  && <><span className="h-2 w-2 rounded-full bg-red-400" /><span className="text-xs text-danger-text">Connection error</span></>}
         {status === 'no-url' && <><span className="h-2 w-2 rounded-full bg-zinc-600" /><span className="text-xs text-text-subtle">VITE_EVENT_STREAM_URL not configured</span></>}

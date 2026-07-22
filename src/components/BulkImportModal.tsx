@@ -293,7 +293,7 @@ export function BulkImportModal({ initialEntity = 'contacts', api = mockBulkImpo
           {finished && importer.summary && (
             <div className="space-y-3">
               <div className={`rounded-xl border px-4 py-3 ${importer.summary.failed > 0 || importer.summary.cancelled ? 'border-amber-500/30 bg-amber-500/10' : 'border-green-500/30 bg-green-500/10'}`}>
-                <p className={`text-sm font-medium ${importer.summary.failed > 0 || importer.summary.cancelled ? 'text-amber-300' : 'text-green-300'}`}>
+                <p className={`text-sm font-medium ${importer.summary.failed > 0 || importer.summary.cancelled ? 'text-amber-300' : 'text-success-text'}`}>
                   {importer.status === 'cancelled'
                     ? `Import cancelled: ${importer.summary.imported} of ${importer.summary.total} rows imported before cancelling.`
                     : `Imported ${importer.summary.imported} of ${importer.summary.total} rows${importer.summary.failed > 0 ? `, ${importer.summary.failed} failed` : ''}.`}

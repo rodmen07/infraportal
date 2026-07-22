@@ -309,13 +309,9 @@ textarea:disabled {
 
 [data-theme="light"] .text-amber-400 { color: #92400e !important; } /* amber-800 */
 
-[data-theme="light"] .text-emerald-200 { color: #065f46 !important; }
-[data-theme="light"] .text-emerald-100 { color: #064e3b !important; }
 
 /* .text-red-400 override retired (v1.19 D12): all bare consumers migrated onto
    the text-danger-text token, which carries the danger text colour per theme. */
-[data-theme="light"] .text-orange-400 { color: #c2410c !important; }
-[data-theme="light"] .text-yellow-400 { color: #a16207 !important; }
 
 /* Background overrides */
 [data-theme="light"] .bg-zinc-950 { background-color: #f4f4f5 !important; }
@@ -371,11 +367,8 @@ textarea:disabled {
 /* ── Additional light-mode dark-island remediation ──────────────────────── */
 
 /* Text: missing semantic colour overrides */
-[data-theme="light"] .text-emerald-300 { color: #065f46 !important; } /* emerald-800 10.5:1 */
 /* .text-red-300 override retired (v1.19 D12): migrated onto text-danger-text
    (its light value is red-800, identical to this rule; dark consolidates to red-200). */
-[data-theme="light"] .text-orange-300  { color: #9a3412 !important; } /* orange-800  */
-[data-theme="light"] .text-blue-400    { color: #1d4ed8 !important; } /* blue-700    */
 
 /* Opacity-modified category chip colours (IntegrationsSection) */
 [data-theme="light"] .text-blue-400\/70   { color: #1d4ed8 !important; }

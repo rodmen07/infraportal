@@ -143,7 +143,7 @@ export function ApiSpecExplorer() {
                 </span>
                 <span className="flex shrink-0 items-center gap-1">
                   {COVERED_SERVICE_IDS.includes(service.id) && (
-                    <span className="rounded border border-emerald-500/25 bg-emerald-500/10 px-1.5 py-0.5 text-scale-xs text-emerald-300">
+                    <span className="rounded border border-emerald-500/25 bg-emerald-500/10 px-1.5 py-0.5 text-scale-xs text-success-text">
                       try-it demo
                     </span>
                   )}
@@ -165,7 +165,7 @@ export function ApiSpecExplorer() {
       )}
 
       {!spec && errorMessage && (
-        <div className="rounded-xl border border-rose-500/40 bg-rose-950/20 p-6 text-xs text-rose-300">
+        <div className="rounded-xl border border-rose-500/40 bg-rose-950/20 p-6 text-xs text-danger-text">
           Could not load the {selectedId} spec: {errorMessage}
         </div>
       )}

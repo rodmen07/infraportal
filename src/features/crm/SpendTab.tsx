@@ -11,19 +11,19 @@ import {
 // Spend tab
 // ---------------------------------------------------------------------------
 const PLATFORM_COLOR: Record<string, string> = {
-  gcp:            'bg-blue-500/15 text-blue-300 ring-blue-500/30',
+  gcp:            'bg-blue-500/15 text-info-text ring-blue-500/30',
   flyio:          'bg-purple-500/15 text-purple-300 ring-purple-500/30',
   anthropic:      'bg-amber-500/15 text-amber-300 ring-amber-500/30',
-  github_copilot: 'bg-green-500/15 text-green-300 ring-green-500/30',
-  github:         'bg-green-500/15 text-green-300 ring-green-500/30',
-  aws:            'bg-orange-500/15 text-orange-300 ring-orange-500/30',
+  github_copilot: 'bg-green-500/15 text-success-text ring-green-500/30',
+  github:         'bg-green-500/15 text-success-text ring-green-500/30',
+  aws:            'bg-orange-500/15 text-caution-text ring-orange-500/30',
 }
 const SOURCE_COLOR: Record<string, string> = {
   manual:              'bg-zinc-500/15 text-text-muted ring-zinc-500/30',
-  bigquery:            'bg-blue-500/15 text-blue-300 ring-blue-500/30',
+  bigquery:            'bg-blue-500/15 text-info-text ring-blue-500/30',
   flyio_graphql:       'bg-purple-500/15 text-purple-300 ring-purple-500/30',
-  github_api:          'bg-green-500/15 text-green-300 ring-green-500/30',
-  aws_cost_explorer:   'bg-orange-500/15 text-orange-300 ring-orange-500/30',
+  github_api:          'bg-green-500/15 text-success-text ring-green-500/30',
+  aws_cost_explorer:   'bg-orange-500/15 text-caution-text ring-orange-500/30',
 }
 const PLATFORM_LABELS: Record<string, string> = {
   gcp: 'GCP', flyio: 'Fly.io', anthropic: 'Anthropic', github_copilot: 'GitHub Copilot',

@@ -2,11 +2,11 @@ import { useEffect, useRef, useState } from 'react'
 import { useNotifications } from './NotificationContext'
 
 const SOURCE_COLORS: Record<string, string> = {
-  accounts: 'bg-blue-500/20 text-blue-300',
-  contacts: 'bg-green-500/20 text-green-300',
+  accounts: 'bg-blue-500/20 text-info-text',
+  contacts: 'bg-green-500/20 text-success-text',
   opportunities: 'bg-amber-500/20 text-amber-300',
   activities: 'bg-purple-500/20 text-purple-300',
-  automation: 'bg-orange-500/20 text-orange-300',
+  automation: 'bg-orange-500/20 text-caution-text',
   integrations: 'bg-cyan-500/20 text-cyan-300',
 }
 

@@ -136,7 +136,7 @@ export function TemplateLibrary({ projects, store = projectsStore }: TemplateLib
       </form>
 
       {feedback && (
-        <p className="rounded-xl border border-green-500/30 bg-green-500/10 px-3 py-2 text-xs text-green-300">{feedback}</p>
+        <p className="rounded-xl border border-green-500/30 bg-green-500/10 px-3 py-2 text-xs text-success-text">{feedback}</p>
       )}
 
       {/* Template list */}

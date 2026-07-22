@@ -261,7 +261,7 @@ function RecentActivities({ rows }: { rows: Activity[] }) {
               <td className="px-3 py-2 text-text-secondary">{a.subject}</td>
               <td className="px-3 py-2 text-text-muted">{a.created_at.slice(0, 10)}</td>
               <td className="px-3 py-2 text-xs">
-                <span className={`rounded-full px-2 py-0.5 ${a.completed ? 'bg-green-500/20 text-green-300' : 'bg-amber-500/15 text-amber-300'}`}>
+                <span className={`rounded-full px-2 py-0.5 ${a.completed ? 'bg-green-500/20 text-success-text' : 'bg-amber-500/15 text-amber-300'}`}>
                   {a.completed ? 'done' : 'pending'}
                 </span>
               </td>
@@ -357,10 +357,10 @@ export function UserDashboardPage() {
   }, [fetchCounts])
 
   const statusTone = status === 'error'
-    ? 'border-red-500/30 bg-red-500/10 text-red-200'
+    ? 'border-red-500/30 bg-red-500/10 text-danger-text'
     : status === 'loading'
       ? 'border-amber-500/30 bg-amber-500/10 text-amber-200'
-      : 'border-emerald-500/30 bg-emerald-500/10 text-emerald-200'
+      : 'border-emerald-500/30 bg-emerald-500/10 text-success-text'
 
   const statusLabel = status === 'error' ? 'Attention needed' : status === 'loading' ? 'Refreshing data' : 'Data is up to date'
 
@@ -413,7 +413,7 @@ export function UserDashboardPage() {
           {status === 'error' && error && (
             <div className="forge-panel surface-card-strong flex flex-col gap-3 border border-red-500/30 bg-red-500/10 p-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="text-sm font-semibold text-red-200">Dashboard refresh failed</p>
+                <p className="text-sm font-semibold text-danger-text">Dashboard refresh failed</p>
                 <p className="mt-1 text-sm text-red-100/90">{error}</p>
               </div>
               <button className="btn-accent btn-sm" onClick={fetchCounts}>Try again</button>

@@ -452,7 +452,7 @@ function ReportsView() {
   if (error) return (
     <div className="forge-panel surface-card-strong flex flex-col gap-3 border border-red-500/30 bg-red-500/10 p-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
-        <p className="text-sm font-semibold text-red-200">Unable to load saved reports</p>
+        <p className="text-sm font-semibold text-danger-text">Unable to load saved reports</p>
         <p className="mt-1 text-sm text-red-100/90">{error}</p>
       </div>
       <button className="btn-accent px-3 py-2 text-sm" onClick={load}>Retry</button>

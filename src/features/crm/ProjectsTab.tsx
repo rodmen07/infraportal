@@ -25,17 +25,17 @@ import {
 const STATUS_PILL: Record<string, string> = {
   // Project statuses
   planning:    'bg-zinc-700/40 text-text-secondary',
-  active:      'bg-emerald-500/15 text-emerald-300',
+  active:      'bg-emerald-500/15 text-success-text',
   on_hold:     'bg-amber-500/15 text-amber-300',
-  completed:   'bg-blue-500/15 text-blue-300',
+  completed:   'bg-blue-500/15 text-info-text',
   cancelled:   'bg-red-500/15 text-danger-text',
   // Milestone statuses (completed shared above)
   pending:     'bg-zinc-700/40 text-text-muted',
   in_progress: 'bg-amber-500/15 text-amber-300',
   // Deliverable statuses (in_progress shared above)
   not_started: 'bg-zinc-700/40 text-text-muted',
-  in_review:   'bg-blue-500/15 text-blue-400',
-  accepted:    'bg-emerald-500/15 text-emerald-300',
+  in_review:   'bg-blue-500/15 text-info-text',
+  accepted:    'bg-emerald-500/15 text-success-text',
 }
 
 export function ProjectsTab() {

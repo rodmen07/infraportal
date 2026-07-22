@@ -95,7 +95,7 @@ export function ActivitiesTab() {
                   <tr key={a.id} className={`border-b border-zinc-700/20 ${i % 2 === 0 ? 'bg-zinc-800/20' : ''}`}>
                     <td className="max-w-[200px] truncate px-3 py-2 text-zinc-200">{a.subject}</td>
                     <td className="px-3 py-2"><Badge value={a.activity_type} map={ACTIVITY_COLOR} /></td>
-                    <td className="px-3 py-2">{a.completed ? <span className="text-green-400">✓</span> : <span className="text-zinc-600">—</span>}</td>
+                    <td className="px-3 py-2">{a.completed ? <span className="text-success-text">✓</span> : <span className="text-zinc-600">—</span>}</td>
                     <td className="px-3 py-2 font-mono text-text-muted">{a.due_at?.slice(0, 10) ?? '—'}</td>
                     <td className="px-3 py-2 font-mono text-text-subtle">{a.created_at.slice(0, 10)}</td>
                     <ActionButtons onEdit={() => openEdit(a)} onDelete={() => openDelete(a)} />

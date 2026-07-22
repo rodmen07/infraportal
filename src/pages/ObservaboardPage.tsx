@@ -88,16 +88,16 @@ function EmptyState({ message }: { message: string }) {
 
 const SEVERITY_COLORS: Record<string, string> = {
   low:      'bg-zinc-700/40 text-text-secondary border-zinc-600/30',
-  medium:   'bg-blue-500/20 text-blue-300 border-blue-500/30',
+  medium:   'bg-blue-500/20 text-info-text border-blue-500/30',
   high:     'bg-amber-500/20 text-amber-300 border-amber-500/30',
   critical: 'bg-red-500/20 text-danger-text border-red-500/30',
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
-  deployment: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
+  deployment: 'bg-emerald-500/20 text-success-text border-emerald-500/30',
   security:   'bg-red-500/20 text-danger-text border-red-500/30',
   alert:      'bg-amber-500/20 text-amber-300 border-amber-500/30',
-  metric:     'bg-blue-500/20 text-blue-300 border-blue-500/30',
+  metric:     'bg-blue-500/20 text-info-text border-blue-500/30',
   info:       'bg-zinc-700/40 text-text-secondary border-zinc-600/30',
 }
 

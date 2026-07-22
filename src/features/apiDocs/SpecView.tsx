@@ -21,11 +21,11 @@ import type {
 } from './specModel'
 
 const METHOD_STYLES: Record<string, string> = {
-  get: 'border-emerald-500/40 bg-emerald-500/15 text-emerald-300',
+  get: 'border-emerald-500/40 bg-emerald-500/15 text-success-text',
   post: 'border-sky-500/40 bg-sky-500/15 text-sky-300',
   put: 'border-violet-500/40 bg-violet-500/15 text-violet-300',
   patch: 'border-amber-500/40 bg-amber-500/15 text-amber-300',
-  delete: 'border-rose-500/40 bg-rose-500/15 text-rose-300',
+  delete: 'border-rose-500/40 bg-rose-500/15 text-danger-text',
 }
 
 const FALLBACK_METHOD_STYLE = 'border-zinc-500/40 bg-zinc-500/15 text-text-secondary'
@@ -41,9 +41,9 @@ export function MethodBadge({ method }: { method: string }) {
 }
 
 function statusTone(status: string): string {
-  if (status.startsWith('2')) return 'text-emerald-300'
+  if (status.startsWith('2')) return 'text-success-text'
   if (status.startsWith('4')) return 'text-amber-300'
-  if (status.startsWith('5')) return 'text-rose-300'
+  if (status.startsWith('5')) return 'text-danger-text'
   return 'text-text-secondary'
 }
 
@@ -104,7 +104,7 @@ export function SchemaTree({ node, depth = 0 }: { node: SchemaNodeView; depth?: 
               <div className="text-xs leading-5">
                 <span className="font-mono font-semibold text-zinc-200">{field.name}</span>
                 {field.required && (
-                  <span className="ml-1.5 rounded bg-rose-500/15 px-1 py-0.5 text-scale-xs font-medium text-rose-300">
+                  <span className="ml-1.5 rounded bg-rose-500/15 px-1 py-0.5 text-scale-xs font-medium text-danger-text">
                     required
                   </span>
                 )}
@@ -156,7 +156,7 @@ export function ParametersTable({ parameters }: { parameters: ParameterView[] })
               <td className="px-3 py-2 font-mono text-zinc-200">
                 {param.name}
                 {param.required && (
-                  <span className="ml-1.5 rounded bg-rose-500/15 px-1 py-0.5 text-scale-xs font-medium text-rose-300">
+                  <span className="ml-1.5 rounded bg-rose-500/15 px-1 py-0.5 text-scale-xs font-medium text-danger-text">
                     required
                   </span>
                 )}
@@ -235,7 +235,7 @@ export function OperationCard({
             className={`rounded-md border px-2 py-0.5 font-medium ${
               operation.auth.required
                 ? 'border-amber-500/30 bg-amber-500/10 text-amber-300'
-                : 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
+                : 'border-emerald-500/30 bg-emerald-500/10 text-success-text'
             }`}
           >
             Auth: {operation.auth.label}
@@ -272,7 +272,7 @@ export function OperationCard({
             <h5 className="mb-1 text-scale-xs font-semibold uppercase tracking-widest text-text-muted">
               Request body
               {operation.requestBody.required && (
-                <span className="ml-1.5 rounded bg-rose-500/15 px-1 py-0.5 text-scale-xs font-medium normal-case tracking-normal text-rose-300">
+                <span className="ml-1.5 rounded bg-rose-500/15 px-1 py-0.5 text-scale-xs font-medium normal-case tracking-normal text-danger-text">
                   required
                 </span>
               )}
@@ -295,7 +295,7 @@ export function OperationCard({
                   <span className={`font-mono font-bold ${statusTone(response.status)}`}>{response.status}</span>
                   <span className="flex-1 text-text-muted">{response.description.trim()}</span>
                   {response.isErrorEnvelope && (
-                    <span className="rounded border border-rose-500/25 bg-rose-500/10 px-1.5 py-0.5 font-mono text-scale-xs text-rose-300">
+                    <span className="rounded border border-rose-500/25 bg-rose-500/10 px-1.5 py-0.5 font-mono text-scale-xs text-danger-text">
                       ApiError envelope
                     </span>
                   )}
