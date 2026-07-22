@@ -193,9 +193,33 @@ Cadence: one minor per week, each one or two small PRs, same verification bar as
 - **Done when (RE-SCOPED):** every **non-fence-blocked** palette override rule is retired — the `[data-theme="light"]` selector count reaches its structural floor (~49 structural + the 56 fence-blocked = ~105), NOT zero. The ratchet stays (it now guards the floor, not zero). Both-theme walk clean; deploy green. Full retirement to zero is explicitly **deferred to the CrmAdminPage/PortalPage split below.**
 - **Proves to the audience:** light mode is first-class for every surface a visitor actually sees (marketing, case studies, portal-facing chrome); the residual patch surface is confined to two admin-only internal pages, tracked for a dedicated split.
 
-### CH-1 - Split CrmAdminPage / PortalPage, then retire the last 56 override rules (dependent milestone, filed 2026-07-22)
+**Status (2026-07-22).** Text scale done; CH-1 done; sheet at **221** (from ~230). Shipped: PR #49 (token foundation + `--text-subtle`), #52 (slice 2), #53/#54 (CH-1 splits), #55 (split-module migration, 4 rules retired), #56/#57 (regression fixes below). The whole bare `text-zinc-{100,300,400,500}` scale is migrated; `text-zinc-{200,600}` and every `bg-zinc`/`border-zinc`/status family remain.
 
-The 2,187-line `CrmAdminPage.tsx` and ~1,100-line `PortalPage.tsx` are fenced from v1.18.x for code-health (Section 6). They hold **56 override rules hostage**: those rules cannot be deleted while these two files keep using the raw classes. This milestone splits each page into smaller modules (a behavior-preserving refactor, existing tests unchanged), migrates the extracted pieces onto tokens, and then deletes the final 56 rules to bring the sheet to its true structural floor. Large; sequenced after v1.18.6's non-fenced retirement. Candidate for a v1.19 code-health theme.
+**Hard-won guardrail (add to the mandatory list above).** The "curated codemod is zero-shift because token values equal the class values" reasoning is necessary but **not sufficient**. A class rename orphans *every* rule that keys on that class, not just the plain `[data-theme="light"] .class` override you intend to delete. Two regressions shipped from exactly this and were caught only by later adversarial review, not by any test:
+
+- **F11 contrast (fixed #56):** `[data-theme="dark"] .text-zinc-500` bumped that class to zinc-400 for WCAG AA on dark surfaces. Migrating `text-zinc-500 → text-text-subtle` (whose dark value was zinc-500) silently re-failed AA on ~49 caption/timestamp surfaces. Fix: token now carries the bump (`--text-subtle` = zinc-400 in dark); locked by a test.
+- **Code blocks (fixed #57):** a higher-specificity `pre.text-zinc-{200,300,400}` rule kept code blocks dark in light mode. Renaming those `<pre>` text classes onto tokens orphaned the rule; blocks lost their dark background. Fix: re-keyed on an explicit `code-surface` marker a colour migration can't rename away.
+
+**New required step before migrating any class `X`:** grep `src/index.css` for *every* selector mentioning `X` — not just `[data-theme="light"] .X` — and account for higher-specificity element rules (`pre.X`, `.foo.X`), theme-specific bump rules (`[data-theme="dark"] .X`), and compound/variant selectors. Any of them keyed on `X` must be re-pointed or retired in the same PR, or it silently changes rendering. The scanner tests verify structure, not appearance, so nothing else will catch it.
+
+**Remaining families are NOT a mechanical rename — two open decisions (defaults recommended, one word to accept):**
+
+- **D11 - `bg-zinc`/`border-zinc` need a surface/elevation model, not a token rename.** These classes are used almost entirely with opacity (`bg-zinc-800/40`, `bg-zinc-900/80`, `border-zinc-700/40`). Their light overrides are **hand-tuned, non-linear, and change substance**: the dark UI layers translucent *zinc* on a dark base, while light layers translucent *black* on white, and the alpha is retuned per rung (`/80 → 0.07`, `/50 → 0.04`, `/40 → 0.03`). Tailwind's `rgb(var(--surface) / <opacity>)` cannot reproduce a per-theme non-linear alpha from one token, and one-token-per-opacity-variant would mean ~44 tokens. *Recommended default:* introduce a small **elevation scale** (`surface-1/2/3` fills + `overlay-soft/strong` + `hairline` borders) that components opt into, replacing the ad-hoc `bg-zinc-900/XX`; retire the bg/border override rules a surface at a time behind a human both-theme walk. This is a v1.19 surface-model milestone, not a v1.18.6 codemod.
+- **D12 - status colours (`amber`/`emerald`/`red`/`blue`/…, ~120 rules) need semantic status tokens.** These encode warning/success/danger/info, each remapped per theme. *Recommended default:* define `--status-{warning,success,danger,info}-{fg,bg,border}` for both themes and migrate call-sites onto them, retiring the palette overrides per status role. Also a v1.19 item; each role is one reviewable PR.
+
+Both decisions are deferred to v1.19; recording them here so v1.18.6 can close at its structural floor without the remaining families being mistaken for leftover mechanical work.
+
+### CH-1 - Split CrmAdminPage / PortalPage, then retire the last 56 override rules — DONE (2026-07-22)
+
+The 2,187-line `CrmAdminPage.tsx` and ~1,100-line `PortalPage.tsx` were fenced from v1.18.x for code-health (Section 6). They held **56 override rules hostage**: those rules could not be deleted while these two files kept using the raw classes.
+
+**Shipped:**
+- `PortalPage.tsx` split into `src/features/portal/{types,auth,projectDetail,buildStatus}` — the page shell dropped 1,100 → 253 lines (PR #53, merged).
+- `CrmAdminPage.tsx` split into `src/features/crm/{types,api,ui,ContactsTab,AccountsTab,OpportunitiesTab,ActivitiesTab,LiveFeedTab,ProjectsTab,SpendTab,PortalLoginGate}` — the page shell dropped 2,187 → 101 lines (PR #54, merged).
+- Both splits were behavior-preserving (existing tests unchanged); the type-scale-floor exemptions and allowlist coordinates followed the relocated code.
+- The freed bare `text-zinc` consumers were then migrated onto tokens and their 4 override rules retired (PR #55, ratchet 227 → 223).
+
+The remaining fence-blocked rules are the `bg-zinc`/`border-zinc`/status families, which are **not** a mechanical rename — see "Remaining families" below.
 
 ### v1.18.5 (optional, per D10) - Perceived performance
 
