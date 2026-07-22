@@ -378,7 +378,7 @@ export function MicroservicesCaseStudyPage() {
           ] as [string, string, string, string][]).map(([id, severity, status, desc]) => (
             <div key={id} className="flex items-start gap-3 px-5 py-3 text-sm">
               <span className="w-24 shrink-0 font-mono text-xs text-text-subtle">{id}</span>
-              <span className={`w-20 shrink-0 text-xs font-medium ${severity === 'HIGH' ? 'text-red-400' : severity === 'MED-HIGH' ? 'text-orange-400' : 'text-yellow-400'}`}>{severity}</span>
+              <span className={`w-20 shrink-0 text-xs font-medium ${severity === 'HIGH' ? 'text-danger-text' : severity === 'MED-HIGH' ? 'text-orange-400' : 'text-yellow-400'}`}>{severity}</span>
               <span className="shrink-0 text-base">{status}</span>
               <span className="text-text-secondary">{desc}</span>
             </div>

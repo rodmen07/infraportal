@@ -102,7 +102,7 @@ export function ProjectSummaryCard({
             Target{' '}
             <span className="text-text-secondary">{project.target_end_date.slice(0, 10)}</span>
             {' — '}
-            <span className={daysLeft < 0 ? 'text-red-400' : 'text-text-secondary'}>
+            <span className={daysLeft < 0 ? 'text-danger-text' : 'text-text-secondary'}>
               {daysLeft < 0 ? `${Math.abs(daysLeft)}d overdue` : `${daysLeft}d remaining`}
             </span>
           </span>
@@ -406,7 +406,7 @@ export function MessageThread({
       </div>
 
       <form onSubmit={submit} className="border-t border-zinc-700/40 p-3 flex flex-col gap-2">
-        {sendError && <p className="rounded-lg bg-red-500/10 px-3 py-1.5 text-xs text-red-400">{sendError}</p>}
+        {sendError && <p className="rounded-lg bg-red-500/10 px-3 py-1.5 text-xs text-danger-text">{sendError}</p>}
         <div className="flex gap-2">
           <input
             type="text"

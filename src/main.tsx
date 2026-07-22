@@ -71,7 +71,7 @@ function FailureMessage({ reason }: { reason: string }) {
   return (
     <div className="min-h-screen bg-zinc-950 px-4 py-10 text-text-primary">
       <div className="mx-auto w-full max-w-xl rounded-2xl border border-red-500/40 bg-zinc-900/90 p-6 shadow-xl shadow-black/40">
-        <h1 className="text-xl font-semibold text-red-300">Main page did not load</h1>
+        <h1 className="text-xl font-semibold text-danger-text">Main page did not load</h1>
         <p className="mt-3 text-sm text-text-secondary">
           The UI failed to render correctly. You can refresh now, or return home and try again.
         </p>

@@ -19,7 +19,7 @@ const STATUS_TEXT: Record<string, string> = {
 const STATUS_CLASS: Record<string, string> = {
   green:   'border-emerald-400/40 bg-emerald-500/10 text-emerald-300',
   yellow:  'border-amber-400/40 bg-amber-500/10 text-amber-300',
-  red:     'border-red-400/40 bg-red-500/10 text-red-300',
+  red:     'border-red-400/40 bg-red-500/10 text-danger-text',
   unknown: 'border-zinc-600/40 bg-zinc-700/30 text-text-subtle',
 }
 

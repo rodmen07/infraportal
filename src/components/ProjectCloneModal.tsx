@@ -230,7 +230,7 @@ export function ProjectCloneModal({ projects, initialSourceId, store = projectsS
           )}
           {status === 'failed' && (
             <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3">
-              <p className="text-sm font-medium text-red-300">Clone failed: the source project no longer exists.</p>
+              <p className="text-sm font-medium text-danger-text">Clone failed: the source project no longer exists.</p>
             </div>
           )}
 

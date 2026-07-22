@@ -156,7 +156,7 @@ function SpeakButton({ text, label = 'Read aloud' }: { text: string; label?: str
 // ── Severity helpers ──────────────────────────────────────────────────────────
 
 const SEV_BADGE: Record<Severity, string> = {
-  CRITICAL: 'text-red-400 border-red-500/40 bg-red-900/20',
+  CRITICAL: 'text-danger-text border-red-500/40 bg-red-900/20',
   HIGH:     'text-orange-400 border-orange-500/40 bg-orange-900/20',
   MEDIUM:   'text-yellow-400 border-yellow-500/40 bg-yellow-900/20',
   LOW:      'text-blue-400 border-blue-500/40 bg-blue-900/20',

@@ -149,7 +149,7 @@ export function ContactCTA() {
             className="field-input resize-none px-4 py-2.5 text-sm"
           />
           {phase === 'error' && (
-            <p className="text-sm text-red-400">Something went wrong, please try again.</p>
+            <p className="text-sm text-danger-text">Something went wrong, please try again.</p>
           )}
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="text-sm text-text-subtle">I typically reply within one business day.</p>

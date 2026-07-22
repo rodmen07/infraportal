@@ -52,7 +52,7 @@ export function LiveFeedTab() {
       <div className="mb-4 flex items-center gap-2">
         {status === 'connected' && <><span className="h-2 w-2 rounded-full bg-green-400 animate-pulse" /><span className="text-xs text-green-400">Connected</span></>}
         {status === 'connecting' && <><span className="h-2 w-2 rounded-full bg-amber-400 animate-pulse" /><span className="text-xs text-amber-400">Connecting…</span></>}
-        {status === 'error'  && <><span className="h-2 w-2 rounded-full bg-red-400" /><span className="text-xs text-red-400">Connection error</span></>}
+        {status === 'error'  && <><span className="h-2 w-2 rounded-full bg-red-400" /><span className="text-xs text-danger-text">Connection error</span></>}
         {status === 'no-url' && <><span className="h-2 w-2 rounded-full bg-zinc-600" /><span className="text-xs text-text-subtle">VITE_EVENT_STREAM_URL not configured</span></>}
         {events.length > 0 && <span className="ml-auto text-xs text-text-subtle">{events.length} event{events.length !== 1 ? 's' : ''}</span>}
       </div>

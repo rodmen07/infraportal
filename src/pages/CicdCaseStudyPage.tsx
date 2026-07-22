@@ -203,7 +203,7 @@ export function CicdCaseStudyPage() {
             <div className="mt-0.5 text-text-muted">build + push</div>
             <div className="mt-0.5 text-text-muted">deploy</div>
             <div className="mt-1 text-emerald-400 text-scale-xs">✓ health check</div>
-            <div className="text-red-400 text-scale-xs">↩ rollback on fail</div>
+            <div className="text-danger-text text-scale-xs">↩ rollback on fail</div>
           </div>
           <div className="flex items-center text-zinc-600 pt-3">→</div>
           {/* approval gate */}
@@ -220,7 +220,7 @@ export function CicdCaseStudyPage() {
             <div className="mt-0.5 text-text-muted">promote image</div>
             <div className="mt-0.5 text-text-muted">deploy</div>
             <div className="mt-1 text-emerald-400 text-scale-xs">✓ health check</div>
-            <div className="text-red-400 text-scale-xs">↩ rollback on fail</div>
+            <div className="text-danger-text text-scale-xs">↩ rollback on fail</div>
           </div>
         </div>
         <div className="mt-4 grid gap-2 text-xs sm:grid-cols-2">

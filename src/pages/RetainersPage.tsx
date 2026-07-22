@@ -91,7 +91,7 @@ export function RetainersPage() {
     return (
       <PageLayout>
         <div className="forge-panel rounded-3xl p-8 text-center">
-          <p className="text-red-400">Failed to load retainer plans</p>
+          <p className="text-danger-text">Failed to load retainer plans</p>
         </div>
       </PageLayout>
     )
