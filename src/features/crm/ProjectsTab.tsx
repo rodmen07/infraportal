@@ -24,16 +24,16 @@ import {
 // ---------------------------------------------------------------------------
 const STATUS_PILL: Record<string, string> = {
   // Project statuses
-  planning:    'bg-zinc-700/40 text-zinc-300',
+  planning:    'bg-zinc-700/40 text-text-secondary',
   active:      'bg-emerald-500/15 text-emerald-300',
   on_hold:     'bg-amber-500/15 text-amber-300',
   completed:   'bg-blue-500/15 text-blue-300',
   cancelled:   'bg-red-500/15 text-red-300',
   // Milestone statuses (completed shared above)
-  pending:     'bg-zinc-700/40 text-zinc-400',
+  pending:     'bg-zinc-700/40 text-text-muted',
   in_progress: 'bg-amber-500/15 text-amber-300',
   // Deliverable statuses (in_progress shared above)
-  not_started: 'bg-zinc-700/40 text-zinc-400',
+  not_started: 'bg-zinc-700/40 text-text-muted',
   in_review:   'bg-blue-500/15 text-blue-400',
   accepted:    'bg-emerald-500/15 text-emerald-300',
 }
@@ -314,7 +314,7 @@ export function ProjectsTab() {
                   : 'border-zinc-700/40 bg-zinc-800/30 text-zinc-200 hover:bg-zinc-800/60'
               }`}>
               <span className="font-medium">{p.name}</span>
-              <span className={`rounded-full px-2 py-0.5 text-xs ${STATUS_PILL[p.status] ?? 'bg-zinc-700/40 text-zinc-400'}`}>
+              <span className={`rounded-full px-2 py-0.5 text-xs ${STATUS_PILL[p.status] ?? 'bg-zinc-700/40 text-text-muted'}`}>
                 {statusLabel(p.status)}
               </span>
             </button>
@@ -327,12 +327,12 @@ export function ProjectsTab() {
         <div className="space-y-4 border-t border-zinc-700/40 pt-4">
           <div className="flex flex-wrap items-start justify-between gap-2">
             <div>
-              <h4 className="text-sm font-semibold text-zinc-100">{selected.name}</h4>
+              <h4 className="text-sm font-semibold text-text-primary">{selected.name}</h4>
               {selected.client_user_id && (
-                <p className="mt-0.5 font-mono text-xs text-zinc-500">client: {selected.client_user_id}</p>
+                <p className="mt-0.5 font-mono text-xs text-text-subtle">client: {selected.client_user_id}</p>
               )}
               {selected.budget != null && (
-                <p className="mt-0.5 text-xs text-zinc-400">Budget: <span className="text-zinc-200">${selected.budget.toLocaleString()}</span></p>
+                <p className="mt-0.5 text-xs text-text-muted">Budget: <span className="text-zinc-200">${selected.budget.toLocaleString()}</span></p>
               )}
             </div>
             {!PROJECTS_DEMO && (
@@ -357,12 +357,12 @@ export function ProjectsTab() {
               <div className="flex items-center justify-between gap-2">
                 <span className="text-sm font-medium text-zinc-200">{m.name}</span>
                 <div className="flex items-center gap-2">
-                  {m.due_date && <span className="text-xs text-zinc-500">{m.due_date.slice(0, 10)}</span>}
-                  <span className={`rounded-full px-2 py-0.5 text-xs ${STATUS_PILL[m.status] ?? 'bg-zinc-700/40 text-zinc-400'}`}>
+                  {m.due_date && <span className="text-xs text-text-subtle">{m.due_date.slice(0, 10)}</span>}
+                  <span className={`rounded-full px-2 py-0.5 text-xs ${STATUS_PILL[m.status] ?? 'bg-zinc-700/40 text-text-muted'}`}>
                     {statusLabel(m.status)}
                   </span>
                   {!PROJECTS_DEMO && (
-                    <button className="text-xs text-zinc-500 hover:text-zinc-300" onClick={() => { setShowDeliverable(m.id); setDlForm({ name: '', description: '', status: RESET_DELIVERABLE_STATUS, estimated_hours: '' }) }}>
+                    <button className="text-xs text-text-subtle hover:text-text-secondary" onClick={() => { setShowDeliverable(m.id); setDlForm({ name: '', description: '', status: RESET_DELIVERABLE_STATUS, estimated_hours: '' }) }}>
                       + Deliverable
                     </button>
                   )}
@@ -370,12 +370,12 @@ export function ProjectsTab() {
               </div>
               {(deliverables[m.id] ?? []).map(d => (
                 <div key={d.id} className="flex items-center justify-between gap-2 rounded-lg bg-zinc-900/40 px-3 py-1.5 text-xs">
-                  <span className="text-zinc-300">{d.name}</span>
+                  <span className="text-text-secondary">{d.name}</span>
                   <div className="flex items-center gap-2">
                     {d.estimated_hours != null && d.estimated_hours > 0 && (
-                      <span className="text-zinc-500">{d.estimated_hours}h</span>
+                      <span className="text-text-subtle">{d.estimated_hours}h</span>
                     )}
-                    <span className={`rounded-full px-2 py-0.5 ${STATUS_PILL[d.status] ?? 'bg-zinc-700/40 text-zinc-400'}`}>
+                    <span className={`rounded-full px-2 py-0.5 ${STATUS_PILL[d.status] ?? 'bg-zinc-700/40 text-text-muted'}`}>
                       {statusLabel(d.status)}
                     </span>
                   </div>
@@ -389,12 +389,12 @@ export function ProjectsTab() {
               are not part of the demo store (v1.16.5 scope). */}
           {!PROJECTS_DEMO && (<>
           <div className="space-y-2">
-            <h5 className="text-xs font-semibold uppercase tracking-widest text-zinc-400">Project links</h5>
-            {links.length === 0 && <p className="text-xs text-zinc-500">No links yet.</p>}
+            <h5 className="text-xs font-semibold uppercase tracking-widest text-text-muted">Project links</h5>
+            {links.length === 0 && <p className="text-xs text-text-subtle">No links yet.</p>}
             {links.map(lnk => (
               <div key={lnk.id} className="flex items-center justify-between gap-2 rounded-lg bg-zinc-900/40 px-3 py-1.5 text-xs">
                 <div className="flex items-center gap-2 min-w-0">
-                  <span className="text-zinc-500">{lnk.link_type}</span>
+                  <span className="text-text-subtle">{lnk.link_type}</span>
                   <a href={lnk.url} target="_blank" rel="noopener noreferrer" className="truncate text-amber-400 hover:text-amber-300">{lnk.label}</a>
                 </div>
                 <button type="button" onClick={() => deleteLink(lnk.id)} className="shrink-0 text-zinc-600 hover:text-red-400">✕</button>
@@ -415,7 +415,7 @@ export function ProjectsTab() {
 
           {/* Collaborators */}
           <div className="space-y-2">
-            <h5 className="text-xs font-semibold uppercase tracking-widest text-zinc-400">Collaborators</h5>
+            <h5 className="text-xs font-semibold uppercase tracking-widest text-text-muted">Collaborators</h5>
             {collaborators.length === 0 && (
               <CustomEmptyState
                 icon={<UsersIcon />}
@@ -429,7 +429,7 @@ export function ProjectsTab() {
                   {c.name[0]?.toUpperCase() ?? '?'}
                 </span>
                 <span className="flex-1 text-zinc-200">{c.name}</span>
-                <span className="text-zinc-500">{c.role}</span>
+                <span className="text-text-subtle">{c.role}</span>
               </div>
             ))}
             <form onSubmit={createCollaborator} className="flex gap-2 pt-1">
@@ -445,7 +445,7 @@ export function ProjectsTab() {
 
           {/* Progress updates */}
           <div className="space-y-2">
-            <h5 className="text-xs font-semibold uppercase tracking-widest text-zinc-400">Progress updates</h5>
+            <h5 className="text-xs font-semibold uppercase tracking-widest text-text-muted">Progress updates</h5>
             {progressUpdates.length === 0 && (
               <CustomEmptyState
                 icon={<DocumentIcon />}
@@ -456,7 +456,7 @@ export function ProjectsTab() {
             {progressUpdates.map(u => (
               <div key={u.id} className="rounded-xl bg-zinc-900/40 px-3 py-2 text-xs">
                 <p className="text-zinc-200">{u.content}</p>
-                <p className="mt-0.5 text-zinc-500">{u.created_at.slice(0, 16).replace('T', ' ')}</p>
+                <p className="mt-0.5 text-text-subtle">{u.created_at.slice(0, 16).replace('T', ' ')}</p>
               </div>
             ))}
             <form onSubmit={createProgressUpdate} className="flex gap-2 pt-1">
@@ -468,7 +468,7 @@ export function ProjectsTab() {
 
           {/* Messages */}
           <div className="space-y-2">
-            <h5 className="text-xs font-semibold uppercase tracking-widest text-zinc-400">Messages</h5>
+            <h5 className="text-xs font-semibold uppercase tracking-widest text-text-muted">Messages</h5>
             {messages.length === 0 && (
               <CustomEmptyState
                 icon={<DocumentIcon />}
@@ -479,14 +479,14 @@ export function ProjectsTab() {
             {messages.map(m => (
               <div key={m.id} className={`rounded-xl px-3 py-2 text-sm ${m.author_role === 'admin' ? 'bg-amber-500/10 text-amber-100 ml-6' : 'bg-zinc-800/40 text-zinc-200 mr-6'}`}>
                 <p>{m.body}</p>
-                <p className="mt-0.5 text-[10px] text-zinc-500">{m.author_role} · {m.created_at.slice(0, 16).replace('T', ' ')}</p>
+                <p className="mt-0.5 text-[10px] text-text-subtle">{m.author_role} · {m.created_at.slice(0, 16).replace('T', ' ')}</p>
               </div>
             ))}
             <form onSubmit={sendReply} className="flex flex-col gap-2 pt-1">
               {sendError && <p className="rounded-lg bg-red-500/10 px-3 py-1.5 text-xs text-red-400">{sendError}</p>}
               <div className="flex gap-2">
                 <input value={reply} onChange={e => setReply(e.target.value)} placeholder="Reply to client…"
-                  className="min-w-0 flex-1 rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none" />
+                  className="min-w-0 flex-1 rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none" />
                 <button type="submit" disabled={!reply.trim() || sending} className="btn-accent btn-sm disabled:opacity-50">Send</button>
               </div>
             </form>
@@ -515,7 +515,7 @@ export function ProjectsTab() {
             <FormField label="Account ID"><input required value={form.account_id} onChange={e => setForm(f => ({ ...f, account_id: e.target.value }))} className={INPUT_CLS} placeholder="UUID from accounts-service" /></FormField>
             <FormField label="Client user ID">
               <input value={form.client_user_id} onChange={e => setForm(f => ({ ...f, client_user_id: e.target.value }))} className={INPUT_CLS} placeholder="Client's account ID from #/portal" />
-              <p className="mt-1 text-[10px] text-zinc-500">Ask the client to visit <span className="font-mono text-zinc-400">#/portal</span> and copy their Account ID from the &quot;no project&quot; screen.</p>
+              <p className="mt-1 text-[10px] text-text-subtle">Ask the client to visit <span className="font-mono text-text-muted">#/portal</span> and copy their Account ID from the &quot;no project&quot; screen.</p>
             </FormField>
             <FormField label="Status">
               <select value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))} className={INPUT_CLS}>

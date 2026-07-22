@@ -429,7 +429,11 @@ describe('strangler rule: override-sheet rules for tokenized surfaces stay delet
     // 227 after v1.18.6's first retirement: 3 zero-consumer override rules
     // deleted (bg-zinc-900/75, text-amber-200/90, text-green-400/70) - dead in
     // JSX, only the sheet referenced them. The ratchet now guards downward too.
-    const CEILING = 227
+    // 223 after v1.18.6 migrated the bare text-zinc scale onto tokens and the
+    // CH-1 page split freed the last (formerly fenced) consumers: the 4 bare
+    // .text-zinc-{100,300,400,500} light overrides retired (their token values
+    // match in both themes, so removal is zero-change).
+    const CEILING = 223
     const remaining = (INDEX_CSS_RULES.match(/\[data-theme="light"\]/g) ?? []).length
     expect(remaining).toBeLessThanOrEqual(CEILING)
   })

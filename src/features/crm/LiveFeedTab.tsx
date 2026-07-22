@@ -53,8 +53,8 @@ export function LiveFeedTab() {
         {status === 'connected' && <><span className="h-2 w-2 rounded-full bg-green-400 animate-pulse" /><span className="text-xs text-green-400">Connected</span></>}
         {status === 'connecting' && <><span className="h-2 w-2 rounded-full bg-amber-400 animate-pulse" /><span className="text-xs text-amber-400">Connecting…</span></>}
         {status === 'error'  && <><span className="h-2 w-2 rounded-full bg-red-400" /><span className="text-xs text-red-400">Connection error</span></>}
-        {status === 'no-url' && <><span className="h-2 w-2 rounded-full bg-zinc-600" /><span className="text-xs text-zinc-500">VITE_EVENT_STREAM_URL not configured</span></>}
-        {events.length > 0 && <span className="ml-auto text-xs text-zinc-500">{events.length} event{events.length !== 1 ? 's' : ''}</span>}
+        {status === 'no-url' && <><span className="h-2 w-2 rounded-full bg-zinc-600" /><span className="text-xs text-text-subtle">VITE_EVENT_STREAM_URL not configured</span></>}
+        {events.length > 0 && <span className="ml-auto text-xs text-text-subtle">{events.length} event{events.length !== 1 ? 's' : ''}</span>}
       </div>
 
       {status === 'no-url' && (
@@ -82,12 +82,12 @@ export function LiveFeedTab() {
                   {ev.source}
                 </span>
                 <span className="text-xs font-medium text-zinc-200">{ev.type}</span>
-                <span className="ml-auto font-mono text-[11px] text-zinc-500">{new Date(ev.timestamp).toLocaleTimeString()}</span>
+                <span className="ml-auto font-mono text-[11px] text-text-subtle">{new Date(ev.timestamp).toLocaleTimeString()}</span>
               </div>
               {Boolean(ev.payload) && (
                 <details className="mt-2">
-                  <summary className="cursor-pointer text-[11px] text-zinc-500 hover:text-zinc-300">payload</summary>
-                  <pre className="mt-1 overflow-x-auto rounded-lg bg-zinc-900/60 p-2 text-[11px] text-zinc-300">{JSON.stringify(ev.payload, null, 2)}</pre>
+                  <summary className="cursor-pointer text-[11px] text-text-subtle hover:text-text-secondary">payload</summary>
+                  <pre className="mt-1 overflow-x-auto rounded-lg bg-zinc-900/60 p-2 text-[11px] text-text-secondary">{JSON.stringify(ev.payload, null, 2)}</pre>
                 </details>
               )}
             </div>

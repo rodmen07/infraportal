@@ -5,11 +5,11 @@ import { isAllSelected, isSomeSelected } from '../../lib/rowSelection'
 // ---------------------------------------------------------------------------
 // Shared UI primitives
 // ---------------------------------------------------------------------------
-export const INPUT_CLS = 'w-full rounded-xl border border-zinc-700 bg-zinc-800/60 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 outline-none transition hover:border-zinc-600 hover:bg-zinc-800/80 focus:border-amber-500/60 focus:ring-2 focus:ring-amber-500/30'
+export const INPUT_CLS = 'w-full rounded-xl border border-zinc-700 bg-zinc-800/60 px-3 py-2 text-sm text-text-primary placeholder-zinc-500 outline-none transition hover:border-zinc-600 hover:bg-zinc-800/80 focus:border-amber-500/60 focus:ring-2 focus:ring-amber-500/30'
 
 export function Spinner({ label }: { label: string }) {
   return (
-    <div className="flex items-center gap-2 py-8 text-sm text-zinc-400">
+    <div className="flex items-center gap-2 py-8 text-sm text-text-muted">
       <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
@@ -86,7 +86,7 @@ export function CustomEmptyState({ icon, title, description, onRefresh, ctaText,
   return (
     <div className="flex flex-col items-center justify-center py-16 gap-3">
       {icon}
-      <p className="text-sm font-medium text-zinc-400">{title}</p>
+      <p className="text-sm font-medium text-text-muted">{title}</p>
       <p className="text-xs text-zinc-600 text-center">{description}</p>
       {onRefresh && (
         <button type="button" onClick={onRefresh} className="mt-2 text-xs text-amber-400 underline underline-offset-2 hover:text-amber-300">
@@ -114,7 +114,7 @@ export function Modal({ title, onClose, children }: { title: string; onClose: ()
       >
         <div className="mb-5 flex items-center justify-between">
           <h3 id="modal-title" className="text-base font-bold text-white">{title}</h3>
-          <button type="button" onClick={onClose} aria-label="Close dialog" className="text-zinc-500 hover:text-white transition-colors">✕</button>
+          <button type="button" onClick={onClose} aria-label="Close dialog" className="text-text-subtle hover:text-white transition-colors">✕</button>
         </div>
         {children}
       </div>
@@ -125,7 +125,7 @@ export function Modal({ title, onClose, children }: { title: string; onClose: ()
 export function FormField({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="mb-1 block text-sm font-medium text-zinc-400">{label}</label>
+      <label className="mb-1 block text-sm font-medium text-text-muted">{label}</label>
       {children}
     </div>
   )
@@ -139,8 +139,8 @@ export function ActionButtons({ onEdit, onDelete }: { onEdit: () => void; onDele
   return (
     <td className="px-3 py-2">
       <div className="flex gap-1">
-        <button type="button" onClick={onEdit} title="Edit" className="rounded px-1.5 py-0.5 text-xs text-zinc-400 hover:bg-zinc-700 hover:text-white transition-colors">✏</button>
-        <button type="button" onClick={onDelete} title="Delete" className="rounded px-1.5 py-0.5 text-xs text-zinc-400 hover:bg-red-500/20 hover:text-red-300 transition-colors">✕</button>
+        <button type="button" onClick={onEdit} title="Edit" className="rounded px-1.5 py-0.5 text-xs text-text-muted hover:bg-zinc-700 hover:text-white transition-colors">✏</button>
+        <button type="button" onClick={onDelete} title="Delete" className="rounded px-1.5 py-0.5 text-xs text-text-muted hover:bg-red-500/20 hover:text-red-300 transition-colors">✕</button>
       </div>
     </td>
   )
@@ -191,7 +191,7 @@ export function SelectionToolbar({ count, onBulkEdit, onClear }: {
     <div className="flex items-center gap-2">
       <span className="text-xs font-medium text-amber-300">{count} selected</span>
       <button type="button" onClick={onBulkEdit} className="btn-accent px-3 py-1.5 text-xs">Bulk edit</button>
-      <button type="button" onClick={onClear} className="text-xs text-zinc-400 hover:text-white">Clear</button>
+      <button type="button" onClick={onClear} className="text-xs text-text-muted hover:text-white">Clear</button>
     </div>
   )
 }
@@ -201,7 +201,7 @@ export function DeleteModal({ label, onConfirm, onClose, saving, error }: {
 }) {
   return (
     <Modal title="Confirm delete" onClose={onClose}>
-      <p className="text-sm text-zinc-300">Delete <span className="font-semibold text-white">{label}</span>? This cannot be undone.</p>
+      <p className="text-sm text-text-secondary">Delete <span className="font-semibold text-white">{label}</span>? This cannot be undone.</p>
       {error && <SaveError message={error} />}
       <div className="mt-5 flex justify-end gap-2">
         <button type="button" onClick={onClose} className="btn-neutral px-4 py-2 text-sm">Cancel</button>
@@ -227,7 +227,7 @@ export const LIFECYCLE_COLOR: Record<string, string> = {
 // eslint-disable-next-line react-refresh/only-export-components
 export const STATUS_COLOR: Record<string, string> = {
   active:   'bg-green-500/15 text-green-300 ring-green-500/30',
-  inactive: 'bg-zinc-500/15 text-zinc-400 ring-zinc-500/30',
+  inactive: 'bg-zinc-500/15 text-text-muted ring-zinc-500/30',
   churned:  'bg-red-500/15 text-red-300 ring-red-500/30',
 }
 // eslint-disable-next-line react-refresh/only-export-components
@@ -245,7 +245,7 @@ export const ACTIVITY_COLOR: Record<string, string> = {
   meeting: 'bg-purple-500/15 text-purple-300 ring-purple-500/30',
   task:    'bg-amber-500/15 text-amber-300 ring-amber-500/30',
 }
-export const FALLBACK_BADGE = 'bg-zinc-500/15 text-zinc-400 ring-zinc-500/30'
+export const FALLBACK_BADGE = 'bg-zinc-500/15 text-text-muted ring-zinc-500/30'
 
 export function Badge({ value, map }: { value: string; map: Record<string, string> }) {
   return (

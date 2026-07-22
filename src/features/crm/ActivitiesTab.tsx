@@ -72,7 +72,7 @@ export function ActivitiesTab() {
       {!loading && !error && rows.length > 0 && (
         <div>
           <div className="mb-3 flex items-center justify-between">
-            <p className="text-xs text-zinc-500">{rows.length} record{rows.length !== 1 ? 's' : ''}</p>
+            <p className="text-xs text-text-subtle">{rows.length} record{rows.length !== 1 ? 's' : ''}</p>
             <div className="flex gap-2">
               <button type="button" onClick={load} className="btn-neutral px-3 py-1.5 text-xs">Refresh</button>
               <button type="button" onClick={openCreate} className="btn-accent px-3 py-1.5 text-xs">+ New activity</button>
@@ -81,7 +81,7 @@ export function ActivitiesTab() {
           <div className="overflow-x-auto rounded-xl border border-zinc-700/40">
             <table className="w-full min-w-[580px] text-xs">
               <thead>
-                <tr className="border-b border-zinc-700/40 text-left text-zinc-500">
+                <tr className="border-b border-zinc-700/40 text-left text-text-subtle">
                   <th className="px-3 py-2 font-medium">Subject</th>
                   <th className="px-3 py-2 font-medium">Type</th>
                   <th className="px-3 py-2 font-medium">Done</th>
@@ -96,8 +96,8 @@ export function ActivitiesTab() {
                     <td className="max-w-[200px] truncate px-3 py-2 text-zinc-200">{a.subject}</td>
                     <td className="px-3 py-2"><Badge value={a.activity_type} map={ACTIVITY_COLOR} /></td>
                     <td className="px-3 py-2">{a.completed ? <span className="text-green-400">✓</span> : <span className="text-zinc-600">—</span>}</td>
-                    <td className="px-3 py-2 font-mono text-zinc-400">{a.due_at?.slice(0, 10) ?? '—'}</td>
-                    <td className="px-3 py-2 font-mono text-zinc-500">{a.created_at.slice(0, 10)}</td>
+                    <td className="px-3 py-2 font-mono text-text-muted">{a.due_at?.slice(0, 10) ?? '—'}</td>
+                    <td className="px-3 py-2 font-mono text-text-subtle">{a.created_at.slice(0, 10)}</td>
                     <ActionButtons onEdit={() => openEdit(a)} onDelete={() => openDelete(a)} />
                   </tr>
                 ))}
@@ -135,7 +135,7 @@ export function ActivitiesTab() {
               <textarea className={`${INPUT_CLS} resize-none`} rows={2} value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} />
             </FormField>
             {modal.mode === 'edit' && (
-              <label className="flex items-center gap-2 text-sm text-zinc-300 cursor-pointer">
+              <label className="flex items-center gap-2 text-sm text-text-secondary cursor-pointer">
                 <input type="checkbox" checked={form.completed} onChange={e => setForm(f => ({ ...f, completed: e.target.checked }))} className="rounded" />
                 Mark as completed
               </label>

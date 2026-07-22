@@ -223,7 +223,7 @@ export function PortalPage() {
 
           {milestones.length > 0 ? (
             <div className="space-y-3">
-              <h3 className="text-xs font-semibold uppercase tracking-widest text-zinc-400">Timeline</h3>
+              <h3 className="text-xs font-semibold uppercase tracking-widest text-text-muted">Timeline</h3>
               {milestones.map((m) => (
                 <MilestoneCard
                   key={m.id}
@@ -233,7 +233,7 @@ export function PortalPage() {
               ))}
             </div>
           ) : (
-            <p className="text-sm text-zinc-500">No milestones have been set yet.</p>
+            <p className="text-sm text-text-subtle">No milestones have been set yet.</p>
           )}
 
           <EmailsSection emails={emails} />
