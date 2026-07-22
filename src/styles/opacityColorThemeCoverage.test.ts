@@ -142,7 +142,23 @@ function opacityColorClassesIn(source: string): string[] {
   let match: RegExpExecArray | null
   while ((match = literalPattern.exec(source)) !== null) {
     const literal = match[1] ?? match[2] ?? match[3] ?? ''
-    for (const raw of literal.split(/\s+/)) {
+    for (const rawToken of literal.split(/\s+/)) {
+      // A token pulled from inside a template literal's `${...}` substitution
+      // carries the nested string-literal's own quote at its edge - e.g.
+      // `'border-red-500/60` and `bg-red-500/8'` from
+      // `` `field-input ${hasError ? 'border-red-500/60 bg-red-500/8' : ''}` ``.
+      // The outer backtick alternative above captures the whole template
+      // literal (interpolations included) as ONE match, so those nested
+      // classes only survive whitespace-splitting with a stray leading/
+      // trailing quote attached, which then fails OPACITY_COLOR_CLASS_PATTERN
+      // and is silently dropped. That is exactly how `bg-red-500/8`,
+      // `border-red-500/60` and `bg-emerald-500/5` (all ternary-inside-
+      // template-literal className usages) evaded this sweep and had to be
+      // found by hand (portfolio backlog `## Bugs`). Strip surrounding quote
+      // characters so the class underneath is checkable; a `'`/`"`/`` ` `` only
+      // ever appears at a class token's delimiter edge, never inside a class
+      // name, so this cannot corrupt a real class.
+      const raw = rawToken.replace(/^['"`]+/, '').replace(/['"`]+$/, '')
       const base = raw.slice(raw.lastIndexOf(':') + 1) // the part after any variant: prefix
       if (OPACITY_COLOR_CLASS_PATTERN.test(base)) tokens.add(raw) // keep the FULL token, variant included
     }
@@ -250,6 +266,31 @@ describe('every src/**/*.tsx file - opacity-suffixed text/bg/border colours are 
     const apiExplorerSource = readFileSync(path.join(ROOT, 'src/features/apiDocs/ApiSpecExplorer.tsx'), 'utf-8')
     expect(opacityColorClassesIn(apiExplorerSource)).toEqual(
       expect.arrayContaining(['bg-emerald-500/10']),
+    )
+  })
+
+  it('extracts opacity classes nested inside a template-literal ${...} ternary (regression for the strip-quotes fix)', () => {
+    // The exact shape that hid bg-red-500/8, border-red-500/60 and
+    // bg-emerald-500/5 from this sweep (portfolio backlog `## Bugs`): the
+    // classes live inside a nested string literal within a `${...}` ternary of
+    // an interpolated className. The outer backtick alternative of
+    // `literalPattern` captures the WHOLE template literal as one match, so
+    // whitespace-splitting leaves the nested classes with a stray leading/
+    // trailing quote (`'border-red-500/60`, `bg-red-500/8'`) that fails
+    // OPACITY_COLOR_CLASS_PATTERN. Before the quote-stripping fix these were
+    // silently dropped; this asserts they are now recovered. The source below
+    // uses real backticks + nested single quotes so it drives the same
+    // backtick-consumes-nested-quotes path the real .tsx usage does.
+    const ternarySource =
+      'className={`field-input ${hasError ? ' +
+      "'border-red-500/60 bg-red-500/8' : 'border-border-soft'}`}"
+    expect(opacityColorClassesIn(ternarySource)).toEqual(
+      expect.arrayContaining(['border-red-500/60', 'bg-red-500/8']),
+    )
+    // Still keeps a variant prefix whole when the class is nested in a ternary.
+    const variantTernary = 'className={`${isDone ? ' + "'hover:bg-emerald-500/15' : ''}`}"
+    expect(opacityColorClassesIn(variantTernary)).toEqual(
+      expect.arrayContaining(['hover:bg-emerald-500/15']),
     )
   })
 

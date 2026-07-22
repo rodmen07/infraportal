@@ -591,6 +591,7 @@ textarea:disabled {
 
 /* Backgrounds: emerald / green (status-success family, darkened to the
    emerald-800/green-800 tone like the existing .bg-emerald-950\/20 rule) */
+[data-theme="light"] .bg-emerald-500\/5  { background-color: rgba(6,95,70,0.05)  !important; } /* OnboardingChecklist done-row tint; ternary-in-template-literal ghost, found by the fixed opacityColorThemeCoverage scanner */
 [data-theme="light"] .bg-emerald-500\/8  { background-color: rgba(6,95,70,0.06)  !important; }
 [data-theme="light"] .bg-emerald-500\/10 { background-color: rgba(6,95,70,0.08)  !important; } /* named v1.18.4 bug */
 [data-theme="light"] .bg-emerald-500\/15 { background-color: rgba(6,95,70,0.12) !important; }

@@ -417,11 +417,16 @@ describe('strangler rule: override-sheet rules for tokenized surfaces stay delet
     // (exactly as this PR does, immediately below).
     //
     // Ceiling history: 124 after v1.18.3 QA -> 209 after v1.18.4 PR2's
-    // initial bg-*/border-* widening -> 229 after this fix's 25 variant
+    // initial bg-*/border-* widening -> 229 after that fix's 25 variant
     // (hover:/focus:/open:) overrides, verified against a real `tailwindcss`
     // CLI build so every added selector is confirmed to match a real
-    // compiled class, not guessed.
-    const CEILING = 229
+    // compiled class, not guessed -> 230 after the QA scanner-blindspot fix
+    // added one override for `bg-emerald-500/5` (OnboardingChecklist's
+    // done-row tint), a genuine light-mode ghost that was invisible to this
+    // suite until opacityColorThemeCoverage's ternary-in-template-literal
+    // extraction bug was fixed in the same PR. A single correctness override,
+    // not sprawl.
+    const CEILING = 230
     const remaining = (INDEX_CSS_RULES.match(/\[data-theme="light"\]/g) ?? []).length
     expect(remaining).toBeLessThanOrEqual(CEILING)
   })
