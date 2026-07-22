@@ -24,7 +24,7 @@ export function PricingTrustStrip() {
     : 'rounded-2xl border border-zinc-700/40 bg-zinc-800/30 px-6 py-4'
 
   const valueClass = isLight ? 'text-zinc-900 font-bold' : 'text-white font-bold'
-  const labelClass = isLight ? 'text-zinc-500' : 'text-zinc-500'
+  const labelClass = isLight ? 'text-text-subtle' : 'text-text-subtle'
   const dividerClass = isLight ? 'border-zinc-200' : 'border-zinc-700/50'
 
   return (

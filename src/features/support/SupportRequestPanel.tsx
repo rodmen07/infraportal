@@ -51,12 +51,12 @@ export function SupportRequestPanel({ projectId }: { projectId: string }) {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-400">Support and maintenance</p>
-          <h2 className="mt-2 text-lg font-semibold text-zinc-100">Request help anytime</h2>
-          <p className="mt-1 text-sm text-zinc-400">
+          <h2 className="mt-2 text-lg font-semibold text-text-primary">Request help anytime</h2>
+          <p className="mt-1 text-sm text-text-muted">
             Log a maintenance, bug, or change request and track it without sending an email.
           </p>
         </div>
-        <span className="rounded-full border border-zinc-700/50 bg-zinc-800/60 px-3 py-1 text-xs font-medium text-zinc-300">
+        <span className="rounded-full border border-zinc-700/50 bg-zinc-800/60 px-3 py-1 text-xs font-medium text-text-secondary">
           {openCount} open
         </span>
       </div>
@@ -66,7 +66,7 @@ export function SupportRequestPanel({ projectId }: { projectId: string }) {
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value as SupportCategory)}
-            className="rounded-xl border border-zinc-700/60 bg-zinc-800/60 px-4 py-2.5 text-sm text-zinc-100 outline-none focus:border-amber-400/50 focus:ring-1 focus:ring-amber-400/20 sm:w-48"
+            className="rounded-xl border border-zinc-700/60 bg-zinc-800/60 px-4 py-2.5 text-sm text-text-primary outline-none focus:border-amber-400/50 focus:ring-1 focus:ring-amber-400/20 sm:w-48"
           >
             {SUPPORT_CATEGORIES.map((c) => (
               <option key={c}>{c}</option>
@@ -81,7 +81,7 @@ export function SupportRequestPanel({ projectId }: { projectId: string }) {
               setJustSent(false)
             }}
             maxLength={120}
-            className="flex-1 rounded-xl border border-zinc-700/60 bg-zinc-800/60 px-4 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 outline-none focus:border-amber-400/50 focus:ring-1 focus:ring-amber-400/20"
+            className="flex-1 rounded-xl border border-zinc-700/60 bg-zinc-800/60 px-4 py-2.5 text-sm text-text-primary placeholder-zinc-500 outline-none focus:border-amber-400/50 focus:ring-1 focus:ring-amber-400/20"
           />
         </div>
         <textarea
@@ -93,13 +93,13 @@ export function SupportRequestPanel({ projectId }: { projectId: string }) {
             setJustSent(false)
           }}
           maxLength={2000}
-          className="resize-none rounded-xl border border-zinc-700/60 bg-zinc-800/60 px-4 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 outline-none focus:border-amber-400/50 focus:ring-1 focus:ring-amber-400/20"
+          className="resize-none rounded-xl border border-zinc-700/60 bg-zinc-800/60 px-4 py-2.5 text-sm text-text-primary placeholder-zinc-500 outline-none focus:border-amber-400/50 focus:ring-1 focus:ring-amber-400/20"
         />
         <div className="flex flex-wrap items-center justify-between gap-3">
           {justSent ? (
             <p className="text-sm text-emerald-300">Request logged. I will pick it up from the queue.</p>
           ) : (
-            <p className="text-sm text-zinc-500">Requests are tracked here until they are resolved.</p>
+            <p className="text-sm text-text-subtle">Requests are tracked here until they are resolved.</p>
           )}
           <button
             type="submit"
@@ -123,24 +123,24 @@ export function SupportRequestPanel({ projectId }: { projectId: string }) {
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-sm font-medium text-zinc-100">{request.subject}</span>
+                      <span className="text-sm font-medium text-text-primary">{request.subject}</span>
                       <span className={`rounded-full border px-2 py-0.5 text-scale-xs font-semibold ${meta.badge}`}>
                         {meta.label}
                       </span>
                     </div>
-                    <p className="mt-0.5 text-scale-xs uppercase tracking-wide text-zinc-500">{request.category}</p>
+                    <p className="mt-0.5 text-scale-xs uppercase tracking-wide text-text-subtle">{request.category}</p>
                   </div>
-                  <span className="shrink-0 text-scale-xs text-zinc-500">{formatRelativeTime(request.createdAt)}</span>
+                  <span className="shrink-0 text-scale-xs text-text-subtle">{formatRelativeTime(request.createdAt)}</span>
                 </div>
                 {request.message && (
-                  <p className="mt-2 whitespace-pre-wrap text-sm text-zinc-300">{request.message}</p>
+                  <p className="mt-2 whitespace-pre-wrap text-sm text-text-secondary">{request.message}</p>
                 )}
                 {request.status === 'open' && (
                   <div className="mt-2 flex justify-end">
                     <button
                       type="button"
                       onClick={() => handleWithdraw(request.id)}
-                      className="rounded-lg border border-zinc-600/50 px-2.5 py-1 text-scale-xs font-medium text-zinc-400 transition hover:border-zinc-500/60 hover:text-zinc-200"
+                      className="rounded-lg border border-zinc-600/50 px-2.5 py-1 text-scale-xs font-medium text-text-muted transition hover:border-zinc-500/60 hover:text-zinc-200"
                     >
                       Withdraw
                     </button>

@@ -93,7 +93,7 @@ export function PipelineMetrics() {
       <div className="mb-4 flex items-start justify-between gap-2">
         <div>
           <h2 className="text-sm font-semibold text-white">Live Pipeline</h2>
-          <p className="text-xs text-zinc-500">DynamoDB record counts</p>
+          <p className="text-xs text-text-subtle">DynamoDB record counts</p>
         </div>
         <p className="shrink-0 text-scale-xs text-zinc-600">Updated {fmtTime(fetchedAt)}</p>
       </div>
@@ -101,9 +101,9 @@ export function PipelineMetrics() {
         {stages.map(({ label, count, color, yieldLabel }) => (
           <div key={label}>
             <div className="mb-1 flex items-center justify-between text-xs">
-              <span className="font-medium text-zinc-300">{label}</span>
+              <span className="font-medium text-text-secondary">{label}</span>
               <div className="flex items-center gap-3">
-                {yieldLabel && <span className="text-zinc-500">{yieldLabel}</span>}
+                {yieldLabel && <span className="text-text-subtle">{yieldLabel}</span>}
                 <span className="font-mono text-zinc-200">{count.toLocaleString()}</span>
               </div>
             </div>

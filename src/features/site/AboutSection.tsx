@@ -17,7 +17,7 @@ export function AboutSection() {
         {FACTS.map(({ label, value }) => (
           <div key={label} className="about-fact-card rounded-xl border border-zinc-800/60 bg-zinc-800/40 px-4 py-3">
             <p className="text-scale-xs font-semibold uppercase tracking-wide text-amber-400/70">{label}</p>
-            <p className="mt-1 text-xs leading-relaxed text-zinc-300">{value}</p>
+            <p className="mt-1 text-xs leading-relaxed text-text-secondary">{value}</p>
           </div>
         ))}
       </div>

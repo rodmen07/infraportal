@@ -28,7 +28,7 @@ function parseInline(text: string): Segment[] {
 
 function renderInline(text: string) {
   return parseInline(text).map((seg, i) => {
-    if (seg.type === 'bold') return <strong key={i} className="font-semibold text-zinc-100">{seg.content}</strong>
+    if (seg.type === 'bold') return <strong key={i} className="font-semibold text-text-primary">{seg.content}</strong>
     if (seg.type === 'italic') return <em key={i} className="italic">{seg.content}</em>
     if (seg.type === 'code') return <code key={i} className="rounded bg-zinc-700/60 px-1 py-0.5 font-mono text-xs text-amber-300">{seg.content}</code>
     return <span key={i}>{seg.content}</span>

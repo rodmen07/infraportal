@@ -151,17 +151,17 @@ export function TemplateEditorModal({ template, store = projectsStore, onSaved, 
               Demo mode
             </span>
           </div>
-          <button type="button" onClick={onClose} aria-label="Close dialog" className="text-zinc-500 transition-colors hover:text-white">✕</button>
+          <button type="button" onClick={onClose} aria-label="Close dialog" className="text-text-subtle transition-colors hover:text-white">✕</button>
         </div>
 
-        <p className="mb-4 text-xs text-zinc-400">
+        <p className="mb-4 text-xs text-text-muted">
           Templates hold structure only: milestone and deliverable titles in order. Rows without a title are dropped
           when saving. Everything stays in the in-memory demo dataset.
         </p>
 
         <form onSubmit={handleSave} className="space-y-4">
           <div>
-            <label htmlFor="template-editor-name" className="mb-1 block text-sm font-medium text-zinc-400">Template name</label>
+            <label htmlFor="template-editor-name" className="mb-1 block text-sm font-medium text-text-muted">Template name</label>
             <input
               id="template-editor-name"
               className={FIELD_CLS + ' w-full'}
@@ -172,9 +172,9 @@ export function TemplateEditorModal({ template, store = projectsStore, onSaved, 
           </div>
 
           <div className="space-y-2">
-            <p className="text-sm font-medium text-zinc-400">Milestones</p>
+            <p className="text-sm font-medium text-text-muted">Milestones</p>
             {rows.length === 0 && (
-              <p className="text-xs text-zinc-500">No milestones. Add at least one named milestone to save.</p>
+              <p className="text-xs text-text-subtle">No milestones. Add at least one named milestone to save.</p>
             )}
             {rows.map((row, index) => (
               <div key={row.key} className="rounded-xl border border-zinc-700/30 bg-zinc-800/20 p-3">
@@ -191,7 +191,7 @@ export function TemplateEditorModal({ template, store = projectsStore, onSaved, 
                     onClick={() => moveMilestone(row.key, -1)}
                     disabled={index === 0}
                     aria-label={`Move milestone ${index + 1} up`}
-                    className="rounded px-1.5 py-0.5 text-xs text-zinc-500 transition-colors hover:bg-zinc-800/60 hover:text-zinc-300 disabled:cursor-not-allowed disabled:opacity-40"
+                    className="rounded px-1.5 py-0.5 text-xs text-text-subtle transition-colors hover:bg-zinc-800/60 hover:text-text-secondary disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     ↑
                   </button>
@@ -200,7 +200,7 @@ export function TemplateEditorModal({ template, store = projectsStore, onSaved, 
                     onClick={() => moveMilestone(row.key, 1)}
                     disabled={index === rows.length - 1}
                     aria-label={`Move milestone ${index + 1} down`}
-                    className="rounded px-1.5 py-0.5 text-xs text-zinc-500 transition-colors hover:bg-zinc-800/60 hover:text-zinc-300 disabled:cursor-not-allowed disabled:opacity-40"
+                    className="rounded px-1.5 py-0.5 text-xs text-text-subtle transition-colors hover:bg-zinc-800/60 hover:text-text-secondary disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     ↓
                   </button>
@@ -209,7 +209,7 @@ export function TemplateEditorModal({ template, store = projectsStore, onSaved, 
                     onClick={() => removeMilestone(row.key)}
                     aria-label={`Remove milestone ${index + 1}`}
                     title="Remove milestone"
-                    className="rounded px-1.5 py-0.5 text-xs text-zinc-500 transition-colors hover:bg-red-500/20 hover:text-red-300"
+                    className="rounded px-1.5 py-0.5 text-xs text-text-subtle transition-colors hover:bg-red-500/20 hover:text-red-300"
                   >
                     ✕
                   </button>
@@ -236,7 +236,7 @@ export function TemplateEditorModal({ template, store = projectsStore, onSaved, 
                         onClick={() => removeDeliverable(row.key, deliverable.key)}
                         aria-label={`Remove milestone ${index + 1} deliverable ${deliverableIndex + 1}`}
                         title="Remove deliverable"
-                        className="rounded px-1.5 py-0.5 text-xs text-zinc-500 transition-colors hover:bg-red-500/20 hover:text-red-300"
+                        className="rounded px-1.5 py-0.5 text-xs text-text-subtle transition-colors hover:bg-red-500/20 hover:text-red-300"
                       >
                         ✕
                       </button>
@@ -245,7 +245,7 @@ export function TemplateEditorModal({ template, store = projectsStore, onSaved, 
                   <button
                     type="button"
                     onClick={() => addDeliverable(row.key)}
-                    className="pl-4 text-xs text-zinc-500 transition-colors hover:text-zinc-300"
+                    className="pl-4 text-xs text-text-subtle transition-colors hover:text-text-secondary"
                   >
                     + Deliverable
                   </button>

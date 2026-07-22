@@ -147,19 +147,19 @@ export function ApiSpecExplorer() {
                       try-it demo
                     </span>
                   )}
-                  <span className="rounded bg-zinc-800/70 px-1.5 py-0.5 text-scale-xs text-zinc-400">
+                  <span className="rounded bg-zinc-800/70 px-1.5 py-0.5 text-scale-xs text-text-muted">
                     {service.operationCount} ops
                   </span>
                 </span>
               </div>
-              <p className="mt-1 line-clamp-2 text-scale-xs leading-4 text-zinc-500">{service.summary}</p>
+              <p className="mt-1 line-clamp-2 text-scale-xs leading-4 text-text-subtle">{service.summary}</p>
             </button>
           )
         })}
       </div>
 
       {!spec && !errorMessage && (
-        <div className="rounded-xl border border-zinc-700/40 bg-zinc-900/40 p-6 text-center text-xs text-zinc-500">
+        <div className="rounded-xl border border-zinc-700/40 bg-zinc-900/40 p-6 text-center text-xs text-text-subtle">
           Loading {selectedId} spec...
         </div>
       )}

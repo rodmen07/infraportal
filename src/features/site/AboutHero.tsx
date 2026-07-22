@@ -8,7 +8,7 @@ export function AboutHero() {
         <div className="flex-1">
           <p className="text-xl font-bold text-white">Roderick Mendoza</p>
           <p className="mt-1 text-sm text-amber-300/80">Technical Architecture - Senior Analyst | DevSecOps - Cloud Engineer</p>
-          <p className="mt-3 text-sm leading-relaxed text-zinc-300">
+          <p className="mt-3 text-sm leading-relaxed text-text-secondary">
             I design and build production-ready cloud infrastructure that auto-scales with demand.
             My focus: secure-by-default platform engineering, DevSecOps workflows, and systems
             that handle real-world load without breaking. Recent work includes shipping an
@@ -17,7 +17,7 @@ export function AboutHero() {
           <div className="mt-5 flex flex-wrap gap-3">
             <a
               href="#/case-studies"
-              className="rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-4 py-2 text-xs font-medium text-zinc-300 transition hover:border-zinc-500/60 hover:text-zinc-100"
+              className="rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-4 py-2 text-xs font-medium text-text-secondary transition hover:border-zinc-500/60 hover:text-text-primary"
             >
               View the work →
             </a>
@@ -25,7 +25,7 @@ export function AboutHero() {
               href="https://github.com/rodmen07"
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-4 py-2 text-xs font-medium text-zinc-300 transition hover:border-zinc-500/60 hover:text-zinc-100"
+              className="rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-4 py-2 text-xs font-medium text-text-secondary transition hover:border-zinc-500/60 hover:text-text-primary"
             >
               GitHub →
             </a>
@@ -33,7 +33,7 @@ export function AboutHero() {
               href="https://www.linkedin.com/in/roderick-mendoza-9133b7b5/"
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-4 py-2 text-xs font-medium text-zinc-300 transition hover:border-zinc-500/60 hover:text-zinc-100"
+              className="rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-4 py-2 text-xs font-medium text-text-secondary transition hover:border-zinc-500/60 hover:text-text-primary"
             >
               LinkedIn →
             </a>
@@ -41,7 +41,7 @@ export function AboutHero() {
               href="https://www.upwork.com/freelancers/~01d4b41a81a0ae3ec6?mp_source=share"
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-4 py-2 text-xs font-medium text-zinc-300 transition hover:border-zinc-500/60 hover:text-zinc-100"
+              className="rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-4 py-2 text-xs font-medium text-text-secondary transition hover:border-zinc-500/60 hover:text-text-primary"
             >
               Upwork →
             </a>

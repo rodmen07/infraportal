@@ -62,7 +62,7 @@ function FieldInput({
             required
           </span>
         )}
-        <span className="font-mono text-scale-xs text-zinc-500">{field.kind}</span>
+        <span className="font-mono text-scale-xs text-text-subtle">{field.kind}</span>
       </span>
       {field.kind === 'enum' ? (
         <select value={value} onChange={(e) => onChange(e.target.value)} className={`${inputClass} mt-1`}>
@@ -115,9 +115,9 @@ function ResponseViewer({ response }: { response: SimulatedResponse }) {
       {response.headers.length > 0 && (
         <ul className="mt-2 space-y-0.5">
           {response.headers.map((header) => (
-            <li key={header.name} className="font-mono text-scale-xs text-zinc-500">
-              <span className="text-zinc-400">{header.name}:</span> {header.value}
-              <span className="ml-1.5 rounded bg-zinc-800/80 px-1 py-px text-[9px] text-zinc-500">
+            <li key={header.name} className="font-mono text-scale-xs text-text-subtle">
+              <span className="text-text-muted">{header.name}:</span> {header.value}
+              <span className="ml-1.5 rounded bg-zinc-800/80 px-1 py-px text-[9px] text-text-subtle">
                 simulated
               </span>
             </li>
@@ -128,7 +128,7 @@ function ResponseViewer({ response }: { response: SimulatedResponse }) {
         {response.body.kind === 'empty' ? (
           <p className="text-scale-xs italic text-zinc-600">(no response body)</p>
         ) : (
-          <pre className="max-h-72 overflow-auto rounded-md bg-zinc-900/80 p-2.5 font-mono text-scale-xs leading-4 text-zinc-300">
+          <pre className="max-h-72 overflow-auto rounded-md bg-zinc-900/80 p-2.5 font-mono text-scale-xs leading-4 text-text-secondary">
             {response.body.kind === 'json'
               ? JSON.stringify(response.body.value, null, 2)
               : response.body.value}
@@ -201,7 +201,7 @@ export function TryItPanel({
       className="rounded-lg border border-amber-500/20 bg-zinc-900/50 p-3"
     >
       <div className="flex flex-wrap items-center gap-2">
-        <h5 className="text-scale-xs font-semibold uppercase tracking-widest text-zinc-300">Try it</h5>
+        <h5 className="text-scale-xs font-semibold uppercase tracking-widest text-text-secondary">Try it</h5>
         <span className="rounded border border-emerald-500/25 bg-emerald-500/10 px-1.5 py-0.5 text-scale-xs text-emerald-300">
           in-browser demo
         </span>
@@ -209,7 +209,7 @@ export function TryItPanel({
 
       {!support.executable ? (
         <div className="mt-2">
-          <p className="text-scale-xs leading-4 text-zinc-500">{support.reason}</p>
+          <p className="text-scale-xs leading-4 text-text-subtle">{support.reason}</p>
           <button
             type="button"
             disabled
@@ -220,11 +220,11 @@ export function TryItPanel({
         </div>
       ) : (
         <div className="mt-2 space-y-3">
-          <p className="text-scale-xs leading-4 text-zinc-500">{EXECUTABLE_NOTE}</p>
+          <p className="text-scale-xs leading-4 text-text-subtle">{EXECUTABLE_NOTE}</p>
 
           {model.pathFields.length > 0 && (
             <div className="space-y-2">
-              <h6 className="text-scale-xs font-semibold uppercase tracking-wider text-zinc-400">
+              <h6 className="text-scale-xs font-semibold uppercase tracking-wider text-text-muted">
                 Path parameters
               </h6>
               {model.pathFields.map((field) => (
@@ -241,7 +241,7 @@ export function TryItPanel({
 
           {model.queryFields.length > 0 && (
             <div className="space-y-2">
-              <h6 className="text-scale-xs font-semibold uppercase tracking-wider text-zinc-400">
+              <h6 className="text-scale-xs font-semibold uppercase tracking-wider text-text-muted">
                 Query parameters
               </h6>
               {model.queryFields.map((field) => (
@@ -258,7 +258,7 @@ export function TryItPanel({
           {model.bodyMode !== 'none' && (
             <div className="space-y-2">
               <div className="flex flex-wrap items-center gap-2">
-                <h6 className="text-scale-xs font-semibold uppercase tracking-wider text-zinc-400">
+                <h6 className="text-scale-xs font-semibold uppercase tracking-wider text-text-muted">
                   Request body
                   {model.bodyRequired && (
                     <span className="ml-1.5 rounded bg-rose-500/15 px-1 py-0.5 text-scale-xs font-medium normal-case tracking-normal text-rose-300">
@@ -271,14 +271,14 @@ export function TryItPanel({
                     <button
                       type="button"
                       onClick={() => setJsonMode(false)}
-                      className={`rounded border px-1.5 py-0.5 text-scale-xs ${!jsonMode ? 'border-amber-400/50 bg-amber-500/15 text-amber-200' : 'border-zinc-700/50 text-zinc-500 hover:text-zinc-300'}`}
+                      className={`rounded border px-1.5 py-0.5 text-scale-xs ${!jsonMode ? 'border-amber-400/50 bg-amber-500/15 text-amber-200' : 'border-zinc-700/50 text-text-subtle hover:text-text-secondary'}`}
                     >
                       Form
                     </button>
                     <button
                       type="button"
                       onClick={switchToJson}
-                      className={`rounded border px-1.5 py-0.5 text-scale-xs ${jsonMode ? 'border-amber-400/50 bg-amber-500/15 text-amber-200' : 'border-zinc-700/50 text-zinc-500 hover:text-zinc-300'}`}
+                      className={`rounded border px-1.5 py-0.5 text-scale-xs ${jsonMode ? 'border-amber-400/50 bg-amber-500/15 text-amber-200' : 'border-zinc-700/50 text-text-subtle hover:text-text-secondary'}`}
                     >
                       JSON
                     </button>
@@ -314,7 +314,7 @@ export function TryItPanel({
             >
               Execute
             </button>
-            <code className="break-all font-mono text-scale-xs text-zinc-500">
+            <code className="break-all font-mono text-scale-xs text-text-subtle">
               {buildRequestPreview(operation, model, values)}
             </code>
           </div>

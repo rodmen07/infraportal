@@ -11,7 +11,7 @@ import { PROJECTS_STORE_BOUNDARY, projectsStore, type ProjectsStore } from '../l
 import type { DemoProject } from '../lib/projectClone'
 import { STATUS_RESET_DESCRIPTION } from '../lib/projectStatusVocabulary'
 
-const INPUT_CLS = 'w-full rounded-xl border border-zinc-700 bg-zinc-800/60 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 outline-none transition hover:border-zinc-600 hover:bg-zinc-800/80 focus:border-amber-500/60 focus:ring-2 focus:ring-amber-500/30'
+const INPUT_CLS = 'w-full rounded-xl border border-zinc-700 bg-zinc-800/60 px-3 py-2 text-sm text-text-primary placeholder-zinc-500 outline-none transition hover:border-zinc-600 hover:bg-zinc-800/80 focus:border-amber-500/60 focus:ring-2 focus:ring-amber-500/30'
 
 function plural(count: number, noun: string): string {
   return `${count} ${noun}${count !== 1 ? 's' : ''}`
@@ -127,10 +127,10 @@ export function ProjectCloneModal({ projects, initialSourceId, store = projectsS
               Demo mode
             </span>
           </div>
-          <button type="button" onClick={handleClose} aria-label="Close dialog" className="text-zinc-500 transition-colors hover:text-white">✕</button>
+          <button type="button" onClick={handleClose} aria-label="Close dialog" className="text-text-subtle transition-colors hover:text-white">✕</button>
         </div>
 
-        <p className="mb-4 text-xs text-zinc-400">
+        <p className="mb-4 text-xs text-text-muted">
           Copies a project and its structure inside the in-memory demo dataset. Nothing is sent to a live backend.
         </p>
 
@@ -139,16 +139,16 @@ export function ProjectCloneModal({ projects, initialSourceId, store = projectsS
           {!running && !finished && step === 'configure' && (
             <>
               <div>
-                <label htmlFor="clone-source" className="mb-1 block text-sm font-medium text-zinc-400">Source project</label>
+                <label htmlFor="clone-source" className="mb-1 block text-sm font-medium text-text-muted">Source project</label>
                 <select id="clone-source" className={INPUT_CLS} value={sourceId} onChange={e => handleSourceChange(e.target.value)}>
                   {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                 </select>
-                <p className="mt-1 text-scale-xs text-zinc-500">
+                <p className="mt-1 text-scale-xs text-text-subtle">
                   {plural(counts.milestones, 'milestone')}, {plural(counts.deliverables, 'deliverable')}
                 </p>
               </div>
               <div>
-                <label htmlFor="clone-name" className="mb-1 block text-sm font-medium text-zinc-400">Name of the copy</label>
+                <label htmlFor="clone-name" className="mb-1 block text-sm font-medium text-text-muted">Name of the copy</label>
                 <input
                   id="clone-name"
                   className={INPUT_CLS}
@@ -157,12 +157,12 @@ export function ProjectCloneModal({ projects, initialSourceId, store = projectsS
                 />
               </div>
               <fieldset className="space-y-2">
-                <legend className="mb-1 block text-sm font-medium text-zinc-400">Options</legend>
-                <label className="flex items-center gap-2 text-sm text-zinc-300">
+                <legend className="mb-1 block text-sm font-medium text-text-muted">Options</legend>
+                <label className="flex items-center gap-2 text-sm text-text-secondary">
                   <input type="checkbox" className="rounded" checked={includeMilestones} onChange={e => setIncludeMilestones(e.target.checked)} />
                   Include milestones
                 </label>
-                <label className={`flex items-center gap-2 text-sm ${includeMilestones ? 'text-zinc-300' : 'text-zinc-600'}`}>
+                <label className={`flex items-center gap-2 text-sm ${includeMilestones ? 'text-text-secondary' : 'text-zinc-600'}`}>
                   <input
                     type="checkbox"
                     className="rounded"
@@ -172,7 +172,7 @@ export function ProjectCloneModal({ projects, initialSourceId, store = projectsS
                   />
                   Include deliverables
                 </label>
-                <label className="flex items-center gap-2 text-sm text-zinc-300">
+                <label className="flex items-center gap-2 text-sm text-text-secondary">
                   <input type="checkbox" className="rounded" checked={resetStatuses} onChange={e => setResetStatuses(e.target.checked)} />
                   Reset statuses for a fresh start
                 </label>
@@ -202,7 +202,7 @@ export function ProjectCloneModal({ projects, initialSourceId, store = projectsS
           {/* Progress */}
           {running && (
             <div>
-              <div className="mb-1 flex items-center justify-between text-xs text-zinc-400">
+              <div className="mb-1 flex items-center justify-between text-xs text-text-muted">
                 <span>{phase}</span>
                 <span>{percent}%</span>
               </div>
@@ -237,7 +237,7 @@ export function ProjectCloneModal({ projects, initialSourceId, store = projectsS
           {/* Actions */}
           <div className="flex justify-end gap-2 pt-1">
             {running ? (
-              <span className="px-4 py-2 text-sm text-zinc-500">Cloning…</span>
+              <span className="px-4 py-2 text-sm text-text-subtle">Cloning…</span>
             ) : finished ? (
               <button type="button" onClick={handleClose} className="btn-accent px-4 py-2 text-sm">Close</button>
             ) : step === 'configure' ? (

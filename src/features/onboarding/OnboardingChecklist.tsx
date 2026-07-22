@@ -27,8 +27,8 @@ export function OnboardingChecklist({ projectId }: { projectId: string }) {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-400">Launch onboarding</p>
-          <h2 className="mt-2 text-lg font-semibold text-zinc-100">Steps to get you live</h2>
-          <p className="mt-1 text-sm text-zinc-400">
+          <h2 className="mt-2 text-lg font-semibold text-text-primary">Steps to get you live</h2>
+          <p className="mt-1 text-sm text-text-muted">
             Track what is done and what is still pending before your launch.
           </p>
         </div>
@@ -69,10 +69,10 @@ export function OnboardingChecklist({ projectId }: { projectId: string }) {
                   className="mt-0.5 h-4 w-4 shrink-0 rounded border-zinc-600 bg-zinc-900 text-amber-500 focus:ring-amber-500/40"
                 />
                 <span className="min-w-0">
-                  <span className={`block text-sm font-medium ${isDone ? 'text-emerald-200 line-through' : 'text-zinc-100'}`}>
+                  <span className={`block text-sm font-medium ${isDone ? 'text-emerald-200 line-through' : 'text-text-primary'}`}>
                     {step.label}
                   </span>
-                  <span className="mt-0.5 block text-xs text-zinc-400">{step.description}</span>
+                  <span className="mt-0.5 block text-xs text-text-muted">{step.description}</span>
                 </span>
               </label>
             </li>

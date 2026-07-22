@@ -34,12 +34,12 @@ export function CaseStudyCard({ title, subtitle, description, techStack, highlig
         </div>
       </div>
 
-      <p className="text-sm leading-relaxed text-zinc-300">{description}</p>
+      <p className="text-sm leading-relaxed text-text-secondary">{description}</p>
 
       {highlights.length > 0 && (
         <ul className="flex flex-col gap-2">
           {highlights.map((h) => (
-            <li key={h} className="flex items-start gap-2 text-sm leading-relaxed text-zinc-400">
+            <li key={h} className="flex items-start gap-2 text-sm leading-relaxed text-text-muted">
               <span className="mt-[1px] shrink-0 text-amber-400">›</span>
               <span>{h}</span>
             </li>

@@ -16,7 +16,7 @@ import {
 import { useBulkImport, type BulkImportApi } from '../hooks/useBulkImport'
 import { MOCK_BOUNDARY, mockBulkImportApi } from '../lib/bulkImportApi.mock'
 
-const INPUT_CLS = 'w-full rounded-xl border border-zinc-700 bg-zinc-800/60 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 outline-none transition hover:border-zinc-600 hover:bg-zinc-800/80 focus:border-amber-500/60 focus:ring-2 focus:ring-amber-500/30'
+const INPUT_CLS = 'w-full rounded-xl border border-zinc-700 bg-zinc-800/60 px-3 py-2 text-sm text-text-primary placeholder-zinc-500 outline-none transition hover:border-zinc-600 hover:bg-zinc-800/80 focus:border-amber-500/60 focus:ring-2 focus:ring-amber-500/30'
 
 const PREVIEW_ROW_LIMIT = 5
 const ERROR_DISPLAY_LIMIT = 8
@@ -134,10 +134,10 @@ export function BulkImportModal({ initialEntity = 'contacts', api = mockBulkImpo
               Demo mode
             </span>
           </div>
-          <button type="button" onClick={handleClose} aria-label="Close dialog" className="text-zinc-500 transition-colors hover:text-white">✕</button>
+          <button type="button" onClick={handleClose} aria-label="Close dialog" className="text-text-subtle transition-colors hover:text-white">✕</button>
         </div>
 
-        <p className="mb-4 text-xs text-zinc-400">
+        <p className="mb-4 text-xs text-text-muted">
           Rows are validated in the browser, then processed by a mocked API boundary. Nothing is sent to a live backend.
         </p>
 
@@ -145,7 +145,7 @@ export function BulkImportModal({ initialEntity = 'contacts', api = mockBulkImpo
           {/* Entity + source inputs */}
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
-              <label htmlFor="bulk-import-entity" className="mb-1 block text-sm font-medium text-zinc-400">Import into</label>
+              <label htmlFor="bulk-import-entity" className="mb-1 block text-sm font-medium text-text-muted">Import into</label>
               <select
                 id="bulk-import-entity"
                 className={INPUT_CLS}
@@ -157,7 +157,7 @@ export function BulkImportModal({ initialEntity = 'contacts', api = mockBulkImpo
               </select>
             </div>
             <div>
-              <span className="mb-1 block text-sm font-medium text-zinc-400">CSV file</span>
+              <span className="mb-1 block text-sm font-medium text-text-muted">CSV file</span>
               <div className="flex items-center gap-2">
                 <input
                   ref={fileInputRef}
@@ -174,14 +174,14 @@ export function BulkImportModal({ initialEntity = 'contacts', api = mockBulkImpo
                 >
                   Choose file
                 </button>
-                <span className="truncate text-xs text-zinc-500">{fileName ?? 'No file selected'}</span>
+                <span className="truncate text-xs text-text-subtle">{fileName ?? 'No file selected'}</span>
               </div>
             </div>
           </div>
 
           <div>
             <div className="mb-1 flex items-center justify-between">
-              <label htmlFor="bulk-import-csv" className="text-sm font-medium text-zinc-400">Or paste CSV</label>
+              <label htmlFor="bulk-import-csv" className="text-sm font-medium text-text-muted">Or paste CSV</label>
               <button
                 type="button"
                 disabled={running}
@@ -216,9 +216,9 @@ export function BulkImportModal({ initialEntity = 'contacts', api = mockBulkImpo
 
           {validation && validation.headerErrors.length === 0 && (
             <>
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-zinc-500">
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-text-subtle">
                 <span>
-                  <span className="text-zinc-300">{validation.records.length}</span> of {validation.totalDataRows} row{validation.totalDataRows !== 1 ? 's' : ''} ready to import
+                  <span className="text-text-secondary">{validation.records.length}</span> of {validation.totalDataRows} row{validation.totalDataRows !== 1 ? 's' : ''} ready to import
                 </span>
                 {validation.ignoredColumns.length > 0 && (
                   <span>Ignored columns: {validation.ignoredColumns.join(', ')}</span>
@@ -243,11 +243,11 @@ export function BulkImportModal({ initialEntity = 'contacts', api = mockBulkImpo
 
               {validation.records.length > 0 && (
                 <div>
-                  <p className="mb-1 text-xs font-medium uppercase text-zinc-500">Preview (first {Math.min(PREVIEW_ROW_LIMIT, validation.records.length)} rows)</p>
+                  <p className="mb-1 text-xs font-medium uppercase text-text-subtle">Preview (first {Math.min(PREVIEW_ROW_LIMIT, validation.records.length)} rows)</p>
                   <div className="overflow-x-auto rounded-xl border border-zinc-700/40">
                     <table className="w-full min-w-[480px] text-xs">
                       <thead>
-                        <tr className="border-b border-zinc-700/40 text-left text-zinc-500">
+                        <tr className="border-b border-zinc-700/40 text-left text-text-subtle">
                           <th className="px-3 py-2 font-medium">Row</th>
                           {previewFields.map(field => <th key={field} className="px-3 py-2 font-medium">{field}</th>)}
                         </tr>
@@ -255,9 +255,9 @@ export function BulkImportModal({ initialEntity = 'contacts', api = mockBulkImpo
                       <tbody>
                         {validation.records.slice(0, PREVIEW_ROW_LIMIT).map((record, index) => (
                           <tr key={record.row} className={`border-b border-zinc-700/20 ${index % 2 === 0 ? 'bg-zinc-800/20' : ''}`}>
-                            <td className="px-3 py-2 font-mono text-zinc-500">{record.row}</td>
+                            <td className="px-3 py-2 font-mono text-text-subtle">{record.row}</td>
                             {previewFields.map(field => (
-                              <td key={field} className="max-w-[160px] truncate px-3 py-2 text-zinc-300">{record.values[field] ?? ''}</td>
+                              <td key={field} className="max-w-[160px] truncate px-3 py-2 text-text-secondary">{record.values[field] ?? ''}</td>
                             ))}
                           </tr>
                         ))}
@@ -272,7 +272,7 @@ export function BulkImportModal({ initialEntity = 'contacts', api = mockBulkImpo
           {/* Progress */}
           {running && (
             <div>
-              <div className="mb-1 flex items-center justify-between text-xs text-zinc-400">
+              <div className="mb-1 flex items-center justify-between text-xs text-text-muted">
                 <span>Importing {importer.processed} of {importer.total} rows</span>
                 <span>{percent}%</span>
               </div>

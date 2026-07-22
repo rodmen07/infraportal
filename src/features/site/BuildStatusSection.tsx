@@ -20,7 +20,7 @@ const STATUS_CLASS: Record<string, string> = {
   green:   'border-emerald-400/40 bg-emerald-500/10 text-emerald-300',
   yellow:  'border-amber-400/40 bg-amber-500/10 text-amber-300',
   red:     'border-red-400/40 bg-red-500/10 text-red-300',
-  unknown: 'border-zinc-600/40 bg-zinc-700/30 text-zinc-500',
+  unknown: 'border-zinc-600/40 bg-zinc-700/30 text-text-subtle',
 }
 
 export function BuildStatusSection() {
@@ -36,7 +36,7 @@ export function BuildStatusSection() {
       <div className="mb-4 flex items-center justify-between gap-3">
         <div>
           <h2 className="text-xl font-semibold text-white">CI/CD Status</h2>
-          <p className="mt-1 text-sm text-zinc-400">
+          <p className="mt-1 text-sm text-text-muted">
             Live build status for active repositories. Refreshes every 60 seconds.
           </p>
         </div>
@@ -44,7 +44,7 @@ export function BuildStatusSection() {
           href={`${MONITORING_URL}/builds`}
           target="_blank"
           rel="noopener noreferrer"
-          className="shrink-0 rounded-xl border border-zinc-600/40 bg-zinc-800/60 px-3 py-1.5 text-xs font-medium text-zinc-300 transition hover:border-zinc-500/50 hover:text-zinc-100"
+          className="shrink-0 rounded-xl border border-zinc-600/40 bg-zinc-800/60 px-3 py-1.5 text-xs font-medium text-text-secondary transition hover:border-zinc-500/50 hover:text-text-primary"
         >
           Full dashboard →
         </a>
@@ -81,7 +81,7 @@ export function BuildStatusSection() {
                   {STATUS_TEXT[ds]}
                 </span>
                 {item.run_at && (
-                  <span className="text-xs text-zinc-500">{formatRelativeTime(item.run_at)}</span>
+                  <span className="text-xs text-text-subtle">{formatRelativeTime(item.run_at)}</span>
                 )}
               </a>
             )

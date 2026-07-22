@@ -19,7 +19,7 @@ import {
 } from '../hooks/useBulkEdit'
 import { MOCK_EDIT_BOUNDARY, mockBulkEditApi } from '../lib/bulkEditApi.mock'
 
-const INPUT_CLS = 'w-full rounded-xl border border-zinc-700 bg-zinc-800/60 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 outline-none transition hover:border-zinc-600 hover:bg-zinc-800/80 focus:border-amber-500/60 focus:ring-2 focus:ring-amber-500/30'
+const INPUT_CLS = 'w-full rounded-xl border border-zinc-700 bg-zinc-800/60 px-3 py-2 text-sm text-text-primary placeholder-zinc-500 outline-none transition hover:border-zinc-600 hover:bg-zinc-800/80 focus:border-amber-500/60 focus:ring-2 focus:ring-amber-500/30'
 
 interface BulkEditModalProps {
   entity: ImportEntity
@@ -77,10 +77,10 @@ export function BulkEditModal({ entity, targets: initialTargets, api = mockBulkE
               Demo mode
             </span>
           </div>
-          <button type="button" onClick={handleClose} aria-label="Close dialog" className="text-zinc-500 transition-colors hover:text-white">✕</button>
+          <button type="button" onClick={handleClose} aria-label="Close dialog" className="text-text-subtle transition-colors hover:text-white">✕</button>
         </div>
 
-        <p className="mb-4 text-xs text-zinc-400">
+        <p className="mb-4 text-xs text-text-muted">
           Applies one change to every selected row through a mocked API boundary. Nothing is sent to a live backend.
         </p>
 
@@ -88,15 +88,15 @@ export function BulkEditModal({ entity, targets: initialTargets, api = mockBulkE
           {/* Step 1: choose the value */}
           {!running && !finished && step === 'choose' && (
             <>
-              <p className="text-sm text-zinc-300">
+              <p className="text-sm text-text-secondary">
                 <span className="font-semibold text-white">{targets.length}</span> {rowsWord} selected.
               </p>
               <div>
-                <span className="mb-1 block text-sm font-medium text-zinc-400">Field</span>
-                <p className="text-sm text-zinc-200">{spec.label} <span className="font-mono text-xs text-zinc-500">({spec.field})</span></p>
+                <span className="mb-1 block text-sm font-medium text-text-muted">Field</span>
+                <p className="text-sm text-zinc-200">{spec.label} <span className="font-mono text-xs text-text-subtle">({spec.field})</span></p>
               </div>
               <div>
-                <label htmlFor="bulk-edit-value" className="mb-1 block text-sm font-medium text-zinc-400">New value</label>
+                <label htmlFor="bulk-edit-value" className="mb-1 block text-sm font-medium text-text-muted">New value</label>
                 <select
                   id="bulk-edit-value"
                   className={INPUT_CLS}
@@ -125,7 +125,7 @@ export function BulkEditModal({ entity, targets: initialTargets, api = mockBulkE
           {/* Progress */}
           {running && (
             <div>
-              <div className="mb-1 flex items-center justify-between text-xs text-zinc-400">
+              <div className="mb-1 flex items-center justify-between text-xs text-text-muted">
                 <span>Updating {editor.processed} of {editor.total} rows</span>
                 <span>{percent}%</span>
               </div>
