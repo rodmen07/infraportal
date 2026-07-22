@@ -205,10 +205,10 @@ export function BulkImportModal({ initialEntity = 'contacts', api = mockBulkImpo
           {/* Validation report */}
           {validation && validation.headerErrors.length > 0 && (
             <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3">
-              <p className="text-sm font-medium text-red-300">The file cannot be imported yet</p>
+              <p className="text-sm font-medium text-danger-text">The file cannot be imported yet</p>
               <ul className="mt-1 space-y-1">
                 {validation.headerErrors.map(message => (
-                  <li key={message} className="font-mono text-xs text-red-400">{message}</li>
+                  <li key={message} className="font-mono text-xs text-danger-text">{message}</li>
                 ))}
               </ul>
             </div>
@@ -301,10 +301,10 @@ export function BulkImportModal({ initialEntity = 'contacts', api = mockBulkImpo
               </div>
               {failedResults.length > 0 && (
                 <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3">
-                  <p className="text-sm font-medium text-red-300">Rows that failed</p>
+                  <p className="text-sm font-medium text-danger-text">Rows that failed</p>
                   <ul className="mt-1 max-h-32 space-y-1 overflow-y-auto">
                     {failedResults.map(result => (
-                      <li key={result.row} className="font-mono text-xs text-red-400">Row {result.row}: {result.error ?? 'unknown error'}</li>
+                      <li key={result.row} className="font-mono text-xs text-danger-text">Row {result.row}: {result.error ?? 'unknown error'}</li>
                     ))}
                   </ul>
                 </div>

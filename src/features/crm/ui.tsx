@@ -25,8 +25,8 @@ export function ErrorBox({ message, onRetry }: { message: string; onRetry: () =>
   const isNoToken = message === NO_TOKEN_MSG
   return (
     <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-4">
-      <p className="text-sm font-medium text-red-300">Error</p>
-      <p className="mt-1 font-mono text-xs text-red-400">{message}</p>
+      <p className="text-sm font-medium text-danger-text">Error</p>
+      <p className="mt-1 font-mono text-xs text-danger-text">{message}</p>
       <div className="mt-3 flex gap-2">
         <button type="button" onClick={onRetry} className="btn-neutral px-3 py-1.5 text-xs">Retry</button>
         {isNoToken && (
@@ -132,7 +132,7 @@ export function FormField({ label, children }: { label: string; children: React.
 }
 
 export function SaveError({ message }: { message: string }) {
-  return <p className="mt-2 rounded-lg bg-red-500/10 px-3 py-2 font-mono text-xs text-red-400">{message}</p>
+  return <p className="mt-2 rounded-lg bg-red-500/10 px-3 py-2 font-mono text-xs text-danger-text">{message}</p>
 }
 
 export function ActionButtons({ onEdit, onDelete }: { onEdit: () => void; onDelete: () => void }) {
@@ -205,7 +205,7 @@ export function DeleteModal({ label, onConfirm, onClose, saving, error }: {
       {error && <SaveError message={error} />}
       <div className="mt-5 flex justify-end gap-2">
         <button type="button" onClick={onClose} className="btn-neutral px-4 py-2 text-sm">Cancel</button>
-        <button type="button" onClick={onConfirm} disabled={saving} className="rounded-lg border border-red-500/50 bg-red-500/15 px-4 py-2 text-sm font-medium text-red-300 transition hover:border-red-500/70 hover:bg-red-500/25 disabled:cursor-not-allowed disabled:opacity-50">
+        <button type="button" onClick={onConfirm} disabled={saving} className="rounded-lg border border-red-500/50 bg-red-500/15 px-4 py-2 text-sm font-medium text-danger-text transition hover:border-red-500/70 hover:bg-red-500/25 disabled:cursor-not-allowed disabled:opacity-50">
           {saving ? 'Deleting…' : 'Delete permanently'}
         </button>
       </div>
@@ -221,14 +221,14 @@ export const LIFECYCLE_COLOR: Record<string, string> = {
   lead:       'bg-amber-500/15 text-amber-300 ring-amber-500/30',
   prospect:   'bg-blue-500/15 text-blue-300 ring-blue-500/30',
   customer:   'bg-green-500/15 text-green-300 ring-green-500/30',
-  churned:    'bg-red-500/15 text-red-300 ring-red-500/30',
+  churned:    'bg-red-500/15 text-danger-text ring-red-500/30',
   evangelist: 'bg-purple-500/15 text-purple-300 ring-purple-500/30',
 }
 // eslint-disable-next-line react-refresh/only-export-components
 export const STATUS_COLOR: Record<string, string> = {
   active:   'bg-green-500/15 text-green-300 ring-green-500/30',
   inactive: 'bg-zinc-500/15 text-text-muted ring-zinc-500/30',
-  churned:  'bg-red-500/15 text-red-300 ring-red-500/30',
+  churned:  'bg-red-500/15 text-danger-text ring-red-500/30',
 }
 // eslint-disable-next-line react-refresh/only-export-components
 export const STAGE_COLOR: Record<string, string> = {
@@ -236,7 +236,7 @@ export const STAGE_COLOR: Record<string, string> = {
   proposal:      'bg-blue-500/15 text-blue-300 ring-blue-500/30',
   negotiation:   'bg-purple-500/15 text-purple-300 ring-purple-500/30',
   'closed-won':  'bg-green-500/15 text-green-300 ring-green-500/30',
-  'closed-lost': 'bg-red-500/15 text-red-300 ring-red-500/30',
+  'closed-lost': 'bg-red-500/15 text-danger-text ring-red-500/30',
 }
 // eslint-disable-next-line react-refresh/only-export-components
 export const ACTIVITY_COLOR: Record<string, string> = {

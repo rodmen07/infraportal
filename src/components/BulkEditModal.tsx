@@ -154,10 +154,10 @@ export function BulkEditModal({ entity, targets: initialTargets, api = mockBulkE
               </div>
               {failedResults.length > 0 && (
                 <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3">
-                  <p className="text-sm font-medium text-red-300">Rows that failed</p>
+                  <p className="text-sm font-medium text-danger-text">Rows that failed</p>
                   <ul className="mt-1 max-h-32 space-y-1 overflow-y-auto">
                     {failedResults.map(result => (
-                      <li key={result.id} className="font-mono text-xs text-red-400">{result.label}: {result.error ?? 'unknown error'}</li>
+                      <li key={result.id} className="font-mono text-xs text-danger-text">{result.label}: {result.error ?? 'unknown error'}</li>
                     ))}
                   </ul>
                 </div>

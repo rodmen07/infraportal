@@ -132,7 +132,7 @@ export function ContactPage() {
 
           <div className="grid gap-5 sm:grid-cols-2">
             <div>
-              <label htmlFor="name" className={labelClass}>Your name <span className="text-red-400">*</span></label>
+              <label htmlFor="name" className={labelClass}>Your name <span className="text-danger-text">*</span></label>
               <input
                 id="name"
                 type="text"
@@ -141,10 +141,10 @@ export function ContactPage() {
                 onChange={(e) => { setName(e.target.value); setFieldErrors(fe => ({ ...fe, name: '' })) }}
                 className={fieldClass(!!fieldErrors.name)}
               />
-              {fieldErrors.name && <p className="mt-1 text-xs text-red-400">{fieldErrors.name}</p>}
+              {fieldErrors.name && <p className="mt-1 text-xs text-danger-text">{fieldErrors.name}</p>}
             </div>
             <div>
-              <label htmlFor="email" className={labelClass}>Email <span className="text-red-400">*</span></label>
+              <label htmlFor="email" className={labelClass}>Email <span className="text-danger-text">*</span></label>
               <input
                 id="email"
                 type="email"
@@ -153,12 +153,12 @@ export function ContactPage() {
                 onChange={(e) => { setEmail(e.target.value); setFieldErrors(fe => ({ ...fe, email: '' })) }}
                 className={fieldClass(!!fieldErrors.email)}
               />
-              {fieldErrors.email && <p className="mt-1 text-xs text-red-400">{fieldErrors.email}</p>}
+              {fieldErrors.email && <p className="mt-1 text-xs text-danger-text">{fieldErrors.email}</p>}
             </div>
           </div>
 
           <div>
-            <label htmlFor="message" className={labelClass}>Message <span className="text-red-400">*</span></label>
+            <label htmlFor="message" className={labelClass}>Message <span className="text-danger-text">*</span></label>
             <textarea
               id="message"
               rows={5}
@@ -174,7 +174,7 @@ export function ContactPage() {
               <span>Minimum 10 characters</span>
               <span>{messageLength} / 4000</span>
             </div>
-            {fieldErrors.message && <p className="mt-1 text-xs text-red-400">{fieldErrors.message}</p>}
+            {fieldErrors.message && <p className="mt-1 text-xs text-danger-text">{fieldErrors.message}</p>}
           </div>
 
           <div className="flex flex-wrap items-center gap-3">

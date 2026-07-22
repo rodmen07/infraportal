@@ -28,7 +28,7 @@ const STATUS_PILL: Record<string, string> = {
   active:      'bg-emerald-500/15 text-emerald-300',
   on_hold:     'bg-amber-500/15 text-amber-300',
   completed:   'bg-blue-500/15 text-blue-300',
-  cancelled:   'bg-red-500/15 text-red-300',
+  cancelled:   'bg-red-500/15 text-danger-text',
   // Milestone statuses (completed shared above)
   pending:     'bg-zinc-700/40 text-text-muted',
   in_progress: 'bg-amber-500/15 text-amber-300',
@@ -483,7 +483,7 @@ export function ProjectsTab() {
               </div>
             ))}
             <form onSubmit={sendReply} className="flex flex-col gap-2 pt-1">
-              {sendError && <p className="rounded-lg bg-red-500/10 px-3 py-1.5 text-xs text-red-400">{sendError}</p>}
+              {sendError && <p className="rounded-lg bg-red-500/10 px-3 py-1.5 text-xs text-danger-text">{sendError}</p>}
               <div className="flex gap-2">
                 <input value={reply} onChange={e => setReply(e.target.value)} placeholder="Reply to client…"
                   className="min-w-0 flex-1 rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none" />

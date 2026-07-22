@@ -64,7 +64,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
           placeholder="Admin key"
           className="w-full rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
         />
-        {error && <p className="text-xs text-red-400">Invalid key</p>}
+        {error && <p className="text-xs text-danger-text">Invalid key</p>}
         <button type="submit" className="btn-accent w-full">Unlock</button>
       </form>
     </div>
@@ -110,7 +110,7 @@ function EmptyReportsState({ onCreate }: { onCreate: () => void }) {
 }
 
 function SaveError({ message }: { message: string }) {
-  return <p className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-red-300">{message}</p>
+  return <p className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-danger-text">{message}</p>
 }
 
 function FormField({ label, children }: { label: string; children: React.ReactNode }) {
@@ -515,7 +515,7 @@ function ReportsView() {
                         onClick={() => setModal({ mode: 'edit', record: r })}
                       >Edit</button>
                       <button
-                        className="text-xs text-red-400 hover:text-red-300 transition"
+                        className="text-xs text-danger-text hover:text-red-300 transition"
                         onClick={() => setModal({ mode: 'delete', id: r.id, label: r.name })}
                       >Delete</button>
                     </div>
@@ -547,7 +547,7 @@ function ReportsView() {
         <Modal title="Delete Report" onClose={() => setModal(null)}>
           <p className="text-sm text-text-secondary">Delete <strong className="text-text-primary">{modal.label}</strong>? This cannot be undone.</p>
           <div className="flex gap-2 pt-1">
-            <button className="btn-accent flex-1 !bg-red-500/20 !border-red-500/40 !text-red-300 hover:!bg-red-500/30" onClick={handleDelete} disabled={deleting}>
+            <button className="btn-accent flex-1 !bg-red-500/20 !border-red-500/40 !text-danger-text hover:!bg-red-500/30" onClick={handleDelete} disabled={deleting}>
               {deleting ? 'Deleting…' : 'Delete'}
             </button>
             <button className="btn-neutral flex-1" onClick={() => setModal(null)} disabled={deleting}>Cancel</button>

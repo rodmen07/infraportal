@@ -201,25 +201,25 @@ export function CloudMigrationCaseStudyPage() {
             <div className="mb-3 text-sm font-semibold text-zinc-200">Before (Fly.io)</div>
             <div className="space-y-2">
               <div className="flex items-start gap-2">
-                <span className="mt-0.5 text-red-400">&#x25CF;</span>
+                <span className="mt-0.5 text-danger-text">&#x25CF;</span>
                 <span className="text-text-muted">
                   ai-orchestrator-service on Fly.io — port 8081 — static Fly API token secret
                 </span>
               </div>
               <div className="flex items-start gap-2">
-                <span className="mt-0.5 text-red-400">&#x25CF;</span>
+                <span className="mt-0.5 text-danger-text">&#x25CF;</span>
                 <span className="text-text-muted">
                   event-stream-service on Fly.io — port 8085 — separate Fly region config
                 </span>
               </div>
               <div className="flex items-start gap-2">
-                <span className="mt-0.5 text-red-400">&#x25CF;</span>
+                <span className="mt-0.5 text-danger-text">&#x25CF;</span>
                 <span className="text-text-muted">
                   Two separate CI/CD systems: Fly deploy tokens + GCP OIDC for other services
                 </span>
               </div>
               <div className="flex items-start gap-2">
-                <span className="mt-0.5 text-red-400">&#x25CF;</span>
+                <span className="mt-0.5 text-danger-text">&#x25CF;</span>
                 <span className="text-text-muted">
                   No automated test step before deploy for either service
                 </span>

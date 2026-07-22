@@ -61,7 +61,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
           placeholder="Admin key"
           className="w-full rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
         />
-        {error && <p className="text-xs text-red-400">Invalid key</p>}
+        {error && <p className="text-xs text-danger-text">Invalid key</p>}
         <button type="submit" className="btn-accent w-full">Unlock</button>
       </form>
     </div>
@@ -90,12 +90,12 @@ const SEVERITY_COLORS: Record<string, string> = {
   low:      'bg-zinc-700/40 text-text-secondary border-zinc-600/30',
   medium:   'bg-blue-500/20 text-blue-300 border-blue-500/30',
   high:     'bg-amber-500/20 text-amber-300 border-amber-500/30',
-  critical: 'bg-red-500/20 text-red-300 border-red-500/30',
+  critical: 'bg-red-500/20 text-danger-text border-red-500/30',
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
   deployment: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
-  security:   'bg-red-500/20 text-red-300 border-red-500/30',
+  security:   'bg-red-500/20 text-danger-text border-red-500/30',
   alert:      'bg-amber-500/20 text-amber-300 border-amber-500/30',
   metric:     'bg-blue-500/20 text-blue-300 border-blue-500/30',
   info:       'bg-zinc-700/40 text-text-secondary border-zinc-600/30',
@@ -279,7 +279,7 @@ function ObservaboardView() {
 
       {/* Error */}
       {error && (
-        <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+        <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-danger-text">
           {error}
         </div>
       )}

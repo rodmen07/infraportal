@@ -186,7 +186,7 @@ export function TemplateLibrary({ projects, store = projectsStore }: TemplateLib
           {/* Inline delete confirmation */}
           {confirmDeleteId === template.id && (
             <div className="mt-2 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-red-500/30 bg-red-950/20 px-3 py-2">
-              <p className="text-xs text-red-300">
+              <p className="text-xs text-danger-text">
                 Delete template <span className="font-semibold">{template.name}</span>? This cannot be undone.
               </p>
               <div className="flex items-center gap-2">
@@ -196,7 +196,7 @@ export function TemplateLibrary({ projects, store = projectsStore }: TemplateLib
                 <button
                   type="button"
                   onClick={() => handleConfirmDelete(template)}
-                  className="rounded-lg border border-red-500/50 bg-red-500/15 px-3 py-1.5 text-xs font-medium text-red-300 transition hover:border-red-500/70 hover:bg-red-500/25"
+                  className="rounded-lg border border-red-500/50 bg-red-500/15 px-3 py-1.5 text-xs font-medium text-danger-text transition hover:border-red-500/70 hover:bg-red-500/25"
                 >
                   Delete template
                 </button>

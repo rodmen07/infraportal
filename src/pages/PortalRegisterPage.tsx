@@ -96,7 +96,7 @@ export function PortalRegisterPage() {
           ) : (
             <form onSubmit={handleRegister} className="space-y-3">
               {error && (
-                <p className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-red-300">
+                <p className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-danger-text">
                   {error}
                 </p>
               )}

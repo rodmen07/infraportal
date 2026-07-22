@@ -459,7 +459,11 @@ describe('strangler rule: override-sheet rules for tokenized surfaces stay delet
     // class: the three `pre.text-zinc-{200,300,400}` selectors (which had
     // orphaned when those <pre> elements migrated their text onto tokens)
     // collapsed to one `pre.code-surface` selector keyed on an explicit marker.
-    const CEILING = 221
+    // 219 after v1.19 D12 (status-token migration) began: the dominant danger
+    // text shades text-red-{400,300} were consolidated onto the existing
+    // text-danger-text semantic token (light-exact; dark consolidates to
+    // red-200), retiring their two `[data-theme="light"] .text-red-*` overrides.
+    const CEILING = 219
     const remaining = (INDEX_CSS_RULES.match(/\[data-theme="light"\]/g) ?? []).length
     expect(remaining).toBeLessThanOrEqual(CEILING)
   })

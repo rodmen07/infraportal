@@ -198,7 +198,7 @@ export function PortalPage() {
 
       {status === 'error' && (
         <div className="forge-panel surface-card-strong p-4">
-          <p className="text-sm text-red-400">{error}</p>
+          <p className="text-sm text-danger-text">{error}</p>
           <button className="btn-neutral btn-sm mt-3" onClick={load}>Retry</button>
         </div>
       )}
