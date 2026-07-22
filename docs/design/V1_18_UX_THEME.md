@@ -171,11 +171,31 @@ Cadence: one minor per week, each one or two small PRs, same verification bar as
 
 **Correction (post-merge QA):** PR1's scope list above still names CrmAdmin among the pages whose ad hoc pills move onto `Badge`/`StatusPill`. `CrmAdminPage.tsx` was not touched (zero-line diff versus main on both PR branches) - out of scope per this same document's own "scope creep into CrmAdminPage/PortalPage internals" risk fence in Section 6. PatchNotes, Consultations, SupportQueue, and Portal migrated as described; CrmAdmin's ad hoc pills remain unmigrated and are a candidate for v1.18.6 or a later pass, not something PR1 delivered.
 
-### v1.18.6 - Override-sheet retirement
+### v1.18.6 - Override-sheet retirement (RE-SCOPED 2026-07-22 after a measured analysis; user-approved plan)
 
-- **PR 1:** migrate the ~40 case-study/admin/portal files still authored in raw dark-mode Tailwind utilities (identified by `opacityColorThemeCoverage.test.ts` and the bare-class equivalents in `tokens.test.ts`) onto the semantic `surface-*`/`text-*`/`border-*`/`accent-*` tokens from v1.18.1, the same migration PricingCard already completed in v1.18.4 PR1. May land as more than one PR if the file count makes a single review unsafe; each PR names exactly which files it migrates.
-- **Done when:** the `[data-theme="light"]` override-sheet selector count (`tokens.test.ts`'s ratchet gate) reaches **zero**; the ratchet test itself is deleted or inverted to assert the sheet stays empty; both-theme walk of every migrated page shows no visual regression; deploy green.
-- **Proves to the audience:** light mode is a first-class theme with zero patch surface, not a claim - the same guarantee v1.18.4 originally promised, now backed by a migration instead of a CSS override.
+**Why re-scoped.** The original done-when ("selector count reaches zero") is architecturally unachievable within this milestone, and a single-codemod approach is unsafe. A verified measurement of `main` on 2026-07-22 (boundary-matched, not a raw grep) established:
+
+- The sheet is ~230 `[data-theme="light"]` rules; **~179 target raw palette classes** (the migration surface) and **~49 target structural/component/base selectors** (`body`, `.forge-panel`, `.btn-*`, `.text-white`, `.about-fact-card`) that are NOT part of this migration and always stay.
+- Of the 179 palette rules: **4 are already dead** (zero `.tsx` consumers - deletable now), **97 sit behind ≤3 non-fenced files each** (cheap), **18 behind 4-10**, only **4 are true hotspots** (11+ files: `bg-zinc-900/80`, `border-zinc-500/30`, `text-amber-200`, `border-amber-500/30`), and — the dominant fact — **56 have a consumer inside `CrmAdminPage.tsx` or `PortalPage.tsx`**, the two files fenced off for code-health in Section 6.
+- **Those 56 rules cannot be retired here** without splitting/unfencing those pages (a separate, large code-health effort). So a perfect v1.18.6 leaves the sheet at ~105 rules (≈49 structural + 56 fenced), never zero.
+- **A blanket class→token codemod is unsafe:** of ~280 raw palette classes in use, only ~14-23 map pixel-faithfully; ~73% are consolidations that shift a colour in at least one theme, and a name-based map mis-buckets because the correct target depends on the *rendered post-override* value, not the class name (e.g. `text-zinc-500` maps clean but `text-zinc-400` does not - inverted). The scanner tests verify **structure, not appearance**: nothing catches a wrong-but-theme-aware mapping, bare (non-opacity) classes have no consumer-vs-override guard, and the `*/`-in-a-comment PostCSS build break is not caught by any PR check (`npm run build` runs only in the post-merge Pages deploy).
+
+**Approved approach: HYBRID (user, 2026-07-22).**
+
+- **PR 1 - curated codemod:** a scripted, allow-list class→token map of ONLY the ~14-23 verified pixel-clean classes (covers ~24% of all raw-palette call sites, including several of the highest-traffic clean classes), plus deletion of the 4 already-dead rules and any override rule those clean migrations render fully consumer-free. No consolidation classes in this PR.
+- **Then class-oriented:** one class (or tight family) per PR for the ~97 easy + 18 medium consolidation classes, each PR eliminating the class across all its non-fenced consumers, deleting its override rule, dropping the ratchet ceiling, and carrying a manual both-theme walk. Front-load the files that unblock clusters (`MedallionDemo.tsx`, `OnboardingChecklist.tsx`).
+- **The 4 hotspots** land as their own dedicated PRs (largest blast radius, so smallest scope each).
+
+**Mandatory guardrails (the safety net does NOT cover these):**
+- Add a `build` job to the required PR checks BEFORE starting (closes the un-gated `*/` PostCSS hazard that shipped in v1.18.4; also the already-filed MED bug). Until then, every PR must run `npm run build` locally.
+- Every PR: a human both-theme + both-width walk of the touched surfaces (no automated colour-value guard exists), and confirm each deleted override truly has zero remaining consumers (trust the opacity-coverage test for opacity-suffixed classes; grep by hand for bare built-ins).
+
+- **Done when (RE-SCOPED):** every **non-fence-blocked** palette override rule is retired — the `[data-theme="light"]` selector count reaches its structural floor (~49 structural + the 56 fence-blocked = ~105), NOT zero. The ratchet stays (it now guards the floor, not zero). Both-theme walk clean; deploy green. Full retirement to zero is explicitly **deferred to the CrmAdminPage/PortalPage split below.**
+- **Proves to the audience:** light mode is first-class for every surface a visitor actually sees (marketing, case studies, portal-facing chrome); the residual patch surface is confined to two admin-only internal pages, tracked for a dedicated split.
+
+### CH-1 - Split CrmAdminPage / PortalPage, then retire the last 56 override rules (dependent milestone, filed 2026-07-22)
+
+The 2,187-line `CrmAdminPage.tsx` and ~1,100-line `PortalPage.tsx` are fenced from v1.18.x for code-health (Section 6). They hold **56 override rules hostage**: those rules cannot be deleted while these two files keep using the raw classes. This milestone splits each page into smaller modules (a behavior-preserving refactor, existing tests unchanged), migrates the extracted pieces onto tokens, and then deletes the final 56 rules to bring the sheet to its true structural floor. Large; sequenced after v1.18.6's non-fenced retirement. Candidate for a v1.19 code-health theme.
 
 ### v1.18.5 (optional, per D10) - Perceived performance
 
