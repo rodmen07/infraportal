@@ -99,3 +99,33 @@ jobs:
         if: failure()
         run: echo "::error::Type check failed. Undefined imports or type errors would crash at runtime."
         shell: bash
+
+  build:
+    runs-on: ubuntu-latest
+    name: Build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Production build
+        # The ONLY required check that runs the real Vite/PostCSS production
+        # build. tsc/eslint/vitest never invoke PostCSS, so a build-breaking
+        # regression - e.g. a literal `*/` inside a CSS comment, which shipped
+        # TWICE in v1.18.4 (PR #40/#41) and only failed the post-merge Pages
+        # deploy - could merge with every required check green. This closes that
+        # gap: a broken production build now blocks the merge, not the deploy.
+        run: npm run build
+
+      - name: Check build results
+        if: failure()
+        run: echo "::error::Production build failed (Vite/PostCSS). A broken build would fail the Pages deploy after merge - fix before merging."
+        shell: bash
