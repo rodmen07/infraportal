@@ -30,9 +30,9 @@ const EXECUTABLE_NOTE =
   'Runs entirely in your browser against the labeled in-memory demo dataset; no network requests are made (the platform backend was decommissioned on 2026-06-04). The simulation treats you as an authenticated admin caller, so the documented 401/403 responses are not reachable here. Changes are shared with the admin demo tables and last until you reload the page.'
 
 function statusTone(status: number): string {
-  if (status < 300) return 'text-emerald-300'
+  if (status < 300) return 'text-success-text'
   if (status < 500) return 'text-amber-300'
-  return 'text-rose-300'
+  return 'text-danger-text'
 }
 
 // v1.18.1 PR2: the shared, token-built `.field-input` recipe from
@@ -58,7 +58,7 @@ function FieldInput({
       <span className="flex flex-wrap items-center gap-1.5 text-scale-xs">
         <span className="font-mono font-semibold text-zinc-200">{field.name}</span>
         {field.required && (
-          <span className="rounded bg-rose-500/15 px-1 py-0.5 text-scale-xs font-medium text-rose-300">
+          <span className="rounded bg-rose-500/15 px-1 py-0.5 text-scale-xs font-medium text-danger-text">
             required
           </span>
         )}
@@ -202,7 +202,7 @@ export function TryItPanel({
     >
       <div className="flex flex-wrap items-center gap-2">
         <h5 className="text-scale-xs font-semibold uppercase tracking-widest text-text-secondary">Try it</h5>
-        <span className="rounded border border-emerald-500/25 bg-emerald-500/10 px-1.5 py-0.5 text-scale-xs text-emerald-300">
+        <span className="rounded border border-emerald-500/25 bg-emerald-500/10 px-1.5 py-0.5 text-scale-xs text-success-text">
           in-browser demo
         </span>
       </div>
@@ -261,7 +261,7 @@ export function TryItPanel({
                 <h6 className="text-scale-xs font-semibold uppercase tracking-wider text-text-muted">
                   Request body
                   {model.bodyRequired && (
-                    <span className="ml-1.5 rounded bg-rose-500/15 px-1 py-0.5 text-scale-xs font-medium normal-case tracking-normal text-rose-300">
+                    <span className="ml-1.5 rounded bg-rose-500/15 px-1 py-0.5 text-scale-xs font-medium normal-case tracking-normal text-danger-text">
                       required
                     </span>
                   )}
@@ -319,7 +319,7 @@ export function TryItPanel({
             </code>
           </div>
 
-          {formError && <p className="text-scale-xs text-rose-300">{formError}</p>}
+          {formError && <p className="text-scale-xs text-danger-text">{formError}</p>}
           {response && <ResponseViewer response={response} />}
         </div>
       )}

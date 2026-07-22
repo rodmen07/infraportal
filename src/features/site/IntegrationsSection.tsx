@@ -90,7 +90,7 @@ const STATUS_LABEL: Record<IntegrationStatus, string> = {
 }
 
 const STATUS_CLASS: Record<IntegrationStatus, string> = {
-  'live':           'border-emerald-400/40 bg-emerald-500/10 text-emerald-300',
+  'live':           'border-emerald-400/40 bg-emerald-500/10 text-success-text',
   'in-development': 'border-amber-400/40 bg-amber-500/10 text-amber-300',
   'coming-soon':    'border-zinc-600/40 bg-zinc-700/30 text-text-subtle',
 }

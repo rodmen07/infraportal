@@ -157,9 +157,9 @@ function SpeakButton({ text, label = 'Read aloud' }: { text: string; label?: str
 
 const SEV_BADGE: Record<Severity, string> = {
   CRITICAL: 'text-danger-text border-red-500/40 bg-red-900/20',
-  HIGH:     'text-orange-400 border-orange-500/40 bg-orange-900/20',
-  MEDIUM:   'text-yellow-400 border-yellow-500/40 bg-yellow-900/20',
-  LOW:      'text-blue-400 border-blue-500/40 bg-blue-900/20',
+  HIGH:     'text-caution-text border-orange-500/40 bg-orange-900/20',
+  MEDIUM:   'text-warning-text border-yellow-500/40 bg-yellow-900/20',
+  LOW:      'text-info-text border-blue-500/40 bg-blue-900/20',
   NONE:     'text-text-muted border-zinc-600/40 bg-zinc-800/20',
   UNKNOWN:  'text-text-subtle border-zinc-700/40 bg-zinc-800/10',
 }
@@ -397,7 +397,7 @@ function BronzeView({ raw }: { raw: NvdResponse }) {
   return (
     <div>
       <div className="mb-3 flex flex-wrap gap-2">
-        <span className="rounded border border-orange-700/40 bg-orange-900/20 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-orange-300">Raw</span>
+        <span className="rounded border border-orange-700/40 bg-orange-900/20 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-caution-text">Raw</span>
         <span className="rounded border border-zinc-700/40 bg-zinc-800/40 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-text-muted">NVD API v2.0</span>
         <span className="rounded border border-zinc-700/40 bg-zinc-800/40 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-text-muted">{raw.totalResults.toLocaleString()} total results</span>
       </div>

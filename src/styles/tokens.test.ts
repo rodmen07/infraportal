@@ -463,7 +463,13 @@ describe('strangler rule: override-sheet rules for tokenized surfaces stay delet
     // text shades text-red-{400,300} were consolidated onto the existing
     // text-danger-text semantic token (light-exact; dark consolidates to
     // red-200), retiring their two `[data-theme="light"] .text-red-*` overrides.
-    const CEILING = 219
+    // 212 after the remaining D12 status text roles migrated onto their semantic
+    // tokens (warning=yellow, caution=orange, success=emerald/green, danger
+    // rose/red-200 followups, info=blue), retiring 7 now-dead bare overrides
+    // (text-yellow-400, text-orange-400/300, text-emerald-200/300, blue-400, and
+    // a dead text-emerald-100 sweep). amber/purple/violet/sky/teal/cyan are brand
+    // /decorative accents and were deliberately left on their raw classes.
+    const CEILING = 212
     const remaining = (INDEX_CSS_RULES.match(/\[data-theme="light"\]/g) ?? []).length
     expect(remaining).toBeLessThanOrEqual(CEILING)
   })

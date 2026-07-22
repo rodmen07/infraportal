@@ -232,25 +232,25 @@ export function CloudMigrationCaseStudyPage() {
             <div className="mb-3 text-sm font-semibold text-zinc-200">After (GCP Cloud Run)</div>
             <div className="space-y-2">
               <div className="flex items-start gap-2">
-                <span className="mt-0.5 text-green-400">&#x25CF;</span>
+                <span className="mt-0.5 text-success-text">&#x25CF;</span>
                 <span className="text-text-muted">
                   Both services on Cloud Run us-central1 — port 8080 — co-located with other 10 services
                 </span>
               </div>
               <div className="flex items-start gap-2">
-                <span className="mt-0.5 text-green-400">&#x25CF;</span>
+                <span className="mt-0.5 text-success-text">&#x25CF;</span>
                 <span className="text-text-muted">
                   Keyless OIDC via Workload Identity Federation — zero static credentials
                 </span>
               </div>
               <div className="flex items-start gap-2">
-                <span className="mt-0.5 text-green-400">&#x25CF;</span>
+                <span className="mt-0.5 text-success-text">&#x25CF;</span>
                 <span className="text-text-muted">
                   SHA-pinned image tags in Artifact Registry — every deploy reproducible
                 </span>
               </div>
               <div className="flex items-start gap-2">
-                <span className="mt-0.5 text-green-400">&#x25CF;</span>
+                <span className="mt-0.5 text-success-text">&#x25CF;</span>
                 <span className="text-text-muted">
                   pytest + go test steps run before every deploy — regressions blocked at CI
                 </span>

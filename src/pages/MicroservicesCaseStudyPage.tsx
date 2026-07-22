@@ -313,7 +313,7 @@ export function MicroservicesCaseStudyPage() {
 
       {/* Baseline note */}
       <section className="forge-panel rounded-2xl border border-emerald-500/30 bg-emerald-950/20 p-5 backdrop-blur-xl">
-        <h2 className="text-base font-semibold text-emerald-200">Current baseline</h2>
+        <h2 className="text-base font-semibold text-success-text">Current baseline</h2>
         <p className="mt-2 text-sm leading-relaxed text-emerald-100/85">
           All services are now on Cloud Run with PostgreSQL via Cloud SQL. The platform is fully
           observable (real-time event stream + CRM notification bell), SOC 2 CC6/CC9 controls are
@@ -378,7 +378,7 @@ export function MicroservicesCaseStudyPage() {
           ] as [string, string, string, string][]).map(([id, severity, status, desc]) => (
             <div key={id} className="flex items-start gap-3 px-5 py-3 text-sm">
               <span className="w-24 shrink-0 font-mono text-xs text-text-subtle">{id}</span>
-              <span className={`w-20 shrink-0 text-xs font-medium ${severity === 'HIGH' ? 'text-danger-text' : severity === 'MED-HIGH' ? 'text-orange-400' : 'text-yellow-400'}`}>{severity}</span>
+              <span className={`w-20 shrink-0 text-xs font-medium ${severity === 'HIGH' ? 'text-danger-text' : severity === 'MED-HIGH' ? 'text-caution-text' : 'text-warning-text'}`}>{severity}</span>
               <span className="shrink-0 text-base">{status}</span>
               <span className="text-text-secondary">{desc}</span>
             </div>

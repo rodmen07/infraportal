@@ -101,7 +101,7 @@ export function ContactCTA() {
       )}
 
       {phase === 'sent' ? (
-        <div className="mt-6 space-y-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-5 py-4 text-sm text-emerald-300">
+        <div className="mt-6 space-y-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-5 py-4 text-sm text-success-text">
           <p>Thanks, your request is in and I will reach out shortly.</p>
           {latestRequest && (
             <p className="text-xs text-emerald-200/90">

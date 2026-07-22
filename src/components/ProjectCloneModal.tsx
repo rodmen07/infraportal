@@ -222,7 +222,7 @@ export function ProjectCloneModal({ projects, initialSourceId, store = projectsS
           {/* Result */}
           {status === 'done' && result && (
             <div className="rounded-xl border border-green-500/30 bg-green-500/10 px-4 py-3">
-              <p className="text-sm font-medium text-green-300">
+              <p className="text-sm font-medium text-success-text">
                 Created {result.project.name} with {plural(result.milestones, 'milestone')} and {plural(result.deliverables, 'deliverable')}.
               </p>
               <p className="mt-1 text-xs text-green-400/80">It now appears in the projects list.</p>

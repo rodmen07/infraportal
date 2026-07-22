@@ -35,7 +35,7 @@ export function OnboardingChecklist({ projectId }: { projectId: string }) {
         <span
           className={`rounded-full border px-3 py-1 text-xs font-medium ${
             allDone
-              ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
+              ? 'border-emerald-500/30 bg-emerald-500/10 text-success-text'
               : 'border-amber-500/30 bg-amber-500/10 text-amber-300'
           }`}
         >
@@ -69,7 +69,7 @@ export function OnboardingChecklist({ projectId }: { projectId: string }) {
                   className="mt-0.5 h-4 w-4 shrink-0 rounded border-zinc-600 bg-zinc-900 text-amber-500 focus:ring-amber-500/40"
                 />
                 <span className="min-w-0">
-                  <span className={`block text-sm font-medium ${isDone ? 'text-emerald-200 line-through' : 'text-text-primary'}`}>
+                  <span className={`block text-sm font-medium ${isDone ? 'text-success-text line-through' : 'text-text-primary'}`}>
                     {step.label}
                   </span>
                   <span className="mt-0.5 block text-xs text-text-muted">{step.description}</span>

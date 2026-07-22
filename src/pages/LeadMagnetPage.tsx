@@ -166,7 +166,7 @@ export function LeadMagnetPage() {
               </form>
             ) : (
               <div className="mt-6 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-5 py-4">
-                <p className="text-sm font-medium text-emerald-300">
+                <p className="text-sm font-medium text-success-text">
                   ✓ Checklist is ready to download!
                 </p>
                 {deliveryStatus === 'sent' ? (
@@ -185,7 +185,7 @@ export function LeadMagnetPage() {
                   <a
                     href={checklistWebUrl}
                     onClick={() => trackPortfolioEvent('lead_magnet_artifact_click', { artifact: 'web_checklist' })}
-                    className="inline-block rounded-lg border border-emerald-400/40 bg-emerald-500/15 px-4 py-2 text-xs font-semibold text-emerald-200 transition hover:border-emerald-400/60 hover:bg-emerald-500/25"
+                    className="inline-block rounded-lg border border-emerald-400/40 bg-emerald-500/15 px-4 py-2 text-xs font-semibold text-success-text transition hover:border-emerald-400/60 hover:bg-emerald-500/25"
                   >
                     Open web checklist
                   </a>
@@ -194,14 +194,14 @@ export function LeadMagnetPage() {
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => trackPortfolioEvent('lead_magnet_artifact_click', { artifact: 'printable_checklist' })}
-                    className="inline-block rounded-lg border border-emerald-400/40 bg-emerald-500/15 px-4 py-2 text-xs font-semibold text-emerald-200 transition hover:border-emerald-400/60 hover:bg-emerald-500/25"
+                    className="inline-block rounded-lg border border-emerald-400/40 bg-emerald-500/15 px-4 py-2 text-xs font-semibold text-success-text transition hover:border-emerald-400/60 hover:bg-emerald-500/25"
                   >
                     Printable checklist (save as PDF)
                   </a>
                 </div>
                 <a
                   href="#/"
-                  className="mt-4 inline-block rounded-lg border border-emerald-400/40 bg-emerald-500/15 px-4 py-2 text-xs font-semibold text-emerald-200 transition hover:border-emerald-400/60 hover:bg-emerald-500/25"
+                  className="mt-4 inline-block rounded-lg border border-emerald-400/40 bg-emerald-500/15 px-4 py-2 text-xs font-semibold text-success-text transition hover:border-emerald-400/60 hover:bg-emerald-500/25"
                 >
                   Back to home →
                 </a>
@@ -225,7 +225,7 @@ export function LeadMagnetPage() {
                   <ul className="mt-3 space-y-2">
                     {section.items.map((item, idx) => (
                       <li key={idx} className="flex items-start gap-2 text-sm text-text-secondary">
-                        <span className="mt-1 shrink-0 text-emerald-400">✓</span>
+                        <span className="mt-1 shrink-0 text-success-text">✓</span>
                         <span>{item}</span>
                       </li>
                     ))}

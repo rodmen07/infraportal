@@ -205,7 +205,7 @@ function statusDot(s: HealthStatus) {
 }
 
 function statusText(s: HealthStatus) {
-  if (s === 'ok')           return 'text-emerald-400'
+  if (s === 'ok')           return 'text-success-text'
   if (s === 'degraded')     return 'text-amber-400'
   if (s === 'error')        return 'text-danger-text'
   if (s === 'checking')     return 'text-text-muted'
@@ -246,7 +246,7 @@ function SummaryBar({ results }: { results: ServiceHealth[] }) {
         </span>
       </div>
       <div className="ml-auto flex gap-4 text-xs text-text-subtle">
-        {ok > 0       && <span><span className="text-emerald-400 font-medium">{ok}</span> ok</span>}
+        {ok > 0       && <span><span className="text-success-text font-medium">{ok}</span> ok</span>}
         {degraded > 0 && <span><span className="text-amber-400 font-medium">{degraded}</span> degraded</span>}
         {errors > 0   && <span><span className="text-danger-text font-medium">{errors}</span> error</span>}
         <span>{configured.length} services</span>

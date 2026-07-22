@@ -198,11 +198,11 @@ export function CicdCaseStudyPage() {
           <div className="flex items-center text-zinc-600 pt-3">→</div>
           {/* staging */}
           <div className="rounded-lg border border-blue-500/40 bg-blue-500/8 px-3 py-2 text-center">
-            <div className="font-semibold text-blue-200">deploy-staging</div>
+            <div className="font-semibold text-info-text">deploy-staging</div>
             <div className="mt-1 text-text-muted">OIDC auth</div>
             <div className="mt-0.5 text-text-muted">build + push</div>
             <div className="mt-0.5 text-text-muted">deploy</div>
-            <div className="mt-1 text-emerald-400 text-scale-xs">✓ health check</div>
+            <div className="mt-1 text-success-text text-scale-xs">✓ health check</div>
             <div className="text-danger-text text-scale-xs">↩ rollback on fail</div>
           </div>
           <div className="flex items-center text-zinc-600 pt-3">→</div>
@@ -215,11 +215,11 @@ export function CicdCaseStudyPage() {
           <div className="flex items-center text-zinc-600 pt-3">→</div>
           {/* prod */}
           <div className="rounded-lg border border-emerald-500/40 bg-emerald-500/8 px-3 py-2 text-center">
-            <div className="font-semibold text-emerald-200">deploy-prod</div>
+            <div className="font-semibold text-success-text">deploy-prod</div>
             <div className="mt-1 text-text-muted">OIDC auth</div>
             <div className="mt-0.5 text-text-muted">promote image</div>
             <div className="mt-0.5 text-text-muted">deploy</div>
-            <div className="mt-1 text-emerald-400 text-scale-xs">✓ health check</div>
+            <div className="mt-1 text-success-text text-scale-xs">✓ health check</div>
             <div className="text-danger-text text-scale-xs">↩ rollback on fail</div>
           </div>
         </div>

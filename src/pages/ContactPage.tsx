@@ -112,7 +112,7 @@ export function ContactPage() {
       <section className="forge-panel surface-card-strong rounded-3xl p-8 shadow-2xl shadow-black/50 sm:p-10">
         {phase === 'sent' ? (
           <div className="space-y-4">
-            <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-5 py-4 text-sm text-emerald-300">
+            <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-5 py-4 text-sm text-success-text">
               ✓ Message sent — I'll be in touch within 1 business day.
             </div>
             <button
@@ -223,7 +223,7 @@ export function ContactPage() {
         <div className="flex items-start gap-3">
           <span className="text-2xl" aria-hidden="true">🎁</span>
           <div className="flex-1">
-            <p className="font-semibold text-emerald-300">Refer a friend, earn $500</p>
+            <p className="font-semibold text-success-text">Refer a friend, earn $500</p>
             <p className="mt-2 text-sm text-emerald-200/80">
               Know another team that needs infrastructure help? Refer them for a successful project or retainer,
               and I will send you a $500 credit toward your next engagement. No limit on referrals.

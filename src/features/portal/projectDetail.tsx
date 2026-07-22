@@ -216,7 +216,7 @@ function DeliverableRow({ d }: { d: Deliverable }) {
           the StatusBadge below - not real text content, and a 12px floor
           would not fit the box. See src/styles/typeScaleFloor.test.ts. */}
       <span className={`mt-0.5 h-4 w-4 shrink-0 rounded border text-center text-[10px] leading-[14px] ${
-        done ? 'border-emerald-500/40 bg-emerald-500/15 text-emerald-300' : 'border-zinc-600/40 bg-zinc-800/40 text-text-subtle'
+        done ? 'border-emerald-500/40 bg-emerald-500/15 text-success-text' : 'border-zinc-600/40 bg-zinc-800/40 text-text-subtle'
       }`}>
         {done ? '✓' : ''}
       </span>

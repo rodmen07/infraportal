@@ -59,12 +59,12 @@ function TopNavComponent() {
         </a>
         <div className="flex items-center gap-2">
           {isClient && (
-            <span className="hidden items-center gap-2 rounded-lg border border-emerald-600/40 bg-emerald-900/20 px-2.5 py-1.5 text-xs text-emerald-300 sm:flex">
+            <span className="hidden items-center gap-2 rounded-lg border border-emerald-600/40 bg-emerald-900/20 px-2.5 py-1.5 text-xs text-success-text sm:flex">
               {claims?.username ?? claims?.email ?? claims?.sub?.slice(0, 8) ?? 'Client'}
               <button
                 type="button"
                 onClick={() => { logout(); window.location.hash = '#/portal/login' }}
-                className="text-emerald-500 hover:text-emerald-300"
+                className="text-success-text hover:text-emerald-300"
               >
                 Sign out
               </button>

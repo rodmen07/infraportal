@@ -119,7 +119,7 @@ function ErrorState({ message, onRetry }: { message: string; onRetry: () => void
   return (
     <div className="forge-panel surface-card-strong flex flex-col gap-3 border border-red-500/30 bg-red-500/10 p-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
-        <p className="text-sm font-semibold text-red-200">Unable to load audit events</p>
+        <p className="text-sm font-semibold text-danger-text">Unable to load audit events</p>
         <p className="mt-1 text-sm text-red-100/90">{message}</p>
       </div>
       <button className="btn-accent px-3 py-2 text-sm" onClick={onRetry}>Retry</button>
@@ -163,7 +163,7 @@ const SELECT = 'rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 te
 const INPUT  = `${SELECT} w-full placeholder-zinc-500`
 
 function actionBadge(action: string) {
-  if (action === 'created') return 'text-emerald-400'
+  if (action === 'created') return 'text-success-text'
   if (action === 'deleted') return 'text-danger-text'
   return 'text-amber-300'
 }
