@@ -73,18 +73,18 @@ export function ServicesPage() {
 
       <section className="forge-panel surface-card rounded-2xl p-6 shadow-xl shadow-black/30">
         <h2 className="text-base font-semibold text-white">What is included</h2>
-        <p className="mt-1 text-xs text-zinc-500">I keep the service simple, practical, and focused on launch readiness.</p>
+        <p className="mt-1 text-xs text-text-subtle">I keep the service simple, practical, and focused on launch readiness.</p>
         <div className="mt-4 grid gap-3 md:grid-cols-3">
           {SERVICE_HIGHLIGHTS.map((item) => (
             <div key={item.title} className="rounded-2xl border border-zinc-700/50 bg-zinc-800/40 p-4">
-              <h3 className="text-sm font-semibold text-zinc-100">{item.title}</h3>
-              <p className="mt-2 text-sm text-zinc-400">{item.description}</p>
+              <h3 className="text-sm font-semibold text-text-primary">{item.title}</h3>
+              <p className="mt-2 text-sm text-text-muted">{item.description}</p>
             </div>
           ))}
         </div>
         <ul className="mt-5 space-y-2">
           {STANDARD_DELIVERABLES.map((item) => (
-            <li key={item} className="flex items-start gap-2.5 text-sm text-zinc-300">
+            <li key={item} className="flex items-start gap-2.5 text-sm text-text-secondary">
               <span className="mt-0.5 shrink-0 text-amber-400">✓</span>
               {item}
             </li>

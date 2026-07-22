@@ -57,13 +57,13 @@ function AuthGate({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-[60vh] items-center justify-center">
       <form onSubmit={submit} className="forge-panel surface-card-strong w-full max-w-sm space-y-4 p-6">
-        <h2 className="text-base font-semibold text-zinc-100">Admin access required</h2>
+        <h2 className="text-base font-semibold text-text-primary">Admin access required</h2>
         <input
           type="password"
           value={input}
           onChange={e => { setInput(e.target.value); setError(false) }}
           placeholder="Admin key"
-          className="w-full rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
+          className="w-full rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
         />
         {error && <p className="text-xs text-red-400">Invalid key</p>}
         <button type="submit" className="btn-accent w-full">Unlock</button>
@@ -150,16 +150,16 @@ function EmptyState({
       </div>
       <p className="mt-4 text-scale-xs font-semibold uppercase tracking-[0.24em] text-amber-300/90">{badge}</p>
       <h3 className="mt-2 text-xl font-semibold text-zinc-50">{title}</h3>
-      <p className="mx-auto mt-2 max-w-2xl text-sm text-zinc-400">{message}</p>
+      <p className="mx-auto mt-2 max-w-2xl text-sm text-text-muted">{message}</p>
       <div className="mt-5 flex justify-center">
         <button className="btn-accent px-4 py-2 text-sm" onClick={onAction}>{actionLabel}</button>
       </div>
-      <p className="mt-3 text-xs text-zinc-500">Tip: widen the date range or clear filters to restore more results.</p>
+      <p className="mt-3 text-xs text-text-subtle">Tip: widen the date range or clear filters to restore more results.</p>
     </div>
   )
 }
 
-const SELECT = 'rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-zinc-100 focus:border-amber-400/50 focus:outline-none'
+const SELECT = 'rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-text-primary focus:border-amber-400/50 focus:outline-none'
 const INPUT  = `${SELECT} w-full placeholder-zinc-500`
 
 function actionBadge(action: string) {
@@ -171,9 +171,9 @@ function actionBadge(action: string) {
 function StatCard({ label, value, hint }: { label: string; value: string | number; hint: string }) {
   return (
     <div className="rounded-xl border border-zinc-700/40 bg-zinc-900/50 p-3">
-      <p className="text-scale-xs font-semibold uppercase tracking-[0.22em] text-zinc-500">{label}</p>
-      <p className="mt-2 text-2xl font-semibold text-zinc-100">{value}</p>
-      <p className="mt-1 text-xs text-zinc-500">{hint}</p>
+      <p className="text-scale-xs font-semibold uppercase tracking-[0.22em] text-text-subtle">{label}</p>
+      <p className="mt-2 text-2xl font-semibold text-text-primary">{value}</p>
+      <p className="mt-1 text-xs text-text-subtle">{hint}</p>
     </div>
   )
 }
@@ -207,8 +207,8 @@ function FilterBar({
       <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <p className="text-scale-xs font-semibold uppercase tracking-[0.24em] text-amber-300/90">Audit workspace</p>
-          <h2 className="mt-1 text-sm font-semibold text-zinc-100">Filter the event stream by entity, action, actor, or time window</h2>
-          <p className="mt-1 text-xs text-zinc-500">Quick presets help you recover from empty results and focus on the highest-signal changes.</p>
+          <h2 className="mt-1 text-sm font-semibold text-text-primary">Filter the event stream by entity, action, actor, or time window</h2>
+          <p className="mt-1 text-xs text-text-subtle">Quick presets help you recover from empty results and focus on the highest-signal changes.</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <button className="btn-neutral px-3 py-2 text-xs" onClick={() => onApplyPreset({ action: 'created' })}>Created</button>
@@ -218,19 +218,19 @@ function FilterBar({
       </div>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
         <div className="flex flex-col gap-1">
-          <span className="text-xs font-medium text-zinc-400">Entity type</span>
+          <span className="text-xs font-medium text-text-muted">Entity type</span>
           <select className={SELECT} value={filters.entity_type} onChange={e => onChange('entity_type', e.target.value)}>
             {ENTITY_TYPES.map(t => <option key={t} value={t}>{t || 'All types'}</option>)}
           </select>
         </div>
         <div className="flex flex-col gap-1">
-          <span className="text-xs font-medium text-zinc-400">Action</span>
+          <span className="text-xs font-medium text-text-muted">Action</span>
           <select className={SELECT} value={filters.action} onChange={e => onChange('action', e.target.value)}>
             {ACTIONS.map(a => <option key={a} value={a}>{a || 'All actions'}</option>)}
           </select>
         </div>
         <div className="flex flex-col gap-1">
-          <span className="text-xs font-medium text-zinc-400">Actor ID</span>
+          <span className="text-xs font-medium text-text-muted">Actor ID</span>
           <input
             className={INPUT}
             value={filters.actor_id}
@@ -239,7 +239,7 @@ function FilterBar({
           />
         </div>
         <div className="flex flex-col gap-1">
-          <span className="text-xs font-medium text-zinc-400">After (UTC)</span>
+          <span className="text-xs font-medium text-text-muted">After (UTC)</span>
           <input
             type="datetime-local"
             className={INPUT}
@@ -248,7 +248,7 @@ function FilterBar({
           />
         </div>
         <div className="flex flex-col gap-1">
-          <span className="text-xs font-medium text-zinc-400">Before (UTC)</span>
+          <span className="text-xs font-medium text-text-muted">Before (UTC)</span>
           <input
             type="datetime-local"
             className={INPUT}
@@ -258,7 +258,7 @@ function FilterBar({
         </div>
       </div>
       <div className="mt-3 flex items-center justify-between gap-3">
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs text-text-subtle">
           {activeFilterCount > 0 ? `${activeFilterCount} filter${activeFilterCount === 1 ? '' : 's'} active` : 'Showing all audit events'}
         </p>
         <button className="btn-neutral px-3 py-2 text-xs" onClick={onReset} disabled={activeFilterCount === 0}>
@@ -348,7 +348,7 @@ function AuditView() {
       {/* Summary row */}
       {result && (
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex flex-wrap items-center gap-2 text-xs text-zinc-500">
+          <div className="flex flex-wrap items-center gap-2 text-xs text-text-subtle">
             <span>
               {result.total} event{result.total !== 1 ? 's' : ''} total
               {totalPages > 1 && ` · page ${page + 1} of ${totalPages}`}
@@ -388,7 +388,7 @@ function AuditView() {
         <div className="overflow-x-auto rounded-xl border border-zinc-700/40">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-zinc-700/40 bg-zinc-800/40 text-left text-xs text-zinc-400">
+              <tr className="border-b border-zinc-700/40 bg-zinc-800/40 text-left text-xs text-text-muted">
                 <th className="px-4 py-2.5 font-medium">Timestamp</th>
                 <th className="px-4 py-2.5 font-medium">Entity</th>
                 <th className="px-4 py-2.5 font-medium">ID</th>
@@ -400,22 +400,22 @@ function AuditView() {
             <tbody>
               {result.data.map(ev => (
                 <tr key={ev.id} className="border-b border-zinc-700/20 hover:bg-zinc-800/30">
-                  <td className="px-4 py-3 text-xs text-zinc-500 whitespace-nowrap">{ev.created_at}</td>
+                  <td className="px-4 py-3 text-xs text-text-subtle whitespace-nowrap">{ev.created_at}</td>
                   <td className="px-4 py-3">
-                    <span className="rounded-full border border-zinc-600/40 bg-zinc-800/60 px-2 py-0.5 text-xs text-zinc-300">
+                    <span className="rounded-full border border-zinc-600/40 bg-zinc-800/60 px-2 py-0.5 text-xs text-text-secondary">
                       {ev.entity_type}
                     </span>
                   </td>
-                  <td className="px-4 py-3 font-mono text-xs text-zinc-400 max-w-[140px] truncate" title={ev.entity_id}>
+                  <td className="px-4 py-3 font-mono text-xs text-text-muted max-w-[140px] truncate" title={ev.entity_id}>
                     {ev.entity_id.slice(0, 8)}…
                   </td>
                   <td className={`px-4 py-3 text-xs font-semibold ${actionBadge(ev.action)}`}>
                     {ev.action}
                   </td>
-                  <td className="px-4 py-3 font-mono text-xs text-zinc-400 max-w-[140px] truncate" title={ev.actor_id}>
+                  <td className="px-4 py-3 font-mono text-xs text-text-muted max-w-[140px] truncate" title={ev.actor_id}>
                     {ev.actor_id.slice(0, 8)}…
                   </td>
-                  <td className="px-4 py-3 text-xs text-zinc-300">{ev.entity_label ?? '—'}</td>
+                  <td className="px-4 py-3 text-xs text-text-secondary">{ev.entity_label ?? '—'}</td>
                 </tr>
               ))}
             </tbody>

@@ -102,7 +102,7 @@ export function RetainersPage() {
       <section className="forge-panel rounded-3xl border border-zinc-500/30 bg-zinc-900/80 p-8 shadow-2xl shadow-black/50 sm:p-10">
           <div className="max-w-2xl">
             <h1 className="text-3xl font-bold text-white">Retainer Plans</h1>
-            <p className="mt-3 text-sm leading-relaxed text-zinc-300">
+            <p className="mt-3 text-sm leading-relaxed text-text-secondary">
               Dedicated engineering capacity, every week. Pick the hours and responsiveness that fit your team. All retainers include weekly syncs, flexible scope, and priority support.
             </p>
             <p className="mt-4 rounded-lg border border-amber-400/20 bg-amber-500/10 px-3 py-2 text-sm text-amber-200">
@@ -111,7 +111,7 @@ export function RetainersPage() {
           </div>
 
           {retainersData.note && (
-            <p className="mt-6 text-sm text-zinc-400">
+            <p className="mt-6 text-sm text-text-muted">
               {retainersData.note}
             </p>
           )}
@@ -137,18 +137,18 @@ export function RetainersPage() {
 
           <div className="mt-8 rounded-2xl border border-zinc-700/40 bg-zinc-800/40 p-6">
             <h2 className="text-base font-semibold text-white">How retainers work</h2>
-            <div className="mt-4 space-y-3 text-sm text-zinc-300">
+            <div className="mt-4 space-y-3 text-sm text-text-secondary">
               <p>
-                <span className="font-medium text-zinc-100">1. Discovery call:</span> Share your current stack, pain points, and team size. I recommend the right tier based on scope.
+                <span className="font-medium text-text-primary">1. Discovery call:</span> Share your current stack, pain points, and team size. I recommend the right tier based on scope.
               </p>
               <p>
-                <span className="font-medium text-zinc-100">2. Signed agreement:</span> A simple 1-page SOW covering hours, rates, and expectations. No lock-in — month-to-month on Starter and Standard.
+                <span className="font-medium text-text-primary">2. Signed agreement:</span> A simple 1-page SOW covering hours, rates, and expectations. No lock-in — month-to-month on Starter and Standard.
               </p>
               <p>
-                <span className="font-medium text-zinc-100">3. Weekly delivery:</span> Dedicated hours each week for implementation, code review, architecture guidance, or whatever moves the needle most for your team.
+                <span className="font-medium text-text-primary">3. Weekly delivery:</span> Dedicated hours each week for implementation, code review, architecture guidance, or whatever moves the needle most for your team.
               </p>
               <p>
-                <span className="font-medium text-zinc-100">4. Flexible scope:</span> Priorities shift week-to-week. One week it might be DevOps automation, the next week mentoring junior engineers or infrastructure refactoring.
+                <span className="font-medium text-text-primary">4. Flexible scope:</span> Priorities shift week-to-week. One week it might be DevOps automation, the next week mentoring junior engineers or infrastructure refactoring.
               </p>
             </div>
           </div>

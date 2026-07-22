@@ -91,9 +91,9 @@ export function ContactPage() {
         title="Get in touch"
         subtitle="Every engagement starts with a free 30-minute discovery call. Share your current stack, timeline, and constraints so I can quickly shape the right implementation path."
         aside={
-          <div className="surface-card rounded-xl px-4 py-3 text-xs text-zinc-300">
+          <div className="surface-card rounded-xl px-4 py-3 text-xs text-text-secondary">
             <p className="font-semibold text-white">Typical response time</p>
-            <p className="mt-1 text-zinc-400">Within 1 business day</p>
+            <p className="mt-1 text-text-muted">Within 1 business day</p>
             {SCHEDULING_URL && (
               <a
                 href={SCHEDULING_URL}
@@ -125,9 +125,9 @@ export function ContactPage() {
           </div>
         ) : (
         <form onSubmit={handleSubmit} className="space-y-5" noValidate>
-          <div className="rounded-xl border border-zinc-700/50 bg-zinc-900/40 px-4 py-3 text-sm text-zinc-300">
-            <p className="font-medium text-zinc-100">Helpful context to include</p>
-            <p className="mt-1 text-zinc-400">Project type, current stack, target timeline, and the main blocker you want solved first.</p>
+          <div className="rounded-xl border border-zinc-700/50 bg-zinc-900/40 px-4 py-3 text-sm text-text-secondary">
+            <p className="font-medium text-text-primary">Helpful context to include</p>
+            <p className="mt-1 text-text-muted">Project type, current stack, target timeline, and the main blocker you want solved first.</p>
           </div>
 
           <div className="grid gap-5 sm:grid-cols-2">
@@ -170,7 +170,7 @@ export function ContactPage() {
               aria-invalid={!!fieldErrors.message}
               aria-describedby="message-help"
             />
-            <div className="mt-1 flex items-center justify-between gap-3 text-xs text-zinc-500" id="message-help">
+            <div className="mt-1 flex items-center justify-between gap-3 text-xs text-text-subtle" id="message-help">
               <span>Minimum 10 characters</span>
               <span>{messageLength} / 4000</span>
             </div>
@@ -186,14 +186,14 @@ export function ContactPage() {
               {sending && <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-r-transparent" aria-hidden="true" />}
               <span>{sending ? 'Sending your note…' : 'Send message →'}</span>
             </button>
-            <span className="text-xs text-zinc-500">Best for project scoping, audits, and architecture reviews.</span>
+            <span className="text-xs text-text-subtle">Best for project scoping, audits, and architecture reviews.</span>
           </div>
         </form>
         )}
       </section>
 
       <section className="forge-panel surface-card rounded-2xl p-6">
-        <p className="mb-4 text-xs font-semibold uppercase tracking-wide text-zinc-500">Or reach me directly</p>
+        <p className="mb-4 text-xs font-semibold uppercase tracking-wide text-text-subtle">Or reach me directly</p>
         <div className="flex flex-wrap gap-3">
           <a href="mailto:rodmendoza07@gmail.com" className="btn-neutral px-4 py-2 text-sm">
             rodmendoza07@gmail.com

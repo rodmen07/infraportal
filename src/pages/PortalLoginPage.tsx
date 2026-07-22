@@ -56,8 +56,8 @@ export function PortalLoginPage() {
       <div className="flex min-h-[50vh] items-center justify-center">
         <div className="forge-panel surface-card-strong w-full max-w-sm space-y-5 p-8">
           <div>
-            <h2 className="text-base font-semibold text-zinc-100">Welcome back</h2>
-            <p className="mt-1 text-xs text-zinc-400">
+            <h2 className="text-base font-semibold text-text-primary">Welcome back</h2>
+            <p className="mt-1 text-xs text-text-muted">
               Sign in with the account associated with your project.
             </p>
           </div>
@@ -67,14 +67,14 @@ export function PortalLoginPage() {
             <button
               type="button"
               onClick={() => setTab('oauth')}
-              className={`flex-1 rounded-md py-1.5 font-medium transition ${tab === 'oauth' ? 'bg-zinc-700 text-zinc-100' : 'text-zinc-400 hover:text-zinc-200'}`}
+              className={`flex-1 rounded-md py-1.5 font-medium transition ${tab === 'oauth' ? 'bg-zinc-700 text-text-primary' : 'text-text-muted hover:text-zinc-200'}`}
             >
               Social sign-in
             </button>
             <button
               type="button"
               onClick={() => setTab('email')}
-              className={`flex-1 rounded-md py-1.5 font-medium transition ${tab === 'email' ? 'bg-zinc-700 text-zinc-100' : 'text-zinc-400 hover:text-zinc-200'}`}
+              className={`flex-1 rounded-md py-1.5 font-medium transition ${tab === 'email' ? 'bg-zinc-700 text-text-primary' : 'text-text-muted hover:text-zinc-200'}`}
             >
               Email & password
             </button>
@@ -86,14 +86,14 @@ export function PortalLoginPage() {
                 <>
                   <a
                     href={oauthUrl('github')}
-                    className="flex w-full items-center justify-center gap-2 rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-4 py-2.5 text-sm font-medium text-zinc-100 transition hover:border-zinc-500/60 hover:bg-zinc-700/60"
+                    className="flex w-full items-center justify-center gap-2 rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-4 py-2.5 text-sm font-medium text-text-primary transition hover:border-zinc-500/60 hover:bg-zinc-700/60"
                   >
                     <GithubIcon />
                     Continue with GitHub
                   </a>
                   <a
                     href={oauthUrl('google')}
-                    className="flex w-full items-center justify-center gap-2 rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-4 py-2.5 text-sm font-medium text-zinc-100 transition hover:border-zinc-500/60 hover:bg-zinc-700/60"
+                    className="flex w-full items-center justify-center gap-2 rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-4 py-2.5 text-sm font-medium text-text-primary transition hover:border-zinc-500/60 hover:bg-zinc-700/60"
                   >
                     <GoogleIcon />
                     Continue with Google
@@ -115,26 +115,26 @@ export function PortalLoginPage() {
                 </p>
               )}
               <div>
-                <label className="mb-1 block text-xs text-zinc-400">Email</label>
+                <label className="mb-1 block text-xs text-text-muted">Email</label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   autoComplete="email"
-                  className="w-full rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
+                  className="w-full rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
                   placeholder="you@example.com"
                 />
               </div>
               <div>
-                <label className="mb-1 block text-xs text-zinc-400">Password</label>
+                <label className="mb-1 block text-xs text-text-muted">Password</label>
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   autoComplete="current-password"
-                  className="w-full rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
+                  className="w-full rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
                   placeholder="••••••••"
                 />
               </div>
@@ -146,14 +146,14 @@ export function PortalLoginPage() {
                 {submitting ? 'Signing in…' : 'Sign in'}
               </button>
               <div className="flex justify-center">
-                <a href="#/portal/forgot-password" className="text-xs text-zinc-500 hover:text-amber-300 transition">
+                <a href="#/portal/forgot-password" className="text-xs text-text-subtle hover:text-amber-300 transition">
                   Forgot password?
                 </a>
               </div>
             </form>
           )}
 
-          <p className="text-center text-xs text-zinc-500">
+          <p className="text-center text-xs text-text-subtle">
             Have an invite?{' '}
             <a href="#/portal/register" className="text-amber-400 hover:text-amber-300">
               Create your account

@@ -48,7 +48,7 @@ export function CaseStudiesPage() {
       <section className="space-y-3">
         <div>
           <h2 className="text-base font-semibold text-white">Live pipeline demo</h2>
-          <p className="mt-1 text-sm text-zinc-400">Bronze → Silver → Gold medallion transform over the live NIST NVD CVE feed, running right here in your browser.</p>
+          <p className="mt-1 text-sm text-text-muted">Bronze → Silver → Gold medallion transform over the live NIST NVD CVE feed, running right here in your browser.</p>
         </div>
         <MedallionDemo defaultLayer="gold" />
       </section>
@@ -57,7 +57,7 @@ export function CaseStudiesPage() {
 
       <section className="surface-card rounded-2xl p-5">
         <h2 className="text-lg font-semibold text-white">The full lifecycle, including the shutdown</h2>
-        <p className="mt-2 text-sm text-zinc-400">
+        <p className="mt-2 text-sm text-text-muted">
           The platform shipped 15 minor versions, from the first Cloud Run deploy through
           deployment safety, SLO monitoring, and distributed state. Then it was deliberately
           decommissioned to zero infrastructure cost: databases and registries deleted,

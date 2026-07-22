@@ -33,8 +33,8 @@ export function PortalForgotPasswordPage() {
       <div className="flex min-h-[50vh] items-center justify-center">
         <div className="forge-panel surface-card-strong w-full max-w-sm space-y-5 p-8">
           <div>
-            <h2 className="text-base font-semibold text-zinc-100">Reset password</h2>
-            <p className="mt-1 text-xs text-zinc-400">
+            <h2 className="text-base font-semibold text-text-primary">Reset password</h2>
+            <p className="mt-1 text-xs text-text-muted">
               Enter your email and we'll send a reset link if an account exists.
             </p>
           </div>
@@ -53,14 +53,14 @@ export function PortalForgotPasswordPage() {
                 </p>
               )}
               <div>
-                <label className="mb-1 block text-xs text-zinc-400">Email</label>
+                <label className="mb-1 block text-xs text-text-muted">Email</label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   autoComplete="email"
-                  className="w-full rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
+                  className="w-full rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
                   placeholder="you@example.com"
                 />
               </div>
@@ -74,7 +74,7 @@ export function PortalForgotPasswordPage() {
             </form>
           )}
 
-          <p className="text-center text-xs text-zinc-500">
+          <p className="text-center text-xs text-text-subtle">
             <a href="#/portal/login" className="text-amber-400 hover:text-amber-300">
               Back to sign in
             </a>

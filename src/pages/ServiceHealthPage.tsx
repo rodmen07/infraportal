@@ -132,13 +132,13 @@ function AuthGate({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-[60vh] items-center justify-center">
       <form onSubmit={submit} className="forge-panel surface-card-strong w-full max-w-sm space-y-4 p-6">
-        <h2 className="text-base font-semibold text-zinc-100">Admin access required</h2>
+        <h2 className="text-base font-semibold text-text-primary">Admin access required</h2>
         <input
           type="password"
           value={input}
           onChange={e => { setInput(e.target.value); setError(false) }}
           placeholder="Admin key"
-          className="w-full rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
+          className="w-full rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
         />
         {error && <p className="text-xs text-red-400">Invalid key</p>}
         <button type="submit" className="btn-accent w-full">Unlock</button>
@@ -208,8 +208,8 @@ function statusText(s: HealthStatus) {
   if (s === 'ok')           return 'text-emerald-400'
   if (s === 'degraded')     return 'text-amber-400'
   if (s === 'error')        return 'text-red-400'
-  if (s === 'checking')     return 'text-zinc-400'
-  return 'text-zinc-500'
+  if (s === 'checking')     return 'text-text-muted'
+  return 'text-text-subtle'
 }
 
 function statusLabel(s: HealthStatus) {
@@ -245,7 +245,7 @@ function SummaryBar({ results }: { results: ServiceHealth[] }) {
           {overall === 'ok' ? 'All systems operational' : statusLabel(overall)}
         </span>
       </div>
-      <div className="ml-auto flex gap-4 text-xs text-zinc-500">
+      <div className="ml-auto flex gap-4 text-xs text-text-subtle">
         {ok > 0       && <span><span className="text-emerald-400 font-medium">{ok}</span> ok</span>}
         {degraded > 0 && <span><span className="text-amber-400 font-medium">{degraded}</span> degraded</span>}
         {errors > 0   && <span><span className="text-red-400 font-medium">{errors}</span> error</span>}
@@ -267,8 +267,8 @@ function ServiceCard({ svc }: { svc: ServiceHealth }) {
     <div className="forge-panel surface-card-strong flex flex-col gap-3 p-4">
       <div className="flex items-start justify-between gap-2">
         <div>
-          <p className="text-sm font-semibold text-zinc-100">{svc.name}</p>
-          <span className="inline-block rounded-full border border-zinc-700/40 bg-zinc-800/60 px-2 py-0.5 text-scale-xs text-zinc-500 mt-1">
+          <p className="text-sm font-semibold text-text-primary">{svc.name}</p>
+          <span className="inline-block rounded-full border border-zinc-700/40 bg-zinc-800/60 px-2 py-0.5 text-scale-xs text-text-subtle mt-1">
             {svc.group}
           </span>
         </div>
@@ -277,24 +277,24 @@ function ServiceCard({ svc }: { svc: ServiceHealth }) {
 
       <div className="border-t border-zinc-700/30 pt-2 space-y-1">
         <div className="flex items-center justify-between text-xs">
-          <span className="text-zinc-500">Status</span>
+          <span className="text-text-subtle">Status</span>
           <span className={`font-medium ${statusText(svc.status)}`}>{statusLabel(svc.status)}</span>
         </div>
         {svc.status !== 'unconfigured' && (
           <div className="flex items-center justify-between text-xs">
-            <span className="text-zinc-500">Detail</span>
-            <span className="text-zinc-400 max-w-[160px] truncate text-right" title={svc.detail}>{svc.detail}</span>
+            <span className="text-text-subtle">Detail</span>
+            <span className="text-text-muted max-w-[160px] truncate text-right" title={svc.detail}>{svc.detail}</span>
           </div>
         )}
         {svc.latencyMs !== null && (
           <div className="flex items-center justify-between text-xs">
-            <span className="text-zinc-500">Latency</span>
-            <span className="text-zinc-400">{svc.latencyMs} ms</span>
+            <span className="text-text-subtle">Latency</span>
+            <span className="text-text-muted">{svc.latencyMs} ms</span>
           </div>
         )}
         {svc.baseUrl && (
           <div className="flex items-center justify-between text-xs">
-            <span className="text-zinc-500">URL</span>
+            <span className="text-text-subtle">URL</span>
             <span className="text-zinc-600 max-w-[180px] truncate text-right font-mono text-scale-xs" title={svc.baseUrl}>
               {svc.baseUrl.replace(/^https?:\/\//, '')}
             </span>
@@ -360,7 +360,7 @@ export function HealthView() {
 
       {/* Controls row */}
       <div className="flex items-center justify-between">
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs text-text-subtle">
           {lastChecked
             ? `Last checked ${lastChecked.toLocaleTimeString()} · auto-refreshes every 30 s`
             : <span className="inline-block h-3 w-48 rounded bg-zinc-800 animate-pulse" /> // Skeleton for 'Checking...'
@@ -381,7 +381,7 @@ export function HealthView() {
         if (groupSvcs.length === 0) return null
         return (
           <section key={group}>
-            <h3 className="mb-3 text-xs font-semibold uppercase tracking-widest text-zinc-500">{group}</h3>
+            <h3 className="mb-3 text-xs font-semibold uppercase tracking-widest text-text-subtle">{group}</h3>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {groupSvcs.map(svc => <ServiceCard key={svc.name} svc={svc} />)}
             </div>

@@ -53,13 +53,13 @@ function AuthGate({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-[60vh] items-center justify-center">
       <form onSubmit={submit} className="forge-panel surface-card-strong w-full max-w-sm space-y-4 p-6">
-        <h2 className="text-base font-semibold text-zinc-100">Admin access required</h2>
+        <h2 className="text-base font-semibold text-text-primary">Admin access required</h2>
         <input
           type="password"
           value={input}
           onChange={e => { setInput(e.target.value); setError(false) }}
           placeholder="Admin key"
-          className="w-full rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
+          className="w-full rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
         />
         {error && <p className="text-xs text-red-400">Invalid key</p>}
         <button type="submit" className="btn-accent w-full">Unlock</button>
@@ -83,11 +83,11 @@ async function apiFetch<T>(url: string): Promise<T> {
 }
 
 function EmptyState({ message }: { message: string }) {
-  return <p className="py-12 text-center text-sm text-zinc-500">{message}</p>
+  return <p className="py-12 text-center text-sm text-text-subtle">{message}</p>
 }
 
 const SEVERITY_COLORS: Record<string, string> = {
-  low:      'bg-zinc-700/40 text-zinc-300 border-zinc-600/30',
+  low:      'bg-zinc-700/40 text-text-secondary border-zinc-600/30',
   medium:   'bg-blue-500/20 text-blue-300 border-blue-500/30',
   high:     'bg-amber-500/20 text-amber-300 border-amber-500/30',
   critical: 'bg-red-500/20 text-red-300 border-red-500/30',
@@ -98,11 +98,11 @@ const CATEGORY_COLORS: Record<string, string> = {
   security:   'bg-red-500/20 text-red-300 border-red-500/30',
   alert:      'bg-amber-500/20 text-amber-300 border-amber-500/30',
   metric:     'bg-blue-500/20 text-blue-300 border-blue-500/30',
-  info:       'bg-zinc-700/40 text-zinc-300 border-zinc-600/30',
+  info:       'bg-zinc-700/40 text-text-secondary border-zinc-600/30',
 }
 
 function Badge({ value, colorMap }: { value: string; colorMap: Record<string, string> }) {
-  const cls = colorMap[value] ?? 'bg-zinc-700/40 text-zinc-300 border-zinc-600/30'
+  const cls = colorMap[value] ?? 'bg-zinc-700/40 text-text-secondary border-zinc-600/30'
   return (
     <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium ${cls}`}>
       {value}
@@ -122,22 +122,22 @@ function EventRow({ event }: { event: ObservaEvent }) {
         className="border-b border-zinc-700/20 hover:bg-zinc-800/30 cursor-pointer"
         onClick={() => setOpen(o => !o)}
       >
-        <td className="px-4 py-3 text-xs text-zinc-500">{event.created_at.slice(0, 19).replace('T', ' ')}</td>
-        <td className="px-4 py-3 text-sm text-zinc-300">{event.source}</td>
-        <td className="px-4 py-3 text-sm text-zinc-300">{event.event_type}</td>
+        <td className="px-4 py-3 text-xs text-text-subtle">{event.created_at.slice(0, 19).replace('T', ' ')}</td>
+        <td className="px-4 py-3 text-sm text-text-secondary">{event.source}</td>
+        <td className="px-4 py-3 text-sm text-text-secondary">{event.event_type}</td>
         <td className="px-4 py-3"><Badge value={event.category} colorMap={CATEGORY_COLORS} /></td>
         <td className="px-4 py-3"><Badge value={event.severity} colorMap={SEVERITY_COLORS} /></td>
-        <td className="px-4 py-3 text-xs text-zinc-400 max-w-xs truncate">{event.summary}</td>
-        <td className="px-4 py-3 text-xs text-zinc-500">{event.classified ? '✓' : '—'}</td>
+        <td className="px-4 py-3 text-xs text-text-muted max-w-xs truncate">{event.summary}</td>
+        <td className="px-4 py-3 text-xs text-text-subtle">{event.classified ? '✓' : '—'}</td>
       </tr>
       {open && (
         <tr className="bg-zinc-900/60">
           <td colSpan={7} className="px-4 pb-3 pt-2">
             <div className="space-y-1">
-              <p className="text-xs font-medium text-zinc-400">Summary</p>
-              <p className="text-xs text-zinc-300">{event.summary || '—'}</p>
-              <p className="mt-2 text-xs font-medium text-zinc-400">Raw payload</p>
-              <pre className="max-h-48 overflow-auto rounded-lg bg-zinc-800/60 p-3 text-xs text-zinc-300">
+              <p className="text-xs font-medium text-text-muted">Summary</p>
+              <p className="text-xs text-text-secondary">{event.summary || '—'}</p>
+              <p className="mt-2 text-xs font-medium text-text-muted">Raw payload</p>
+              <pre className="max-h-48 overflow-auto rounded-lg bg-zinc-800/60 p-3 text-xs text-text-secondary">
                 {JSON.stringify(event.raw_payload, null, 2)}
               </pre>
             </div>
@@ -156,7 +156,7 @@ function ObservaboardTableSkeleton() {
     <div className="overflow-x-auto rounded-xl border border-zinc-700/40 animate-pulse">
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-zinc-700/40 bg-zinc-800/40 text-left text-xs text-zinc-400">
+          <tr className="border-b border-zinc-700/40 bg-zinc-800/40 text-left text-xs text-text-muted">
             <th className="px-4 py-2.5 font-medium"><div className="h-3 w-16 rounded bg-zinc-800" /></th>
             <th className="px-4 py-2.5 font-medium"><div className="h-3 w-20 rounded bg-zinc-800" /></th>
             <th className="px-4 py-2.5 font-medium"><div className="h-3 w-16 rounded bg-zinc-800" /></th>
@@ -180,7 +180,7 @@ function ObservaboardTableSkeleton() {
           ))}
         </tbody>
       </table>
-      <div className="flex items-center justify-between text-xs text-zinc-500 py-3 px-4">
+      <div className="flex items-center justify-between text-xs text-text-subtle py-3 px-4">
         <div className="h-3 w-24 rounded bg-zinc-800" />
         <div className="flex gap-2">
           <div className="h-7 w-20 rounded-lg bg-zinc-800" />
@@ -246,19 +246,19 @@ function ObservaboardView() {
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Search events…"
-          className="flex-1 min-w-[160px] rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
+          className="flex-1 min-w-[160px] rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
         />
         <input
           type="text"
           value={source}
           onChange={e => setSource(e.target.value)}
           placeholder="Source"
-          className="w-32 rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
+          className="w-32 rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
         />
         <select
           value={category}
           onChange={e => setCategory(e.target.value)}
-          className="rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-zinc-100 focus:border-amber-400/50 focus:outline-none"
+          className="rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-text-primary focus:border-amber-400/50 focus:outline-none"
         >
           <option value="">All categories</option>
           {['deployment','security','alert','metric','info'].map(c => (
@@ -268,7 +268,7 @@ function ObservaboardView() {
         <select
           value={severity}
           onChange={e => setSeverity(e.target.value)}
-          className="rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-zinc-100 focus:border-amber-400/50 focus:outline-none"
+          className="rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-text-primary focus:border-amber-400/50 focus:outline-none"
         >
           <option value="">All severities</option>
           {['low','medium','high','critical'].map(s => (
@@ -292,7 +292,7 @@ function ObservaboardView() {
           <div className="overflow-x-auto rounded-xl border border-zinc-700/40">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-zinc-700/40 bg-zinc-800/40 text-left text-xs text-zinc-400">
+                <tr className="border-b border-zinc-700/40 bg-zinc-800/40 text-left text-xs text-text-muted">
                   <th className="px-4 py-2.5 font-medium">Time</th>
                   <th className="px-4 py-2.5 font-medium">Source</th>
                   <th className="px-4 py-2.5 font-medium">Type</th>
@@ -309,18 +309,18 @@ function ObservaboardView() {
           </div>
 
           {/* Pagination */}
-          <div className="flex items-center justify-between text-xs text-zinc-500">
+          <div className="flex items-center justify-between text-xs text-text-subtle">
             <span>{page.count} total events</span>
             <div className="flex gap-2">
               <button
-                className="rounded-lg border border-zinc-600/40 bg-zinc-800/60 px-3 py-1.5 text-zinc-300 hover:bg-zinc-700/60 disabled:opacity-40"
+                className="rounded-lg border border-zinc-600/40 bg-zinc-800/60 px-3 py-1.5 text-text-secondary hover:bg-zinc-700/60 disabled:opacity-40"
                 disabled={!page.previous}
                 onClick={() => page.previous && loadUrl(page.previous)}
               >
                 ← Previous
               </button>
               <button
-                className="rounded-lg border border-zinc-600/40 bg-zinc-800/60 px-3 py-1.5 text-zinc-300 hover:bg-zinc-700/60 disabled:opacity-40"
+                className="rounded-lg border border-zinc-600/40 bg-zinc-800/60 px-3 py-1.5 text-text-secondary hover:bg-zinc-700/60 disabled:opacity-40"
                 disabled={!page.next}
                 onClick={() => page.next && loadUrl(page.next)}
               >

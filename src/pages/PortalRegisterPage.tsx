@@ -78,8 +78,8 @@ export function PortalRegisterPage() {
       <div className="flex min-h-[50vh] items-center justify-center">
         <div className="forge-panel surface-card-strong w-full max-w-sm space-y-5 p-8">
           <div>
-            <h2 className="text-base font-semibold text-zinc-100">Create your account</h2>
-            <p className="mt-1 text-xs text-zinc-400">
+            <h2 className="text-base font-semibold text-text-primary">Create your account</h2>
+            <p className="mt-1 text-xs text-text-muted">
               {inviteToken
                 ? 'You have been invited to the client portal. Set your password to get started.'
                 : 'A valid invite link is required to create an account.'}
@@ -101,19 +101,19 @@ export function PortalRegisterPage() {
                 </p>
               )}
               <div>
-                <label className="mb-1 block text-xs text-zinc-400">Email</label>
+                <label className="mb-1 block text-xs text-text-muted">Email</label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   autoComplete="email"
-                  className="w-full rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
+                  className="w-full rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
                   placeholder="you@example.com"
                 />
               </div>
               <div>
-                <label className="mb-1 block text-xs text-zinc-400">Password</label>
+                <label className="mb-1 block text-xs text-text-muted">Password</label>
                 <input
                   type="password"
                   value={password}
@@ -121,19 +121,19 @@ export function PortalRegisterPage() {
                   required
                   autoComplete="new-password"
                   minLength={6}
-                  className="w-full rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
+                  className="w-full rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
                   placeholder="Minimum 6 characters"
                 />
               </div>
               <div>
-                <label className="mb-1 block text-xs text-zinc-400">Confirm password</label>
+                <label className="mb-1 block text-xs text-text-muted">Confirm password</label>
                 <input
                   type="password"
                   value={confirm}
                   onChange={(e) => setConfirm(e.target.value)}
                   required
                   autoComplete="new-password"
-                  className="w-full rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
+                  className="w-full rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
                   placeholder="Re-enter your password"
                 />
               </div>
@@ -147,7 +147,7 @@ export function PortalRegisterPage() {
             </form>
           )}
 
-          <p className="text-center text-xs text-zinc-500">
+          <p className="text-center text-xs text-text-subtle">
             Already have an account?{' '}
             <a href="#/portal/login" className="text-amber-400 hover:text-amber-300">
               Sign in
