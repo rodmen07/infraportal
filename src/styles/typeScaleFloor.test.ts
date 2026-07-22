@@ -45,9 +45,9 @@ const EXEMPT_FILES = new Set(['src/pages/CrmAdminPage.tsx'])
  */
 const ALLOWLISTED_SITES = new Set([
   'src/features/notifications/NotificationBell.tsx:92', // 16px count badge, capped "9+", redundant with the button's aria-label
-  'src/pages/PortalPage.tsx:513', // 16px checkbox glyph, redundant with strike-through + StatusBadge
-  'src/pages/PortalPage.tsx:604', // 20px avatar-initial fallback, redundant with the adjacent name
-  'src/pages/PortalPage.tsx:684', // 24px chat-avatar initial, redundant with the message bubble's side/colour
+  'src/features/portal/projectDetail.tsx:218', // 16px checkbox glyph, redundant with strike-through + StatusBadge
+  'src/features/portal/projectDetail.tsx:309', // 20px avatar-initial fallback, redundant with the adjacent name
+  'src/features/portal/projectDetail.tsx:389', // 24px chat-avatar initial, redundant with the message bubble's side/colour
 ])
 
 function allComponentFiles(dir = 'src'): string[] {
