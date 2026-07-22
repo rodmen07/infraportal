@@ -28,6 +28,7 @@ export default {
           primary: 'var(--text-primary)',
           secondary: 'var(--text-secondary)',
           muted: 'var(--text-muted)',
+          subtle: 'var(--text-subtle)',
         },
         // v1.18.1 PR2: the translucent accent roles are explicit keys rather
         // than opacity modifiers (bg-accent/20) because Tailwind cannot apply
