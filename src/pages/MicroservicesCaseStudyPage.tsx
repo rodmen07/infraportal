@@ -282,6 +282,12 @@ export function MicroservicesCaseStudyPage() {
               ← Case studies
             </a>
             <a
+              href="#/status"
+              className="rounded-lg border border-zinc-600/50 bg-zinc-700/50 px-3 py-1.5 text-xs font-medium text-text-secondary transition hover:border-zinc-500/60 hover:text-text-primary"
+            >
+              Live status →
+            </a>
+            <a
               href="https://github.com/rodmen07"
               target="_blank"
               rel="noopener noreferrer"

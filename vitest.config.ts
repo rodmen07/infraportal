@@ -31,6 +31,7 @@ export default defineConfig({
       VITE_OBSERVABOARD_URL: 'https://observaboard-rodmen07.fly.dev',
       VITE_SPEND_API_BASE_URL: 'http://localhost:3020',
       VITE_ADMIN_KEY: 'dev-admin',
+      VITE_GATEWAY_URL: 'http://localhost:8080',
     },
   },
 })

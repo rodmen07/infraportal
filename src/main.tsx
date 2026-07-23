@@ -32,6 +32,7 @@ const SearchPage = lazy(() => import('./pages/SearchPage').then((m) => ({ defaul
 const UserDashboardPage = lazy(() => import('./pages/UserDashboardPage').then((m) => ({ default: m.UserDashboardPage })))
 const ReportsPage = lazy(() => import('./pages/ReportsPage').then((m) => ({ default: m.ReportsPage })))
 const ObservaboardPage = lazy(() => import('./pages/ObservaboardPage').then((m) => ({ default: m.ObservaboardPage })))
+const StatusPage = lazy(() => import('./pages/StatusPage').then((m) => ({ default: m.StatusPage })))
 const PortalPage = lazy(() => import('./pages/PortalPage').then((m) => ({ default: m.PortalPage })))
 const PortalLoginPage = lazy(() => import('./pages/PortalLoginPage').then((m) => ({ default: m.PortalLoginPage })))
 const PortalRegisterPage = lazy(() =>
@@ -261,6 +262,12 @@ function Root() {
     return (
       <LazyRoute>
         <ObservaboardPage />
+      </LazyRoute>
+    )
+  if (hash === '#/status')
+    return (
+      <LazyRoute>
+        <StatusPage />
       </LazyRoute>
     )
   if (hash === '#/admin/audit')
