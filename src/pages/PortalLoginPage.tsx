@@ -86,14 +86,14 @@ export function PortalLoginPage() {
                 <>
                   <a
                     href={oauthUrl('github')}
-                    className="flex w-full items-center justify-center gap-2 rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-4 py-2.5 text-sm font-medium text-text-primary transition hover:border-zinc-500/60 hover:bg-zinc-700/60"
+                    className="flex w-full items-center justify-center gap-2 rounded-lg border border-zinc-600/50 bg-surface-control px-4 py-2.5 text-sm font-medium text-text-primary transition hover:border-zinc-500/60 hover:bg-zinc-700/60"
                   >
                     <GithubIcon />
                     Continue with GitHub
                   </a>
                   <a
                     href={oauthUrl('google')}
-                    className="flex w-full items-center justify-center gap-2 rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-4 py-2.5 text-sm font-medium text-text-primary transition hover:border-zinc-500/60 hover:bg-zinc-700/60"
+                    className="flex w-full items-center justify-center gap-2 rounded-lg border border-zinc-600/50 bg-surface-control px-4 py-2.5 text-sm font-medium text-text-primary transition hover:border-zinc-500/60 hover:bg-zinc-700/60"
                   >
                     <GoogleIcon />
                     Continue with Google
@@ -122,7 +122,7 @@ export function PortalLoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   autoComplete="email"
-                  className="w-full rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
+                  className="w-full rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
                   placeholder="you@example.com"
                 />
               </div>
@@ -134,7 +134,7 @@ export function PortalLoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   autoComplete="current-password"
-                  className="w-full rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
+                  className="w-full rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
                   placeholder="••••••••"
                 />
               </div>

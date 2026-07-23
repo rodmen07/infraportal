@@ -62,7 +62,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
           value={input}
           onChange={e => { setInput(e.target.value); setError(false) }}
           placeholder="Admin key"
-          className="w-full rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
+          className="w-full rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
         />
         {error && <p className="text-xs text-danger-text">Invalid key</p>}
         <button type="submit" className="btn-accent w-full">Unlock</button>
@@ -122,7 +122,7 @@ function FormField({ label, children }: { label: string; children: React.ReactNo
   )
 }
 
-const INPUT = 'w-full rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none'
+const INPUT = 'w-full rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none'
 
 // ---------------------------------------------------------------------------\
 // Skeleton components
@@ -336,7 +336,7 @@ function ExportForm({ onClose, metrics }: { onClose: () => void; metrics: string
               className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition ${
                 format === f
                   ? 'border-amber-400/50 bg-amber-400/10 text-amber-300'
-                  : 'border-zinc-600/50 bg-zinc-800/60 text-text-muted hover:text-zinc-200'
+                  : 'border-zinc-600/50 bg-surface-control text-text-muted hover:text-zinc-200'
               }`}
             >
               {f.toUpperCase()}
@@ -379,7 +379,7 @@ function DashboardCard({ summary }: { summary: DashboardSummary }) {
         {summary.core_metrics.length > 0 && (
           <div className="flex flex-wrap gap-2">
             {summary.core_metrics.map(m => (
-              <span key={m} className="rounded-full border border-zinc-600/40 bg-zinc-800/60 px-2.5 py-1 text-xs text-text-secondary">{m}</span>
+              <span key={m} className="rounded-full border border-zinc-600/40 bg-surface-control px-2.5 py-1 text-xs text-text-secondary">{m}</span>
             ))}
           </div>
         )}

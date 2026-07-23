@@ -17,7 +17,7 @@ export function AboutHero() {
           <div className="mt-5 flex flex-wrap gap-3">
             <a
               href="#/case-studies"
-              className="rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-4 py-2 text-xs font-medium text-text-secondary transition hover:border-zinc-500/60 hover:text-text-primary"
+              className="rounded-lg border border-zinc-600/50 bg-surface-control px-4 py-2 text-xs font-medium text-text-secondary transition hover:border-zinc-500/60 hover:text-text-primary"
             >
               View the work →
             </a>
@@ -25,7 +25,7 @@ export function AboutHero() {
               href="https://github.com/rodmen07"
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-4 py-2 text-xs font-medium text-text-secondary transition hover:border-zinc-500/60 hover:text-text-primary"
+              className="rounded-lg border border-zinc-600/50 bg-surface-control px-4 py-2 text-xs font-medium text-text-secondary transition hover:border-zinc-500/60 hover:text-text-primary"
             >
               GitHub →
             </a>
@@ -33,7 +33,7 @@ export function AboutHero() {
               href="https://www.linkedin.com/in/roderick-mendoza-9133b7b5/"
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-4 py-2 text-xs font-medium text-text-secondary transition hover:border-zinc-500/60 hover:text-text-primary"
+              className="rounded-lg border border-zinc-600/50 bg-surface-control px-4 py-2 text-xs font-medium text-text-secondary transition hover:border-zinc-500/60 hover:text-text-primary"
             >
               LinkedIn →
             </a>
@@ -41,7 +41,7 @@ export function AboutHero() {
               href="https://www.upwork.com/freelancers/~01d4b41a81a0ae3ec6?mp_source=share"
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-4 py-2 text-xs font-medium text-text-secondary transition hover:border-zinc-500/60 hover:text-text-primary"
+              className="rounded-lg border border-zinc-600/50 bg-surface-control px-4 py-2 text-xs font-medium text-text-secondary transition hover:border-zinc-500/60 hover:text-text-primary"
             >
               Upwork →
             </a>

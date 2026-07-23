@@ -185,7 +185,7 @@ export function CloudMigrationCaseStudyPage() {
         {TECH_STACK.map((tech) => (
           <span
             key={tech}
-            className="rounded border border-zinc-700/50 bg-zinc-800/60 px-2.5 py-1 text-xs font-medium text-text-secondary"
+            className="rounded border border-zinc-700/50 bg-surface-control px-2.5 py-1 text-xs font-medium text-text-secondary"
           >
             {tech}
           </span>

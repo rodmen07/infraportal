@@ -165,7 +165,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
           value={input}
           onChange={(e) => { setInput(e.target.value); setError(false) }}
           placeholder="Admin key"
-          className="w-full rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
+          className="w-full rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
         />
         {error && <p className="text-xs text-danger-text">Invalid key</p>}
         <button type="submit" className="btn-accent w-full">Unlock</button>
@@ -450,7 +450,7 @@ export function UserDashboardPage() {
             ) : counts?.core_metrics.length ? (
               <div className="mt-2 flex flex-wrap gap-2">
                 {counts.core_metrics.map((m) => (
-                  <span key={m} className="rounded-full border border-zinc-600/40 bg-zinc-800/60 px-2.5 py-1 text-xs text-text-secondary">{m}</span>
+                  <span key={m} className="rounded-full border border-zinc-600/40 bg-surface-control px-2.5 py-1 text-xs text-text-secondary">{m}</span>
                 ))}
               </div>
             ) : (

@@ -41,7 +41,7 @@ export function CopyButton({
       className={`rounded border px-1.5 py-0.5 text-scale-xs transition ${
         copied
           ? 'border-emerald-500/40 bg-emerald-500/10 text-success-text'
-          : 'border-zinc-700/50 bg-zinc-800/60 text-text-muted hover:border-amber-400/40 hover:text-amber-200'
+          : 'border-zinc-700/50 bg-surface-control text-text-muted hover:border-amber-400/40 hover:text-amber-200'
       }`}
     >
       {copied ? copiedLabel : label}

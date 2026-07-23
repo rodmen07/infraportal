@@ -314,7 +314,8 @@ textarea:disabled {
    the text-danger-text token, which carries the danger text colour per theme. */
 
 /* Background overrides */
-[data-theme="light"] .bg-zinc-950 { background-color: #f4f4f5 !important; }
+/* .bg-zinc-950 override retired (v1.19 D11 slice 1): migrated to bg-surface-0
+   (byte-exact both themes). The .bg-zinc-950/40,/50 opacity washes stay. */
 [data-theme="light"] .bg-zinc-900\/80 { background-color: rgba(255,255,255,0.9) !important; }[data-theme="light"] .bg-zinc-800\/60 { background-color: rgba(0,0,0,0.04) !important; }
 [data-theme="light"] .bg-zinc-800\/70 { background-color: rgba(0,0,0,0.05) !important; }
 [data-theme="light"] .bg-amber-500\/15 { background-color: rgba(245,158,11,0.1) !important; }
@@ -596,7 +597,8 @@ textarea:disabled {
 [data-theme="light"] .bg-zinc-600\/60 { background-color: rgba(0,0,0,0.09)  !important; }
 [data-theme="light"] .bg-zinc-700\/40 { background-color: rgba(0,0,0,0.03)  !important; }
 [data-theme="light"] .bg-zinc-700\/50 { background-color: rgba(0,0,0,0.04)  !important; }
-[data-theme="light"] .bg-zinc-700\/60 { background-color: rgba(0,0,0,0.05)  !important; }
+/* .bg-zinc-700/60 override retired (v1.19 D11 slice 1): migrated to
+   bg-surface-hover. The .hover:bg-zinc-700/60:hover variant stays. */
 [data-theme="light"] .bg-zinc-900\/30 { background-color: rgba(0,0,0,0.025) !important; }
 [data-theme="light"] .bg-zinc-900\/50 { background-color: rgba(0,0,0,0.035) !important; }
 [data-theme="light"] .bg-zinc-900\/55 { background-color: rgba(0,0,0,0.04)  !important; }

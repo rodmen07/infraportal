@@ -90,7 +90,7 @@ function FieldInput({
               key={id}
               type="button"
               onClick={() => onChange(id)}
-              className="rounded border border-zinc-700/50 bg-zinc-800/60 px-1.5 py-0.5 font-mono text-scale-xs text-amber-300/90 hover:border-amber-400/40 hover:text-amber-200"
+              className="rounded border border-zinc-700/50 bg-surface-control px-1.5 py-0.5 font-mono text-scale-xs text-amber-300/90 hover:border-amber-400/40 hover:text-amber-200"
             >
               {id}
             </button>

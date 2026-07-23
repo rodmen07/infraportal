@@ -58,7 +58,7 @@ export function HeroSection({ content }: HeroSectionProps) {
         <a
           href="#/case-studies"
           onClick={() => trackPortfolioEvent('consulting_cta_click', { location: 'hero', label: 'View case studies' })}
-          className="rounded-xl border border-zinc-600/50 bg-zinc-800/60 px-5 py-2.5 text-sm font-semibold text-text-secondary transition hover:border-zinc-500/60 hover:bg-zinc-700/60 hover:text-text-primary"
+          className="rounded-xl border border-zinc-600/50 bg-surface-control px-5 py-2.5 text-sm font-semibold text-text-secondary transition hover:border-zinc-500/60 hover:bg-zinc-700/60 hover:text-text-primary"
         >
           View case studies →
         </a>

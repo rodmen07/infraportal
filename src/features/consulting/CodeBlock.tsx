@@ -19,7 +19,7 @@ export function CodeBlock({ code, language = 'rust', file }: {
     highlighted = code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
   }
   return (
-    <div className="overflow-hidden rounded-xl border border-zinc-800/60 bg-zinc-950">
+    <div className="overflow-hidden rounded-xl border border-zinc-800/60 bg-surface-0">
       {file && (
         <div className="border-b border-zinc-800/60 px-4 py-2">
           <span className="text-scale-xs text-text-subtle">{file}</span>

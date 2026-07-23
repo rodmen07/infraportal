@@ -17,7 +17,7 @@ function App() {
   return (
     <>
       <SkipLink />
-      <div className="relative min-h-screen bg-zinc-950 text-text-primary">
+      <div className="relative min-h-screen bg-surface-0 text-text-primary">
         <div className="pointer-events-none fixed inset-0 overflow-clip">
           <div className="absolute -top-32 left-1/2 h-80 w-80 -translate-x-1/2 rounded-full bg-amber-500/20 blur-3xl" />
           <div className="absolute -bottom-24 right-8 h-64 w-64 rounded-full bg-orange-500/20 blur-3xl" />

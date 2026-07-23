@@ -59,7 +59,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
           value={input}
           onChange={e => { setInput(e.target.value); setError(false) }}
           placeholder="Admin key"
-          className="w-full rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
+          className="w-full rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
         />
         {error && <p className="text-xs text-danger-text">Invalid key</p>}
         <button type="submit" className="btn-accent w-full">Unlock</button>
@@ -137,7 +137,7 @@ function EventRow({ event }: { event: ObservaEvent }) {
               <p className="text-xs font-medium text-text-muted">Summary</p>
               <p className="text-xs text-text-secondary">{event.summary || '—'}</p>
               <p className="mt-2 text-xs font-medium text-text-muted">Raw payload</p>
-              <pre className="max-h-48 overflow-auto rounded-lg bg-zinc-800/60 p-3 text-xs text-text-secondary">
+              <pre className="max-h-48 overflow-auto rounded-lg bg-surface-control p-3 text-xs text-text-secondary">
                 {JSON.stringify(event.raw_payload, null, 2)}
               </pre>
             </div>
@@ -246,19 +246,19 @@ function ObservaboardView() {
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Search events…"
-          className="flex-1 min-w-[160px] rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
+          className="flex-1 min-w-[160px] rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
         />
         <input
           type="text"
           value={source}
           onChange={e => setSource(e.target.value)}
           placeholder="Source"
-          className="w-32 rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
+          className="w-32 rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
         />
         <select
           value={category}
           onChange={e => setCategory(e.target.value)}
-          className="rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-text-primary focus:border-amber-400/50 focus:outline-none"
+          className="rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary focus:border-amber-400/50 focus:outline-none"
         >
           <option value="">All categories</option>
           {['deployment','security','alert','metric','info'].map(c => (
@@ -268,7 +268,7 @@ function ObservaboardView() {
         <select
           value={severity}
           onChange={e => setSeverity(e.target.value)}
-          className="rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-text-primary focus:border-amber-400/50 focus:outline-none"
+          className="rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary focus:border-amber-400/50 focus:outline-none"
         >
           <option value="">All severities</option>
           {['low','medium','high','critical'].map(s => (
@@ -313,14 +313,14 @@ function ObservaboardView() {
             <span>{page.count} total events</span>
             <div className="flex gap-2">
               <button
-                className="rounded-lg border border-zinc-600/40 bg-zinc-800/60 px-3 py-1.5 text-text-secondary hover:bg-zinc-700/60 disabled:opacity-40"
+                className="rounded-lg border border-zinc-600/40 bg-surface-control px-3 py-1.5 text-text-secondary hover:bg-zinc-700/60 disabled:opacity-40"
                 disabled={!page.previous}
                 onClick={() => page.previous && loadUrl(page.previous)}
               >
                 ← Previous
               </button>
               <button
-                className="rounded-lg border border-zinc-600/40 bg-zinc-800/60 px-3 py-1.5 text-text-secondary hover:bg-zinc-700/60 disabled:opacity-40"
+                className="rounded-lg border border-zinc-600/40 bg-surface-control px-3 py-1.5 text-text-secondary hover:bg-zinc-700/60 disabled:opacity-40"
                 disabled={!page.next}
                 onClick={() => page.next && loadUrl(page.next)}
               >
