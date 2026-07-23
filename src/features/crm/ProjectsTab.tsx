@@ -397,7 +397,7 @@ export function ProjectsTab() {
                   <span className="text-text-subtle">{lnk.link_type}</span>
                   <a href={lnk.url} target="_blank" rel="noopener noreferrer" className="truncate text-amber-400 hover:text-amber-300">{lnk.label}</a>
                 </div>
-                <button type="button" onClick={() => deleteLink(lnk.id)} className="shrink-0 text-zinc-600 hover:text-red-400">✕</button>
+                <button type="button" onClick={() => deleteLink(lnk.id)} className="shrink-0 text-zinc-600 hover:text-danger-text">✕</button>
               </div>
             ))}
             <form onSubmit={createLink} className="flex flex-wrap gap-2 pt-1">

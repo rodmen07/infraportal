@@ -140,7 +140,7 @@ export function ActionButtons({ onEdit, onDelete }: { onEdit: () => void; onDele
     <td className="px-3 py-2">
       <div className="flex gap-1">
         <button type="button" onClick={onEdit} title="Edit" className="rounded px-1.5 py-0.5 text-xs text-text-muted hover:bg-zinc-700 hover:text-white transition-colors">✏</button>
-        <button type="button" onClick={onDelete} title="Delete" className="rounded px-1.5 py-0.5 text-xs text-text-muted hover:bg-red-500/20 hover:text-red-300 transition-colors">✕</button>
+        <button type="button" onClick={onDelete} title="Delete" className="rounded px-1.5 py-0.5 text-xs text-text-muted hover:bg-red-500/20 hover:text-danger-text transition-colors">✕</button>
       </div>
     </td>
   )

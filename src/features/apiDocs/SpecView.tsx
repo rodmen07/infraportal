@@ -22,7 +22,7 @@ import type {
 
 const METHOD_STYLES: Record<string, string> = {
   get: 'border-emerald-500/40 bg-emerald-500/15 text-success-text',
-  post: 'border-sky-500/40 bg-sky-500/15 text-sky-300',
+  post: 'border-sky-500/40 bg-sky-500/15 text-info-text',
   put: 'border-violet-500/40 bg-violet-500/15 text-violet-300',
   patch: 'border-amber-500/40 bg-amber-500/15 text-amber-300',
   delete: 'border-rose-500/40 bg-rose-500/15 text-danger-text',

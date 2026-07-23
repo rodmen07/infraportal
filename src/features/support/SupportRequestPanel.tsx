@@ -12,7 +12,7 @@ import { formatRelativeTime } from '../../utils/time'
 
 const STATUS_META: Record<SupportStatus, { label: string; badge: string }> = {
   open: { label: 'Open', badge: 'border-amber-400/40 bg-amber-500/15 text-amber-200' },
-  in_progress: { label: 'In progress', badge: 'border-sky-400/40 bg-sky-500/15 text-sky-200' },
+  in_progress: { label: 'In progress', badge: 'border-sky-400/40 bg-sky-500/15 text-info-text' },
   resolved: { label: 'Resolved', badge: 'border-emerald-400/40 bg-emerald-500/15 text-success-text' },
 }
 

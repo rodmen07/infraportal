@@ -175,7 +175,7 @@ export function TemplateLibrary({ projects, store = projectsStore }: TemplateLib
                   onClick={() => setConfirmDeleteId(template.id)}
                   aria-label={`Delete template ${template.name}`}
                   title="Delete template"
-                  className="rounded px-1.5 py-0.5 text-xs text-text-subtle transition-colors hover:bg-red-500/20 hover:text-red-300"
+                  className="rounded px-1.5 py-0.5 text-xs text-text-subtle transition-colors hover:bg-red-500/20 hover:text-danger-text"
                 >
                   ✕
                 </button>
