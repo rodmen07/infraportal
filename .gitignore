@@ -39,3 +39,10 @@ coverage/
 *.njsproj
 *.sln
 *.sw?
+
+# Claude Code session/local config (never versioned)
+.claude/
+
+# Vitest writes a transient config timestamp file next to vitest.config.ts
+# when a run is interrupted; it is pure build debris.
+vitest.config.ts.timestamp-*.mjs
