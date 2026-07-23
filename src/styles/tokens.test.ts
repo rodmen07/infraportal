@@ -469,7 +469,13 @@ describe('strangler rule: override-sheet rules for tokenized surfaces stay delet
     // (text-yellow-400, text-orange-400/300, text-emerald-200/300, blue-400, and
     // a dead text-emerald-100 sweep). amber/purple/violet/sky/teal/cyan are brand
     // /decorative accents and were deliberately left on their raw classes.
-    const CEILING = 212
+    // 210 after v1.19 D11 slice 1 (surface-token migration begins): the exact-
+    // match neutral fills bg-zinc-950 -> bg-surface-0 and bg-zinc-700/60 ->
+    // bg-surface-hover (byte-exact on the existing translucent surface tokens)
+    // retired their two overrides. bg-zinc-800/60 also migrated onto
+    // bg-surface-control but its override stays (4 animate-pulse skeleton loaders
+    // still need it via the .animate-pulse.bg-zinc-800/60 compound rule).
+    const CEILING = 210
     const remaining = (INDEX_CSS_RULES.match(/\[data-theme="light"\]/g) ?? []).length
     expect(remaining).toBeLessThanOrEqual(CEILING)
   })

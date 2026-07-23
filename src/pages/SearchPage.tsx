@@ -49,7 +49,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
           value={input}
           onChange={e => { setInput(e.target.value); setError(false) }}
           placeholder="Admin key"
-          className="w-full rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
+          className="w-full rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
         />
         {error && <p className="text-xs text-danger-text">Invalid key</p>}
         <button type="submit" className="btn-accent w-full">Unlock</button>
@@ -277,7 +277,7 @@ function SearchView() {
             onChange={e => handleInput(e.target.value)}
             placeholder={SEARCH_URL ? 'Search across accounts, contacts, opportunities, activities…' : 'VITE_SEARCH_API_BASE_URL not configured'}
             disabled={!SEARCH_URL}
-            className="w-full rounded-xl border border-zinc-600/50 bg-zinc-800/60 px-4 py-3 pr-16 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none disabled:opacity-40"
+            className="w-full rounded-xl border border-zinc-600/50 bg-surface-control px-4 py-3 pr-16 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none disabled:opacity-40"
           />
           {loading ? (
             <div className="absolute right-3 top-1/2 -translate-y-1/2 text-text-subtle">

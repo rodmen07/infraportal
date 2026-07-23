@@ -44,7 +44,7 @@ export function BuildStatusSection() {
           href={`${MONITORING_URL}/builds`}
           target="_blank"
           rel="noopener noreferrer"
-          className="shrink-0 rounded-xl border border-zinc-600/40 bg-zinc-800/60 px-3 py-1.5 text-xs font-medium text-text-secondary transition hover:border-zinc-500/50 hover:text-text-primary"
+          className="shrink-0 rounded-xl border border-zinc-600/40 bg-surface-control px-3 py-1.5 text-xs font-medium text-text-secondary transition hover:border-zinc-500/50 hover:text-text-primary"
         >
           Full dashboard →
         </a>

@@ -178,7 +178,7 @@ export function CicdCaseStudyPage() {
         {TECH_STACK.map((tech) => (
           <span
             key={tech}
-            className="rounded border border-zinc-700/50 bg-zinc-800/60 px-2.5 py-1 text-xs font-medium text-text-secondary"
+            className="rounded border border-zinc-700/50 bg-surface-control px-2.5 py-1 text-xs font-medium text-text-secondary"
           >
             {tech}
           </span>
@@ -190,7 +190,7 @@ export function CicdCaseStudyPage() {
         <h2 className="mb-4 text-base font-semibold text-amber-200">Promotion flow</h2>
         <div className="flex flex-wrap items-start gap-2 text-xs">
           {/* test */}
-          <div className="rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-center">
+          <div className="rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-center">
             <div className="font-semibold text-zinc-200">test</div>
             <div className="mt-1 text-text-subtle">clippy · tests</div>
             <div className="mt-0.5 text-text-subtle">audit · lint</div>

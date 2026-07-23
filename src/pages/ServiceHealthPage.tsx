@@ -138,7 +138,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
           value={input}
           onChange={e => { setInput(e.target.value); setError(false) }}
           placeholder="Admin key"
-          className="w-full rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
+          className="w-full rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
         />
         {error && <p className="text-xs text-danger-text">Invalid key</p>}
         <button type="submit" className="btn-accent w-full">Unlock</button>
@@ -268,7 +268,7 @@ function ServiceCard({ svc }: { svc: ServiceHealth }) {
       <div className="flex items-start justify-between gap-2">
         <div>
           <p className="text-sm font-semibold text-text-primary">{svc.name}</p>
-          <span className="inline-block rounded-full border border-zinc-700/40 bg-zinc-800/60 px-2 py-0.5 text-scale-xs text-text-subtle mt-1">
+          <span className="inline-block rounded-full border border-zinc-700/40 bg-surface-control px-2 py-0.5 text-scale-xs text-text-subtle mt-1">
             {svc.group}
           </span>
         </div>

@@ -107,7 +107,7 @@ export function PipelineMetrics() {
                 <span className="font-mono text-zinc-200">{count.toLocaleString()}</span>
               </div>
             </div>
-            <div className="h-2.5 overflow-hidden rounded-full bg-zinc-800/60">
+            <div className="h-2.5 overflow-hidden rounded-full bg-surface-control">
               <div
                 className={`h-full rounded-full transition-all duration-500 ${color}`}
                 style={{ width: `${bronzeTotal > 0 ? (count / bronzeTotal) * 100 : 0}%` }}

@@ -114,7 +114,7 @@ export function TemplateLibrary({ projects, store = projectsStore }: TemplateLib
           aria-label="Project to save as template"
           value={saveProjectId}
           onChange={e => setSaveProjectId(e.target.value)}
-          className="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-800/60 px-2 py-1.5 text-xs text-zinc-200 outline-none focus:border-amber-500/60"
+          className="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-surface-control px-2 py-1.5 text-xs text-zinc-200 outline-none focus:border-amber-500/60"
         >
           <option value="" disabled>Choose a project…</option>
           {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
@@ -124,7 +124,7 @@ export function TemplateLibrary({ projects, store = projectsStore }: TemplateLib
           placeholder="Template name"
           value={templateName}
           onChange={e => setTemplateName(e.target.value)}
-          className="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-800/60 px-2 py-1.5 text-xs text-zinc-200 outline-none focus:border-amber-500/60 placeholder-zinc-500"
+          className="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-surface-control px-2 py-1.5 text-xs text-zinc-200 outline-none focus:border-amber-500/60 placeholder-zinc-500"
         />
         <button
           type="submit"
@@ -211,7 +211,7 @@ export function TemplateLibrary({ projects, store = projectsStore }: TemplateLib
                 placeholder="New project name"
                 value={projectName}
                 onChange={e => setProjectName(e.target.value)}
-                className="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-800/60 px-2 py-1.5 text-xs text-zinc-200 outline-none focus:border-amber-500/60 placeholder-zinc-500"
+                className="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-surface-control px-2 py-1.5 text-xs text-zinc-200 outline-none focus:border-amber-500/60 placeholder-zinc-500"
               />
               <button
                 type="submit"

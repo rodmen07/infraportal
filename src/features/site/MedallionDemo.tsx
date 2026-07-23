@@ -297,11 +297,11 @@ function GoldView({ gold, windowDays }: { gold: SecurityGold; windowDays: number
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="rounded-xl border border-zinc-800/60 bg-zinc-950 p-4">
+        <div className="rounded-xl border border-zinc-800/60 bg-surface-0 p-4">
           <h3 className="mb-4 text-sm font-semibold text-text-secondary">Severity distribution</h3>
           <SeverityBars dist={gold.severityDist} />
         </div>
-        <div className="rounded-xl border border-zinc-800/60 bg-zinc-950 p-4">
+        <div className="rounded-xl border border-zinc-800/60 bg-surface-0 p-4">
           <h3 className="mb-4 text-sm font-semibold text-text-secondary">CVSS score histogram</h3>
           <CvssHistogram histogram={gold.cvssHistogram} />
           <p className="mt-2 text-center text-xs text-zinc-600">Score buckets 0 → 10</p>
@@ -309,11 +309,11 @@ function GoldView({ gold, windowDays }: { gold: SecurityGold; windowDays: number
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="rounded-xl border border-zinc-800/60 bg-zinc-950 p-4">
+        <div className="rounded-xl border border-zinc-800/60 bg-surface-0 p-4">
           <h3 className="mb-4 text-sm font-semibold text-text-secondary">Attack vectors</h3>
           <AttackVectorBars dist={gold.vectorDist} />
         </div>
-        <div className="rounded-xl border border-zinc-800/60 bg-zinc-950 p-4">
+        <div className="rounded-xl border border-zinc-800/60 bg-surface-0 p-4">
           <h3 className="mb-4 text-sm font-semibold text-text-secondary">Top weakness types</h3>
           <div className="space-y-2">
             {gold.topCwes.length === 0
@@ -345,7 +345,7 @@ function SilverView({ records }: { records: CveRecord[] }) {
         <span className="rounded border border-zinc-500/40 bg-zinc-700/20 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-text-secondary">Parsed</span>
         <span className="rounded border border-zinc-700/40 bg-zinc-800/40 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-text-muted">Typed · {records.length} records</span>
       </div>
-      <div className="overflow-x-auto rounded-xl border border-zinc-800/60 bg-zinc-950">
+      <div className="overflow-x-auto rounded-xl border border-zinc-800/60 bg-surface-0">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-zinc-800/60 text-left text-text-subtle">
@@ -401,7 +401,7 @@ function BronzeView({ raw }: { raw: NvdResponse }) {
         <span className="rounded border border-zinc-700/40 bg-zinc-800/40 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-text-muted">NVD API v2.0</span>
         <span className="rounded border border-zinc-700/40 bg-zinc-800/40 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-text-muted">{raw.totalResults.toLocaleString()} total results</span>
       </div>
-      <div className="overflow-x-auto rounded-xl border border-zinc-800/60 bg-zinc-950">
+      <div className="overflow-x-auto rounded-xl border border-zinc-800/60 bg-surface-0">
         <pre className="code-surface p-4 text-xs leading-relaxed text-text-secondary">
           {visible.join('\n')}
           {!showAll && lines.length > LIMIT && (

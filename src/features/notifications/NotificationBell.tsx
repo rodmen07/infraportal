@@ -80,7 +80,7 @@ export function NotificationBell() {
         type="button"
         onClick={handleToggle}
         aria-label={unreadCount > 0 ? `${unreadCount} new notifications` : 'Notifications'}
-        className="relative rounded-lg border border-zinc-600/40 bg-zinc-800/60 px-2.5 py-1.5 text-xs text-text-secondary transition hover:border-zinc-500/50 hover:bg-zinc-700/60 hover:text-text-primary"
+        className="relative rounded-lg border border-zinc-600/40 bg-surface-control px-2.5 py-1.5 text-xs text-text-secondary transition hover:border-zinc-500/50 hover:bg-zinc-700/60 hover:text-text-primary"
       >
         <BellIcon />
         {unreadCount > 0 && (
@@ -124,7 +124,7 @@ export function NotificationBell() {
                 >
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
-                      <span className={`rounded px-1.5 py-0.5 text-scale-xs font-medium ${SOURCE_COLORS[n.type.split('.')[0]] ?? 'bg-zinc-700/60 text-text-secondary'}`}>
+                      <span className={`rounded px-1.5 py-0.5 text-scale-xs font-medium ${SOURCE_COLORS[n.type.split('.')[0]] ?? 'bg-surface-hover text-text-secondary'}`}>
                         {n.type}
                       </span>
                       <span className="text-scale-xs text-text-subtle">{formatAge(now - n.receivedAt)}</span>

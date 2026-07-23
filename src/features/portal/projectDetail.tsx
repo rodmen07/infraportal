@@ -146,7 +146,7 @@ export function LinksSection({ links }: { links: ProjectLink[] }) {
             href={link.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1.5 rounded-full border border-zinc-600/40 bg-zinc-800/60 px-3 py-1.5 text-xs text-zinc-200 transition hover:border-amber-400/50 hover:text-amber-300"
+            className="flex items-center gap-1.5 rounded-full border border-zinc-600/40 bg-surface-control px-3 py-1.5 text-xs text-zinc-200 transition hover:border-amber-400/50 hover:text-amber-300"
           >
             <span>{LINK_TYPE_ICONS[link.link_type] ?? '🔗'}</span>
             {link.label}
@@ -298,7 +298,7 @@ export function CollaboratorsSection({ collaborators }: { collaborators: Collabo
       <h3 className="mb-3 text-xs font-semibold uppercase tracking-widest text-text-muted">Team</h3>
       <div className="flex flex-wrap gap-3">
         {collaborators.map((c) => (
-          <div key={c.id} className="flex items-center gap-2 rounded-full border border-zinc-600/40 bg-zinc-800/60 px-3 py-1.5">
+          <div key={c.id} className="flex items-center gap-2 rounded-full border border-zinc-600/40 bg-surface-control px-3 py-1.5">
             {c.avatar_url ? (
               <img src={c.avatar_url} alt={c.name} className="h-5 w-5 rounded-full object-cover" />
             ) : (
@@ -389,12 +389,12 @@ export function MessageThread({
               <span className={`mt-1 h-6 w-6 shrink-0 rounded-full text-center text-[10px] leading-6 ${
                 m.author_role === 'admin'
                   ? 'bg-amber-500/20 text-amber-300'
-                  : 'bg-zinc-700/60 text-text-secondary'
+                  : 'bg-surface-hover text-text-secondary'
               }`}>
                 {m.author_role === 'admin' ? 'A' : 'C'}
               </span>
               <div className={`max-w-[75%] rounded-xl px-3 py-2 text-sm ${
-                isMe ? 'bg-amber-500/15 text-text-primary' : 'bg-zinc-800/60 text-zinc-200'
+                isMe ? 'bg-amber-500/15 text-text-primary' : 'bg-surface-control text-zinc-200'
               }`}>
                 {m.body}
                 <p className="mt-1 text-scale-xs text-text-subtle">{m.created_at.slice(0, 16).replace('T', ' ')}</p>
@@ -413,7 +413,7 @@ export function MessageThread({
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             placeholder="Ask a question or request an update…"
-            className="min-w-0 flex-1 rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
+            className="min-w-0 flex-1 rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
           />
           <button
             type="submit"
@@ -455,13 +455,13 @@ export function NoProjectPanel({ sub }: { sub: string }) {
           Share this with your account manager to link your project.
         </p>
         <div className="flex items-center gap-2">
-          <code className="min-w-0 flex-1 truncate rounded-lg bg-zinc-800/60 px-3 py-2 font-mono text-xs text-zinc-200">
+          <code className="min-w-0 flex-1 truncate rounded-lg bg-surface-control px-3 py-2 font-mono text-xs text-zinc-200">
             {sub}
           </code>
           <button
             type="button"
             onClick={copy}
-            className="shrink-0 rounded-lg border border-zinc-600/50 bg-zinc-800/60 px-3 py-2 text-xs text-text-secondary transition hover:border-zinc-500/60 hover:text-text-primary"
+            className="shrink-0 rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-xs text-text-secondary transition hover:border-zinc-500/60 hover:text-text-primary"
           >
             {copied ? 'Copied!' : 'Copy'}
           </button>
