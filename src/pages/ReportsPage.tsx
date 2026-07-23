@@ -453,7 +453,7 @@ function ReportsView() {
     <div className="forge-panel surface-card-strong flex flex-col gap-3 border border-red-500/30 bg-red-500/10 p-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
         <p className="text-sm font-semibold text-danger-text">Unable to load saved reports</p>
-        <p className="mt-1 text-sm text-red-100/90">{error}</p>
+        <p className="mt-1 text-sm text-danger-text">{error}</p>
       </div>
       <button className="btn-accent px-3 py-2 text-sm" onClick={load}>Retry</button>
     </div>
@@ -515,7 +515,7 @@ function ReportsView() {
                         onClick={() => setModal({ mode: 'edit', record: r })}
                       >Edit</button>
                       <button
-                        className="text-xs text-danger-text hover:text-red-300 transition"
+                        className="text-xs text-danger-text hover:text-danger-text transition"
                         onClick={() => setModal({ mode: 'delete', id: r.id, label: r.name })}
                       >Delete</button>
                     </div>

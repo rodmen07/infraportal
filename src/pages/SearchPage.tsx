@@ -96,7 +96,7 @@ function SearchErrorState({ message, onRetry, onClear }: { message: string; onRe
     <div className="forge-panel surface-card-strong flex flex-col gap-3 border border-red-500/30 bg-red-500/10 p-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
         <p className="text-sm font-semibold text-danger-text">Search is temporarily unavailable</p>
-        <p className="mt-1 text-sm text-red-100/90">{message}</p>
+        <p className="mt-1 text-sm text-danger-text">{message}</p>
       </div>
       <div className="flex gap-2">
         <button className="btn-accent px-3 py-2 text-sm" onClick={onRetry}>Retry</button>

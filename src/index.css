@@ -421,7 +421,8 @@ textarea:disabled {
    text-red-400 -> #b91c1c above), and a "100" source shade darkens to "900"
    (text-emerald-100 -> #064e3b above). */
 [data-theme="light"] .text-green-400\/80 { color: #15803d !important; } /* green-700 */
-[data-theme="light"] .text-red-100\/90 { color: #7f1d1d !important; } /* red-900 */
+/* .text-red-100/90 override retired (v1.19 D12 follow-up): the error-message
+   text migrated onto text-danger-text (light red-800; dark consolidates to red-200). */
 
 /* Background: dark tiles → near-transparent light equivalents */
 [data-theme="light"] .bg-zinc-900\/60  { background-color: rgba(0,0,0,0.03) !important; }

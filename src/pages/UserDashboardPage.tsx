@@ -414,7 +414,7 @@ export function UserDashboardPage() {
             <div className="forge-panel surface-card-strong flex flex-col gap-3 border border-red-500/30 bg-red-500/10 p-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="text-sm font-semibold text-danger-text">Dashboard refresh failed</p>
-                <p className="mt-1 text-sm text-red-100/90">{error}</p>
+                <p className="mt-1 text-sm text-danger-text">{error}</p>
               </div>
               <button className="btn-accent btn-sm" onClick={fetchCounts}>Try again</button>
             </div>

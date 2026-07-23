@@ -475,7 +475,12 @@ describe('strangler rule: override-sheet rules for tokenized surfaces stay delet
     // retired their two overrides. bg-zinc-800/60 also migrated onto
     // bg-surface-control but its override stays (4 animate-pulse skeleton loaders
     // still need it via the .animate-pulse.bg-zinc-800/60 compound rule).
-    const CEILING = 210
+    // 209 after the v1.19 D12 follow-ups: the danger hover variants
+    // (hover:text-red-{300,400}) and the text-red-100/90 error-message opacity
+    // class migrated onto danger-text, and the two sky status badges (POST
+    // method, "in progress") onto info-text, resolving the held items; one dead
+    // .text-red-100/90 override retired.
+    const CEILING = 209
     const remaining = (INDEX_CSS_RULES.match(/\[data-theme="light"\]/g) ?? []).length
     expect(remaining).toBeLessThanOrEqual(CEILING)
   })

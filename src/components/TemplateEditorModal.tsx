@@ -209,7 +209,7 @@ export function TemplateEditorModal({ template, store = projectsStore, onSaved, 
                     onClick={() => removeMilestone(row.key)}
                     aria-label={`Remove milestone ${index + 1}`}
                     title="Remove milestone"
-                    className="rounded px-1.5 py-0.5 text-xs text-text-subtle transition-colors hover:bg-red-500/20 hover:text-red-300"
+                    className="rounded px-1.5 py-0.5 text-xs text-text-subtle transition-colors hover:bg-red-500/20 hover:text-danger-text"
                   >
                     ✕
                   </button>
@@ -236,7 +236,7 @@ export function TemplateEditorModal({ template, store = projectsStore, onSaved, 
                         onClick={() => removeDeliverable(row.key, deliverable.key)}
                         aria-label={`Remove milestone ${index + 1} deliverable ${deliverableIndex + 1}`}
                         title="Remove deliverable"
-                        className="rounded px-1.5 py-0.5 text-xs text-text-subtle transition-colors hover:bg-red-500/20 hover:text-red-300"
+                        className="rounded px-1.5 py-0.5 text-xs text-text-subtle transition-colors hover:bg-red-500/20 hover:text-danger-text"
                       >
                         ✕
                       </button>
