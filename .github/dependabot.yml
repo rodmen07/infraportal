@@ -1,0 +1,22 @@
+# Dependabot version updates for infraportal.
+# Mirrors the microservices repo's config so both halves of the platform
+# get the same weekly currency sweep. npm covers the app's runtime + build
+# deps; github-actions keeps the CI/deploy workflow actions current.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      patch-updates:
+        update-types: [patch]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
