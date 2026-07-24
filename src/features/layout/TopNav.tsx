@@ -11,6 +11,7 @@ import { useTheme } from './useTheme'
 import { useAuth } from '../auth/useAuth'
 import { ADMIN_NAV_ITEMS, PRIMARY_NAV_ITEMS, type NavItem } from './navItems'
 import { NotificationBell } from '../notifications/NotificationBell'
+import { openCommandPalette } from '../commandPalette/paletteEvents'
 
 function TopNavComponent() {
   const hash = window.location.hash
@@ -70,6 +71,18 @@ function TopNavComponent() {
               </button>
             </span>
           )}
+          <button
+            type="button"
+            onClick={openCommandPalette}
+            aria-label="Open command palette"
+            title="Search (Ctrl/Cmd K)"
+            className="flex items-center gap-1.5 rounded-lg border border-border-soft bg-surface-control px-2.5 py-1.5 text-xs text-text-secondary transition hover:border-border-strong hover:bg-surface-hover hover:text-text-primary"
+          >
+            <span aria-hidden>Search</span>
+            <kbd className="hidden rounded border border-border-soft px-1 text-scale-xs sm:inline" aria-hidden>
+              ⌘K
+            </kbd>
+          </button>
           <button
             type="button"
             onClick={toggle}

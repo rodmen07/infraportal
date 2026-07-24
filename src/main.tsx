@@ -16,6 +16,7 @@ import { AboutPage } from './pages/AboutPage'
 import { PatchNotesPage } from './pages/PatchNotesPage'
 import { CheckoutThankYouPage } from './pages/CheckoutThankYouPage'
 import { RouteLoadingFallback } from './components/RouteLoadingFallback'
+import { CommandPalette } from './features/commandPalette/CommandPalette'
 
 const WATCHDOG_DELAY_MS = 5000
 
@@ -323,6 +324,7 @@ createRoot(rootElement).render(
         <AuthProvider>
           <NotificationProvider>
             <Root />
+            <CommandPalette />
           </NotificationProvider>
         </AuthProvider>
       </ThemeProvider>
