@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { PageLayout } from './PageLayout'
+import { ActivityFeed } from '../features/activityFeed/ActivityFeed'
+import { usePrefersReducedMotion } from '../features/layout/usePrefersReducedMotion'
 import {
   parseAggregate,
   summarize,
@@ -29,20 +31,6 @@ type LoadState =
   | { phase: 'loading' }
   | { phase: 'loaded'; upstreams: Upstream[]; summary: Summary; fetchedAt: Date; latencyMs: number }
   | { phase: 'offline'; fetchedAt: Date }
-
-function usePrefersReducedMotion(): boolean {
-  const [reduced, setReduced] = useState(
-    () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches,
-  )
-  useEffect(() => {
-    if (typeof matchMedia !== 'function') return
-    const mq = matchMedia('(prefers-reduced-motion: reduce)')
-    const onChange = () => setReduced(mq.matches)
-    mq.addEventListener('change', onChange)
-    return () => mq.removeEventListener('change', onChange)
-  }, [])
-  return reduced
-}
 
 // Token-based status colours (no bare amber/red, so this page does not deepen
 // the v1.19 D12 status-token debt).
@@ -205,6 +193,9 @@ export function StatusPage() {
         )}
         <span className="ml-auto">Auto-refreshes every 30s</span>
       </section>
+
+      {/* Live event stream (SSE): a real-time liveness signal alongside health. */}
+      <ActivityFeed />
     </PageLayout>
   )
 }
