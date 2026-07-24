@@ -17,6 +17,7 @@ import { PatchNotesPage } from './pages/PatchNotesPage'
 import { CheckoutThankYouPage } from './pages/CheckoutThankYouPage'
 import { RouteLoadingFallback } from './components/RouteLoadingFallback'
 import { CommandPalette } from './features/commandPalette/CommandPalette'
+import { GuidedTour } from './features/tour/GuidedTour'
 
 const WATCHDOG_DELAY_MS = 5000
 
@@ -325,6 +326,7 @@ createRoot(rootElement).render(
           <NotificationProvider>
             <Root />
             <CommandPalette />
+            <GuidedTour />
           </NotificationProvider>
         </AuthProvider>
       </ThemeProvider>

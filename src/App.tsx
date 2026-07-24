@@ -8,6 +8,7 @@ import { useSiteContent } from './features/site/useSiteContent'
 import { PricingCard } from './features/consulting/PricingCard'
 import { usePricingContent } from './features/consulting/usePricingContent'
 import { SCHEDULING_URL } from './config'
+import { startGuidedTour } from './features/tour/tourEvents'
 
 function App() {
   const baseUrl = import.meta.env.BASE_URL
@@ -63,6 +64,9 @@ function App() {
                 <a href="#/pricing" className="btn-accent px-4 py-2 text-sm">
                   View pricing →
                 </a>
+                <button type="button" onClick={startGuidedTour} className="btn-neutral px-4 py-2 text-sm">
+                  Take the tour
+                </button>
                 {SCHEDULING_URL ? (
                   <a href={SCHEDULING_URL} target="_blank" rel="noopener noreferrer" className="btn-neutral px-4 py-2 text-sm">
                     Book a call
