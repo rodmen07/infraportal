@@ -11,11 +11,11 @@ export const STREAM_URL     = (import.meta.env.VITE_EVENT_STREAM_URL            
 export const PROJECTS_URL   = (import.meta.env.VITE_PROJECTS_API_BASE_URL       ?? '').replace(/\/$/, '')
 export const SPEND_URL      = (import.meta.env.VITE_SPEND_API_BASE_URL          ?? '').replace(/\/$/, '')
 
-// When a CRM service URL is unset (the backend was decommissioned on
-// 2026-06-04), the tab falls back to the in-memory demo dataset behind the
-// clearly marked mock boundary in `src/lib/crmStore.mock.ts`. Bulk selection
-// and bulk edit are only offered in this demo mode, so no call site pretends
-// the backend is live.
+// When a CRM service URL is unset (the default for the public static site,
+// which ships no service URLs), the tab falls back to the in-memory demo
+// dataset behind the clearly marked mock boundary in `src/lib/crmStore.mock.ts`.
+// Bulk selection and bulk edit are only offered in this demo mode, so no call
+// site pretends the backend is live.
 export const CONTACTS_DEMO = !CONTACTS_URL
 export const ACCOUNTS_DEMO = !ACCOUNTS_URL
 export const OPPS_DEMO     = !OPPS_URL

@@ -2,9 +2,9 @@
 // MOCK DATA BOUNDARY - NOT A LIVE BACKEND
 //
 // This module is the single in-memory dataset behind the CRM admin demo.
-// The platform backend (Cloud SQL + Cloud Run + Fly) was decommissioned to
-// zero on 2026-06-04, so there is nothing to call: records here live only in
-// the browser tab and are never persisted or sent over the network.
+// The public site ships as a static bundle with no CRM service URL
+// configured, so there is nothing to call: records here live only in the
+// browser tab and are never persisted or sent over the network.
 //
 // Who talks to it:
 //   - The admin CRM tables (contacts, accounts, opportunities) read from it
@@ -31,7 +31,7 @@ import type { ImportEntity } from './bulkImportCsv'
  * that they render the in-memory demo dataset, not a live backend.
  */
 export const CRM_STORE_BOUNDARY =
-  'crmStore.mock: CRM records shown here live in an in-memory demo dataset in the browser. The platform backend was decommissioned on 2026-06-04; nothing is persisted or sent over the network.' as const
+  'crmStore.mock: CRM records shown here live in an in-memory demo dataset in the browser. Nothing is persisted or sent over the network.' as const
 
 // Record shapes mirror the service DTOs rendered by the admin tables.
 export interface CrmContact {

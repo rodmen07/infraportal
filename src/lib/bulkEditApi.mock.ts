@@ -5,7 +5,7 @@
 // and this module is the only implementation. It simulates the transport
 // entirely in the browser and applies successful edits to the in-memory
 // demo dataset (`crmStore.mock.ts`): no network requests are made anywhere.
-// The platform backend was decommissioned to zero on 2026-06-04, so there is
+// The public site ships with no CRM service URL configured, so there is
 // nothing to call.
 //
 // Behavior, kept deterministic so tests and demos are predictable (same
@@ -29,7 +29,7 @@ import { crmStore, type CrmStore } from './crmStore.mock'
  * that they are wired to the mock, not a live backend.
  */
 export const MOCK_EDIT_BOUNDARY =
-  'bulkEditApi.mock: bulk edits are simulated in the browser against the in-memory demo dataset. The platform backend was decommissioned on 2026-06-04; no network requests are made.' as const
+  'bulkEditApi.mock: bulk edits are simulated in the browser against the in-memory demo dataset. No network requests are made.' as const
 
 export interface MockBulkEditOptions {
   /** Simulated latency per batch, in milliseconds. Use 0 in tests. */

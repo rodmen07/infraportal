@@ -15,6 +15,8 @@ import { ContactPage } from './pages/ContactPage'
 import { AboutPage } from './pages/AboutPage'
 import { PatchNotesPage } from './pages/PatchNotesPage'
 import { CheckoutThankYouPage } from './pages/CheckoutThankYouPage'
+import { NotFoundPage } from './pages/NotFoundPage'
+import { isHomeHash } from './features/layout/homeRoute'
 import { RouteLoadingFallback } from './components/RouteLoadingFallback'
 import { CommandPalette } from './features/commandPalette/CommandPalette'
 import { GuidedTour } from './features/tour/GuidedTour'
@@ -307,7 +309,11 @@ function Root() {
   if (hash.startsWith('#/checkout-thank-you')) return <CheckoutThankYouPage />
   if (hash.startsWith('#/thank-you')) return <CheckoutThankYouPage />
   if (hash === '#/contact') return <ContactPage />
-  return <App />
+  // Root/empty hash is Home; every OTHER unmatched hash is a genuine
+  // not-found (a stale bookmark, a typo'd deep link, a removed route) and now
+  // renders NotFoundPage instead of silently falling through to Home.
+  if (isHomeHash(hash)) return <App />
+  return <NotFoundPage />
 }
 
 const rootElement = document.getElementById('root')

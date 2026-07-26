@@ -3,11 +3,13 @@
  *
  * The app is a hash router: `Root()` in src/main.tsx matches `window.location.hash`
  * against a chain of `hash === '#/...'` / `hash.startsWith('#/...')` conditions and
- * renders the matching page. Anything it does NOT match falls through to `<App />`
- * — the Home page — with no error. So a hardcoded internal destination that points
- * at a route the router does not handle does not 404: it silently drops the visitor
- * on Home. That is the exact "shipped surface that silently does nothing" failure
- * class, and nothing tested it.
+ * renders the matching page. The root/empty hash (`isHomeHash`) renders `<App />`
+ * (Home); every OTHER unmatched hash now renders `<NotFoundPage />` (2026-07-25).
+ * That NotFound page exists precisely because an unhandled internal destination
+ * used to fall through to Home with no error — the exact "shipped surface that
+ * silently does nothing" failure class this guard was written to catch on the nav
+ * side. A destination naming a route the router does not handle is still a bug
+ * (it now dead-ends on 404 rather than on Home), so this guard still fails it.
  *
  * Three data-driven navigation sources feed users those internal destinations:
  *   - NAV_ITEMS       (features/layout/navItems.ts) — the site nav, the oldest of
@@ -55,10 +57,10 @@ function parseRouteVocabulary(source: string): RouteVocabulary {
 
 /**
  * True when `href` is handled by an EXPLICIT route in the router. `#/` (and the
- * empty hash) is the Home route, served by the `<App />` fallback on purpose, so it
- * counts as resolved; every other href must match an explicit condition rather than
- * merely fall through to that same fallback (falling through when you meant a real
- * page IS the bug this guard exists to catch).
+ * empty hash) is the Home route, served by the explicit `isHomeHash` guard on
+ * purpose, so it counts as resolved; every other href must match an explicit
+ * condition rather than land on the NotFound catch-all (landing on NotFound when
+ * you meant a real page IS the bug this guard exists to catch).
  */
 function makeResolver(vocab: RouteVocabulary): (href: string) => boolean {
   return (href) => {

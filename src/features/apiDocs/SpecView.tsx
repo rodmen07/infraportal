@@ -358,7 +358,7 @@ export function ServiceSpecView({
   /** Enables the per-operation Try it panels; omit for docs-only rendering. */
   serviceId?: string
 }) {
-  // First documented server (the historical deployment) anchors the snippets.
+  // First documented server from the spec anchors the snippets.
   const baseUrl = spec.servers?.[0]?.url
   return (
     <div className="space-y-6">

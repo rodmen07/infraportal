@@ -9,8 +9,9 @@
 //   - projects, milestones, deliverables ->  projectsStore.mock.ts
 //
 // Everything is simulated in the browser tab: no network requests are made
-// anywhere, because the platform backend (Cloud SQL + Cloud Run + Fly) was
-// decommissioned to zero on 2026-06-04 and there is nothing to call.
+// anywhere. This is a deliberate property of the playground, not a statement
+// about what is deployed - the site ships as a static bundle with no service
+// URL configured, and live per-service health lives on the #/status board.
 //
 // Honesty rules (same discipline as the other *.mock.ts boundaries):
 //   - Only operations whose entities exist in a demo dataset are executable.
@@ -63,7 +64,7 @@ import {
  * that execution is simulated against the in-memory demo datasets.
  */
 export const TRY_IT_BOUNDARY =
-  'tryItAdapter.mock: "Try it" requests are simulated entirely in the browser against the in-memory demo datasets. The platform backend was decommissioned on 2026-06-04; no network requests are made, and the caller is treated as an admin.' as const
+  'tryItAdapter.mock: "Try it" requests are simulated entirely in the browser against the in-memory demo datasets. No network requests are made, and the caller is treated as an admin.' as const
 
 /** JWT sub of the simulated admin caller; owner of every demo CRM record. */
 export const DEMO_CALLER_ID = 'demo-admin'
@@ -1269,7 +1270,7 @@ const NO_DATASET_REASON = (serviceId: string): string =>
   `${serviceId}-service has no in-browser demo dataset. This playground ships demo data for accounts, contacts, opportunities, and projects only; every other spec is a static reference. Simulating a success here would be fake, so execution is disabled.`
 
 const PROBE_REASON =
-  'Health and readiness probes report on a running service process and its database ping. Nothing is running in this demo (the platform was decommissioned to zero on 2026-06-04), so simulating an "ok" would be fake liveness. Disabled instead.'
+  'Health and readiness probes report on a running service process and its database ping. This playground calls nothing, so simulating an "ok" here would be fake liveness. Disabled instead: the platform status board at #/status publishes the real per-service health.'
 
 const NO_ENTITY_REASON =
   'The in-browser projects demo dataset covers projects, milestones, and deliverables. There is no demo dataset behind this operation, and inventing one on the fly would misrepresent the documented behavior, so execution is disabled.'
