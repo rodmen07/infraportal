@@ -4,6 +4,7 @@ import { CaseStudyCard } from '../features/consulting/CaseStudyCard'
 import { MedallionDemo } from '../features/site/MedallionDemo'
 import { ContactCTA } from '../features/site/ContactCTA'
 import { useCaseStudiesContent } from '../features/consulting/useCaseStudiesContent'
+import { RECURRING_COST_PHRASE } from '../features/site/platformCost'
 import { SCHEDULING_URL } from '../config'
 
 export function CaseStudiesPage() {
@@ -59,8 +60,8 @@ export function CaseStudiesPage() {
           deployment safety, SLO monitoring, and distributed state. Then it was deliberately torn
           down to zero infrastructure cost: databases and registries deleted, volumes destroyed,
           every recurring line item eliminated. When the portfolio needed a live demo, the Cloud
-          Run half was rebuilt on a small managed Postgres instance for about $9 a month, and
-          every service now publishes its health to the{' '}
+          Run half was rebuilt on a small managed Postgres instance for {RECURRING_COST_PHRASE},
+          and every service now publishes its health to the{' '}
           <a href="#/status" className="text-accent-text underline underline-offset-4 hover:text-text-primary">
             platform status board
           </a>

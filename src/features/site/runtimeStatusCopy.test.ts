@@ -35,12 +35,20 @@
  * v1.20.1 (PROOF-COST-1) added the second half below: a runtime STATUS is not
  * the only fact this bundle cannot know. The home page also asserted a runtime
  * COST ("$0 / Recurring infra cost today"), which was true when it was typed
- * and false from 2026-07-21, when the Cloud Run half came back at roughly $9 a
- * month. Its two files left the allowlist in the same commit that fixed them.
+ * and false from 2026-07-21, when the Cloud Run half came back at a real
+ * monthly cost. Its two files left the allowlist in the same commit that fixed
+ * them.
+ *
+ * v1.21.3 (D-7a) took the last step: the replacement sentence still hand-typed
+ * the new figure, in two files plus this guard's own fixtures. The figure now
+ * lives once, in `./platformCost.ts`, and `./platformCost.test.ts` fails on a
+ * second literal — which is why the fixtures below interpolate the constant
+ * rather than quoting a number that would rot the day the instance tier does.
  */
 import { describe, expect, it } from 'vitest'
 import { readFileSync, readdirSync } from 'node:fs'
 import path from 'node:path'
+import { RECURRING_COST_PHRASE } from './platformCost'
 
 const ROOT = process.cwd()
 const ROUTER_SOURCE = 'src/main.tsx'
@@ -213,9 +221,9 @@ describe('no app source claims a zero infrastructure cost in the present', () =>
     expect(
       claims,
       `${relPath} states a zero-cost claim the bundle cannot check. Cloud SQL was rebuilt on ` +
-        '2026-07-21 and the platform now costs roughly $9 a month, so a present-tense "$0" is ' +
-        'false. Anchor the claim to when it was true ("tore it down to $0 once its job was ' +
-        `done") or show a measured number, as the proof strip does via ${STATUS_BOARD_HASH}.`,
+        `2026-07-21 and the platform now costs ${RECURRING_COST_PHRASE}, so a present-tense ` +
+        '"$0" is false. Anchor the claim to when it was true ("tore it down to $0 once its job ' +
+        `was done") or show a measured number, as the proof strip does via ${STATUS_BOARD_HASH}.`,
     ).toEqual([])
   })
 
@@ -238,7 +246,7 @@ describe('no app source claims a zero infrastructure cost in the present', () =>
     expect(
       unanchoredCostClaimsIn(
         'I shipped a 16-service platform end to end, tore the whole thing down to $0 once its ' +
-          'job was done, then brought the Cloud Run half back for about $9 a month.',
+          `job was done, then brought the Cloud Run half back for ${RECURRING_COST_PHRASE}.`,
       ),
     ).toEqual([])
     expect(
