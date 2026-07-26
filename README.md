@@ -1,52 +1,50 @@
-# Task Portal Service
+# infraportal — RM Cloud Consulting
 
-Single-page task management portal built with React 19, Vite 5, TypeScript (strict), and Tailwind CSS. Integrates with a Rust/Axum REST API, a Python JWT auth service, and an AI orchestrator for goal-based task planning. Content is CMS-editable via Decap CMS with GitHub OAuth.
+The public front end of the RM Cloud Consulting platform: a consulting funnel, a live
+platform status board, an interactive API playground, and a CRM + client-portal demo,
+shipped as one static React bundle on GitHub Pages.
 
-## Features
+- **Live site:** <https://rodmen07.github.io/infraportal/>
+- **Current milestone, decisions and shipped history:** [ROADMAP.md](ROADMAP.md)
+- **Backend:** the 11-service Rust/Axum workspace in the sibling `microservices` repo,
+  fronted by the `go-gateway` API gateway on Cloud Run. This repo talks to it over HTTP
+  and never bundles it.
 
-- **Kanban board** — drag-and-drop task cards across To Do / In Progress / Done columns
-- **AI goal planner** — describe a short-term goal and generate composite task breakdowns via an LLM orchestrator
-- **Story-point gamification** — earn story points for completing tasks; track your writing-tier progression (poem → paragraph → short story → novel → epic)
-- **Scroll-spy navigation** — sticky side nav with IntersectionObserver-driven active-section highlighting
-- **Progress HUD** — always-visible sticky bar showing completion %, done/pending counts, signed-in status
-- **Admin dashboard** — metrics, request logs, and user activity panels (admin role required)
-- **Decap CMS** — edit homepage content, FAQ, and highlight cards from a browser-based admin UI backed by GitHub
-- **JWT authentication** — sign in / sign out / create username with role-based access (user, planner, admin)
-- **Responsive design** — mobile-first layout with XL sidebar breakpoint
+There is no server in this repo. Every route is client-rendered from a hash router, so
+the whole site is a `dist/` directory served by GitHub Pages.
+
+## What ships here
+
+| Surface | Route | What it is |
+|---|---|---|
+| Consulting funnel | `#/services`, `#/pricing`, `#/retainers`, `#/contact` | Offer pages, a four-field consultation form with lead scoring, retainer tiers backed by Stripe Payment Links, and a `#/checkout-thank-you` return route. |
+| Platform status board | `#/status` | Real per-service health read live from the gateway's upstream aggregate, plus an SSE activity feed over `event-stream-service`. Degrades to a readable offline state rather than a blank card. |
+| API playground | `#/api-docs` | The 11 committed OpenAPI specs in `src/api-specs/`, rendered by a custom client-side renderer, with a per-operation "Try it" runner against marked in-browser demo stores. |
+| CRM and client portal demo | `#/crm/admin`, `#/portal` | The CRM admin console and the client portal, backed by a seeded in-browser demo store and labelled with a demo badge. |
+| Case studies and proof | `#/case-studies`, `#/about`, `#/patch-notes` | Delivery evidence, the open-source crates strip, and the release log. |
+| Discovery affordances | any route | A guided product tour, a Cmd/Ctrl-K command palette with global search, and a real 404 page for unmatched hashes. |
+| Lead magnet | `#/lead-magnet` | Email capture with immediate on-page artifact delivery (`#/infrastructure-audit-checklist` plus a printable copy). |
+
+Admin-gated views (`#/admin/consultations`, `#/admin/support`, `#/admin/audit`,
+`#/admin/health`, `#/crm/reports`, `#/search`, `#/observaboard`) sit behind the admin
+key and are deliberately not linked from the marketing nav.
 
 ## Tech stack
 
 | Layer | Technology |
-|-------|-----------|
+|---|---|
 | UI framework | React 19 |
 | Build tool | Vite 5 |
-| Language | TypeScript (strict mode) |
-| Styling | Tailwind CSS 3.4 |
+| Language | TypeScript 5 (strict mode) |
+| Styling | Tailwind CSS 3.4 driven by CSS custom properties in `src/styles/tokens.css` |
+| Routing | Hash router in `src/main.tsx` (no router dependency), route-level code splitting |
+| Tests | Vitest 3 in the `node` environment |
 | Linting | ESLint 9 + typescript-eslint + react-hooks + react-refresh |
-| CMS | Decap CMS (GitHub backend) |
-| Deployment | GitHub Pages via Actions |
+| Deployment | GitHub Pages via GitHub Actions |
 
-## Project structure
-
-```
-src/
-├── api/              # HTTP clients for auth-service and task-api-service
-├── features/
-│   ├── admin/        # Admin dashboard section and hook
-│   ├── auth/         # Session panel and auth session hook
-│   ├── layout/       # ProgressHud, SideNav, useScrollSpy
-│   ├── site/         # SiteHeader, HomeSections, FaqSection, CMS content hooks
-│   └── tasks/
-│       ├── kanban/   # KanbanBoard, KanbanCard, KanbanColumnPanel, helpers
-│       ├── TaskManagerSection.tsx
-│       ├── useTaskManager.ts
-│       └── planNormalization.ts
-├── App.tsx           # Root layout wiring hooks and sections
-├── config.ts         # Runtime environment config with validation
-├── types.ts          # Shared TypeScript interfaces
-├── index.css         # Tailwind directives + custom animations
-└── main.tsx          # React DOM entrypoint
-```
+`package.json` is the source of truth for exact versions; the majors above are asserted
+against it by `src/features/site/repoIdentity.test.ts`, so this table cannot silently
+rot after an upgrade.
 
 ## Run locally
 
@@ -55,236 +53,98 @@ npm install
 npm run dev
 ```
 
-## Build
-
-```bash
-npm run build
-```
-
-## Lint
-
-```bash
-npm run lint
-```
-
-## Test
-
-```bash
-npm run test
-```
-
-## Goal planner
-
-- Enter a long-term goal in the planner form and generate composite tasks.
-- Create generated tasks in bulk and manage them from the task list.
+| Script | What it does |
+|---|---|
+| `npm run dev` | Vite dev server |
+| `npm run build` | Production build into `dist/` |
+| `npm run preview` | Serve the production build locally |
+| `npm run lint` | ESLint over the repo |
+| `npm run typecheck` | `tsc --noEmit` |
+| `npm test` | Vitest, single run |
+| `npm run test:coverage` | Vitest with v8 coverage |
+| `npm run sync-specs` | Copy the OpenAPI specs from the microservices repo into `src/api-specs/` |
+| `npm run check-spec-drift` | Fail if the committed specs differ from their source |
+| `npm run stripe:setup-links` | Bootstrap Stripe products, prices and Payment Links (see below) |
 
 ## Environment configuration
-
-Create a local env file from `.env.example`:
 
 ```bash
 cp .env.example .env.local
 ```
 
-Commonly used variables:
+`.env.example` is the authoritative list and documents each variable inline. Two
+contracts are worth calling out because getting them wrong is not obvious:
 
-- `VITE_MONITORING_URL`
-- `VITE_AI_ORCHESTRATOR_URL`
-- `VITE_AUTH_SERVICE_URL`
-- `VITE_SCHEDULING_URL`
-- `VITE_PROJECTS_API_BASE_URL`
-- `VITE_CONTACTS_API_BASE_URL`
-- `VITE_ACCOUNTS_API_BASE_URL`
-- `VITE_OPPORTUNITIES_API_BASE_URL`
-- `VITE_ACTIVITIES_API_BASE_URL`
-- `VITE_AUTOMATION_API_BASE_URL`
-- `VITE_INTEGRATIONS_API_BASE_URL`
-- `VITE_SEARCH_API_BASE_URL`
-- `VITE_REPORTING_API_BASE_URL`
-- `VITE_AUDIT_API_BASE_URL`
-- `VITE_OBSERVABOARD_URL`
-- `VITE_SPEND_API_BASE_URL`
+- **`VITE_LEAD_INTAKE_URL`** must point at a PUBLIC intake endpoint or proxy. Do not
+  point it at an authenticated CRM endpoint such as `contacts-service /api/v1/contacts`.
+  When it is unset the site falls back to an email relay so leads still arrive.
+- **`VITE_GATEWAY_URL`** defaults to the deployed gateway, so `#/status` works on the
+  production build with no extra configuration.
 
-### Lead magnet delivery flow
-
-The lead magnet page (`#/lead-magnet`) now runs a hybrid delivery flow:
-
-- Captures the submitted email.
-- Posts lead metadata to `VITE_LEAD_INTAKE_URL` when configured.
-- Always shows immediate artifact access on success:
-  - Web checklist route.
-  - Printable checklist (`public/downloads/infrastructure-audit-checklist.html`) for save-as-PDF.
-
-If `VITE_LEAD_INTAKE_URL` is not configured, the UX still completes successfully and falls back to instant on-page delivery only.
-
-Expected intake payload shapes:
-
-- Consultation submit payload:
-  - `name`, `email`, `project_type`, `timeline`, `message`
-- Lead magnet payload:
-  - Consultation fields above plus metadata such as:
-  - `event_type=lead_magnet`, `magnet_slug`, `lead_source`, `delivery_mode`, `sequence_name`, `sequence_days`, `checklist_web_url`, `checklist_printable_url`
-
-Important: do not point `VITE_LEAD_INTAKE_URL` directly to authenticated CRM endpoints (for example `contacts-service /api/v1/contacts`) unless you place a public intake proxy in front of them.
-
-Stripe Payment Links bootstrap variables (used by `npm run stripe:setup-links`):
-
-- `STRIPE_SECRET_KEY`
-- `STRIPE_SITE_URL`
-- `STRIPE_THANK_YOU_URL` (defaults to `https://<site>/#/checkout-thank-you`)
-- `STRIPE_CURRENCY`
-- `STRIPE_ARCH_REVIEW_UNIT_CENTS`
-- `STRIPE_PROJECT_DEPOSIT_CENTS`
-- `STRIPE_RETAINER_WEEKLY_CENTS`
-
-### Stripe Payment Links API setup
-
-Generate and apply checkout URLs for all pricing tiers using Stripe's API:
+### Stripe Payment Links
 
 ```bash
-# Preview the config without calling Stripe
-npm run stripe:setup-links -- --dry-run
-
-# Create products, prices, and payment links; then update public/content/pricing.json
-npm run stripe:setup-links
+npm run stripe:setup-links -- --dry-run   # preview, no API call
+npm run stripe:setup-links                # create products, prices and links
 ```
 
-What the script does:
+The script creates one product, price and Payment Link per pricing tier, writes the
+resulting `checkoutUrl` values into `public/content/pricing.json`, and records the
+generated ids in `public/content/stripe_payment_links.json`. Each link redirects to
+`#/checkout-thank-you?tier=<slug>` with the tier inside the fragment, which is where
+the hash router can read it; `scripts/lib/checkoutRedirect.mjs` owns that URL shape and
+is imported by both the generator and its test so the two cannot drift.
 
-- Creates three Stripe products/prices for `Architecture Review`, `Project` (deposit), and `Retainer` (weekly recurring).
-- Creates one Payment Link per tier with a redirect target to `#/checkout-thank-you?tier=<slug>`.
-- Writes checkout URLs into `public/content/pricing.json` (`checkoutUrl` field).
-- Stores generated IDs and links in `public/content/stripe_payment_links.json` for traceability.
+## Tests and CI gates
 
-## GitHub Pages deployment
+`.github/workflows/test.yml` runs on every pull request with Node 24:
 
-This repo includes a workflow at `.github/workflows/deploy-pages.yml`.
+```bash
+npm ci
+npm audit --omit=dev --audit-level=high
+npm run typecheck
+npm run lint
+npm run test:coverage
+npm run build
+```
 
-- Trigger: push to `main`
-- Build output: `dist/`
-- Deploy target: GitHub Pages
-- Build env is populated from repository secrets/variables listed in the workflow `Build` step.
+The required contexts on `main` are **Build**, **Linting**, **Type Check**,
+**Unit Tests** and **GitGuardian Security Checks**, with strict up-to-date branches.
+`.github/workflows/spec-drift.yml` additionally checks the committed OpenAPI specs
+against their source on spec-touching pull requests and on a weekly schedule.
 
-### Required repo settings
+Much of the suite is made of **drift guards** rather than unit tests: source scans that
+read two artifacts which must agree and fail when they diverge. The ones worth knowing
+about before adding code:
 
-In GitHub repo settings:
+- `src/styles/tokens.test.ts` — every CSS class used in `.tsx` must actually be defined
+  (a class that does not exist renders an invisible card, which has shipped here twice).
+- `src/styles/opacityColorThemeCoverage.test.ts` and `typeScaleFloor.test.ts` — no raw
+  palette class without a light-theme override, and a 12px type-scale floor.
+- `src/features/layout/routeIntegrity.test.ts` — every internal destination in the nav,
+  command palette and guided tour resolves against the router vocabulary parsed out of
+  `src/main.tsx`.
+- `src/features/site/runtimeStatusCopy.test.ts` — no source file may assert a platform
+  runtime status or a present-tense infrastructure cost, because a static bundle cannot
+  know either; `#/status` measures them instead.
+- `src/features/site/repoIdentity.test.ts` — this README must keep naming the current
+  product identity, link the roadmap, name only routes the router handles, and agree
+  with `package.json` on the stack majors.
 
-1. Go to **Pages**.
-2. Set **Build and deployment** source to **GitHub Actions**.
-3. Go to **Secrets and variables → Actions** and set the env vars used by the workflow (API base URLs, monitoring/auth/orchestrator URLs, admin secrets).
+## Deployment
 
-Vite production base path is configured for this repo path (`/infraportal/`) in `vite.config.js`.
+`.github/workflows/deploy-pages.yml` builds and publishes to GitHub Pages on every push
+to `main`, so a merge is a deploy. The production base path (`/infraportal/`) is set in
+`vite.config.js`. Build-time environment values come from repository secrets and
+variables listed in the workflow's build step; in repository settings, Pages must be set
+to build from **GitHub Actions**.
 
-## Security and reliability hardening
+## History
 
-## Latest audit and reporting polish
-
-This iteration improved the operations workflows in a few practical ways:
-
-- The audit log now gives faster context with summary cards, quick presets, and better empty-result recovery.
-- The reports workspace now offers clearer first-run guidance and a more polished management header.
-
-## Recent UI polish updates
-
-The latest infraportal polish pass improved the client-facing experience in a few key areas:
-
-- The hero now includes a proof strip above the fold so visitors see concrete delivery evidence before the CTA.
-- The homepage, pricing, and contact flow now emphasize productionized consulting offers, paid discovery, and clear proposal requests.
-- The hero and process sections now surface the configured scheduling link directly when `VITE_SCHEDULING_URL` is set, reducing booking friction.
-- The contact page now reuses the pricing trust strip and FAQ so prospects see proof and objections handling before submitting the form.
-- The services, case studies, pricing, and home call-to-action blocks now route to the configured scheduling link when present, keeping the strongest buying-intent pages focused on booking.
-- Pricing tiers can now route directly to secure hosted checkout (e.g. a Stripe Payment Link) by setting an HTTPS `checkoutUrl` per tier in `public/content/pricing.json`; when set the CTA opens checkout in a new tab and emits a `pricing_checkout_click` event, and it falls back to the lead form when unset.
-- Consultation intake now computes lead score and priority (hot/warm/nurture) from engagement type, budget, timeline, and response detail so high-value prospects are reviewed first.
-- Consultations admin now includes a compact pipeline strip (new-to-reviewed, reviewed-to-accepted, and overall acceptance rates) plus priority quick filters to triage hot leads faster.
-- Hot leads now display a first-response SLA state (clock, met, missed) using a 2-hour target once intake moves from new to reviewed.
-- Consultation cards now include one-click follow-up template copy (priority-aware subject and message body) to speed first outreach.
-- Contact pages now surface an optional booking link from `VITE_SCHEDULING_URL` so prospects can jump straight to a 30-minute call when a calendar URL is configured.
-- CTA clicks and form submits now emit provider-agnostic analytics events (`consulting_cta_click`, `pricing_cta_click`, `pricing_checkout_click`, `consultation_form_submit`, `contact_form_submit`) so conversion tracking can be attached later without changing the UI again.
-- Shared navigation now uses clearer grouped sections across mobile and desktop layouts.
-- The contact page provides better submission guidance, live message feedback, and clearer sending states.
-- Search now presents a more structured query workspace with grouped result summaries.
-- The user dashboard highlights workspace status more clearly and improves overall scanability.
-
-
-- Added unit tests for core status/time behavior:
-  - `src/utils/time.test.ts`
-  - `src/features/site/useGitHubBuildStatus.test.ts`
-- Build status polling now:
-  - cancels in-flight requests before new polls,
-  - uses timeout-driven aborts,
-  - avoids stale caching (`cache: 'no-store'`),
-  - avoids set-state-after-unmount behavior.
-- Relative time formatting now safely handles invalid and future timestamps.
-- Applied non-breaking dependency remediations via `npm audit fix`.
-- Remaining audit findings are tied to Vite major upgrades and should be addressed in a coordinated framework upgrade.
-
-
-| `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ⬜ | ⬜ | ⬜ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ⬜ | ⬜ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ⬜ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ || `loading-skeleton` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |<!-- PRODUCTIONIZER:START -->
-## Productionizer Agent
-
-Near-autonomous UI/UX improvement agent powered by **Gemini 2.5 Flash**. Each workflow run picks the next pending task from the matrix below, applies the fix, verifies with `tsc` + `eslint`, and opens a PR against this repo.
-
-**Source**: [rodmen07/portfolio — agents/productionizer](https://github.com/rodmen07/portfolio/tree/main/agents/productionizer) · Triggered manually via `workflow_dispatch` · Runs in 15–60 min windows
-
----
-
-### Progress
-
-**22 / 30 tasks complete** (73%)
-
-`█████████████████████░░░░░░░░░`
-
-### Task Matrix
-
-| Gap | Portal | CrmAdmin | Audit | Reports | Observaboard | Search | ServiceHealth | UserDashboard | PortalLogin | Contact |
-|-----|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-
-| `empty-state` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |<!-- PRODUCTIONIZER:START -->
-## Productionizer Agent
-
-Near-autonomous UI/UX improvement agent powered by **Gemini 2.5 Flash**. Each workflow run picks the next pending task from the matrix below, applies the fix, verifies with `tsc` + `eslint`, and opens a PR against this repo.
-
-**Source**: [rodmen07/portfolio — agents/productionizer](https://github.com/rodmen07/portfolio/tree/main/agents/productionizer) · Triggered manually via `workflow_dispatch` · Runs in 15–60 min windows
-
----
-
-### Progress
-
-**22 / 30 tasks complete** (73%)
-
-`█████████████████████░░░░░░░░░`
-
-### Task Matrix
-
-| Gap | Portal | CrmAdmin | Audit | Reports | Observaboard | Search | ServiceHealth | UserDashboard | PortalLogin | Contact |
-|-----|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-
-| `error-ux` | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
-
-> ✅ = PR opened (or task already satisfied) · ⬜ = pending
-
-### Next task
-
-`AuditPage` / `error-ux`
-
-### Recently completed
-
-- **UserDashboardPage** / `loading-skeleton` — UserDashboardPage: replaced 'Loading...' texts and implicit loading states for cards, core metrics, opportunity distribution, and recent activities with dedicated skeleton components — provides a better user experience by previewing content layout.
-- **ServiceHealthPage** / `loading-skeleton` — ServiceHealthPage: Replaced 'Loading...' text and generic loading states with `ServiceHealthCardSkeleton` and `SummaryBarSkeleton` components, and made the initial data fetch asynchronous in `useEffect` to prevent cascading renders — this provides a more structured and visually appealing loading experience that matches the content layout.
-- **SearchPage** / `loading-skeleton` — SearchPage: replaced the search input spinner with a pulsing search icon and added a `SearchResultsSkeleton` for displaying during search result loading — provides a better visual cue for ongoing searches and previews content layout.
-- **ObservaboardPage** / `loading-skeleton` — ObservaboardPage: replaced `Spinner` with `ObservaboardTableSkeleton` — matches table layout, eliminates layout shift and provides a better loading experience.
-- **ReportsPage** / `loading-skeleton` — ReportsPage: replaced loading spinner with ReportsViewSkeleton, DashboardCardSkeleton, and ReportTableSkeleton components — provides a visual preview of the page layout during loading.
-
-### Stop conditions
-
-The agent pauses automatically when:
-- ⏱ The configured time window (15 / 30 / 45 / 60 min) is exhausted
-- ⚠️ 25 or more open PRs are awaiting review
-- ❌ An unrecoverable error occurs
-
-### Last run
-
-2026-04-25 18:36 UTC
-
-*Updated automatically by productionizer-bot · Do not edit between these markers*
-<!-- PRODUCTIONIZER:END -->
+**Renamed 2026-07-25.** This repository shipped from 2025 to mid-2026 as
+**Task Portal Service**, a single-page task manager with a Kanban board, an AI goal
+planner and story-point gamification. That product was retired across two pivots (the
+CRM portal era, then the 2026-06-26 consulting monetization pivot) and none of it
+remains in the codebase. The name outlived the product in this README and in the
+`package.json` package name until this pass; [ROADMAP.md](ROADMAP.md) carries the full
+shipped record.
