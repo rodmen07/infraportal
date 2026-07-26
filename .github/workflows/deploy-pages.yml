@@ -55,14 +55,20 @@ jobs:
       - name: Build
         run: npm run build
         env:
+          # Every VITE_* here must be read by src/ and documented in
+          # .env.example, and every VITE_* read by src/ must either appear here
+          # or carry a non-empty literal fallback. src/features/site/envContract.test.ts
+          # reads all three sources and fails when they drift, which is what
+          # retired the two dead variables in v1.21.1 (see ROADMAP.md).
           VITE_ADMIN_KEY: ${{ secrets.VITE_ADMIN_KEY }}
-          VITE_MONITORING_URL: ${{ vars.VITE_MONITORING_URL }}
-          VITE_AI_ORCHESTRATOR_URL: ${{ vars.VITE_AI_ORCHESTRATOR_URL }}
           VITE_AUTH_SERVICE_URL: ${{ vars.VITE_AUTH_SERVICE_URL }}
           VITE_CONTACTS_API_BASE_URL: ${{ vars.VITE_CONTACTS_API_BASE_URL }}
           VITE_ACCOUNTS_API_BASE_URL: ${{ vars.VITE_ACCOUNTS_API_BASE_URL }}
           VITE_OPPORTUNITIES_API_BASE_URL: ${{ vars.VITE_OPPORTUNITIES_API_BASE_URL }}
           VITE_ACTIVITIES_API_BASE_URL: ${{ vars.VITE_ACTIVITIES_API_BASE_URL }}
+          VITE_AUTOMATION_API_BASE_URL: ${{ vars.VITE_AUTOMATION_API_BASE_URL }}
+          VITE_INTEGRATIONS_API_BASE_URL: ${{ vars.VITE_INTEGRATIONS_API_BASE_URL }}
+          VITE_AUDIT_API_BASE_URL: ${{ vars.VITE_AUDIT_API_BASE_URL }}
           VITE_EVENT_STREAM_URL: ${{ vars.VITE_EVENT_STREAM_URL }}
           VITE_SEARCH_API_BASE_URL: ${{ vars.VITE_SEARCH_API_BASE_URL }}
           VITE_REPORTING_API_BASE_URL: ${{ vars.VITE_REPORTING_API_BASE_URL }}

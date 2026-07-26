@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { PageLayout } from './PageLayout'
 import { CodeBlock } from '../features/consulting/CodeBlock'
 import { MedallionDemo } from '../features/site/MedallionDemo'
-import { PipelineMetrics } from '../features/site/PipelineMetrics'
 
 const TECH_STACK = ['Rust', 'AWS SDK for Rust', 'DynamoDB', 'Google Cloud (GCP)', 'Tokio', 'CloudTrail', 'Cloud Logging', 'Splunk HEC', 'Bronze/Silver/Gold Pipeline', 'Azure (planned)']
 
@@ -380,7 +379,24 @@ export function DynamoDbCaseStudyPage() {
       </section>
 
       <MedallionDemo />
-      <PipelineMetrics />
+
+      {/* Replaces the "Live Pipeline" panel this page carried until v1.21.1. It
+          read record counts from a repo variable whose backend was destroyed in
+          the 2026-06-04 teardown, so it rendered null for every visitor
+          (ROADMAP.md, v1.21.1). The demo above is the live artefact on this page;
+          this points at the one live runtime surface the portfolio still runs. */}
+      <p className="text-sm text-text-muted">
+        The counts this pipeline produced ran on infrastructure that was deliberately torn down.
+        What is still running is the Cloud Run platform, and every one of its services reports its
+        own health on the{' '}
+        <a
+          href="#/status"
+          className="rounded text-accent-text underline underline-offset-4 transition hover:text-text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)]"
+        >
+          platform status board
+        </a>
+        .
+      </p>
 
       {/* Tech stack */}
       <div className="flex flex-wrap gap-2">

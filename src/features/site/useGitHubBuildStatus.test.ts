@@ -347,7 +347,12 @@ describe('status vocabulary stays in sync with both badge components', () => {
     return [...body.matchAll(/^\s{2}([a-z]+):/gm)].map((m) => m[1])
   }
 
-  const COMPONENTS = ['BuildStatusBadges.tsx', 'BuildStatusSection.tsx'] as const
+  // BuildStatusSection.tsx was the second consumer of this vocabulary until
+  // v1.21.1 deleted it (D-4): it read the dead monitoring variable, not this
+  // hook's GitHub data, and rendered null for every visitor. The assertion is
+  // narrowed to the surviving consumer rather than dropped, so the hook's
+  // display_status union and the badge maps still have to agree.
+  const COMPONENTS = ['BuildStatusBadges.tsx'] as const
   const MAPS = ['DOT_CLASS', 'STATUS_TEXT', 'STATUS_CLASS'] as const
 
   it('the hook declares the four statuses the badges know how to render', () => {
