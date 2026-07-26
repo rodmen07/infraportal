@@ -2,7 +2,6 @@ import { PageLayout } from './PageLayout'
 import { PageHeader } from '../features/site/PageHeader'
 import { CaseStudyCard } from '../features/consulting/CaseStudyCard'
 import { MedallionDemo } from '../features/site/MedallionDemo'
-import { BuildStatusSection } from '../features/site/BuildStatusSection'
 import { ContactCTA } from '../features/site/ContactCTA'
 import { useCaseStudiesContent } from '../features/consulting/useCaseStudiesContent'
 import { SCHEDULING_URL } from '../config'
@@ -52,8 +51,6 @@ export function CaseStudiesPage() {
         </div>
         <MedallionDemo defaultLayer="gold" />
       </section>
-
-      <BuildStatusSection />
 
       <section className="surface-card rounded-2xl p-5">
         <h2 className="text-lg font-semibold text-white">The full lifecycle, shutdown and restart included</h2>

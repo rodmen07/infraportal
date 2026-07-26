@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { PageLayout } from './PageLayout'
 import { CodeBlock } from '../features/consulting/CodeBlock'
-import { BuildStatusSection } from '../features/site/BuildStatusSection'
 
 const TECH_STACK = ['GitHub Actions', 'GCP Cloud Run', 'AWS ECS / Fargate', 'OIDC', 'Workload Identity Federation', 'Rust', 'Python', 'Docker', 'Bash']
 
@@ -269,7 +268,24 @@ export function CicdCaseStudyPage() {
         </div>
       </section>
 
-      <BuildStatusSection />
+      {/* Replaces the "CI/CD Status" panel this page carried until v1.21.1. That
+          panel read an unset repo variable whose backend was destroyed in the
+          2026-06-04 teardown, so it rendered null for every visitor (ROADMAP.md,
+          v1.21.1). This links the status board that is genuinely live instead. */}
+      <section className="surface-card rounded-2xl p-5">
+        <h2 className="text-lg font-semibold text-text-primary">See what this pipeline ships</h2>
+        <p className="mt-2 text-sm text-text-muted">
+          Every service above is deployed by this pipeline and publishes its own health check. The{' '}
+          <a
+            href="#/status"
+            className="rounded text-accent-text underline underline-offset-4 transition hover:text-text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)]"
+          >
+            platform status board
+          </a>{' '}
+          reads that aggregate live in your browser, so you can check the result rather than take
+          the write-up on faith.
+        </p>
+      </section>
 
       {/* CTA */}
       <div className="forge-panel rounded-3xl border border-zinc-500/30 bg-zinc-900/80 p-6 text-center shadow-2xl shadow-black/50 backdrop-blur-xl">

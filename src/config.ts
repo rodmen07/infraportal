@@ -1,8 +1,10 @@
-export const MONITORING_URL: string =
-  (import.meta.env.VITE_MONITORING_URL as string | undefined) ?? ''
-
-export const AI_ORCHESTRATOR_URL: string =
-  (import.meta.env.VITE_AI_ORCHESTRATOR_URL as string | undefined) ?? ''
+// Two exports were deleted here in v1.21.1 (2026-07-26): the monitoring URL and
+// AI_ORCHESTRATOR_URL. Both read repo variables that have never been set
+// (`actions/variables` returns total_count: 0) and both pointed at the
+// Fly-hosted observaboard destroyed in the 2026-06-04 teardown, which now
+// answers 404. The first had three consumers that rendered null rather than
+// saying so; the second had zero consumers at all. See ROADMAP.md, v1.21.1.
+// envContract.test.ts now fails on either shape returning.
 
 export const EVENT_STREAM_URL: string =
   (import.meta.env.VITE_EVENT_STREAM_URL as string | undefined) ?? ''
