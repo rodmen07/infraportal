@@ -123,7 +123,7 @@ function hiddenFilesInPublic(): string[] {
     .map((entry) =>
       path
         .relative(abs, path.join(entry.parentPath, entry.name))
-        .replaceAll('\\', '/'),
+        .replace(/\\/g, '/'),
     )
     .sort()
 }
