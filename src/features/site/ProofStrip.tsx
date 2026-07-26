@@ -1,6 +1,7 @@
 import { trackPortfolioEvent } from '../../utils/analytics'
 import { useLiveServices } from '../status/useLiveServices'
 import { proofStats } from './proofStats'
+import { RECURRING_COST_PHRASE } from './platformCost'
 
 // v1.18.3 (F9, D6/D7 done-when: "employers get proof above the fold"): the
 // landing page previously showed zero social proof before the fold - the
@@ -10,6 +11,10 @@ import { proofStats } from './proofStats'
 //
 // v1.20.1 (PROOF-COST-1): the third tile is measured, not typed. See
 // ./proofStats.ts for why, and ../status/useLiveServices.ts for how.
+//
+// v1.21.3 (D-7a): the cost in the sentence below is the same class one level
+// down - not measurable from this bundle, but it WAS hand-typed here and again
+// on CaseStudiesPage, so the two could drift. Both read ./platformCost.ts now.
 
 export function ProofStrip() {
   const stats = proofStats(useLiveServices())
@@ -21,9 +26,9 @@ export function ProofStrip() {
           <p className="text-scale-xs font-semibold uppercase tracking-[0.24em] text-accent">Proof, not promises</p>
           <p className="mt-2 text-sm leading-relaxed text-text-secondary">
             I shipped a 16-service platform end to end, tore the whole thing down to $0 once its job was done,
-            then brought the Cloud Run half back for about $9 a month when the portfolio needed a live demo.
-            Real infrastructure work includes knowing when to turn things off, and what it costs to turn them
-            back on.
+            then brought the Cloud Run half back for {RECURRING_COST_PHRASE} when the portfolio needed a live
+            demo. Real infrastructure work includes knowing when to turn things off, and what it costs to turn
+            them back on.
           </p>
           <div className="mt-4 flex flex-wrap gap-3">
             <a
