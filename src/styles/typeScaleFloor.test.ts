@@ -23,7 +23,15 @@ import { readFileSync, readdirSync } from 'node:fs'
 import path from 'node:path'
 
 const ROOT = process.cwd()
-const SIZE_PATTERN = /text-\[(10|11)px\]/g
+/**
+ * Deliberately NOT global. A `g` regex's `lastIndex` persists across
+ * `.test()` calls on DIFFERENT strings, so after a successful match the next
+ * line's scan starts at the previous match's end offset and a real offender
+ * at an earlier column on the very next line is silently skipped (filed
+ * 2026-07-20, fixed 2026-07-26). The "scanner regression" block below locks
+ * both the flag and the behavior.
+ */
+const SIZE_PATTERN = /text-\[(10|11)px\]/
 
 /**
  * Files exempt from this gate, each with a reason a reviewer can check
@@ -100,8 +108,60 @@ describe('type-scale 12px floor: no arbitrary text-[10px]/text-[11px] on real co
       const site = `${relPath}:${i + 1}`
       if (!ALLOWLISTED_SITES.has(site)) offenders.push(site)
     })
-    SIZE_PATTERN.lastIndex = 0
     expect(offenders).toEqual([])
+  })
+
+  describe('scanner regression: the per-line pattern must not carry the g flag', () => {
+    /**
+     * Filed 2026-07-20, fixed 2026-07-26: SIZE_PATTERN was declared with /g
+     * and reused across `.test()` calls inside the per-file line loop. On a
+     * global regex, `.test()` starts at `lastIndex` and advances it past
+     * each match, and `lastIndex` carries over between calls on DIFFERENT
+     * strings - so after any successful match, the next line was scanned
+     * from the previous match's end offset, and an offender at an earlier
+     * column there returned false and was silently dropped. The old
+     * `SIZE_PATTERN.lastIndex = 0` after the loop only protected the next
+     * FILE, never the next line. The riskiest real shape: an offender on
+     * the line directly after an ALLOWLISTED site (whose match also
+     * advanced lastIndex) was invisible to this gate.
+     *
+     * Fixture: line 0 matches near column 110; line 1 is shorter than that
+     * offset and carries a real offender at an early column.
+     */
+    const CONSECUTIVE_OFFENDER_LINES = [
+      '<span className="absolute right-0 top-0 inline-flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold">',
+      '<em className="text-[11px] uppercase">kicker</em>',
+    ]
+
+    it('documents the defect: the retired /g pattern misses the offender on the line after a match', () => {
+      const retiredPattern = /text-\[(10|11)px\]/g
+      const caught: number[] = []
+      CONSECUTIVE_OFFENDER_LINES.forEach((line, i) => {
+        if (retiredPattern.test(line)) caught.push(i)
+      })
+      expect(
+        caught,
+        'the retired global pattern should catch line 0 and then silently miss line 1 - if this fails, the fixture no longer reproduces the defect',
+      ).toEqual([0])
+    })
+
+    it('the live pattern catches both consecutive offenders', () => {
+      const caught: number[] = []
+      CONSECUTIVE_OFFENDER_LINES.forEach((line, i) => {
+        if (SIZE_PATTERN.test(line)) caught.push(i)
+      })
+      expect(
+        caught,
+        'SIZE_PATTERN missed a consecutive-line offender - the g flag (or equivalent shared state) is back',
+      ).toEqual([0, 1])
+    })
+
+    it('SIZE_PATTERN is not global, so .test() cannot carry state between lines', () => {
+      expect(
+        SIZE_PATTERN.global,
+        'SIZE_PATTERN must not use the g flag: .test() on a global regex resumes from lastIndex and skips offenders on subsequent lines',
+      ).toBe(false)
+    })
   })
 
   it('every allowlisted site still exists and still needs the exemption', () => {
