@@ -1,18 +1,13 @@
 import { PageLayout } from './PageLayout'
 import { PageHeader } from '../features/site/PageHeader'
 import { SCHEDULING_URL } from '../config'
-
-function getTierLabel(hash: string): string {
-  const value = new URLSearchParams(hash.split('?')[1] ?? '').get('tier')
-  if (!value) return 'your engagement'
-
-  return value
-    .replace(/-/g, ' ')
-    .replace(/\b\w/g, (char) => char.toUpperCase())
-}
+import { checkoutTierLabel } from '../features/consulting/checkoutTier'
 
 export function CheckoutThankYouPage() {
-  const tierLabel = getTierLabel(window.location.hash)
+  // Both sources are read on purpose: the hash is where the fixed generator
+  // puts the tier, the search component is where the payment links already
+  // live on Stripe put it. See features/consulting/checkoutTier.ts.
+  const tierLabel = checkoutTierLabel(window.location.hash, window.location.search)
 
   return (
     <PageLayout>

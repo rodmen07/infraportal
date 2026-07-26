@@ -3,7 +3,7 @@
 // what to include, review a summary, then watch progress as the copy lands in
 // the demo store. All reads and writes go through the clearly marked mock
 // boundary in `src/lib/projectsStore.mock.ts`; nothing here talks to a live
-// backend (decommissioned 2026-06-04).
+// backend, because no projects-service URL is configured.
 // ---------------------------------------------------------------------------
 
 import { useMemo, useState } from 'react'

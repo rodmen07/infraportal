@@ -27,9 +27,10 @@ export function ApiDocsPage() {
               {SPEC_SERVICES.length} services, {TOTAL_OPERATIONS} operations, documented as OpenAPI{' '}
               {SPEC_MANIFEST.openapiVersion} specs that live next to the code they describe. This page
               renders those specs entirely in your browser from snapshots committed into the site
-              bundle: no network requests, no live backend. The platform itself ran on GCP Cloud Run
-              and Fly.io and was deliberately decommissioned to zero infrastructure cost in June 2026;
-              the specs, source, and CI remain public.
+              bundle, so the page itself makes no network requests and calls no service. The
+              services run on GCP Cloud Run; this page does not know what is serving at any moment,
+              so live per-service health is published on the platform status board instead. The
+              specs, source, and CI are public.
             </p>
             <p className="mt-2 text-sm text-text-muted">
               {EXECUTABLE_OPERATION_COUNT} of the {TOTAL_OPERATIONS} operations are executable right
@@ -45,6 +46,9 @@ export function ApiDocsPage() {
             </a>
             <a href={API_GUIDE_URL} target="_blank" rel="noopener noreferrer" className="btn-neutral">
               API Getting-Started Guide
+            </a>
+            <a href="#/status" className="btn-neutral">
+              Platform Status
             </a>
             <a href="#/case-studies/microservices-platform" className="btn-neutral">
               Read the Case Study

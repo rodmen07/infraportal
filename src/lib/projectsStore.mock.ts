@@ -2,8 +2,8 @@
 // MOCK DATA BOUNDARY - NOT A LIVE BACKEND
 //
 // This module is the single in-memory dataset behind the admin Projects tab
-// demo (v1.16.5). The platform backend (Cloud SQL + Cloud Run + Fly) was
-// decommissioned to zero on 2026-06-04, so there is nothing to call: the
+// demo (v1.16.5). The public site ships as a static bundle with no
+// projects-service URL configured, so there is nothing to call: the
 // projects, milestones, deliverables, and templates here live only in the
 // browser tab and are never persisted or sent over the network.
 //
@@ -55,7 +55,7 @@ import {
  * that they render the in-memory demo dataset, not a live backend.
  */
 export const PROJECTS_STORE_BOUNDARY =
-  'projectsStore.mock: projects, milestones, deliverables, and templates shown here live in an in-memory demo dataset in the browser. The platform backend was decommissioned on 2026-06-04; nothing is persisted or sent over the network.' as const
+  'projectsStore.mock: projects, milestones, deliverables, and templates shown here live in an in-memory demo dataset in the browser. Nothing is persisted or sent over the network.' as const
 
 /** Fields accepted when creating a project directly (playground adapter). */
 export interface NewProjectFields {

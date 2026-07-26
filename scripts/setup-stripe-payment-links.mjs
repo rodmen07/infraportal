@@ -2,6 +2,8 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { buildCheckoutRedirectUrl } from './lib/checkoutRedirect.mjs'
+
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const ROOT = path.resolve(__dirname, '..')
@@ -72,10 +74,15 @@ function toCents(name, defaultValue) {
 }
 
 function appendRedirect(params, slug) {
-  const url = new URL(THANK_YOU_URL)
-  url.searchParams.set('tier', slug)
+  // The site is a hash router, so `tier` has to land INSIDE the fragment
+  // (`#/checkout-thank-you?tier=<slug>`). `new URL(...).searchParams.set()`
+  // writes the search component instead, which sits before the fragment and
+  // is invisible to a hash-reading page. Bug CHECKOUT-TIER-1.
   params.append('after_completion[type]', 'redirect')
-  params.append('after_completion[redirect][url]', url.toString())
+  params.append(
+    'after_completion[redirect][url]',
+    buildCheckoutRedirectUrl(THANK_YOU_URL, { tier: slug }),
+  )
 }
 
 async function postStripeForm(endpoint, params) {
@@ -161,6 +168,12 @@ async function run() {
         tier: p.tier,
         unitAmountCents: p.unitAmount,
         recurring: p.recurring,
+        // The post-checkout redirect is the one field a dry run could not see
+        // before, which is exactly where CHECKOUT-TIER-1 lived: the tier was
+        // written to the search component instead of inside the hash route,
+        // so the thank-you page never saw it. Previewing it here makes the
+        // customer-visible URL checkable without touching the Stripe account.
+        redirectUrl: buildCheckoutRedirectUrl(THANK_YOU_URL, { tier: p.slug }),
       })),
     }
     console.log(JSON.stringify(preview, null, 2))

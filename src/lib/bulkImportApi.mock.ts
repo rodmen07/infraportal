@@ -4,8 +4,8 @@
 // Every bulk import call in the app goes through the `BulkImportApi`
 // interface, and this module is the only implementation. It simulates the
 // transport entirely in the browser: no network requests are made anywhere.
-// The platform backend (Cloud SQL + Cloud Run + Fly) was decommissioned to
-// zero on 2026-06-04, so there is nothing to call.
+// The public site ships with no CRM service URL configured, so there is
+// nothing to call.
 //
 // Behavior, kept deterministic so tests and demos are predictable:
 //   - Latency: a fixed delay per batch (configurable, default 350 ms).
@@ -31,7 +31,7 @@ import { crmStore, type CrmStore } from './crmStore.mock'
  * that they are wired to the mock, not a live backend.
  */
 export const MOCK_BOUNDARY =
-  'bulkImportApi.mock: bulk imports are simulated in the browser. The platform backend was decommissioned on 2026-06-04; no network requests are made.' as const
+  'bulkImportApi.mock: bulk imports are simulated in the browser. No network requests are made.' as const
 
 export interface MockBulkImportOptions {
   /** Simulated latency per batch, in milliseconds. Use 0 in tests. */
