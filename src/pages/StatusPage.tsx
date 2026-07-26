@@ -14,16 +14,13 @@ import {
   type UpstreamStatus,
   type OverallState,
 } from '../features/status/statusModel'
+import { UPSTREAMS_URL } from '../features/status/gateway'
 
 // The public Platform Status board. Reads the single CORS-enabled go-gateway
 // aggregate (see src/features/status/statusModel.ts) and renders it as a live
 // board a first-time visitor can watch. All parsing/summarising lives in the
 // tested model; this file is the render + polling shell.
 
-const GATEWAY_URL = (import.meta.env.VITE_GATEWAY_URL ?? 'https://go-gateway-5gcrg4oiza-uc.a.run.app').replace(
-  /\/$/,
-  '',
-)
 const REFRESH_MS = 30_000
 const FETCH_TIMEOUT_MS = 15_000
 
@@ -60,7 +57,7 @@ export function StatusPage() {
     setRefreshing(true)
     const start = performance.now()
     try {
-      const res = await fetch(`${GATEWAY_URL}/health/upstreams`, {
+      const res = await fetch(UPSTREAMS_URL, {
         signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
         headers: { Accept: 'application/json' },
       })

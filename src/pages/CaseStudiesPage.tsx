@@ -56,17 +56,23 @@ export function CaseStudiesPage() {
       <BuildStatusSection />
 
       <section className="surface-card rounded-2xl p-5">
-        <h2 className="text-lg font-semibold text-white">The full lifecycle, including the shutdown</h2>
+        <h2 className="text-lg font-semibold text-white">The full lifecycle, shutdown and restart included</h2>
         <p className="mt-2 text-sm text-text-muted">
           The platform shipped 15 minor versions, from the first Cloud Run deploy through
-          deployment safety, SLO monitoring, and distributed state. Then it was deliberately
-          decommissioned to zero infrastructure cost: databases and registries deleted,
-          volumes destroyed, every recurring line item eliminated. Real infrastructure work includes knowing when
-          and how to turn things off. The reusable parts live on as published, documented Rust
-          crates on crates.io.
+          deployment safety, SLO monitoring, and distributed state. Then it was deliberately torn
+          down to zero infrastructure cost: databases and registries deleted, volumes destroyed,
+          every recurring line item eliminated. When the portfolio needed a live demo, the Cloud
+          Run half was rebuilt on a small managed Postgres instance for about $9 a month, and
+          every service now publishes its health to the{' '}
+          <a href="#/status" className="text-accent-text underline underline-offset-4 hover:text-text-primary">
+            platform status board
+          </a>
+          . Real infrastructure work includes knowing when to turn things off, and what it costs
+          to turn them back on. The reusable parts live on as published, documented Rust crates on
+          crates.io.
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
-          <span className="fx-chip">FinOps teardown to $0</span>
+          <span className="fx-chip">FinOps teardown, then a measured restart</span>
           <span className="fx-chip">axum-api-kit on crates.io</span>
           <span className="fx-chip">slokit (SLO tooling)</span>
           <span className="fx-chip">svccat (drift detection)</span>
