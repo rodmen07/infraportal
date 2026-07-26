@@ -36,6 +36,10 @@ const VOICE_CHECKED_FILES = [
   'src/features/site/AboutHero.tsx',
   'src/features/site/ProofStrip.tsx',
   'src/features/site/MotionPreferenceToggle.tsx',
+  // v1.20.3 (D-3): the site footer is visitor-facing marketing copy on EVERY
+  // route, so it is enrolled at first land rather than after a QA review
+  // catches the gap, which is what happened to the two entries above.
+  'src/features/layout/SiteFooter.tsx',
   'src/pages/ServicesPage.tsx',
   'src/pages/ContactPage.tsx',
   'src/pages/PricingPage.tsx',

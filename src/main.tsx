@@ -20,6 +20,7 @@ import { isHomeHash } from './features/layout/homeRoute'
 import { RouteLoadingFallback } from './components/RouteLoadingFallback'
 import { CommandPalette } from './features/commandPalette/CommandPalette'
 import { GuidedTour } from './features/tour/GuidedTour'
+import { SiteFooter } from './features/layout/SiteFooter'
 
 const WATCHDOG_DELAY_MS = 5000
 
@@ -331,6 +332,15 @@ createRoot(rootElement).render(
         <AuthProvider>
           <NotificationProvider>
             <Root />
+            {/*
+              v1.20.3 (D-3): the site footer is mounted HERE, as a sibling of
+              <Root />, not inside it. Root() is the route-conditional chain
+              (every branch returns a page), so anything rendered inside it
+              would be per-route; mounting the footer beside it makes the
+              <footer> landmark unconditional - it renders on every route,
+              including the lazy ones, and after the page content in DOM order.
+            */}
+            <SiteFooter />
             <CommandPalette />
             <GuidedTour />
           </NotificationProvider>
