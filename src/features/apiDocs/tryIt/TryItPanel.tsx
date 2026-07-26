@@ -27,7 +27,7 @@ import {
 } from './formModel'
 
 const EXECUTABLE_NOTE =
-  'Runs entirely in your browser against the labeled in-memory demo dataset; no network requests are made (the platform backend was decommissioned on 2026-06-04). The simulation treats you as an authenticated admin caller, so the documented 401/403 responses are not reachable here. Changes are shared with the admin demo tables and last until you reload the page.'
+  'Runs entirely in your browser against the labeled in-memory demo dataset; no network requests are made, so nothing you do here reaches a deployed service. The simulation treats you as an authenticated admin caller, so the documented 401/403 responses are not reachable here. Changes are shared with the admin demo tables and last until you reload the page.'
 
 function statusTone(status: number): string {
   if (status < 300) return 'text-success-text'

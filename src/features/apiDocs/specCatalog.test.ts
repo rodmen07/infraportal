@@ -197,9 +197,11 @@ describe('committed spec catalog', () => {
         )
       }
       // The snippets are generated into the markup: every service view names
-      // the SDK package and the offline honesty note at least once.
+      // the SDK package and the base-URL honesty note at least once. The note
+      // deliberately no longer asserts a runtime status (SPEC-COPY-2, 2026-07-25);
+      // it says where the base URL comes from and points at the status board.
       expect(html, id).toContain('@rodmen07/infraportal-sdk')
-      expect(html, id).toContain('offline since the 2026-06-04 decommission')
+      expect(html, id).toContain('this page never runs them')
     }
   })
 })

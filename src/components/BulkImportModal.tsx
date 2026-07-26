@@ -3,7 +3,7 @@
 //
 // Transport is injected through the `BulkImportApi` interface; the default
 // is the clearly marked mock boundary in `src/lib/bulkImportApi.mock.ts`
-// (the backend is decommissioned, so nothing here talks to a live service).
+// (no service URL is configured, so nothing here talks to a live service).
 // ---------------------------------------------------------------------------
 
 import { useMemo, useRef, useState } from 'react'

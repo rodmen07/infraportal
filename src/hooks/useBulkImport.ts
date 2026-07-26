@@ -7,7 +7,7 @@
 //
 // Transport is injected via the `BulkImportApi` interface. The only
 // implementation today is the mock in `src/lib/bulkImportApi.mock.ts`
-// (the backend was decommissioned on 2026-06-04). When a real backend
+// (no CRM service URL is configured on the public site). When a backend
 // exists, implement `BulkImportApi` over fetch and swap the injection;
 // nothing in this file or the UI needs to change.
 // ---------------------------------------------------------------------------
