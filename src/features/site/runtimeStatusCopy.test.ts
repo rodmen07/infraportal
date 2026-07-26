@@ -31,6 +31,12 @@
  * Source-scan assertions, matching this repo's established pattern
  * (`tokens.test.ts`, `typeScaleFloor.test.ts`, `routeIntegrity.test.ts`,
  * `specRuntimeStatus.test.ts`).
+ *
+ * v1.20.1 (PROOF-COST-1) added the second half below: a runtime STATUS is not
+ * the only fact this bundle cannot know. The home page also asserted a runtime
+ * COST ("$0 / Recurring infra cost today"), which was true when it was typed
+ * and false from 2026-07-21, when the Cloud Run half came back at roughly $9 a
+ * month. Its two files left the allowlist in the same commit that fixed them.
  */
 import { describe, expect, it } from 'vitest'
 import { readFileSync, readdirSync } from 'node:fs'
@@ -70,14 +76,6 @@ const ALLOWED: readonly { readonly file: string; readonly why: string }[] = [
     why: 'Dated historical changelog. The 2026-06-04 teardown genuinely happened; these entries are records of it, not statements about what is serving today.',
   },
   {
-    file: 'src/features/site/ProofStrip.tsx',
-    why: 'Home-page narrative ("decommissioned it to $0 on purpose"). Now contradicted by the live platform and by its own "$0 recurring infra cost today" stat, but rewriting the portfolio narrative is an owner decision: tracked as PROOF-COST-1 in the portfolio backlog.',
-  },
-  {
-    file: 'src/pages/CaseStudiesPage.tsx',
-    why: 'Case-study narrative of the same teardown, with FinOps positioning chips. Same owner decision as ProofStrip: tracked as PROOF-COST-1.',
-  },
-  {
     file: 'src/features/apiDocs/specRuntimeStatus.test.ts',
     why: 'The sibling guard. It quotes the retired sentence as its own negative control.',
   },
@@ -103,6 +101,50 @@ function allSourceFiles(dir = 'src'): string[] {
 /** Which banned claims a document makes, by label. Empty means clean. */
 function runtimeStatusClaimsIn(text: string): string[] {
   return RUNTIME_STATUS_CLAIMS.filter(({ pattern }) => pattern.test(text)).map(({ label }) => label)
+}
+
+/**
+ * A zero-infrastructure-cost claim in any of the forms this site has used.
+ * `$0` on its own counts: the tile that shipped the falsehood was exactly
+ * `{ value: '$0', label: 'Recurring infra cost today' }`, two strings on one
+ * line with no other context.
+ */
+const ZERO_COST_TOKEN = /\$0\b|zero (?:infrastructure |infra |recurring )?cost/i
+
+/** Words that pin a cost claim to the present, which this bundle cannot know. */
+const PRESENT_MARKER = /\b(today|now|currently|at present|these days)\b/i
+
+/**
+ * Words that anchor a cost claim to something that already happened. A past
+ * event is a fact about the past and stays true; that is the whole difference
+ * between "I ran it down to $0 once its job was done" (durable) and "$0
+ * recurring infra cost today" (rots, and did).
+ */
+const PAST_ANCHOR =
+  /\b(was|were|had|used to|once|then|after|until|tore|torn|shut|deleted|destroyed|eliminated|retired|ran|took|teardown|shipped)\b/i
+
+/**
+ * Split into rough sentences after collapsing whitespace, so a claim written
+ * across several JSX lines is still read as one statement.
+ */
+function sentences(text: string): string[] {
+  return text.replace(/\s+/g, ' ').split(/[.!?]+/)
+}
+
+/**
+ * Cost claims that are not anchored to the past, by label. Empty means clean.
+ * Two independent failures, because they catch different regressions: a claim
+ * that names the present is wrong even when it is well written, and a claim
+ * with no anchor at all reads as a standing fact whatever tense it uses.
+ */
+function unanchoredCostClaimsIn(text: string): string[] {
+  const found: string[] = []
+  for (const sentence of sentences(text)) {
+    if (!ZERO_COST_TOKEN.test(sentence)) continue
+    if (PRESENT_MARKER.test(sentence)) found.push(`present-tense: "${sentence.trim()}"`)
+    else if (!PAST_ANCHOR.test(sentence)) found.push(`unanchored: "${sentence.trim()}"`)
+  }
+  return found
 }
 
 const read = (relPath: string) => readFileSync(path.join(ROOT, relPath), 'utf-8')
@@ -161,6 +203,46 @@ describe('no app source asserts a platform runtime status', () => {
         'static and cannot know what is serving; say what the surface does (no network ' +
         `request is made) and point runtime-status questions at ${STATUS_BOARD_HASH}. If the ` +
         'claim is a dated historical record, add it to ALLOWED with a reason.',
+    ).toEqual([])
+  })
+})
+
+describe('no app source claims a zero infrastructure cost in the present', () => {
+  it.each(SCANNED_FILES)('%s makes no standing zero-cost claim', (relPath) => {
+    const claims = unanchoredCostClaimsIn(read(relPath))
+    expect(
+      claims,
+      `${relPath} states a zero-cost claim the bundle cannot check. Cloud SQL was rebuilt on ` +
+        '2026-07-21 and the platform now costs roughly $9 a month, so a present-tense "$0" is ' +
+        'false. Anchor the claim to when it was true ("tore it down to $0 once its job was ' +
+        `done") or show a measured number, as the proof strip does via ${STATUS_BOARD_HASH}.`,
+    ).toEqual([])
+  })
+
+  it('flags the tile that shipped the falsehood (proves it is not inert)', () => {
+    // L-001 on/off proof: the literal line that was live on the home page from
+    // 2026-07-21 until v1.20.1, plus an unanchored variant that drops the word
+    // the present-tense pattern keys on.
+    expect(unanchoredCostClaimsIn("{ value: '$0', label: 'Recurring infra cost today' },")).toEqual([
+      `present-tense: "{ value: '$0', label: 'Recurring infra cost today' },"`,
+    ])
+    expect(unanchoredCostClaimsIn('Recurring infra cost: $0')).toEqual([
+      'unanchored: "Recurring infra cost: $0"',
+    ])
+    expect(unanchoredCostClaimsIn('The platform runs at zero infrastructure cost')).toEqual([
+      'unanchored: "The platform runs at zero infrastructure cost"',
+    ])
+  })
+
+  it('does not flag a claim anchored to when it was true (no false positive)', () => {
+    expect(
+      unanchoredCostClaimsIn(
+        'I shipped a 16-service platform end to end, tore the whole thing down to $0 once its ' +
+          'job was done, then brought the Cloud Run half back for about $9 a month.',
+      ),
+    ).toEqual([])
+    expect(
+      unanchoredCostClaimsIn('Then it was deliberately torn down to zero infrastructure cost.'),
     ).toEqual([])
   })
 })
