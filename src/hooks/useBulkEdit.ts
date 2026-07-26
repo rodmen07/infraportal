@@ -8,8 +8,8 @@
 //
 // Transport is injected via the `BulkEditApi` interface. The only
 // implementation today is the mock in `src/lib/bulkEditApi.mock.ts`, which
-// mutates the in-memory demo dataset (the backend was decommissioned on
-// 2026-06-04). When a real backend exists, implement `BulkEditApi` over
+// mutates the in-memory demo dataset (no CRM service URL is configured on
+// the public site). When a real backend is wired, implement `BulkEditApi` over
 // fetch and swap the injection; nothing in this file or the UI changes.
 // ---------------------------------------------------------------------------
 

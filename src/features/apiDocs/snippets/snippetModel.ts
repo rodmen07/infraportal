@@ -15,8 +15,11 @@
  *   exist yet. The test suite pins the SDK's public exports and rejects any
  *   snippet that references something the SDK does not export.
  *
- * Honesty: the endpoints are offline (2026-06-04 decommission), so the
- * snippets document the contract; OFFLINE_NOTE says so and the UI shows it.
+ * Honesty: this page never executes a snippet. It renders committed spec
+ * snapshots and hands you copy-paste text. BASE_URL_NOTE says where the base
+ * URL comes from and where to check what is actually serving; the UI shows it.
+ * It deliberately asserts no runtime status of its own (see
+ * src/features/site/runtimeStatusCopy.test.ts).
  * No React and no browser globals here.
  */
 
@@ -37,8 +40,8 @@ export const SDK_PACKAGE_NAME = '@rodmen07/infraportal-sdk'
 export const SDK_SOURCE_NOTE =
   'Builds from source (sdks/typescript-sdk in the microservices repo); not yet published to npm.'
 
-export const OFFLINE_NOTE =
-  'These snippets document the API contract. The base URL is the historical Cloud Run deployment, offline since the 2026-06-04 decommission to zero infrastructure, so running them returns a connection error rather than a live response.'
+export const BASE_URL_NOTE =
+  'These snippets document the API contract; this page never runs them. The base URL is the first server the spec documents, so run them from your own terminal against the environment you mean to call. For live per-service health, see the platform status board at #/status.'
 
 export const POWERSHELL_NOTE =
   'The curl command is quoted for POSIX shells (bash, zsh, Git Bash, WSL). In PowerShell, plain "curl" aliases Invoke-WebRequest: call curl.exe instead, join the command onto one line (or replace the trailing backslashes with backticks), and note that a body containing single quotes needs PowerShell quoting rules, not the POSIX escaping shown here.'
@@ -151,7 +154,7 @@ export function resolveSnippetBody(
 export interface CurlSnippetInput {
   operation: OperationView
   model: TryItFormModel
-  /** First documented server URL from the spec (historical deployment). */
+  /** First documented server URL from the spec. */
   baseUrl?: string
   /** Live Try it form state; omitted for docs-only rendering. */
   state?: SnippetFormState
@@ -190,7 +193,7 @@ export function buildCurlSnippet({ operation, model, baseUrl, state }: CurlSnipp
 export interface SdkSnippetInput {
   serviceId: string
   operation: OperationView
-  /** First documented server URL from the spec (historical deployment). */
+  /** First documented server URL from the spec. */
   baseUrl?: string
 }
 
@@ -211,7 +214,7 @@ function clientPreamble(input: SdkSnippetInput, imports: string[]): string[] {
     `// ${SDK_SOURCE_NOTE}`,
     '',
     'const client = new InfraPortalClient({',
-    `  baseUrl: "${input.baseUrl ?? '<base-url>'}", // historical deployment; offline since 2026-06-04`,
+    `  baseUrl: "${input.baseUrl ?? '<base-url>'}", // first server documented in the spec`,
   ]
   if (input.operation.auth.required) {
     lines.push(`  token: "${AUTH_PLACEHOLDER}", // bearer JWT carrying the admin role`)

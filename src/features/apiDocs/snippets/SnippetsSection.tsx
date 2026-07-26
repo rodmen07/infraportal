@@ -10,7 +10,7 @@ import type { OperationView } from '../specModel'
 import type { TryItFormModel } from '../tryIt/formModel'
 import { CopyButton } from '../CopyButton'
 import {
-  OFFLINE_NOTE,
+  BASE_URL_NOTE,
   POWERSHELL_NOTE,
   SDK_SOURCE_NOTE,
   buildCurlSnippet,
@@ -47,7 +47,7 @@ export function SnippetsSection({
   model: TryItFormModel
   /** Live Try it form state; the curl body prefers it over the spec example. */
   state?: SnippetFormState
-  /** First documented server URL from the spec (historical deployment). */
+  /** First documented server URL from the spec. */
   baseUrl?: string
 }) {
   const curl = buildCurlSnippet({ operation, model, baseUrl, state })
@@ -62,7 +62,7 @@ export function SnippetsSection({
         Snippets: curl + TypeScript SDK
       </summary>
       <div className="space-y-3 border-t border-zinc-700/30 p-3">
-        <p className="text-scale-xs leading-4 text-amber-300/80">{OFFLINE_NOTE}</p>
+        <p className="text-scale-xs leading-4 text-amber-300/80">{BASE_URL_NOTE}</p>
         <SnippetBlock label="curl" text={curl} note={POWERSHELL_NOTE} />
         <SnippetBlock label="TypeScript SDK" text={sdk} note={SDK_SOURCE_NOTE} />
       </div>

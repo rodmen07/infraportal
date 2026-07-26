@@ -7,7 +7,7 @@
 //
 // All writes go through the clearly marked mock boundary in
 // `src/lib/projectsStore.mock.ts`; nothing here talks to a live backend
-// (decommissioned 2026-06-04).
+// because no projects-service URL is configured.
 //
 // Styling note: the panel uses concrete utilities that render in both themes
 // rather than `surface-card-strong` / `forge-panel`, which were ghost classes

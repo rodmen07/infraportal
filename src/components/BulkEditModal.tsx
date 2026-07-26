@@ -6,7 +6,7 @@
 // bulk import modal). Transport is injected through the `BulkEditApi`
 // interface; the default is the clearly marked mock boundary in
 // `src/lib/bulkEditApi.mock.ts`, which mutates the in-memory demo dataset
-// (the backend is decommissioned, so nothing here talks to a live service).
+// (no service URL is configured, so nothing here talks to a live service).
 // ---------------------------------------------------------------------------
 
 import { useState } from 'react'
