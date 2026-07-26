@@ -17,8 +17,11 @@
  * Drift guard, not a one-time check (L-003) -- every assertion reads BOTH
  * sources it compares:
  *
- *   1. runtime floor    each `uses:` in the workflow vs the major at which
- *                       that action upstream moved to Node 24
+ *   1. runtime floor    each `uses:` in BOTH workflows (`deploy-pages.yml`
+ *                       and `test.yml`) vs the major at which that action
+ *                       upstream moved to Node 24, plus the absence of the
+ *                       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 shim those floors
+ *                       made dead config (retired 2026-07-26)
  *   2. hidden files     the workflow's `include-hidden-files` input vs the
  *                       dotfiles actually destined for the artifact root
  *   3. artifact path    the workflow's upload `path:` vs vite's real outDir
@@ -47,6 +50,7 @@ import { parse } from 'yaml'
 
 const ROOT = process.cwd()
 const WORKFLOW_PATH = '.github/workflows/deploy-pages.yml'
+const TESTS_WORKFLOW_PATH = '.github/workflows/test.yml'
 const PUBLIC_DIR = 'public'
 const VITE_CONFIG_PATH = 'vite.config.js'
 
@@ -62,6 +66,7 @@ interface WorkflowJob {
 
 interface DeployWorkflow {
   permissions?: Record<string, string>
+  env?: Record<string, unknown>
   jobs?: Record<string, WorkflowJob>
 }
 
@@ -69,14 +74,35 @@ const workflow = parse(
   readFileSync(path.join(ROOT, WORKFLOW_PATH), 'utf-8'),
 ) as DeployWorkflow
 
+const testsWorkflow = parse(
+  readFileSync(path.join(ROOT, TESTS_WORKFLOW_PATH), 'utf-8'),
+) as DeployWorkflow
+
 const STEPS: WorkflowStep[] = Object.values(workflow.jobs ?? {}).flatMap(
   (job) => job.steps ?? [],
 )
 
 /**
+ * The runtime-floor contract covers BOTH workflows this repo controls, not
+ * just the deploy. It originally read `deploy-pages.yml` alone, which is how
+ * `codecov/codecov-action@v4` (node20) sat in `test.yml` as the repo's last
+ * Node-20 action with no guard ever noticing -- the shim env var below kept
+ * it quiet instead.
+ */
+const WORKFLOW_ACTIONS: { file: string; steps: WorkflowStep[] }[] = [
+  { file: WORKFLOW_PATH, steps: STEPS },
+  {
+    file: TESTS_WORKFLOW_PATH,
+    steps: Object.values(testsWorkflow.jobs ?? {}).flatMap(
+      (job) => job.steps ?? [],
+    ),
+  },
+]
+
+/**
  * The major at which each action upstream started running on Node 24, read
  * from that action's own `action.yml` `runs.using:` field at compat-check
- * time (2026-07-25), not from memory:
+ * time (2026-07-25, codecov added 2026-07-26), not from memory:
  *
  *   actions/checkout               v4 node20  -> v5 node24
  *   actions/setup-node             v4 node20  -> v5 node24
@@ -85,10 +111,15 @@ const STEPS: WorkflowStep[] = Object.values(workflow.jobs ?? {}).flatMap(
  *   actions/upload-pages-artifact  composite; v4 pinned upload-artifact
  *                                  ea165f8d (node20), v5 pins upload-artifact
  *                                  v7 (node24)
+ *   codecov/codecov-action         v4 node20 directly; v5 composite but
+ *                                  transitively node20 (pins github-script
+ *                                  v7.0.1, node20); v6+ pins github-script
+ *                                  v8.0.0 (node24)
  *
- * A Node-20 action still runs here only because the workflow sets
- * `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24`, which is a deprecation shim and not a
- * contract. Dropping back below a floor re-arms that dependency.
+ * The `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24` deprecation shim was retired once
+ * every action in both workflows reached its floor (the retirement is
+ * asserted below). An action dropping back below a floor now fails this
+ * suite instead of silently leaning on a shim.
  */
 const NODE24_FLOOR: Record<string, number> = {
   'actions/checkout': 5,
@@ -96,17 +127,20 @@ const NODE24_FLOOR: Record<string, number> = {
   'actions/configure-pages': 6,
   'actions/upload-pages-artifact': 5,
   'actions/deploy-pages': 5,
+  'codecov/codecov-action': 6,
 }
 
-/** Every `uses:` in the workflow, split into action name and major version. */
-const USED_ACTIONS = STEPS.filter((step) => typeof step.uses === 'string').map(
-  (step) => {
-    const uses = step.uses as string
-    const [name, ref = ''] = uses.split('@')
-    const major = Number(/^v(\d+)/.exec(ref)?.[1] ?? NaN)
-    return { uses, name, major }
-  },
-)
+/** Every `uses:` in a step list, split into action name and major version. */
+function actionsIn(steps: WorkflowStep[]) {
+  return steps
+    .filter((step) => typeof step.uses === 'string')
+    .map((step) => {
+      const uses = step.uses as string
+      const [name, ref = ''] = uses.split('@')
+      const major = Number(/^v(\d+)/.exec(ref)?.[1] ?? NaN)
+      return { uses, name, major }
+    })
+}
 
 const uploadStep = STEPS.find((step) =>
   step.uses?.startsWith('actions/upload-pages-artifact@'),
@@ -137,39 +171,66 @@ function viteOutDir(): string {
 const normalisePath = (value: string) =>
   value.trim().replace(/^\.\//, '').replace(/\/+$/, '')
 
-describe('Pages deploy workflow: action runtime floor', () => {
-  it('parses at least one action out of the workflow', () => {
-    expect(
-      USED_ACTIONS.length,
-      `no \`uses:\` steps were parsed out of ${WORKFLOW_PATH}; the guard would pass vacuously`,
-    ).toBeGreaterThan(0)
-  })
+describe('Workflow action runtime floor (both workflows)', () => {
+  it.each(WORKFLOW_ACTIONS)(
+    'parses at least one action out of $file',
+    ({ file, steps }) => {
+      expect(
+        actionsIn(steps).length,
+        `no \`uses:\` steps were parsed out of ${file}; the guard would pass vacuously`,
+      ).toBeGreaterThan(0)
+    },
+  )
 
-  it('records a Node-24 floor for every action the workflow uses', () => {
-    const unrecorded = USED_ACTIONS.filter(
-      (action) => !(action.name in NODE24_FLOOR),
-    ).map((action) => action.uses)
+  it.each(WORKFLOW_ACTIONS)(
+    'records a Node-24 floor for every action $file uses',
+    ({ file, steps }) => {
+      const unrecorded = actionsIn(steps)
+        .filter((action) => !(action.name in NODE24_FLOOR))
+        .map((action) => action.uses)
 
-    expect(
-      unrecorded,
-      `${WORKFLOW_PATH} uses actions with no recorded Node-24 floor. Read that action's ` +
-        '`action.yml` `runs.using:` upstream and add the major to NODE24_FLOOR, so this ' +
-        'guard cannot go blind as the deploy grows.',
-    ).toEqual([])
-  })
+      expect(
+        unrecorded,
+        `${file} uses actions with no recorded Node-24 floor. Read that action's ` +
+          '`action.yml` `runs.using:` upstream and add the major to NODE24_FLOOR, so this ' +
+          'guard cannot go blind as the workflows grow.',
+      ).toEqual([])
+    },
+  )
 
-  it('pins every action at or above the major that runs on Node 24', () => {
-    const belowFloor = USED_ACTIONS.filter((action) => {
-      const floor = NODE24_FLOOR[action.name]
-      return floor !== undefined && !(action.major >= floor)
-    }).map((action) => `${action.uses} (needs v${NODE24_FLOOR[action.name]}+)`)
+  it.each(WORKFLOW_ACTIONS)(
+    'pins every action in $file at or above the major that runs on Node 24',
+    ({ steps }) => {
+      const belowFloor = actionsIn(steps)
+        .filter((action) => {
+          const floor = NODE24_FLOOR[action.name]
+          return floor !== undefined && !(action.major >= floor)
+        })
+        .map((action) => `${action.uses} (needs v${NODE24_FLOOR[action.name]}+)`)
 
-    expect(
-      belowFloor,
-      'these actions still target Node 20 and only run because of the ' +
-        'FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 deprecation shim',
-    ).toEqual([])
-  })
+      expect(
+        belowFloor,
+        'these actions still target Node 20 and would need the retired ' +
+          'FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 deprecation shim back to run',
+      ).toEqual([])
+    },
+  )
+
+  it.each([
+    { file: WORKFLOW_PATH, parsed: workflow },
+    { file: TESTS_WORKFLOW_PATH, parsed: testsWorkflow },
+  ])(
+    'does not carry the retired Node-24 deprecation shim in $file',
+    ({ file, parsed }) => {
+      expect(
+        parsed.env?.FORCE_JAVASCRIPT_ACTIONS_TO_NODE24,
+        `${file} re-declares FORCE_JAVASCRIPT_ACTIONS_TO_NODE24, retired 2026-07-26 ` +
+          'once every action reached its Node-24 floor. The floor contract above ' +
+          'already fails on any action that would need it, so the shim is dead ' +
+          'config here: fix the action version instead of re-adding the shim.',
+      ).toBeUndefined()
+    },
+  )
 })
 
 describe('Pages deploy workflow: artifact contents', () => {
