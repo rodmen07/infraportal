@@ -1,7 +1,19 @@
-import { useState, useEffect } from 'react'
+import { useCallback, useState, useEffect } from 'react'
 
 /**
  * Live CI status for the public case-study badges.
+ *
+ * CADENCE (BADGE-RATE-1, v1.21.2, decision D-5). This hook used to re-read every
+ * repository on a two-minute timer, across the seven repositories the
+ * microservices case study lists: 217 unauthenticated requests an hour against
+ * GitHub's budget of 60 per IP, shared with every other tab on that address. A
+ * section headed "Live CI/CD" therefore guaranteed its own degradation, since
+ * after roughly a quarter of an hour the 403s landed on the `!res.ok` path and
+ * every badge went "Unknown". It now reads ONCE on mount and hands the visitor
+ * an explicit Refresh control, the same shape `useLiveServices` adopted in
+ * v1.20.1. See `hourlyRequestCost` below and `badgeCadence.test.ts` for the
+ * guard; the retired timer API is named in ROADMAP.md's v1.21.2 entry rather
+ * than here, because contract A asserts this file never mentions it again.
  *
  * WHAT WENT WRONG (BADGE-BRANCH-1, found 2026-07-26 by a QA adversarial review
  * of the proof surfaces, fixed here). The badge renders "Live CI/CD ... Passing
@@ -82,6 +94,36 @@ export const RUNS_PER_PAGE = 10
 /** GitHub's event name for a bot's internal dependency-update job. Not CI. */
 const BOT_METADATA_EVENT = 'dynamic'
 
+/**
+ * GitHub's documented ceiling for unauthenticated REST requests: 60 per hour,
+ * counted per source IP and therefore shared with every other tab, tool and
+ * person behind that address.
+ * https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api
+ */
+export const UNAUTHENTICATED_HOURLY_BUDGET = 60
+
+const HOUR_MS = 3_600_000
+
+/**
+ * Requests a page rendering `repoCount` badges spends of the visitor's hourly
+ * budget ON ITS OWN, without them asking for anything: one read per repository
+ * per load.
+ *
+ * `pollIntervalMs = 0` means "read once on mount", which is what this hook does
+ * now, so the cost is exactly `repoCount`. Passing the retired `120_000` shows
+ * why it had to change, and `badgeCadence.test.ts` asserts both numbers against
+ * the SAME repo list parsed out of the page, so neither can rot when the list
+ * changes.
+ *
+ * A manual Refresh adds `repoCount` per click. That is deliberately not counted
+ * here: it is the visitor spending their own budget on purpose, which is the
+ * whole difference this decision turns on.
+ */
+export function hourlyRequestCost(repoCount: number, pollIntervalMs = 0): number {
+  const repeats = pollIntervalMs > 0 ? Math.floor(HOUR_MS / pollIntervalMs) : 0
+  return repoCount * (1 + repeats)
+}
+
 const unknownItem = (repo: string): GhBuildItem => ({
   repo,
   display_status: 'unknown',
@@ -112,7 +154,15 @@ export function mapStatus(run: GhRun | undefined): GhBuildItem['display_status']
   if (!run) return 'unknown'
   if (run.status === 'queued' || run.status === 'in_progress') return 'yellow'
   if (run.status === 'completed') {
-    if (run.conclusion === 'success' || run.conclusion === 'skipped') return 'green'
+    if (run.conclusion === 'success') return 'green'
+    // BADGE-SKIPPED-1 (v1.21.2, decision D-6). A run skipped in its entirety
+    // did not pass; it did not run. This badge renders green as the literal
+    // word "Passing", and the repo deliberately path-filters docs-only changes,
+    // so `skipped` is a normal outcome here rather than a rare edge -- it used
+    // to paint a passing badge on no evidence at all. `unknown` is the honest
+    // answer, and it is the one this module already uses everywhere else that
+    // the truth cannot be established.
+    if (run.conclusion === 'skipped') return 'unknown'
     return 'red'
   }
   return 'unknown'
@@ -185,31 +235,50 @@ async function fetchRepo(owner: string, repo: string): Promise<GhBuildItem> {
   }
 }
 
-export function useGitHubBuildStatus(owner: string, repos: string[]): GhBuildState {
+/** What a badge section needs: the answer, a way to ask again, and whether a
+ * read is in flight. `refresh` is what makes reading once on mount honest -- a
+ * live surface the visitor cannot re-read is a stale surface. */
+export type GhBuildFeed = {
+  state: GhBuildState
+  /** Read every repository once more. Bound to the visitor's Refresh control. */
+  refresh: () => void
+  /** A read is in flight while `state` still shows the previous answer. */
+  refreshing: boolean
+}
+
+export function useGitHubBuildStatus(owner: string, repos: string[]): GhBuildFeed {
   const reposKey = repos.join(',')
   const [state, setState] = useState<GhBuildState>({ phase: 'loading' })
+  const [refreshing, setRefreshing] = useState(false)
+  const [reloads, setReloads] = useState(0)
 
   useEffect(() => {
     let cancelled = false
 
     const load = async () => {
-      setState({ phase: 'loading' })
+      setRefreshing(true)
       try {
         const items = await Promise.all(repos.map((r) => fetchRepo(owner, r)))
         if (!cancelled) setState({ phase: 'ready', items })
       } catch {
         if (!cancelled) setState({ phase: 'error' })
+      } finally {
+        if (!cancelled) setRefreshing(false)
       }
     }
 
-    load()
-    const timer = setInterval(load, 120_000)
+    // Once per mount, and once more per `refresh()`. No timer: see the cadence
+    // note at the top of this file and `hourlyRequestCost`.
+    void load()
     return () => {
       cancelled = true
-      clearInterval(timer)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [owner, reposKey])
+  }, [owner, reposKey, reloads])
 
-  return state
+  // A re-read is expressed as a dependency bump rather than a second copy of
+  // `load`, so the mount path and the refresh path can never diverge.
+  const refresh = useCallback(() => setReloads((n) => n + 1), [])
+
+  return { state, refresh, refreshing }
 }

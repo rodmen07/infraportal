@@ -1,4 +1,5 @@
 import { useGitHubBuildStatus, type GhBuildItem } from '../site/useGitHubBuildStatus'
+import { BadgeRefresh } from '../site/BadgeRefresh'
 import { formatRelativeTime } from '../../utils/time'
 import type { Project, ProjectLink } from './types'
 
@@ -99,15 +100,24 @@ export function ProjectRepoBuildStatus({ links }: { links: ProjectLink[] }) {
   const owner = parsed[0]?.owner ?? ''
   const repos = parsed.filter(p => p.owner === owner).map(p => p.repo)
 
-  const state = useGitHubBuildStatus(owner, repos)
+  const { state, refresh, refreshing } = useGitHubBuildStatus(owner, repos)
 
   if (!parsed.length) return null
 
   return (
     <div className="forge-panel surface-card-strong p-4">
-      <div className="mb-3 flex items-center justify-between">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <h3 className="text-sm font-semibold text-zinc-200">Build Status</h3>
-        <span className="text-xs text-text-subtle">Updates every 2 min</span>
+        {/* This slot used to hold a caption promising an automatic two-minute
+            refresh (v1.21.2, D-5; the wording is quoted in ROADMAP.md, not
+            here, because contract D of badgeCadence.test.ts scans this file for
+            exactly that claim). The hook no longer polls, so the promise became
+            false the moment the timer went -- and it had never been reliably
+            true anyway, since the polling it advertised exhausted the visitor's
+            unauthenticated GitHub budget within a quarter of an hour
+            (BADGE-RATE-1). A control the reader can press replaces a cadence
+            they had to take on trust. */}
+        <BadgeRefresh onClick={refresh} refreshing={refreshing} />
       </div>
       {state.phase === 'loading' && (
         <div className="flex flex-wrap gap-2">

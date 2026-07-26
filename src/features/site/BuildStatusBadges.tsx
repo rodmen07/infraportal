@@ -1,4 +1,5 @@
 import { useGitHubBuildStatus } from './useGitHubBuildStatus'
+import { BadgeRefresh } from './BadgeRefresh'
 import { formatRelativeTime } from '../../utils/time'
 
 const DOT_CLASS: Record<string, string> = {
@@ -28,22 +29,25 @@ interface BuildStatusBadgesProps {
 }
 
 export function BuildStatusBadges({ repos, owner = 'rodmen07' }: BuildStatusBadgesProps) {
-  const state = useGitHubBuildStatus(owner, repos)
+  const { state, refresh, refreshing } = useGitHubBuildStatus(owner, repos)
 
   if (state.phase === 'error') return null
 
   return (
     <section className="forge-panel rounded-2xl border border-zinc-500/30 bg-zinc-900/80 p-5 backdrop-blur-xl">
-      <div className="mb-3 flex items-center justify-between gap-3">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
         <span className="text-sm font-semibold text-text-secondary">Live CI/CD</span>
-        <a
-          href={`https://github.com/${owner}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-xs text-text-subtle transition hover:text-text-secondary"
-        >
-          GitHub →
-        </a>
+        <div className="flex items-center gap-3">
+          <BadgeRefresh onClick={refresh} refreshing={refreshing} />
+          <a
+            href={`https://github.com/${owner}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs text-text-subtle transition hover:text-text-secondary"
+          >
+            GitHub →
+          </a>
+        </div>
       </div>
 
       {state.phase === 'loading' ? (

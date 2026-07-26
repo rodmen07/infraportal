@@ -56,7 +56,11 @@ describe('mapStatus', () => {
     ).toBe('yellow')
   })
 
-  it('maps completed success/skipped to green', () => {
+  // Was 'maps completed success/skipped to green'. UPDATED, not deleted, by
+  // v1.21.2 (decision D-6, closes BADGE-SKIPPED-1): the `skipped` half now
+  // asserts the opposite answer, so the case still covers the same two inputs
+  // and the change of verdict is visible in the diff rather than in an absence.
+  it('maps completed success to green and skipped to unknown', () => {
     expect(
       mapStatus({
         status: 'completed',
@@ -66,6 +70,9 @@ describe('mapStatus', () => {
       }),
     ).toBe('green')
 
+    // A run that was skipped in its entirety did not pass; it did not run. The
+    // badge paints 'green' as the word "Passing", so green here was a claim
+    // made on no evidence.
     expect(
       mapStatus({
         status: 'completed',
@@ -73,7 +80,7 @@ describe('mapStatus', () => {
         html_url: '',
         created_at: '',
       }),
-    ).toBe('green')
+    ).toBe('unknown')
   })
 
   it('maps completed failures to red', () => {
@@ -84,6 +91,57 @@ describe('mapStatus', () => {
         html_url: '',
         created_at: '',
       }),
+    ).toBe('red')
+  })
+})
+
+/**
+ * The D-6 verdict as the visitor actually meets it: through the aggregate, not
+ * through the primitive. `mapStatus` is one branch of a reducer, and changing a
+ * branch is only safe if the reduction still behaves.
+ */
+describe('a skipped run cannot manufacture a passing badge (D-6)', () => {
+  const AT = '2026-07-26T09:00:00Z'
+  const SHA = 'abc1234'
+
+  it('a commit whose only run was skipped reports unknown, not Passing', () => {
+    const skipped = {
+      status: 'completed',
+      conclusion: 'skipped',
+      event: 'push',
+      created_at: AT,
+      head_sha: SHA,
+      html_url: 'https://github.com/rodmen07/infraportal/actions/runs/1',
+    }
+    expect(summarizeRepoRuns('infraportal', { workflow_runs: [skipped] }).display_status).toBe(
+      'unknown',
+    )
+  })
+
+  it('a skipped run alongside a real success still reports green', () => {
+    // Path-filtered docs jobs skip constantly in this repo; they must not erase
+    // a genuine pass on the same commit, only fail to manufacture one.
+    const common = { event: 'push', created_at: AT, head_sha: SHA }
+    const item = summarizeRepoRuns('infraportal', {
+      workflow_runs: [
+        { ...common, status: 'completed', conclusion: 'skipped', html_url: 'https://x/1' },
+        { ...common, status: 'completed', conclusion: 'success', html_url: 'https://x/2' },
+      ],
+    })
+    expect(item.display_status).toBe('green')
+    // ...and the link opens the run that decided the colour, not the skip.
+    expect(item.html_url).toBe('https://x/2')
+  })
+
+  it('a skipped run alongside a failure still reports red', () => {
+    const common = { event: 'push', created_at: AT, head_sha: SHA }
+    expect(
+      summarizeRepoRuns('infraportal', {
+        workflow_runs: [
+          { ...common, status: 'completed', conclusion: 'skipped', html_url: 'https://x/1' },
+          { ...common, status: 'completed', conclusion: 'failure', html_url: 'https://x/2' },
+        ],
+      }).display_status,
     ).toBe('red')
   })
 })
