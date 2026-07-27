@@ -1,13 +1,27 @@
+import { useEffect } from 'react'
 import { PageLayout } from './PageLayout'
 import { PageHeader } from '../features/site/PageHeader'
 import { SCHEDULING_URL } from '../config'
-import { checkoutTierLabel } from '../features/consulting/checkoutTier'
+import { checkoutLandingParams, checkoutTierLabel } from '../features/consulting/checkoutTier'
+import { trackPortfolioEvent } from '../utils/analytics'
+import { PORTFOLIO_EVENTS } from '../utils/analyticsEvents'
 
 export function CheckoutThankYouPage() {
   // Both sources are read on purpose: the hash is where the fixed generator
   // puts the tier, the search component is where the payment links already
   // live on Stripe put it. See features/consulting/checkoutTier.ts.
   const tierLabel = checkoutTierLabel(window.location.hash, window.location.search)
+
+  // The completed-payment landing event (v1.22.1). This page is the highest
+  // value conversion on the site and fired nothing until this hook: even with
+  // a sink wired, a purchase would not have been counted. The params carry
+  // the tier read by checkoutTier.ts from either URL position.
+  useEffect(() => {
+    trackPortfolioEvent(
+      PORTFOLIO_EVENTS.checkout_thank_you_view,
+      checkoutLandingParams(window.location.hash, window.location.search),
+    )
+  }, [])
 
   return (
     <PageLayout>

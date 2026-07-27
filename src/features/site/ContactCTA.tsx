@@ -4,6 +4,7 @@ import { getConsultationRequests, saveConsultationRequest, type ConsultationRequ
 import { calculateLeadScore, getLeadPriority } from '../consulting/leadScoring'
 import { submitPublicLead } from '../consulting/leadIntake'
 import { trackPortfolioEvent } from '../../utils/analytics'
+import { PORTFOLIO_EVENTS } from '../../utils/analyticsEvents'
 import { DEFAULT_TIMELINE, WHAT_YOU_NEED_OPTIONS } from './contactFormDefaults'
 
 type Phase = 'idle' | 'sending' | 'sent' | 'error'
@@ -58,7 +59,7 @@ export function ContactCTA() {
     saveConsultationRequest(request)
     // Best-effort server-side intake; no-ops until VITE_LEAD_INTAKE_URL is set.
     await submitPublicLead(request)
-    trackPortfolioEvent('consultation_form_submit', {
+    trackPortfolioEvent(PORTFOLIO_EVENTS.consultation_form_submit, {
       engagement,
       budget: DEFAULT_TIMELINE,
       timeline: DEFAULT_TIMELINE,
@@ -92,7 +93,7 @@ export function ContactCTA() {
             href={SCHEDULING_URL}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={() => trackPortfolioEvent('consulting_cta_click', { location: 'contact-cta', label: 'Book a 30-minute call' })}
+            onClick={() => trackPortfolioEvent(PORTFOLIO_EVENTS.consulting_cta_click, { location: 'contact-cta', label: 'Book a 30-minute call' })}
             className="mt-3 inline-flex rounded-xl border border-amber-400/40 bg-amber-500/15 px-4 py-2 text-sm font-semibold text-amber-200 transition hover:border-amber-400/60 hover:bg-amber-500/25 hover:text-amber-100"
           >
             Book a 30-minute call →

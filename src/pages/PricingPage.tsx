@@ -7,6 +7,7 @@ import { PricingTrustStrip } from '../features/consulting/PricingTrustStrip'
 import { ContactCTA } from '../features/site/ContactCTA'
 import { usePricingContent } from '../features/consulting/usePricingContent'
 import { trackPortfolioEvent } from '../utils/analytics'
+import { PORTFOLIO_EVENTS } from '../utils/analyticsEvents'
 import { SCHEDULING_URL } from '../config'
 
 export function PricingPage() {
@@ -14,13 +15,13 @@ export function PricingPage() {
   const { note, tiers } = usePricingContent(baseUrl)
 
   useEffect(() => {
-    trackPortfolioEvent('pricing_page_view', {
+    trackPortfolioEvent(PORTFOLIO_EVENTS.pricing_page_view, {
       tier_count: tiers.length,
       has_retainer_link: tiers.some(t => t.tier === 'Retainer'),
     })
     // Track individual tier impressions
     tiers.forEach((tier, index) => {
-      trackPortfolioEvent('pricing_tier_impression', {
+      trackPortfolioEvent(PORTFOLIO_EVENTS.pricing_tier_impression, {
         tier: tier.tier,
         index: index + 1,
         highlighted: tier.highlighted ? 'yes' : 'no',
@@ -48,11 +49,16 @@ export function PricingPage() {
             target="_blank"
             rel="noopener noreferrer"
             className="btn-neutral mt-3 inline-block px-5 py-2 text-sm"
+            onClick={() => trackPortfolioEvent(PORTFOLIO_EVENTS.consulting_cta_click, { location: 'pricing-page', label: 'Book a call' })}
           >
             Book a call →
           </a>
         ) : (
-          <a href="#/contact" className="btn-neutral mt-3 inline-block px-5 py-2 text-sm">
+          <a
+            href="#/contact"
+            className="btn-neutral mt-3 inline-block px-5 py-2 text-sm"
+            onClick={() => trackPortfolioEvent(PORTFOLIO_EVENTS.consulting_cta_click, { location: 'pricing-page', label: 'Book a free discovery call' })}
+          >
             Book a free discovery call →
           </a>
         )}

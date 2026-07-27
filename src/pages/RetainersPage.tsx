@@ -2,6 +2,7 @@ import { PageLayout } from './PageLayout'
 import { PricingCard } from '../features/consulting/PricingCard'
 import { ContactCTA } from '../features/site/ContactCTA'
 import { trackPortfolioEvent } from '../utils/analytics'
+import { PORTFOLIO_EVENTS } from '../utils/analyticsEvents'
 
 interface RetainerTier {
   tier: string
@@ -122,7 +123,7 @@ export function RetainersPage() {
                 <div
                   key={tier.tier}
                   onClick={() => {
-                    trackPortfolioEvent('pricing_tier_view', {
+                    trackPortfolioEvent(PORTFOLIO_EVENTS.pricing_tier_view, {
                       tier: tier.tier,
                       page: 'retainers',
                       index: index + 1,
@@ -156,7 +157,7 @@ export function RetainersPage() {
           <div className="mt-6 flex flex-wrap gap-3">
             <a
               href="#/contact"
-              onClick={() => trackPortfolioEvent('retainers_contact_cta', { location: 'retainers_page' })}
+              onClick={() => trackPortfolioEvent(PORTFOLIO_EVENTS.retainers_contact_cta, { location: 'retainers_page' })}
               className="btn-accent px-5 py-2 text-sm"
             >
               Get started →

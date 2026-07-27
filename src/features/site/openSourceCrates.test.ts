@@ -94,7 +94,7 @@ describe('every outbound crate link is tracked, following the ProofStrip precede
     // crates x 3 links (crates.io/docs.rs/GitHub) = 9 real clicks at runtime
     // share one written call, rather than 9 hand-duplicated onClick props -
     // the DRY shape this repo's own component-authoring bar expects.
-    const matches = [...CRATES_SRC.matchAll(/trackPortfolioEvent\('consulting_cta_click',\s*\{([\s\S]*?)\}\)/g)]
+    const matches = [...CRATES_SRC.matchAll(/trackPortfolioEvent\(PORTFOLIO_EVENTS\.consulting_cta_click,\s*\{([\s\S]*?)\}\)/g)]
     expect(matches.length).toBe(1)
     expect(matches[0][1]).toContain("location: 'open-source-crates'")
     expect(matches[0][1]).toMatch(/label: `\$\{crate\.name\} \$\{link\.label\}`/)

@@ -1,3 +1,5 @@
+import type { PortfolioEventName } from './analyticsEvents'
+
 type AnalyticsParams = Record<string, string | number | boolean | null | undefined>
 
 interface AnalyticsWindow extends Window {
@@ -5,7 +7,7 @@ interface AnalyticsWindow extends Window {
   gtag?: (...args: unknown[]) => void
 }
 
-export function trackPortfolioEvent(eventName: string, params: AnalyticsParams = {}): void {
+export function trackPortfolioEvent(eventName: PortfolioEventName, params: AnalyticsParams = {}): void {
   if (typeof window === 'undefined') return
 
   const analyticsWindow = window as AnalyticsWindow

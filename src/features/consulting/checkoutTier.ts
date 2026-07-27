@@ -69,3 +69,21 @@ export function formatTierLabel(tier: string | null): string {
 export function checkoutTierLabel(hash: string, search = ''): string {
   return formatTierLabel(readCheckoutTier(hash, search))
 }
+
+/** Emitted when no tier can be recovered, so the landing event still carries
+ * an explicit, greppable value instead of an empty string. */
+export const UNKNOWN_TIER_PARAM = '(none)'
+
+/**
+ * Analytics params for the checkout thank-you landing event (v1.22.1).
+ *
+ * Pure so the tier-carrying behavior has unit coverage independent of the
+ * page: `tier` is the raw slug exactly as `readCheckoutTier` recovers it
+ * (from either URL position, per the compatibility note above), and `label`
+ * is the same prose the page renders, so a dashboard row and the customer's
+ * screen can be matched one-to-one.
+ */
+export function checkoutLandingParams(hash: string, search = ''): { tier: string; label: string } {
+  const tier = readCheckoutTier(hash, search)
+  return { tier: tier ?? UNKNOWN_TIER_PARAM, label: formatTierLabel(tier) }
+}
