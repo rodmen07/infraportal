@@ -124,6 +124,11 @@ about before adding code:
 - `src/features/layout/routeIntegrity.test.ts` — every internal destination in the nav,
   command palette and guided tour resolves against the router vocabulary parsed out of
   `src/main.tsx`.
+- `src/features/site/contentContract.test.ts` — every committed `public/content/*.json`
+  file a hook fetches must parse, satisfy what its consuming components dereference
+  (a mis-shaped tier crashes the pricing grid; a malformed file silently empties it),
+  and carry only internal links the router resolves; files no hook fetches must be
+  excused by name with a live reason.
 - `src/features/site/runtimeStatusCopy.test.ts` — no source file may assert a platform
   runtime status or a present-tense infrastructure cost, because a static bundle cannot
   know either; `#/status` measures them instead.
