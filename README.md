@@ -130,6 +130,13 @@ about before adding code:
 - `src/features/site/repoIdentity.test.ts` — this README must keep naming the current
   product identity, link the roadmap, name only routes the router handles, and agree
   with `package.json` on the stack majors.
+- `src/features/site/conversionInstrumentation.test.ts` — every analytics call site uses
+  a name from the typed event registry (`src/utils/analyticsEvents.ts`), every declared
+  conversion surface carries tracking, and no registered name goes unused.
+- `src/features/site/analyticsSink.test.ts` — an analytics sink's forwarding code in
+  `src/utils/analytics.ts` and its loader script in `index.html` must arrive and leave
+  together (no dispatching into a void, no sink that drops funnel events), and every
+  drift-guard path this README names must exist on disk.
 
 ## Deployment
 

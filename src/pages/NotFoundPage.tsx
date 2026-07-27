@@ -31,8 +31,11 @@ export function NotFoundPage() {
   const attempted = typeof window !== 'undefined' ? window.location.hash : ''
 
   useEffect(() => {
-    // Surfaces broken inbound links (stale bookmarks, mistyped share URLs) to
-    // the owner's analytics so they are discoverable instead of invisible.
+    // Fires the registered route_not_found event for broken inbound links
+    // (stale bookmarks, mistyped share URLs). Until the v1.22.2 sink is wired
+    // this reaches only the in-page portfolio:analytics CustomEvent (see
+    // src/utils/analytics.ts); once a sink records it, these become
+    // measurable rather than invisible.
     trackPortfolioEvent(PORTFOLIO_EVENTS.route_not_found, { path: attempted || '(root)' })
   }, [attempted])
 
