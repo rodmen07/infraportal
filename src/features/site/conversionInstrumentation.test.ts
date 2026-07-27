@@ -27,8 +27,11 @@
  *                          and the list cannot name a file that stopped
  *                          tracking (or stopped existing)
  *   D  the two defects     the checkout landing event fires on mount and
- *                          carries the tier; every anchor on PricingPage is
- *                          click-tracked
+ *                          carries the tier; every anchor on PricingPage AND
+ *                          on CheckoutThankYouPage is click-tracked (the
+ *                          checkout anchors were the PR #99 follow-up, closed
+ *                          by reusing consulting_cta_click at a page-scoped
+ *                          location rather than widening the registry)
  *
  * The negative controls exist because a guard whose regex cannot match
  * reports green forever (the PR #91 process note: a control that does not
@@ -195,11 +198,14 @@ describe('contract D: the two 2026-07-26 defects stay closed', () => {
     ).toBe(true)
   })
 
-  it('every anchor on PricingPage is click-tracked', () => {
-    const tags = anchorOpeningTags(read(PRICING_PAGE_PATH))
-    expect(tags.length, 'PricingPage should render at least its two entry CTAs').toBeGreaterThanOrEqual(2)
+  it.each([
+    { page: PRICING_PAGE_PATH, minAnchors: 2, note: 'PricingPage should render at least its two entry CTAs' },
+    { page: CHECKOUT_PAGE_PATH, minAnchors: 4, note: 'CheckoutThankYouPage should render its four CTA anchors (both scheduling variants, pricing, home)' },
+  ])('every anchor on $page is click-tracked', ({ page, minAnchors, note }) => {
+    const tags = anchorOpeningTags(read(page))
+    expect(tags.length, note).toBeGreaterThanOrEqual(minAnchors)
     for (const tag of tags) {
-      expect(/trackPortfolioEvent\(/.test(tag), `untracked anchor on PricingPage: ${tag.slice(0, 120)}`).toBe(true)
+      expect(/trackPortfolioEvent\(/.test(tag), `untracked anchor on ${page}: ${tag.slice(0, 120)}`).toBe(true)
     }
   })
 })
