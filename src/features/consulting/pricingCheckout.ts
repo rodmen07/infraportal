@@ -10,7 +10,11 @@
 // HTTPS also blocks unsafe schemes (javascript:, http:) from ever becoming a
 // link target.
 
-export type PricingCtaEvent = 'pricing_checkout_click' | 'pricing_cta_click'
+import { PORTFOLIO_EVENTS } from '../../utils/analyticsEvents'
+
+export type PricingCtaEvent =
+  | typeof PORTFOLIO_EVENTS.pricing_checkout_click
+  | typeof PORTFOLIO_EVENTS.pricing_cta_click
 
 export interface CheckoutResolution {
   href: string
@@ -25,8 +29,8 @@ export function resolvePricingCheckout(
   const trimmed = (checkoutUrl ?? '').trim()
 
   if (trimmed && /^https:\/\//i.test(trimmed)) {
-    return { href: trimmed, external: true, eventName: 'pricing_checkout_click' }
+    return { href: trimmed, external: true, eventName: PORTFOLIO_EVENTS.pricing_checkout_click }
   }
 
-  return { href: ctaHref, external: false, eventName: 'pricing_cta_click' }
+  return { href: ctaHref, external: false, eventName: PORTFOLIO_EVENTS.pricing_cta_click }
 }

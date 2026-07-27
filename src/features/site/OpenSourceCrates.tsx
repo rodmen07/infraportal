@@ -1,4 +1,5 @@
 import { trackPortfolioEvent } from '../../utils/analytics'
+import { PORTFOLIO_EVENTS } from '../../utils/analyticsEvents'
 import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 
@@ -103,7 +104,7 @@ export function OpenSourceCrates() {
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() =>
-                    trackPortfolioEvent('consulting_cta_click', {
+                    trackPortfolioEvent(PORTFOLIO_EVENTS.consulting_cta_click, {
                       location: 'open-source-crates',
                       label: `${crate.name} ${link.label}`,
                     })

@@ -28,6 +28,7 @@
 // ---------------------------------------------------------------------------
 import { FOOTER_LINKS, isExternalFooterHref } from './footerLinks'
 import { trackPortfolioEvent } from '../../utils/analytics'
+import { PORTFOLIO_EVENTS } from '../../utils/analyticsEvents'
 
 const LINK_CLASS =
   'inline-flex items-center gap-1.5 rounded-lg border border-border-soft bg-surface-control px-3 py-1.5 text-xs font-medium text-text-secondary transition hover:border-border-strong hover:bg-surface-hover hover:text-text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)]'
@@ -60,7 +61,7 @@ export function SiteFooter() {
                   href={link.href}
                   className={LINK_CLASS}
                   onClick={() =>
-                    trackPortfolioEvent('footer_link_click', { location: 'site-footer', label: link.label })
+                    trackPortfolioEvent(PORTFOLIO_EVENTS.footer_link_click, { location: 'site-footer', label: link.label })
                   }
                   {...(external ? { target: '_blank', rel: 'noreferrer noopener' } : {})}
                 >

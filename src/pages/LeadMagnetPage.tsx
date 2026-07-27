@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { PageLayout } from './PageLayout'
 import { trackPortfolioEvent } from '../utils/analytics'
+import { PORTFOLIO_EVENTS } from '../utils/analyticsEvents'
 import { submitLeadMagnetLead } from '../features/consulting/leadIntake'
 
 interface ChecklistSection {
@@ -88,7 +89,7 @@ export function LeadMagnetPage() {
 
     try {
       // Track lead magnet capture
-      trackPortfolioEvent('lead_magnet_email_capture', {
+      trackPortfolioEvent(PORTFOLIO_EVENTS.lead_magnet_email_capture, {
         magnet: magnetSlug,
         email_domain: cleanedEmail.split('@')[1] || 'unknown',
       })
@@ -109,7 +110,7 @@ export function LeadMagnetPage() {
 
       setDeliveryStatus(intakeStatus)
 
-      trackPortfolioEvent('lead_magnet_submit_result', {
+      trackPortfolioEvent(PORTFOLIO_EVENTS.lead_magnet_submit_result, {
         magnet: magnetSlug,
         delivery_status: intakeStatus,
       })
@@ -117,7 +118,7 @@ export function LeadMagnetPage() {
       setIsSubmitted(true)
 
       // Track nurture sequence started
-      trackPortfolioEvent('nurture_sequence_started', {
+      trackPortfolioEvent(PORTFOLIO_EVENTS.nurture_sequence_started, {
         sequence: 'infrastructure-audit-3-email',
         email_domain: cleanedEmail.split('@')[1] || 'unknown',
         delivery_status: intakeStatus,
@@ -126,7 +127,7 @@ export function LeadMagnetPage() {
       console.error('Failed to capture email:', error)
       setDeliveryStatus('failed')
       setIsSubmitted(true)
-      trackPortfolioEvent('lead_magnet_submit_result', {
+      trackPortfolioEvent(PORTFOLIO_EVENTS.lead_magnet_submit_result, {
         magnet: magnetSlug,
         delivery_status: 'failed',
       })
@@ -184,7 +185,7 @@ export function LeadMagnetPage() {
                 <div className="mt-4 flex flex-wrap gap-3">
                   <a
                     href={checklistWebUrl}
-                    onClick={() => trackPortfolioEvent('lead_magnet_artifact_click', { artifact: 'web_checklist' })}
+                    onClick={() => trackPortfolioEvent(PORTFOLIO_EVENTS.lead_magnet_artifact_click, { artifact: 'web_checklist' })}
                     className="inline-block rounded-lg border border-emerald-400/40 bg-emerald-500/15 px-4 py-2 text-xs font-semibold text-success-text transition hover:border-emerald-400/60 hover:bg-emerald-500/25"
                   >
                     Open web checklist
@@ -193,7 +194,7 @@ export function LeadMagnetPage() {
                     href={checklistPrintableUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    onClick={() => trackPortfolioEvent('lead_magnet_artifact_click', { artifact: 'printable_checklist' })}
+                    onClick={() => trackPortfolioEvent(PORTFOLIO_EVENTS.lead_magnet_artifact_click, { artifact: 'printable_checklist' })}
                     className="inline-block rounded-lg border border-emerald-400/40 bg-emerald-500/15 px-4 py-2 text-xs font-semibold text-success-text transition hover:border-emerald-400/60 hover:bg-emerald-500/25"
                   >
                     Printable checklist (save as PDF)

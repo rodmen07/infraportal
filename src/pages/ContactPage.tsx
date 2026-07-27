@@ -5,6 +5,7 @@ import { SCHEDULING_URL } from '../config'
 import { saveConsultationRequest, type ConsultationRequest } from '../features/consulting/consultationStore'
 import { submitPublicLead } from '../features/consulting/leadIntake'
 import { trackPortfolioEvent } from '../utils/analytics'
+import { PORTFOLIO_EVENTS } from '../utils/analyticsEvents'
 import { PricingTrustStrip } from '../features/consulting/PricingTrustStrip'
 import { PricingFaq } from '../features/consulting/PricingFaq'
 
@@ -31,7 +32,7 @@ export function ContactPage() {
   const noteReferral = () => {
     const trimmed = referralSource.trim()
     if (!trimmed) return
-    trackPortfolioEvent('referral_lead_captured', { referrer: trimmed })
+    trackPortfolioEvent(PORTFOLIO_EVENTS.referral_lead_captured, { referrer: trimmed })
     setReferralNoted(true)
   }
 
@@ -66,7 +67,7 @@ export function ContactPage() {
     saveConsultationRequest(request)
     // Best-effort server delivery — no-ops when VITE_LEAD_INTAKE_URL is unset.
     await submitPublicLead(request)
-    trackPortfolioEvent('contact_form_submit', {
+    trackPortfolioEvent(PORTFOLIO_EVENTS.contact_form_submit, {
       hasSchedulingLink: Boolean(SCHEDULING_URL),
     })
 
@@ -99,7 +100,7 @@ export function ContactPage() {
                 href={SCHEDULING_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={() => trackPortfolioEvent('consulting_cta_click', { location: 'contact-page', label: 'Book a 30-minute call' })}
+                onClick={() => trackPortfolioEvent(PORTFOLIO_EVENTS.consulting_cta_click, { location: 'contact-page', label: 'Book a 30-minute call' })}
                 className="mt-3 inline-flex rounded-lg border border-amber-400/30 bg-amber-500/15 px-3 py-2 text-scale-xs font-semibold text-amber-200 transition hover:border-amber-400/60 hover:bg-amber-500/25 hover:text-amber-100"
               >
                 Book a 30-minute call →

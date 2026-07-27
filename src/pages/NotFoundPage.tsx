@@ -21,6 +21,7 @@ import { PageLayout } from './PageLayout'
 import { PageHeader } from '../features/site/PageHeader'
 import { Button } from '../components/ui/Button'
 import { trackPortfolioEvent } from '../utils/analytics'
+import { PORTFOLIO_EVENTS } from '../utils/analyticsEvents'
 import { NOT_FOUND_RECOVERY_LINKS } from './notFoundLinks'
 
 export function NotFoundPage() {
@@ -32,7 +33,7 @@ export function NotFoundPage() {
   useEffect(() => {
     // Surfaces broken inbound links (stale bookmarks, mistyped share URLs) to
     // the owner's analytics so they are discoverable instead of invisible.
-    trackPortfolioEvent('route_not_found', { path: attempted || '(root)' })
+    trackPortfolioEvent(PORTFOLIO_EVENTS.route_not_found, { path: attempted || '(root)' })
   }, [attempted])
 
   return (

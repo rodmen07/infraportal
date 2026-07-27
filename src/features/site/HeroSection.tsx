@@ -1,6 +1,7 @@
 import type { SiteContent } from '../../types'
 import { SCHEDULING_URL } from '../../config'
 import { trackPortfolioEvent } from '../../utils/analytics'
+import { PORTFOLIO_EVENTS } from '../../utils/analyticsEvents'
 
 interface HeroSectionProps {
   content: SiteContent
@@ -41,7 +42,7 @@ export function HeroSection({ content }: HeroSectionProps) {
             href={SCHEDULING_URL}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={() => trackPortfolioEvent('consulting_cta_click', { location: 'hero', label: 'Book a 30-minute call' })}
+            onClick={() => trackPortfolioEvent(PORTFOLIO_EVENTS.consulting_cta_click, { location: 'hero', label: 'Book a 30-minute call' })}
             className="rounded-xl border border-amber-400/40 bg-amber-500/15 px-5 py-2.5 text-sm font-semibold text-amber-200 transition hover:border-amber-400/60 hover:bg-amber-500/25 hover:text-amber-100"
           >
             Book a 30-minute call →
@@ -49,7 +50,7 @@ export function HeroSection({ content }: HeroSectionProps) {
         ) : (
           <a
             href="#/contact"
-            onClick={() => trackPortfolioEvent('consulting_cta_click', { location: 'hero', label: 'Book a free discovery call' })}
+            onClick={() => trackPortfolioEvent(PORTFOLIO_EVENTS.consulting_cta_click, { location: 'hero', label: 'Book a free discovery call' })}
             className="rounded-xl border border-amber-400/40 bg-amber-500/15 px-5 py-2.5 text-sm font-semibold text-amber-200 transition hover:border-amber-400/60 hover:bg-amber-500/25 hover:text-amber-100"
           >
             Book a free discovery call →
@@ -57,7 +58,7 @@ export function HeroSection({ content }: HeroSectionProps) {
         )}
         <a
           href="#/case-studies"
-          onClick={() => trackPortfolioEvent('consulting_cta_click', { location: 'hero', label: 'View case studies' })}
+          onClick={() => trackPortfolioEvent(PORTFOLIO_EVENTS.consulting_cta_click, { location: 'hero', label: 'View case studies' })}
           className="rounded-xl border border-zinc-600/50 bg-surface-control px-5 py-2.5 text-sm font-semibold text-text-secondary transition hover:border-zinc-500/60 hover:bg-zinc-700/60 hover:text-text-primary"
         >
           View case studies →

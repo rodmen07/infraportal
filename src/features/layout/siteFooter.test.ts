@@ -285,7 +285,7 @@ describe('tokens only: the footer cannot render invisible in either theme', () =
   })
 
   it('reports link clicks through the shared analytics helper', () => {
-    expect(FOOTER_CODE).toMatch(/trackPortfolioEvent\('footer_link_click'/)
+    expect(FOOTER_CODE).toMatch(/trackPortfolioEvent\(PORTFOLIO_EVENTS\.footer_link_click/)
   })
 
   it('actually emits the analytics event when a link is clicked', () => {

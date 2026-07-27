@@ -53,7 +53,7 @@ describe('D9: ContactCTA keeps only the four-field shape', () => {
   })
 
   it('still fires consultation_form_submit with every original payload key present (values may default, keys are frozen)', () => {
-    const call = /trackPortfolioEvent\('consultation_form_submit',\s*\{([\s\S]*?)\}\)/.exec(CONTACT_CTA_SRC)
+    const call = /trackPortfolioEvent\(PORTFOLIO_EVENTS\.consultation_form_submit,\s*\{([\s\S]*?)\}\)/.exec(CONTACT_CTA_SRC)
     expect(call, 'consultation_form_submit call should still exist').not.toBeNull()
     const body = call![1]
     for (const key of ['engagement', 'budget', 'timeline', 'leadPriority', 'referral_source']) {
@@ -85,6 +85,6 @@ describe('D9: lead scoring keeps working with defaults for the removed fields', 
 describe('D9: the referral panel is demoted to the Contact page footer, not deleted', () => {
   it('ContactPage renders the $500 referral panel and can still fire referral_lead_captured', () => {
     expect(CONTACT_PAGE_SRC).toMatch(/Refer a friend/)
-    expect(CONTACT_PAGE_SRC).toMatch(/trackPortfolioEvent\('referral_lead_captured'/)
+    expect(CONTACT_PAGE_SRC).toMatch(/trackPortfolioEvent\(PORTFOLIO_EVENTS\.referral_lead_captured/)
   })
 })

@@ -1,4 +1,5 @@
 import { trackPortfolioEvent } from '../../utils/analytics'
+import { PORTFOLIO_EVENTS } from '../../utils/analyticsEvents'
 import { useLiveServices } from '../status/useLiveServices'
 import { proofStats } from './proofStats'
 import { RECURRING_COST_PHRASE } from './platformCost'
@@ -33,7 +34,7 @@ export function ProofStrip() {
           <div className="mt-4 flex flex-wrap gap-3">
             <a
               href="#/case-studies"
-              onClick={() => trackPortfolioEvent('consulting_cta_click', { location: 'proof-strip', label: 'Read the case studies' })}
+              onClick={() => trackPortfolioEvent(PORTFOLIO_EVENTS.consulting_cta_click, { location: 'proof-strip', label: 'Read the case studies' })}
               className="btn-neutral px-4 py-2 text-sm"
             >
               Read the case studies →
@@ -42,7 +43,7 @@ export function ProofStrip() {
               href="https://github.com/rodmen07"
               target="_blank"
               rel="noopener noreferrer"
-              onClick={() => trackPortfolioEvent('consulting_cta_click', { location: 'proof-strip', label: 'GitHub' })}
+              onClick={() => trackPortfolioEvent(PORTFOLIO_EVENTS.consulting_cta_click, { location: 'proof-strip', label: 'GitHub' })}
               className="btn-neutral px-4 py-2 text-sm"
             >
               GitHub →
@@ -51,7 +52,7 @@ export function ProofStrip() {
               href="https://crates.io/crates/axum-api-kit"
               target="_blank"
               rel="noopener noreferrer"
-              onClick={() => trackPortfolioEvent('consulting_cta_click', { location: 'proof-strip', label: 'crates.io' })}
+              onClick={() => trackPortfolioEvent(PORTFOLIO_EVENTS.consulting_cta_click, { location: 'proof-strip', label: 'crates.io' })}
               className="btn-neutral px-4 py-2 text-sm"
             >
               crates.io →
@@ -72,7 +73,7 @@ export function ProofStrip() {
                 key={stat.label}
                 href={stat.href}
                 onClick={() =>
-                  trackPortfolioEvent('consulting_cta_click', { location: 'proof-strip', label: 'Platform status' })
+                  trackPortfolioEvent(PORTFOLIO_EVENTS.consulting_cta_click, { location: 'proof-strip', label: 'Platform status' })
                 }
                 className="surface-card interactive-card rounded-xl px-3 py-2 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
               >

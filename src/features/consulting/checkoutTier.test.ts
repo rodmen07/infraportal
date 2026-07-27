@@ -42,6 +42,8 @@ import { buildCheckoutRedirectUrl } from '../../../scripts/lib/checkoutRedirect.
 import {
   FALLBACK_TIER_LABEL,
   TIER_PARAM,
+  UNKNOWN_TIER_PARAM,
+  checkoutLandingParams,
   checkoutTierLabel,
   formatTierLabel,
   readCheckoutTier,
@@ -226,5 +228,29 @@ describe('generator source drift guard (reads BOTH sources)', () => {
     const route = source.match(/#\/checkout-thank-you/)
     expect(route, `${GENERATOR_SOURCE} must target the checkout thank-you route`).not.toBeNull()
     expect(readSource('src/main.tsx')).toContain("hash.startsWith('#/checkout-thank-you')")
+  })
+})
+
+describe('checkoutLandingParams (v1.22.1): the landing event carries the tier', () => {
+  it('reads the tier from the hash position (the fixed generator shape)', () => {
+    expect(checkoutLandingParams('#/checkout-thank-you?tier=retainer-weekly', '')).toEqual({
+      tier: 'retainer-weekly',
+      label: 'Retainer Weekly',
+    })
+  })
+
+  it('reads the tier from the search position (links already live on Stripe)', () => {
+    expect(checkoutLandingParams('#/checkout-thank-you', '?tier=project-deposit')).toEqual({
+      tier: 'project-deposit',
+      label: 'Project Deposit',
+    })
+  })
+
+  it('emits an explicit unknown marker when no tier is recoverable', () => {
+    expect(checkoutLandingParams('#/checkout-thank-you', '')).toEqual({
+      tier: UNKNOWN_TIER_PARAM,
+      label: FALLBACK_TIER_LABEL,
+    })
+    expect(UNKNOWN_TIER_PARAM).not.toBe('')
   })
 })

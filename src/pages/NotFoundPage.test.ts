@@ -70,7 +70,7 @@ describe('NotFoundPage structure and a11y (source scan)', () => {
   })
 
   it('reports the not-found route to analytics so broken inbound links are discoverable', () => {
-    expect(PAGE_SRC).toMatch(/trackPortfolioEvent\('route_not_found'/)
+    expect(PAGE_SRC).toMatch(/trackPortfolioEvent\(PORTFOLIO_EVENTS\.route_not_found/)
   })
 
   it('renders recovery CTAs through the focus-visible Button primitive', () => {
