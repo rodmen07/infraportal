@@ -69,7 +69,7 @@ describe('NotFoundPage structure and a11y (source scan)', () => {
     expect(PAGE_SRC).toMatch(/<PageLayout>/)
   })
 
-  it('reports the not-found route to analytics so broken inbound links are discoverable', () => {
+  it('fires the registered route_not_found event (recorded externally only once the v1.22.2 sink is wired)', () => {
     expect(PAGE_SRC).toMatch(/trackPortfolioEvent\(PORTFOLIO_EVENTS\.route_not_found/)
   })
 
