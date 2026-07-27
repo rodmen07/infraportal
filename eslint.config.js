@@ -26,6 +26,13 @@ export default defineConfig([
     },
     rules: {
       '@typescript-eslint/no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+      // react-hooks 7.1 (required by the eslint 10 peer range) added
+      // set-state-in-effect to its recommended set at "error". At adoption time
+      // it flagged 17 existing fetch-then-setState loaders across 14 files.
+      // Held at "warn" so the toolchain major stays behavior-preserving; the
+      // per-site triage is a filed backlog item (DEP-MAJ-2 follow-up,
+      // 2026-07-27). Deleting this line restores the plugin default.
+      'react-hooks/set-state-in-effect': 'warn',
     },
   },
   {

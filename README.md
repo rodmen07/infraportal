@@ -39,7 +39,7 @@ key and are deliberately not linked from the marketing nav.
 | Styling | Tailwind CSS 3.4 driven by CSS custom properties in `src/styles/tokens.css` |
 | Routing | Hash router in `src/main.tsx` (no router dependency), route-level code splitting |
 | Tests | Vitest 4 in the `node` environment |
-| Linting | ESLint 9 + typescript-eslint + react-hooks + react-refresh |
+| Linting | ESLint 10 + typescript-eslint + react-hooks + react-refresh |
 | Deployment | GitHub Pages via GitHub Actions |
 
 `package.json` is the source of truth for exact versions; the majors above are asserted
