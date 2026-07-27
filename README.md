@@ -34,11 +34,11 @@ key and are deliberately not linked from the marketing nav.
 | Layer | Technology |
 |---|---|
 | UI framework | React 19 |
-| Build tool | Vite 5 |
+| Build tool | Vite 8 |
 | Language | TypeScript 5 (strict mode) |
 | Styling | Tailwind CSS 3.4 driven by CSS custom properties in `src/styles/tokens.css` |
 | Routing | Hash router in `src/main.tsx` (no router dependency), route-level code splitting |
-| Tests | Vitest 3 in the `node` environment |
+| Tests | Vitest 4 in the `node` environment |
 | Linting | ESLint 9 + typescript-eslint + react-hooks + react-refresh |
 | Deployment | GitHub Pages via GitHub Actions |
 
