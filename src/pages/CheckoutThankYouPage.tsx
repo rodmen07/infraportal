@@ -36,24 +36,42 @@ export function CheckoutThankYouPage() {
         }
         actions={
           <>
+            {/* Every anchor here is click-tracked (contract D of
+                conversionInstrumentation.test.ts covers this page): these are
+                the first clicks a paying customer makes, and they reuse the
+                existing consulting_cta_click name at a page-scoped location
+                rather than widening the registry. */}
             {SCHEDULING_URL ? (
               <a
                 href={SCHEDULING_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-accent px-5 py-2 text-sm"
+                onClick={() => trackPortfolioEvent(PORTFOLIO_EVENTS.consulting_cta_click, { location: 'checkout-thank-you', label: 'Book kickoff call' })}
               >
                 Book kickoff call
               </a>
             ) : (
-              <a href="#/contact" className="btn-accent px-5 py-2 text-sm">
+              <a
+                href="#/contact"
+                className="btn-accent px-5 py-2 text-sm"
+                onClick={() => trackPortfolioEvent(PORTFOLIO_EVENTS.consulting_cta_click, { location: 'checkout-thank-you', label: 'Share project details' })}
+              >
                 Share project details
               </a>
             )}
-            <a href="#/pricing" className="btn-neutral px-5 py-2 text-sm">
+            <a
+              href="#/pricing"
+              className="btn-neutral px-5 py-2 text-sm"
+              onClick={() => trackPortfolioEvent(PORTFOLIO_EVENTS.consulting_cta_click, { location: 'checkout-thank-you', label: 'Back to pricing' })}
+            >
               Back to pricing
             </a>
-            <a href="#/" className="btn-neutral px-5 py-2 text-sm">
+            <a
+              href="#/"
+              className="btn-neutral px-5 py-2 text-sm"
+              onClick={() => trackPortfolioEvent(PORTFOLIO_EVENTS.consulting_cta_click, { location: 'checkout-thank-you', label: 'Home' })}
+            >
               Home
             </a>
           </>
