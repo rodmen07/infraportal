@@ -24,13 +24,13 @@ const TECH_STACK = [
 const PRODUCT_RULES: [string, string, string][] = [
   [
     'No infinite feed',
-    'src/lib/plan.ts:341-376',
-    'Three doses map to fixed minute budgets: light 5, medium 15, deep 30. There is no fourth, unbounded option.',
+    'src/lib/__tests__/plan.test.ts:45',
+    'Every focus and dose pair is asserted to map to a fixed minute budget: light 5, medium 15, deep 30. There is no fourth, unbounded option.',
   ],
   [
     'Daily cap, stated once',
-    'src/lib/plan.ts:40',
-    'Every generated plan carries capMessage: "You reached today’s plan. See you tomorrow." as a field on the DailyPlan type.',
+    'src/lib/__tests__/plan.test.ts:19',
+    'A freshly built plan is asserted to carry capMessage exactly: "You reached today\'s plan. See you tomorrow."',
   ],
   [
     'No streak pressure (data)',
@@ -68,46 +68,63 @@ const HIGHLIGHTS: { label: string; detail: string; file: string; code: string; l
   {
     label: 'Selling a membership from a site that has no server',
     detail:
-      'output: "export" means there are no route handlers, so the app can neither create a Stripe Checkout Session nor receive a Stripe webhook. Stripe Payment Links move checkout off the app entirely, and attribution is smuggled through the URL: the Firebase uid rides along as client_reference_id, so every payment Stripe records can be matched back to the account that made it. The link itself is a build-time environment variable, and the getter hard-requires an https:// prefix or returns null, in which case the pricing CTA degrades to a mailto early-access flow. Both channels log the same pricing_cta_clicked event with a channel label, so the two are comparable rather than one being invisible.',
-    file: 'src/lib/billing.ts (36 lines, the whole module)',
-    code: `// Appends Stripe Payment Link prefill params so a zero-backend static site
-// can still attribute each payment: client_reference_id carries the Firebase
-// uid and prefilled_email seeds Stripe's checkout email field.
+      'output: "export" means there are no route handlers, so the app can neither create a Stripe Checkout Session nor receive a Stripe webhook. Stripe Payment Links move checkout off the app entirely, and attribution is smuggled through the URL: the Firebase uid rides along as client_reference_id, so every payment Stripe records can be matched back to the account that made it. The link itself is a build-time environment variable, injectable as a parameter so the tests never touch process.env, and the getter hard-requires an https:// prefix or returns null, in which case the pricing CTA degrades to a mailto early-access flow. Both channels log the same pricing_cta_clicked event with a channel label, so the two are comparable rather than one being invisible. Entitlement is then read client-side off users/{uid}.subscriptionStatus in Firestore and flipped by hand: webhook automation is a documented, deliberately deferred milestone (v0.5), not an oversight.',
+    file: 'src/lib/billing.ts, verbatim and entire',
+    code: `export function getStripePaymentLink(
+  raw = process.env.NEXT_PUBLIC_STRIPE_PAYMENT_LINK,
+): string | null {
+  const trimmed = raw?.trim();
+  if (!trimmed || !trimmed.startsWith("https://")) {
+    return null;
+  }
 
-export function getStripePaymentLink(): string | null {
-  const raw = process.env.NEXT_PUBLIC_STRIPE_PAYMENT_LINK?.trim()
-  return raw && raw.startsWith("https://") ? raw : null   // null = use mailto
+  return trimmed;
 }
 
+export function isStripeBillingEnabled(): boolean {
+  return getStripePaymentLink() !== null;
+}
+
+/**
+ * Appends Stripe Payment Link prefill params so a zero-backend static site can
+ * still attribute each payment: client_reference_id carries the Firebase uid
+ * and prefilled_email seeds Stripe's checkout email field. Existing query
+ * params on the link are preserved.
+ */
 export function buildMembershipCheckoutUrl(
   link: string,
-  { uid, email }: { uid?: string; email?: string },
+  opts: { uid?: string | null; email?: string | null },
 ): string {
-  const url = new URL(link)                    // existing query params kept
-  if (uid) url.searchParams.set("client_reference_id", uid)
-  if (email) url.searchParams.set("prefilled_email", email)
-  return url.toString()
-}
+  const url = new URL(link);
+  if (opts.uid) {
+    url.searchParams.set("client_reference_id", opts.uid);
+  }
+  if (opts.email) {
+    url.searchParams.set("prefilled_email", opts.email);
+  }
 
-// Entitlement is read client-side off users/{uid}.subscriptionStatus in
-// Firestore and flipped by hand. Webhook automation is a documented,
-// deliberately deferred milestone (v0.5), not an oversight.`,
+  return url.toString();
+}`,
     language: 'typescript',
   },
   {
     label: 'One route comparison, because a second copy locks people out',
     detail:
-      'Every href in the app is written /journal, but trailingSlash: true makes the live usePathname() value /journal/. Two features compare them: nav active-link marking, and the subscription gate’s /pricing exemption. A second hand-rolled copy of that comparison would still look correct in review and would only show up as a person unable to reach checkout, which is the failure mode nobody reports. So the comparison lives in one 40-line module with 9 tests, and both consumers route through it. The non-obvious half is recorded in the docstring and was verified against the live export rather than assumed: basePath is not part of usePathname(), so it is deliberately not handled here.',
+      'Every href in the app is written /journal, but trailingSlash: true makes the live usePathname() value /journal/. Two features compare them: nav active-link marking, and the subscription gate’s /pricing exemption. A second hand-rolled copy of that comparison would still look correct in review and would only show up as a person unable to reach checkout, which is the failure mode nobody reports. So the comparison lives in one small module with 9 tests, and both consumers route through it. The non-obvious half is recorded in the docstring and was verified against the live export rather than assumed: basePath is not part of usePathname(), so it is deliberately not handled here.',
     file: 'src/lib/route-path.ts',
-    code: `// Next's pre-router value is null; "" and "/" are both the root.
-export function normalizeRoutePath(pathname: string | null): string {
-  if (pathname === null) return "/"
-  const trimmed = pathname.replace(/\\/+$/, "")
-  return trimmed === "" ? "/" : trimmed
+    code: `// Next returns null before the router is ready, so null, undefined and ""
+// all reduce to the root.
+export function normalizeRoutePath(pathname: string | null | undefined): string {
+  if (!pathname) {
+    return "/";
+  }
+
+  const withoutTrailingSlash = pathname.replace(/\\/+$/, "");
+  return withoutTrailingSlash === "" ? "/" : withoutTrailingSlash;
 }
 
-export function isRoute(pathname: string | null, route: string): boolean {
-  return normalizeRoutePath(pathname) === normalizeRoutePath(route)
+export function isRoute(pathname: string | null | undefined, route: string): boolean {
+  return normalizeRoutePath(pathname) === normalizeRoutePath(route);
 }
 
 // Consumers (both shipped in PR #117):
@@ -190,7 +207,7 @@ try {
     label: 'Browser E2E, because jsdom structurally cannot see this bug class',
     detail:
       'Every test in the repo lived in jsdom, and the defects that slipped through a green 500-plus suite were exactly the ones only a real browser sees. Three concrete escapes: the deployed site serving spinner-only HTML on every route, found by hand rather than by any test; an onboarding hydration mismatch caused by reading localStorage in a useState initializer, which a returning visitor computed as false and therefore never noticed until the app opened to signed-out visitors; and a progress ring that reset on reload, which jsdom cannot reproduce because nothing in it reloads a page. Those bugs live at the prerender-and-hydrate boundary of the exported artifact served under a basePath, so the dev server reproduces none of them. The suite therefore runs Playwright against the real build output, served by a dependency-free stdlib Node server that reproduces the hosting shape exactly.',
-    file: 'e2e/serve.mjs (124 lines, stdlib only) + e2e/fixtures.ts',
+    file: 'e2e/serve.mjs (stdlib only) + e2e/fixtures.ts',
     code: `// serve.mjs reproduces GitHub Pages' exact shape against the real out/
 // directory produced by a production build:
 //
@@ -265,7 +282,7 @@ export function AdhdCoachCaseStudyPage() {
           <div>
             <h1 className="text-2xl font-bold text-white">ADHD Daily Coach</h1>
             <p className="mt-1 text-sm text-amber-300/80">
-              Next.js static export · No backend · Firebase Auth · Firestore sync · Stripe Payment Links · Autonomous dev agent
+              Next.js static export · No server routes · Firebase Auth · Firestore sync · Stripe Payment Links · Autonomous dev agent
             </p>
           </div>
           <div className="flex gap-2">
@@ -350,7 +367,7 @@ export function AdhdCoachCaseStudyPage() {
             <div className="space-y-2">
               {[
                 'Google sign-in via Firebase, popup with a redirect fallback',
-                'Cloud sync to Firestore, with every read and write falling back to localStorage',
+                'Cloud sync to Firestore, with every read and write falling back to localStorage (code path built and tested; see limits below)',
                 'A paid membership flow, attributed through Stripe Payment Link parameters',
                 'Guest data that follows a visitor into their account on first sign-in',
               ].map((item) => (
@@ -369,12 +386,12 @@ export function AdhdCoachCaseStudyPage() {
         {[
           { value: '563', label: 'Vitest tests, 74 files' },
           { value: '4', label: 'Playwright browser journeys' },
-          { value: '11,675', label: 'Non-test lines under src/' },
-          { value: '9,967', label: 'Test lines under src/' },
-          { value: '4', label: 'Production dependencies' },
+          { value: '11,634', label: 'Non-test TypeScript lines, src/' },
+          { value: '11,723', label: 'Test TypeScript lines, src/' },
+          { value: '5', label: 'Production dependencies' },
           { value: '13', label: 'App Router routes' },
           { value: '41', label: 'Modules in src/lib' },
-          { value: '127', label: 'Merged PRs, 0 open' },
+          { value: '127', label: 'Merged PRs' },
         ].map(({ value, label }) => (
           <div key={label} className="rounded-xl border border-zinc-700/50 bg-zinc-800/50 p-4 text-center">
             <div className="text-xl font-bold text-white">{value}</div>
@@ -456,7 +473,8 @@ export function AdhdCoachCaseStudyPage() {
           The repository carries a second, deliberately separate work stream: a Python agent that picks a task
           off a JSON backlog, edits the TypeScript codebase through a tool-call loop, verifies its own work by
           running the project&rsquo;s own npm scripts, commits to a task branch, and opens a pull request. It is
-          2,068 lines across 12 files, built on the standard library plus four provider SDKs. The interesting
+          12 Python files built on the standard library plus four pip dependencies: the OpenAI, Anthropic and
+          Google SDKs, and pydantic. The interesting
           design decision is that the runner does not believe the model: when the model returns no tool calls,
           the runner runs verification anyway and feeds the exit code plus full output back into the
           conversation. Success is defined by the build, not by the model announcing it is finished.

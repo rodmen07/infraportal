@@ -98,7 +98,7 @@
       "detailUrl": "#/case-studies/dynamodb-idempotency"
     },
     {
-      "title": "ADHD Daily Coach — Static Export, No Backend",
+      "title": "ADHD Daily Coach — Static Export, No Server Routes",
       "subtitle": "Next.js 16 · React 19 · TypeScript · Firebase · Firestore · Stripe Payment Links · GitHub Pages",
       "description": "An ADHD friendly daily-dose coaching app shipped as a Next.js static export with no server routes — and still doing Google auth, cloud sync, a paid membership flow, and guest-to-account data migration entirely from the browser.",
       "techStack": ["Next.js 16", "React 19", "TypeScript", "Tailwind CSS 4", "Firebase Auth", "Cloud Firestore", "Zod", "Vitest", "Playwright", "Stripe Payment Links", "GitHub Actions", "GitHub Pages", "Python"],
