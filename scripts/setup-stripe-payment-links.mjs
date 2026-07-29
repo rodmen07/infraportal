@@ -15,9 +15,8 @@ const SITE_URL = (process.env.STRIPE_SITE_URL ?? 'https://rodmen07.github.io/inf
 const THANK_YOU_URL =
   process.env.STRIPE_THANK_YOU_URL ?? `${SITE_URL}/#/checkout-thank-you`
 
-const ARCHITECTURE_REVIEW_UNIT_CENTS = toCents('STRIPE_ARCH_REVIEW_UNIT_CENTS', 12_500)
+const ARCHITECTURE_REVIEW_UNIT_CENTS = toCents('STRIPE_ARCH_REVIEW_UNIT_CENTS', 10_000)
 const PROJECT_DEPOSIT_CENTS = toCents('STRIPE_PROJECT_DEPOSIT_CENTS', 50_000)
-const RETAINER_WEEKLY_CENTS = toCents('STRIPE_RETAINER_WEEKLY_CENTS', 100_000)
 const CURRENCY = (process.env.STRIPE_CURRENCY ?? 'usd').toLowerCase()
 const DRY_RUN = process.argv.includes('--dry-run')
 
@@ -40,7 +39,11 @@ const tierPlan = [
     unitAmount: ARCHITECTURE_REVIEW_UNIT_CENTS,
     recurring: null,
     adjustableQuantity: { minimum: 1, maximum: 40 },
-    priceLabel: '$125/hour blocks',
+    // Rendered into the Stripe PRODUCT NAME below, so this is customer-facing
+    // copy on the checkout page and the receipt, not an internal note. It has
+    // to move with unitAmount or a buyer is charged $100 for a product whose
+    // name says $125.
+    priceLabel: '$100/hour blocks',
   },
   {
     tier: 'Project',
@@ -52,15 +55,21 @@ const tierPlan = [
     adjustableQuantity: null,
     priceLabel: 'Kickoff deposit',
   },
-  {
-    tier: 'Retainer',
-    slug: 'retainer-weekly',
-    description: 'Reserve weekly engineering capacity with a recurring retainer checkout.',
-    unitAmount: RETAINER_WEEKLY_CENTS,
-    recurring: { interval: 'week' },
-    adjustableQuantity: null,
-    priceLabel: 'Weekly retainer',
-  },
+  // NO 'Retainer' ENTRY, deliberately (2026-07-29, the $100-base repricing).
+  //
+  // `run()` overwrites `checkoutUrl` for every tier it creates, so listing
+  // Retainer here attaches a RECURRING weekly subscription link to the
+  // aggregate Retainer card whose CTA reads "View retainer plans" and whose
+  // ctaHref is the internal `#/retainers` route. A live run would replace that
+  // navigation with an external subscription checkout, turning a browse action
+  // into an ongoing charge. The retainer tiers are contact-first by design
+  // (all three carry checkoutUrl: null in RetainersPage.tsx).
+  //
+  // The removed price was also wrong on its own terms: STRIPE_RETAINER_WEEKLY_CENTS
+  // defaulted to 100_000 ($1,000/week), which matched no published tier before
+  // this change ($800/$1,500/$3,000) and matches none after ($640/$1,040/$1,200).
+  // Restoring it means picking a per-tier price and giving each tier its own
+  // product, not reinstating one blended weekly number.
 ]
 
 function toCents(name, defaultValue) {
