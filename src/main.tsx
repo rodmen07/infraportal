@@ -65,6 +65,9 @@ const CloudMigrationCaseStudyPage = lazy(() =>
 const DynamoDbCaseStudyPage = lazy(() =>
   import('./pages/DynamoDbCaseStudyPage').then((m) => ({ default: m.DynamoDbCaseStudyPage })),
 )
+const AdhdCoachCaseStudyPage = lazy(() =>
+  import('./pages/AdhdCoachCaseStudyPage').then((m) => ({ default: m.AdhdCoachCaseStudyPage })),
+)
 
 // Lazy route: the API reference carries the 11 committed OpenAPI snapshots as
 // their own chunks, so none of that weight lands in the initial bundle.
@@ -203,6 +206,15 @@ function Root() {
         <DynamoDbCaseStudyPage />
       </LazyRoute>
     )
+  if (hash === '#/case-studies/adhd-daily-coach')
+    return (
+      <LazyRoute>
+        <AdhdCoachCaseStudyPage />
+      </LazyRoute>
+    )
+  // NOTE: every exact `#/case-studies/<slug>` arm must sit ABOVE this one.
+  // `hash.startsWith('#/case-studies/')` matches every detail slug, so an arm
+  // placed below it is unreachable and the visitor silently lands on the index.
   if (hash === '#/case-studies' || hash.startsWith('#/case-studies/'))
     return (
       <LazyRoute>
