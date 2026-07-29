@@ -107,9 +107,9 @@
         "Stripe Payment Links carry the Firebase uid as client_reference_id, so a site with no webhook endpoint can still attribute every payment",
         "Guest-to-account migration with an opt-in per-collection conflict guard: the guest copy is never deleted, and a failed run leaves the marker unset so the next load retries",
         "Product rules are mechanical: no infinite feed, no streak pressure, and a daily cap message, each wired to an assertion rather than a README promise",
-        "563 vitest tests across 74 files, plus 4 Playwright journeys run against the real static export served by a stdlib Node server that reproduces the hosting shape",
+        "564 vitest tests across 74 files, plus 4 Playwright journeys run against the real static export served by a stdlib Node server that reproduces the hosting shape",
         "Blocking Quality Gate (lint, typecheck, build, npm audit, coverage) with a daily scheduled detector for the non-hermetic audit step",
-        "An autonomous Python dev agent that edits the repo, verifies with the project's own npm scripts, and opens its own pull requests — 5 merged"
+        "An autonomous Python dev agent that edits the repo, verifies with the project's own npm scripts, and opens its own pull requests: 5 merged off dev-agent/* branches, 2 of which shipped application code"
       ],
       "githubUrl": "https://github.com/rodmen07/adhd-daily-coach",
       "detailUrl": "#/case-studies/adhd-daily-coach"

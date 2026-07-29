@@ -64,11 +64,19 @@ const PRODUCT_RULES: [string, string, string][] = [
   ],
 ]
 
+// Tailwind's content scanner reads this file as raw text, so a colour class
+// spelled out inside a code sample below would emit a real CSS rule for a
+// class no element on the page ever carries. Interpolating the colour segment
+// keeps the rendered sample byte-identical and leaves the scanner nothing to
+// match, so no orphan rule ships.
+const SLATE = 'slate'
+const WHITE = 'white'
+
 const HIGHLIGHTS: { label: string; detail: string; file: string; code: string; language?: string }[] = [
   {
     label: 'Selling a membership from a site that has no server',
     detail:
-      'output: "export" means there are no route handlers, so the app can neither create a Stripe Checkout Session nor receive a Stripe webhook. Stripe Payment Links move checkout off the app entirely, and attribution is smuggled through the URL: the Firebase uid rides along as client_reference_id, so every payment Stripe records can be matched back to the account that made it. The link itself is a build-time environment variable, injectable as a parameter so the tests never touch process.env, and the getter hard-requires an https:// prefix or returns null, in which case the pricing CTA degrades to a mailto early-access flow. Both channels log the same pricing_cta_clicked event with a channel label, so the two are comparable rather than one being invisible. Entitlement is then read client-side off users/{uid}.subscriptionStatus in Firestore and flipped by hand: webhook automation is a documented, deliberately deferred milestone (v0.5), not an oversight.',
+      'No route handlers means no Checkout Session and no webhook, so Payment Links move checkout off the app and attribution rides the URL. The env var is injected as a parameter, so tests never touch process.env, and a link that fails the https:// check leaves the CTA on a mailto fallback. Both channels log one pricing_cta_clicked event under a channel label, so neither is invisible. Entitlement reads users/{uid}.subscriptionStatus in Firestore, flipped by hand: the webhook is a deferred v0.5 milestone, not an oversight.',
     file: 'src/lib/billing.ts, verbatim and entire',
     code: `export function getStripePaymentLink(
   raw = process.env.NEXT_PUBLIC_STRIPE_PAYMENT_LINK,
@@ -110,7 +118,7 @@ export function buildMembershipCheckoutUrl(
   {
     label: 'One route comparison, because a second copy locks people out',
     detail:
-      'Every href in the app is written /journal, but trailingSlash: true makes the live usePathname() value /journal/. Two features compare them: nav active-link marking, and the subscription gate’s /pricing exemption. A second hand-rolled copy of that comparison would still look correct in review and would only show up as a person unable to reach checkout, which is the failure mode nobody reports. So the comparison lives in one small module with 9 tests, and both consumers route through it. The non-obvious half is recorded in the docstring and was verified against the live export rather than assumed: basePath is not part of usePathname(), so it is deliberately not handled here.',
+      'Every href is written /journal, but trailingSlash: true makes the live usePathname() value /journal/. A second hand-rolled copy of that comparison would look correct in review and would surface only as someone unable to reach checkout, the failure mode nobody reports. So it lives in one module with 9 tests, and both consumers route through it.',
     file: 'src/lib/route-path.ts',
     code: `// Next returns null before the router is ready, so null, undefined and ""
 // all reduce to the root.
@@ -139,7 +147,7 @@ export function isRoute(pathname: string | null | undefined, route: string): boo
   {
     label: 'Guest to account migration that can neither lose nor clobber data',
     detail:
-      'Opening the app to signed-out visitors means they write real data to guest-scoped localStorage: check-ins, journal entries, focus sessions, sliced tasks, today’s plan. On sign-in all of it has to follow them. The hazard is that those collections do not share write semantics. The check-in log is append-only, so several check-ins can legitimately share a date. The journal upserts by date key, so copying the check-in migration verbatim would let a guest entry silently overwrite account text written the same day. The answer is one collection-agnostic primitive whose conflict guard is opt-in per collection rather than universal: journal opts in, append-only collections deliberately do not, because there a date-identity rule would delete guest records rather than protect account ones. The divergence from the design doc is recorded as deliberate rather than quietly done.',
+      'Signed-out visitors write real data to guest-scoped localStorage, and on sign-in all of it has to follow them. The collections do not share write semantics: check-ins are append-only, so several can legitimately share a date, while the journal upserts by date key, so copying the check-in migration verbatim would let a guest entry silently overwrite account text from the same day. Hence a conflict guard that is opt-in per collection, a divergence from the design doc recorded as deliberate.',
     file: 'src/lib/guest-migration.ts (221 lines)',
     code: `// Two primitives, one policy.
 migrateGuestRecords(plan, targetScopeKey)       // listable collections
@@ -161,6 +169,8 @@ guestMigrationMarker(scope, backend, collection?)
 //   1. The guest copy is never deleted - the caller is given no removal hook.
 //   2. Account data wins, via an OPT-IN conflictGuard that reads account
 //      identity keys ONCE (not per record) and skips colliding guest rows.
+//      Opt-in and not universal: on an append-only collection a date-identity
+//      rule would DELETE guest records rather than protect account ones.
 //   3. On "error" the marker is deliberately NOT set, so the next load
 //      retries instead of silently declaring the copy done.
 
@@ -174,7 +184,7 @@ guestMigrationMarker(scope, backend, collection?)
   {
     label: 'Theme flash prevention, and a guard built from two disagreeing sources',
     detail:
-      'The app is dark by default with a persisted light toggle, and its theming is hybrid: most components read CSS custom properties, but a hand-maintained allowlist patches a specific set of literal Tailwind colour classes, and only under data-theme="dark". A class one step outside that allowlist gets no theme adaptation and ships invisible in one theme, which passes every existing test and every code review. The audit measured the exposure rather than guessing at it: 73 raw literal colour-class occurrences across 14 non-test files, of which three were genuinely broken in production, found by resolving actual hex values. It also correctly set aside a modal backdrop that is theme-agnostic by design. The fix is two-part: a blocking inline script that stamps the theme before first paint, and a regression guard that reads the app’s literal colour-class usage and the stylesheet’s allowlist as two sources that must agree.',
+      'Theming is hybrid: most components read CSS custom properties, but a hand-maintained allowlist patches a fixed set of literal Tailwind colour classes, and only under data-theme="dark". A class one step outside it ships invisible in one theme while passing every test and every review. The audit measured that exposure rather than guessing: 73 literal colour-class occurrences across 14 non-test files, three genuinely broken in production, found by resolving actual hex values, with a theme-agnostic modal backdrop correctly set aside.',
     file: 'src/app/layout.tsx:40-53 + src/app/__tests__/theme-token-guard.test.ts',
     code: `// Blocking inline <head> script - runs before first paint, so a persisted
 // light theme never flashes dark on the way in.
@@ -191,11 +201,11 @@ try {
 //   side B: globals.css's [data-theme] override allowlist
 //
 // The three live defects it was built from:
-//   hover:bg-slate-800 nav buttons - the allowlist never touched hover:
+//   hover:bg-${SLATE}-800 nav buttons - the allowlist never touched hover:
 //     variants or background utilities, so light mode composited dark text
 //     on a dark hover fill
 //   subscription-guard.tsx - the entire paywall screen, zero theme awareness
-//   a bg-white/70 callout nested inside a token-driven dark panel
+//   a bg-${WHITE}/70 callout nested inside a token-driven dark panel
 //
 // PR #94 then found the guard's OWN blind spot (inline style colours, which
 // a className regex cannot see), added a self-checking BASELINE_DEBT_TOTAL,
@@ -206,7 +216,7 @@ try {
   {
     label: 'Browser E2E, because jsdom structurally cannot see this bug class',
     detail:
-      'Every test in the repo lived in jsdom, and the defects that slipped through a green 500-plus suite were exactly the ones only a real browser sees. Three concrete escapes: the deployed site serving spinner-only HTML on every route, found by hand rather than by any test; an onboarding hydration mismatch caused by reading localStorage in a useState initializer, which a returning visitor computed as false and therefore never noticed until the app opened to signed-out visitors; and a progress ring that reset on reload, which jsdom cannot reproduce because nothing in it reloads a page. Those bugs live at the prerender-and-hydrate boundary of the exported artifact served under a basePath, so the dev server reproduces none of them. The suite therefore runs Playwright against the real build output, served by a dependency-free stdlib Node server that reproduces the hosting shape exactly.',
+      'Every test lived in jsdom, and the escapes from a green 500-plus suite were the ones only a real browser sees: a deployed site serving spinner-only HTML on every route, found by hand; an onboarding hydration mismatch from reading localStorage in a useState initializer, which returning visitors computed as false and never hit; and a progress ring that reset on reload, which jsdom cannot reproduce because nothing in it reloads a page. All three sit at the prerender-and-hydrate boundary of an export served under a basePath, which the dev server does not reproduce.',
     file: 'e2e/serve.mjs (stdlib only) + e2e/fixtures.ts',
     code: `// serve.mjs reproduces GitHub Pages' exact shape against the real out/
 // directory produced by a production build:
@@ -238,7 +248,7 @@ try {
   {
     label: 'A blocking gate that queries the internet, fixed with a detector',
     detail:
-      'npm audit --audit-level=high is a blocking step in the Quality Gate, and it queries the live advisory database. That makes the gate non-hermetic: an unchanged main branch can go red with no code change. It did, four times, and each time it was discovered reactively when someone next opened a pull request. The fix was neither to remove the gate nor to pin the advisory data, but to add a detector: a daily scheduled run of the identical command that gates nothing and surfaces the red within a day. Dependabot is not a substitute here and the reason is recorded: one advisory needed a major bump of a transitive dependency with no direct upgrade path, so no pull request was ever opened for it.',
+      'npm audit --audit-level=high blocks the gate and queries the live advisory database, so an unchanged main can go red with no code change. It did, four times, each found reactively when someone next opened a pull request. The fix was neither removing the gate nor pinning the advisory data but adding a detector that gates nothing and surfaces the red within a day. Dependabot is not a substitute: one advisory needed a major bump of a transitive dependency with no direct upgrade path, so no pull request was ever opened for it.',
     file: '.github/workflows/security-audit.yml',
     code: `on:
   schedule:
@@ -384,14 +394,14 @@ export function AdhdCoachCaseStudyPage() {
       {/* By the numbers */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {[
-          { value: '563', label: 'Vitest tests, 74 files' },
+          { value: '564', label: 'Vitest tests, 74 files' },
           { value: '4', label: 'Playwright browser journeys' },
-          { value: '11,634', label: 'Non-test TypeScript lines, src/' },
-          { value: '11,723', label: 'Test TypeScript lines, src/' },
+          { value: '11,701', label: 'Non-test TypeScript lines, src/' },
+          { value: '11,738', label: 'Test TypeScript lines, src/' },
           { value: '5', label: 'Production dependencies' },
           { value: '13', label: 'App Router routes' },
           { value: '41', label: 'Modules in src/lib' },
-          { value: '127', label: 'Merged PRs' },
+          { value: '128', label: 'Merged PRs' },
         ].map(({ value, label }) => (
           <div key={label} className="rounded-xl border border-zinc-700/50 bg-zinc-800/50 p-4 text-center">
             <div className="text-xl font-bold text-white">{value}</div>
@@ -470,14 +480,24 @@ export function AdhdCoachCaseStudyPage() {
       <section className="forge-panel rounded-2xl border border-amber-500/30 bg-amber-950/15 p-5 backdrop-blur-xl">
         <h2 className="text-base font-semibold text-amber-200">The dev agent that opens its own pull requests</h2>
         <p className="mt-2 text-sm leading-relaxed text-text-secondary">
-          The repository carries a second, deliberately separate work stream: a Python agent that picks a task
-          off a JSON backlog, edits the TypeScript codebase through a tool-call loop, verifies its own work by
-          running the project&rsquo;s own npm scripts, commits to a task branch, and opens a pull request. It is
-          12 Python files built on the standard library plus four pip dependencies: the OpenAI, Anthropic and
-          Google SDKs, and pydantic. The interesting
-          design decision is that the runner does not believe the model: when the model returns no tool calls,
-          the runner runs verification anyway and feeds the exit code plus full output back into the
-          conversation. Success is defined by the build, not by the model announcing it is finished.
+          A second, deliberately separate work stream: a Python agent that picks a task off a JSON backlog,
+          edits the TypeScript codebase through a tool-call loop, verifies its own work with the
+          project&rsquo;s own npm scripts, commits to a task branch, and opens a pull request. 12 Python files
+          on the standard library plus four pip dependencies: the OpenAI, Anthropic and Google SDKs, and
+          pydantic. The design decision that matters is that the runner does not believe the model: when the
+          model returns no tool calls, the runner runs verification anyway and feeds the exit code and full
+          output back into the conversation. Success is defined by the build, not by the model announcing it
+          is finished.
+        </p>
+        <p className="mt-3 text-sm leading-relaxed text-text-secondary">
+          What that produced is worth stating precisely rather than impressively. Five pull requests merged
+          from <code className="rounded bg-zinc-800 px-1 text-amber-300">dev-agent/*</code> branches, and two
+          of them shipped application code: #30 added a reminder-preferences module with its tests, #46 added
+          a guided-meditation list with its data module. The other three did not. #31 carried agent scripts,
+          editor settings and stray .pyc files; #33 was a 20-task backlog top-up, work queued <em>for</em> the
+          agent rather than written by it; #47 landed only a debug prompt dump despite its title. All five
+          were pushed under the repository owner&rsquo;s GitHub account, because the agent authenticates as
+          him, so authorship metadata cannot separate the two categories and the diffs are what settle it.
         </p>
         <div className="mt-4 grid gap-2 text-xs sm:grid-cols-2">
           {[
@@ -487,8 +507,8 @@ export function AdhdCoachCaseStudyPage() {
             ['Isolation', 'each worker gets its own git worktree, so no index.lock collisions'],
             ['Task claiming', 'a cross-process file lock; crashed claims auto-requeue after a lease'],
             ['Backlog hygiene', '10 stdlib unittest tests, no LLM calls and no external deps'],
-            ['Real state', '26 tasks: 15 completed, 11 pending; state.json records 17 runs'],
-            ['Shipped', 'PRs #30, #31, #33, #46, #47 — all authored by the agent, all merged'],
+            ['Local-only state', 'backlog.json and state.json are gitignored, so run counts never leave the machine'],
+            ['Shipped', '#30 and #46 added application code; #31, #33 and #47 touched only agent files'],
           ].map(([head, body]) => (
             <div key={head} className="rounded border border-zinc-700/40 bg-zinc-800/40 px-3 py-2">
               <span className="font-semibold text-text-secondary">{head}</span>
