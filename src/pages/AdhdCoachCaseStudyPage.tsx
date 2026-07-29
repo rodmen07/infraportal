@@ -184,14 +184,15 @@ guestMigrationMarker(scope, backend, collection?)
   {
     label: 'Theme flash prevention, and a guard built from two disagreeing sources',
     detail:
-      'Theming is hybrid: most components read CSS custom properties, but a hand-maintained allowlist patches a fixed set of literal Tailwind colour classes, and only under data-theme="dark". A class one step outside it ships invisible in one theme while passing every test and every review. The audit measured that exposure rather than guessing: 73 literal colour-class occurrences across 14 non-test files, three genuinely broken in production, found by resolving actual hex values, with a theme-agnostic modal backdrop correctly set aside.',
-    file: 'src/app/layout.tsx:40-53 + src/app/__tests__/theme-token-guard.test.ts',
+      'Theming is hybrid: most components read CSS custom properties, but a hand-maintained allowlist patches a fixed set of literal Tailwind colour classes, and only under data-theme="dark". A class one step outside it ships invisible in one theme while passing every test and every review. The audit measured that exposure rather than guessing: 73 literal colour-class occurrences, three genuinely broken in production, found by resolving actual hex values, with a theme-agnostic modal backdrop correctly set aside.',
+    file: 'src/app/layout.tsx:40-57 + src/app/__tests__/theme-token-guard.test.ts',
     code: `// Blocking inline <head> script - runs before first paint, so a persisted
 // light theme never flashes dark on the way in.
 try {
-  var stored = localStorage.getItem("calm-daily-coach:theme");
-  document.documentElement.dataset.theme = stored === "light" ? "light" : "dark";
-} catch (err) {
+  var savedTheme = localStorage.getItem("calm-daily-coach:theme");
+  var nextTheme = savedTheme === "light" ? "light" : "dark";
+  document.documentElement.dataset.theme = nextTheme;
+} catch (error) {
   document.documentElement.dataset.theme = "dark";   // dark is the default
 }
 // <html suppressHydrationWarning> because the prerender cannot know this.
@@ -508,7 +509,7 @@ export function AdhdCoachCaseStudyPage() {
             ['Task claiming', 'a cross-process file lock; crashed claims auto-requeue after a lease'],
             ['Backlog hygiene', '10 stdlib unittest tests, no LLM calls and no external deps'],
             ['Local-only state', 'backlog.json and state.json are gitignored, so run counts never leave the machine'],
-            ['Shipped', '#30 and #46 added application code; #31, #33 and #47 touched only agent files'],
+            ['Shipped', '#30 and #46 added application code; #31, #33 and #47 shipped no application code'],
           ].map(([head, body]) => (
             <div key={head} className="rounded border border-zinc-700/40 bg-zinc-800/40 px-3 py-2">
               <span className="font-semibold text-text-secondary">{head}</span>
@@ -518,7 +519,7 @@ export function AdhdCoachCaseStudyPage() {
         </div>
         <div className="mt-4">
           <CodeBlock
-            file="agents/dev-agent/main.py + tools.py"
+            file="agents/dev-agent/ (main.py, tools.py, runner.py, orchestrator.py, run_autonomous.py)"
             language="python"
             code={`# The self-heal step, which is the part that makes the loop trustworthy.
 #
