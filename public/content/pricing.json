@@ -4,46 +4,51 @@
   "tiers": [
     {
       "tier": "Architecture Review",
-      "price": "$125/hr",
+      "price": "$100/hr",
       "description": "Dedicated technical guidance delivered through focused sessions. I review your architecture, identify risks and opportunities, and provide written recommendations with clear next steps. Ideal for vetting decisions, modernization planning, compliance readiness, or resolving complex infrastructure challenges.",
       "features": [
         "Scheduled 1-hr video calls",
         "Written summary after each session",
         "Follow-up questions via email",
-        "No minimum commitment"
+        "No minimum commitment",
+        "Commit weekly hours to drop the rate, down to $50/hr at 24 hrs/week"
       ],
       "highlighted": false,
       "scarcity": null,
       "ctaLabel": "Book review",
       "ctaHref": "#/contact",
-      "checkoutUrl": "https://buy.stripe.com/bJe4gy3TR8fq5Y8cF4ffy00"
+      "checkoutUrl": "https://buy.stripe.com/cNieVccqnfHS5Y8eNcffy05"
     },
     {
       "tier": "Project",
-      "price": "$3,400–$5,100/month · 4-week minimum",
+      "price": "$5,200 · 4-week sprint",
       "description": "Well-defined projects delivered with complete documentation. All code arrives via pull request with comprehensive runbooks. A detailed proposal is agreed upfront so there are no surprises. Examples: CI/CD pipeline setup, infrastructure-as-code, containerization, cloud migrations, compliance hardening, or deployment automation.",
       "features": [
+        "80 hrs of delivery at $65/hr effective (35% off the $100 base rate)",
         "Scoped proposal with timeline",
         "All code delivered via pull request",
         "Documentation and runbook included",
+        "$500 kickoff deposit, credited against the balance",
         "1 month of post-delivery email support"
       ],
       "highlighted": false,
       "scarcity": null,
       "ctaLabel": "Discuss project",
       "ctaHref": "#/contact",
-      "checkoutUrl": "https://buy.stripe.com/bJedR87632V6euEfRgffy01"
+      "checkoutUrl": "https://buy.stripe.com/9B6fZg2PNcvG4U4gVkffy06"
     },
     {
       "tier": "Retainer",
-      "price": "Flexible · Starting at $800/week",
-      "description": "Ongoing hands-on engineering with flexible hours and responsiveness. Pick the capacity that fits your team: Starter ($800/week), Standard ($1,500/week), or Premium ($3,000/week). Same-day response, weekly syncs, and priority access.",
+      "price": "Flexible · Starting at $640/week",
+      "description": "Ongoing hands-on engineering with flexible hours and responsiveness. Pick the capacity that fits your team: Starter ($640/week), Standard ($1,040/week), or Premium ($1,200/week). Same-day response, weekly syncs, and priority access.",
       "features": [
-        "Choose 6–25 hrs/week capacity",
+        "Choose 8, 16, or 24 hrs/week",
+        "Each step up deepens the discount by 15 points: 20%, 35%, 50% off",
+        "Effective $80, $65, or $50/hr against the $100 base rate",
         "Same-day or priority response",
         "Weekly sync and progress updates",
         "Slack/Discord access (included)",
-        "Flexible scope — shift priorities week-to-week",
+        "Flexible scope, shift priorities week-to-week",
         "Cancel anytime (no lock-in)"
       ],
       "highlighted": true,
