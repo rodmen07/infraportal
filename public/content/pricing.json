@@ -17,7 +17,7 @@
       "scarcity": null,
       "ctaLabel": "Book review",
       "ctaHref": "#/contact",
-      "checkoutUrl": "https://buy.stripe.com/bJe4gy3TR8fq5Y8cF4ffy00"
+      "checkoutUrl": "https://buy.stripe.com/cNieVccqnfHS5Y8eNcffy05"
     },
     {
       "tier": "Project",
@@ -35,7 +35,7 @@
       "scarcity": null,
       "ctaLabel": "Discuss project",
       "ctaHref": "#/contact",
-      "checkoutUrl": "https://buy.stripe.com/bJedR87632V6euEfRgffy01"
+      "checkoutUrl": "https://buy.stripe.com/9B6fZg2PNcvG4U4gVkffy06"
     },
     {
       "tier": "Retainer",

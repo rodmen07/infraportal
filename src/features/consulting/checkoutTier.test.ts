@@ -63,8 +63,10 @@ const THANK_YOU_URL = 'https://rodmen07.github.io/infraportal/#/checkout-thank-y
  * deliberately: it was emitted on 2026-06-26 and dropped from `tierPlan` on
  * 2026-07-29 (a live run would have attached a recurring subscription link to
  * the aggregate Retainer card, whose CTA routes to the internal `#/retainers`
- * page), but links carrying it stay payable until the owner deactivates them
- * in Stripe. The round-trip below has to keep covering it until then.
+ * page). Its payment links were deactivated the same day, so nothing can be
+ * bought with it now, but a thank-you URL carrying `?tier=retainer-weekly`
+ * still resolves from an old receipt or email. The landing page has to keep
+ * reading it, so the round-trip below keeps covering it.
  */
 const LIVE_SLUGS = ['architecture-review', 'project-deposit', 'retainer-weekly']
 
