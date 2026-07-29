@@ -56,7 +56,16 @@ const LINKS_ARTIFACT = 'public/content/stripe_payment_links.json'
 /** The production thank-you URL the generator defaults to. */
 const THANK_YOU_URL = 'https://rodmen07.github.io/infraportal/#/checkout-thank-you'
 
-/** The three slugs the generator actually emits (public/content/pricing.json). */
+/**
+ * Every slug that has ever reached a customer's redirect URL.
+ *
+ * The generator emits the first two. `retainer-weekly` is retained
+ * deliberately: it was emitted on 2026-06-26 and dropped from `tierPlan` on
+ * 2026-07-29 (a live run would have attached a recurring subscription link to
+ * the aggregate Retainer card, whose CTA routes to the internal `#/retainers`
+ * page), but links carrying it stay payable until the owner deactivates them
+ * in Stripe. The round-trip below has to keep covering it until then.
+ */
 const LIVE_SLUGS = ['architecture-review', 'project-deposit', 'retainer-weekly']
 
 function readSource(relative: string): string {
