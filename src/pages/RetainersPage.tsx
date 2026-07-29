@@ -29,10 +29,11 @@ export function RetainersPage() {
     tiers: [
       {
         tier: 'Starter Retainer',
-        price: '$800/week · 6–8 hrs/week',
+        price: '$640/week · 8 hrs/week',
         description: 'Part-time hands-on engineering for smaller teams and early-stage projects. Perfect for adding infrastructure capacity without hiring full-time. Ideal for CI/CD setup, containerization, or initial cloud platform design.',
         features: [
-          '6–8 hrs/week of hands-on work',
+          '8 hrs/week of hands-on work',
+          '$80/hr effective, 20% off the $100 base rate',
           'Standard response (1-2 business days)',
           'Bi-weekly sync call',
           'Email and async communication',
@@ -48,14 +49,15 @@ export function RetainersPage() {
       },
       {
         tier: 'Standard Retainer',
-        price: '$1,500/week · 10–15 hrs/week',
+        price: '$1,040/week · 16 hrs/week',
         description: 'Reliable hands-on engineering every week with consistent capacity and same-day response times. Shift priorities week-to-week based on what matters most. Ideal for ongoing optimization, feature development, infrastructure scaling, technical debt reduction, or keeping cloud infrastructure lean and efficient.',
         features: [
-          '10–15 hrs/week of hands-on work',
+          '16 hrs/week of hands-on work',
+          '$65/hr effective, 35% off the $100 base rate',
           'Priority response (same business day)',
           'Weekly sync and progress update',
           'Slack/Discord access during business hours',
-          'Flexible scope — shift priorities week to week'
+          'Flexible scope, shift priorities week to week'
         ],
         highlighted: true,
         ctaLabel: 'Start Standard Retainer',
@@ -67,10 +69,11 @@ export function RetainersPage() {
       },
       {
         tier: 'Premium Retainer',
-        price: '$3,000/week · 20–25 hrs/week',
+        price: '$1,200/week · 24 hrs/week',
         description: 'Deep partnership with dedicated engineering capacity for complex, ongoing technical leadership. Best for teams scaling infrastructure, running critical compliance programs, or building new cloud platforms. Includes architecture review, mentoring, and hands-on implementation.',
         features: [
-          '20–25 hrs/week of hands-on work',
+          '24 hrs/week of hands-on work',
+          '$50/hr effective, 50% off the $100 base rate',
           'Immediate response (same-day or on-call)',
           'Weekly architecture review sync',
           'Real-time Slack/Discord access with mentoring',
@@ -104,7 +107,7 @@ export function RetainersPage() {
           <div className="max-w-2xl">
             <h1 className="text-3xl font-bold text-white">Retainer Plans</h1>
             <p className="mt-3 text-sm leading-relaxed text-text-secondary">
-              Dedicated engineering capacity, every week. Pick the hours and responsiveness that fit your team. All retainers include weekly syncs, flexible scope, and priority support.
+              Dedicated engineering capacity, every week. Pick the hours and responsiveness that fit your team. Each step up deepens the discount by 15 points, from 20% off the $100 base at 8 hrs/week to half price at 24. All retainers include weekly syncs, flexible scope, and priority support.
             </p>
             <p className="mt-4 rounded-lg border border-amber-400/20 bg-amber-500/10 px-3 py-2 text-sm text-amber-200">
               <span className="font-semibold">Availability:</span> {retainersData.availability}
@@ -143,13 +146,16 @@ export function RetainersPage() {
                 <span className="font-medium text-text-primary">1. Discovery call:</span> Share your current stack, pain points, and team size. I recommend the right tier based on scope.
               </p>
               <p>
-                <span className="font-medium text-text-primary">2. Signed agreement:</span> A simple 1-page SOW covering hours, rates, and expectations. No lock-in — month-to-month on Starter and Standard.
+                <span className="font-medium text-text-primary">2. Signed agreement:</span> A simple 1-page SOW covering hours, rates, and expectations. No lock-in, month-to-month on Starter and Standard.
               </p>
               <p>
                 <span className="font-medium text-text-primary">3. Weekly delivery:</span> Dedicated hours each week for implementation, code review, architecture guidance, or whatever moves the needle most for your team.
               </p>
               <p>
                 <span className="font-medium text-text-primary">4. Flexible scope:</span> Priorities shift week-to-week. One week it might be DevOps automation, the next week mentoring junior engineers or infrastructure refactoring.
+              </p>
+              <p>
+                <span className="font-medium text-text-primary">5. Unused hours:</span> Each tier reserves a fixed block of capacity, so hours do not roll over. One week of carryover is available by request, and work beyond the tier bills at that tier&apos;s effective rate.
               </p>
             </div>
           </div>
