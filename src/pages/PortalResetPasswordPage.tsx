@@ -1,20 +1,19 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { PageLayout } from './PageLayout'
+import { parseResetToken } from '../features/auth/hashParams'
 import { AUTH_SERVICE_URL } from '../config'
 
 export function PortalResetPasswordPage() {
-  const [resetToken, setResetToken] = useState<string | null>(null)
+  // Read once at mount, not in an effect: the link is fixed for the life of
+  // the page, and the old mount effect made the first paint claim the link
+  // carried no token ("No reset token found...") before correcting itself on
+  // the next render.
+  const [resetToken] = useState<string | null>(() => parseResetToken(window.location.hash))
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [done, setDone] = useState(false)
-
-  useEffect(() => {
-    const hashParams = new URLSearchParams(window.location.hash.split('?')[1] ?? '')
-    const token = hashParams.get('token')
-    setResetToken(token)
-  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

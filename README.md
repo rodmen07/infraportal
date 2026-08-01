@@ -138,6 +138,9 @@ about before adding code:
 - `src/features/site/conversionInstrumentation.test.ts` — every analytics call site uses
   a name from the typed event registry (`src/utils/analyticsEvents.ts`), every declared
   conversion surface carries tracking, and no registered name goes unused.
+- `src/features/site/setStateInEffect.test.ts` — `react-hooks/set-state-in-effect` runs
+  at `error` for every file except the shrinking legacy list in `eslint.config.js`, and
+  no listed file may keep its exemption after it stops violating the rule.
 - `src/features/site/analyticsSink.test.ts` — an analytics sink's forwarding code in
   `src/utils/analytics.ts` and its loader script in `index.html` must arrive and leave
   together (no dispatching into a void, no sink that drops funnel events), and every
