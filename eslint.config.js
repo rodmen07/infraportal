@@ -18,11 +18,12 @@ import { defineConfig, globalIgnores } from 'eslint/config'
  *
  * This list inverts that: new code is gated, the known sites are not. Two of
  * the original 14 files (the portal register and reset-password pages, which
- * parsed their URL in a mount effect) were fixed outright, so the list starts
- * at 12 covering 15 sites. Nine are fetch-then-setState loaders whose real fix
- * is moving data loading out of effects; three read a localStorage-backed
- * store when a prop changes; three prune a selection set against freshly
- * loaded rows.
+ * parsed their URL in a mount effect) were fixed outright, and the three
+ * portal panels that mirrored a localStorage-backed store into state now read
+ * it through `useSyncExternalStore` instead, so the list is down to 9 files
+ * covering 12 sites. Nine are fetch-then-setState loaders whose real fix is
+ * moving data loading out of effects; three prune a selection set against
+ * freshly loaded rows.
  *
  * **The list may only shrink.** `src/features/site/setStateInEffect.test.ts`
  * re-lints every entry and fails on one that no longer violates, so a fixed
@@ -36,9 +37,6 @@ const SET_STATE_IN_EFFECT_LEGACY = [
   'src/features/crm/OpportunitiesTab.tsx',
   'src/features/crm/ProjectsTab.tsx',
   'src/features/crm/SpendTab.tsx',
-  'src/features/health/ServiceHealthIndicators.tsx',
-  'src/features/onboarding/OnboardingChecklist.tsx',
-  'src/features/support/SupportRequestPanel.tsx',
   'src/pages/AuditPage.tsx',
   'src/pages/PortalPage.tsx',
   'src/pages/ReportsPage.tsx',
