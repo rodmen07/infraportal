@@ -306,3 +306,78 @@ describe('useHomeSectionsContent', () => {
     expect(content.title).toBe('What I help with')
   })
 })
+
+// ---------------------------------------------------------------------------
+// The typed-decode guard (QA 2026-08-01, L-015 sibling sweep).
+//
+// Three hooks decoded the response with a bare `as SomeContent`, which asserts
+// a shape rather than checking one. A body that is valid JSON but the WRONG
+// SHAPE - a content edit that drops a key, a CDN handing back a neighbouring
+// document - therefore replaced the default wholesale, and the consuming page
+// then read `.length` off `undefined` and threw into the root error boundary.
+// Proven for pricing by revert-and-rerun: without the guard,
+// `pricingViewAnalytics.test.ts` contract F fails with
+// `TypeError: Cannot read properties of undefined (reading 'length')`.
+//
+// `contentContract.test.ts` cannot cover this: it validates the COMMITTED
+// files, and the defect is about what the browser is handed at runtime.
+//
+// The other two hooks are NOT in the class and deliberately stay unchanged:
+// `useSiteContent` and `useHomeSectionsContent` build their next state field by
+// field inside the `try`, so a null or garbage payload throws into their own
+// catch and the default already survives (the two cases just above prove it).
+// ---------------------------------------------------------------------------
+
+describe('wrong-shape payloads keep the default instead of taking the page down', () => {
+  const WRONG_SHAPE = [
+    {
+      name: 'usePricingContent',
+      hook: usePricingContent as AnyHook,
+      payload: { note: 'a typo dropped the tiers key' },
+      arrayField: 'tiers',
+      goodPayload: { note: 'ok', tiers: [] },
+    },
+    {
+      name: 'useServicesContent',
+      hook: useServicesContent as AnyHook,
+      payload: { intro: 'a typo dropped the services key' },
+      arrayField: 'services',
+      goodPayload: { intro: 'ok', services: [] },
+    },
+    {
+      name: 'useCaseStudiesContent',
+      hook: useCaseStudiesContent as AnyHook,
+      payload: { intro: 'a typo dropped the others key' },
+      arrayField: 'others',
+      goodPayload: {
+        intro: 'ok',
+        featured: { title: '', subtitle: '', description: '', techStack: [], highlights: [] },
+        others: [],
+      },
+    },
+  ] as const
+
+  it.each(WRONG_SHAPE)('$name: a body missing $arrayField never yields a non-array', async ({ hook, payload, arrayField }) => {
+    stubFetchOk(payload)
+    const content = (await renderHook(hook)) as Record<string, unknown>
+    expect(Array.isArray(content[arrayField])).toBe(true)
+    expect(content[arrayField]).toEqual([])
+  })
+
+  it.each(WRONG_SHAPE)('$name: a null body never yields a non-array', async ({ hook, arrayField }) => {
+    stubFetchOk(null)
+    const content = (await renderHook(hook)) as Record<string, unknown>
+    expect(Array.isArray(content[arrayField])).toBe(true)
+  })
+
+  it.each(WRONG_SHAPE)('$name: a well-shaped body is still accepted, so the guard is not rejecting everything', async ({
+    hook,
+    goodPayload,
+    arrayField,
+  }) => {
+    stubFetchOk(goodPayload)
+    const content = (await renderHook(hook)) as Record<string, unknown>
+    expect(Array.isArray(content[arrayField])).toBe(true)
+    expect((content as { intro?: string; note?: string }).intro ?? (content as { note?: string }).note).toBe('ok')
+  })
+})
