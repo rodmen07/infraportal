@@ -32,7 +32,6 @@ import { defineConfig, globalIgnores } from 'eslint/config'
  */
 const SET_STATE_IN_EFFECT_LEGACY = [
   'src/features/crm/AccountsTab.tsx',
-  'src/features/crm/ActivitiesTab.tsx',
   'src/features/crm/ContactsTab.tsx',
   'src/features/crm/OpportunitiesTab.tsx',
   'src/features/crm/ProjectsTab.tsx',

@@ -1,34 +1,37 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useCallback } from 'react'
 import { resolveAdminToken } from '../../config'
 import type { Activity, ModalMode } from './types'
 import { api, ACTIVITIES_URL } from './api'
+import { useResource } from './useResource'
 import {
   Spinner, ErrorBox, CustomEmptyState, DocumentIcon, Badge, ACTIVITY_COLOR,
   ActionButtons, Modal, FormField, INPUT_CLS, SaveError, DeleteModal, NO_TOKEN_MSG,
 } from './ui'
 
+const NO_ACTIVITIES: Activity[] = []
+
 // ---------------------------------------------------------------------------
 // ActivitiesTab
 // ---------------------------------------------------------------------------
 export function ActivitiesTab() {
-  const [rows, setRows]       = useState<Activity[]>([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError]     = useState<string | null>(null)
   const [modal, setModal]     = useState<ModalMode<Activity>>(null)
   const [saving, setSaving]   = useState(false)
   const [saveErr, setSaveErr] = useState<string | null>(null)
   const [form, setForm]       = useState({ activity_type: 'email', subject: '', account_id: '', contact_id: '', notes: '', due_at: '', completed: false })
 
-  const load = useCallback(async () => {
-    if (!ACTIVITIES_URL) { setError('VITE_ACTIVITIES_API_BASE_URL not configured.'); return }
-    if (!resolveAdminToken()) { setError(NO_TOKEN_MSG); return }
-    setLoading(true); setError(null)
-    try   { setRows(await api<Activity[]>(`${ACTIVITIES_URL}/api/v1/activities`)) }
-    catch (e) { setError(e instanceof Error ? e.message : String(e)) }
-    finally   { setLoading(false) }
-  }, [])
+  // Both preconditions are evaluated during render rather than inside the
+  // mount effect, so a refused load is the FIRST paint's state instead of a
+  // second render pass over a briefly-wrong "No activities yet" card.
+  const blocked =
+    !ACTIVITIES_URL ? 'VITE_ACTIVITIES_API_BASE_URL not configured.'
+    : !resolveAdminToken() ? NO_TOKEN_MSG
+    : null
 
-  useEffect(() => { load() }, [load])
+  const fetchActivities = useCallback(
+    () => api<Activity[]>(`${ACTIVITIES_URL}/api/v1/activities`),
+    [],
+  )
+  const { data: rows, loading, error, reload: load } = useResource(NO_ACTIVITIES, fetchActivities, blocked)
 
   function openCreate() { setForm({ activity_type: 'email', subject: '', account_id: '', contact_id: '', notes: '', due_at: '', completed: false }); setSaveErr(null); setModal({ mode: 'create' }) }
   function openEdit(a: Activity) {
