@@ -1,7 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useMemo, useSyncExternalStore } from 'react'
 import { computeServiceHealth, type HealthIndicator, type HealthLevel } from './serviceHealth'
-import { getOnboardingProgress } from '../onboarding/onboardingStore'
-import { getSupportRequests } from '../support/supportStore'
+import {
+  getCompletedStepIdsSnapshot,
+  onboardingPercentFor,
+  subscribeToOnboardingStore,
+} from '../onboarding/onboardingStore'
+import { getSupportRequestsSnapshot, subscribeToSupportStore } from '../support/supportStore'
 
 const LEVEL_DOT: Record<HealthLevel, string> = {
   good: 'bg-emerald-400',
@@ -9,19 +13,29 @@ const LEVEL_DOT: Record<HealthLevel, string> = {
   pending: 'bg-sky-400',
 }
 
-function readIndicators(projectId: string): HealthIndicator[] {
-  return computeServiceHealth({
-    onboardingPercent: getOnboardingProgress(projectId).percent,
-    openSupportCount: getSupportRequests(projectId).filter((r) => r.status === 'open').length,
-  })
-}
-
+/**
+ * Reads both portal stores directly rather than caching them into state, so a
+ * write from either sibling panel on this page is reflected here immediately.
+ * The panel previously re-read only when `projectId` changed, which meant a
+ * completed onboarding step or a newly filed support request left this summary
+ * contradicting the panel right under it until the page remounted.
+ */
 export function ServiceHealthIndicators({ projectId }: { projectId: string }) {
-  const [indicators, setIndicators] = useState<HealthIndicator[]>(() => readIndicators(projectId))
+  const completedSteps = useSyncExternalStore(subscribeToOnboardingStore, () =>
+    getCompletedStepIdsSnapshot(projectId),
+  )
+  const requests = useSyncExternalStore(subscribeToSupportStore, () =>
+    getSupportRequestsSnapshot(projectId),
+  )
 
-  useEffect(() => {
-    setIndicators(readIndicators(projectId))
-  }, [projectId])
+  const indicators: HealthIndicator[] = useMemo(
+    () =>
+      computeServiceHealth({
+        onboardingPercent: onboardingPercentFor(completedSteps.length),
+        openSupportCount: requests.filter((r) => r.status === 'open').length,
+      }),
+    [completedSteps, requests],
+  )
 
   return (
     <div className="forge-panel surface-card-strong p-5">

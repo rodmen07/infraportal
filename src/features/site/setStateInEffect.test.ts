@@ -46,10 +46,12 @@ const toPosix = (value: string) => value.replace(/\\/g, '/')
 
 /**
  * The ceiling. Lower it when a file is fixed and removed from the list; it may
- * never be raised. Twelve is where the triage PR left it, after fixing the two
- * portal auth pages that parsed their URL inside a mount effect.
+ * never be raised. The triage PR left it at 12 after fixing the two portal auth
+ * pages that parsed their URL inside a mount effect; the three portal panels
+ * that mirrored a localStorage-backed store into state moved to
+ * `useSyncExternalStore` (see `src/utils/externalStore.ts`), taking it to 9.
  */
-const LEGACY_CEILING = 12
+const LEGACY_CEILING = 9
 
 /** A component that violates the rule in the simplest possible way. */
 const VIOLATING_SOURCE = `

@@ -1,11 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useState, useSyncExternalStore } from 'react'
 import {
   SUPPORT_CATEGORIES,
   createSupportRequest,
-  getSupportRequests,
+  getSupportRequestsSnapshot,
   removeSupportRequest,
+  subscribeToSupportStore,
   type SupportCategory,
-  type SupportRequest,
   type SupportStatus,
 } from './supportStore'
 import { formatRelativeTime } from '../../utils/time'
@@ -16,16 +16,19 @@ const STATUS_META: Record<SupportStatus, { label: string; badge: string }> = {
   resolved: { label: 'Resolved', badge: 'border-emerald-400/40 bg-emerald-500/15 text-success-text' },
 }
 
+/**
+ * The request list comes straight from the store, so filing or withdrawing a
+ * request updates the health panel above it in the same tick. Only the form's
+ * own draft state is local.
+ */
 export function SupportRequestPanel({ projectId }: { projectId: string }) {
-  const [requests, setRequests] = useState<SupportRequest[]>(() => getSupportRequests(projectId))
+  const requests = useSyncExternalStore(subscribeToSupportStore, () =>
+    getSupportRequestsSnapshot(projectId),
+  )
   const [category, setCategory] = useState<SupportCategory>(SUPPORT_CATEGORIES[0])
   const [subject, setSubject] = useState('')
   const [message, setMessage] = useState('')
   const [justSent, setJustSent] = useState(false)
-
-  useEffect(() => {
-    setRequests(getSupportRequests(projectId))
-  }, [projectId])
 
   const canSubmit = subject.trim().length > 0 && message.trim().length > 0
 
@@ -33,7 +36,6 @@ export function SupportRequestPanel({ projectId }: { projectId: string }) {
     e.preventDefault()
     if (!canSubmit) return
     createSupportRequest({ projectId, category, subject, message })
-    setRequests(getSupportRequests(projectId))
     setSubject('')
     setMessage('')
     setCategory(SUPPORT_CATEGORIES[0])
@@ -41,7 +43,7 @@ export function SupportRequestPanel({ projectId }: { projectId: string }) {
   }
 
   const handleWithdraw = (id: string) => {
-    setRequests(removeSupportRequest(projectId, id))
+    removeSupportRequest(projectId, id)
   }
 
   const openCount = requests.filter((r) => r.status === 'open').length
