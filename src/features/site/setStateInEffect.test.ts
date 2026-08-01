@@ -49,9 +49,12 @@ const toPosix = (value: string) => value.replace(/\\/g, '/')
  * never be raised. The triage PR left it at 12 after fixing the two portal auth
  * pages that parsed their URL inside a mount effect; the three portal panels
  * that mirrored a localStorage-backed store into state moved to
- * `useSyncExternalStore` (see `src/utils/externalStore.ts`), taking it to 9.
+ * `useSyncExternalStore` (see `src/utils/externalStore.ts`), taking it to 9;
+ * `ActivitiesTab` moved to the shared loader seam `src/features/crm/useResource.ts`
+ * (slice 2, the exemplar for the eight remaining fetch-then-setState loaders),
+ * taking it to 8.
  */
-const LEGACY_CEILING = 9
+const LEGACY_CEILING = 8
 
 /** A component that violates the rule in the simplest possible way. */
 const VIOLATING_SOURCE = `
