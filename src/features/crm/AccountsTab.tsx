@@ -2,52 +2,48 @@ import { useState, useEffect, useCallback } from 'react'
 import { resolveAdminToken } from '../../config'
 import { BulkEditModal } from '../../components/BulkEditModal'
 import { crmStore } from '../../lib/crmStore.mock'
-import { clearSelection, pruneSelection, toggleAll, toggleRow } from '../../lib/rowSelection'
+import { clearSelection, toggleAll, toggleRow } from '../../lib/rowSelection'
+import { useRowSelection } from '../../lib/useRowSelection'
 import type { Account, ModalMode, PagedResponse } from './types'
 import { api, ACCOUNTS_URL, ACCOUNTS_DEMO } from './api'
+import { useResource } from './useResource'
 import {
   Spinner, ErrorBox, CustomEmptyState, DocumentIcon, DemoDataBadge,
   SelectionToolbar, SelectAllCheckbox, Badge, STATUS_COLOR, ActionButtons,
   Modal, FormField, INPUT_CLS, SaveError, DeleteModal, NO_TOKEN_MSG,
 } from './ui'
 
+const NO_ACCOUNTS: Account[] = []
+
 // ---------------------------------------------------------------------------
 // AccountsTab
 // ---------------------------------------------------------------------------
 export function AccountsTab() {
-  const [rows, setRows]       = useState<Account[]>([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError]     = useState<string | null>(null)
   const [modal, setModal]     = useState<ModalMode<Account>>(null)
   const [saving, setSaving]   = useState(false)
   const [saveErr, setSaveErr] = useState<string | null>(null)
-  const [selected, setSelected] = useState<ReadonlySet<string>>(() => new Set())
   const [bulkEditOpen, setBulkEditOpen] = useState(false)
   const [form, setForm]       = useState({ name: '', domain: '', status: 'active' })
 
-  const load = useCallback(async () => {
-    if (ACCOUNTS_DEMO) {
-      setRows(crmStore.list('accounts'))
-      setError(null)
-      return
-    }
-    if (!resolveAdminToken()) { setError(NO_TOKEN_MSG); return }
-    setLoading(true); setError(null)
-    try {
-      const body = await api<PagedResponse<Account>>(`${ACCOUNTS_URL}/api/v1/accounts?limit=100`)
-      setRows(body.data)
-    } catch (e) { setError(e instanceof Error ? e.message : String(e)) }
-    finally     { setLoading(false) }
-  }, [])
+  // Evaluated during render, so a refused load is the FIRST paint's state
+  // instead of a second render pass over a briefly-wrong empty-state card.
+  const blocked = !ACCOUNTS_DEMO && !resolveAdminToken() ? NO_TOKEN_MSG : null
 
-  useEffect(() => { load() }, [load])
+  const fetchAccounts = useCallback(async () => {
+    if (ACCOUNTS_DEMO) return crmStore.list('accounts')
+    const body = await api<PagedResponse<Account>>(`${ACCOUNTS_URL}/api/v1/accounts?limit=100`)
+    return body.data
+  }, [])
+  const { data: rows, loading, error, reload: load } = useResource(NO_ACCOUNTS, fetchAccounts, blocked)
+  // Selection is pruned against the rendered rows (refresh, delete).
+  const [selected, setSelected] = useRowSelection(rows)
+
+  // In demo mode, re-read whenever the shared mock store changes (bulk
+  // import, bulk edit, or CRUD from another tab).
   useEffect(() => {
     if (!ACCOUNTS_DEMO) return
     return crmStore.subscribe(load)
   }, [load])
-  useEffect(() => {
-    setSelected(prev => pruneSelection(prev, rows.map(r => r.id)))
-  }, [rows])
 
   function openCreate() { setForm({ name: '', domain: '', status: 'active' }); setSaveErr(null); setModal({ mode: 'create' }) }
   function openEdit(a: Account) { setForm({ name: a.name, domain: a.domain ?? '', status: a.status }); setSaveErr(null); setModal({ mode: 'edit', record: a }) }

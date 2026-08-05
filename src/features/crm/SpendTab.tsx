@@ -1,7 +1,8 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useCallback } from 'react'
 import { resolveAdminToken } from '../../config'
 import type { SpendRecord, SpendSummary, SpendListResponse, SyncResult, ModalMode } from './types'
 import { api, SPEND_URL } from './api'
+import { useResource } from './useResource'
 import {
   Spinner, ErrorBox, CustomEmptyState, DocumentIcon, Badge, FALLBACK_BADGE,
   ActionButtons, Modal, FormField, INPUT_CLS, SaveError, DeleteModal, NO_TOKEN_MSG,
@@ -30,11 +31,10 @@ const PLATFORM_LABELS: Record<string, string> = {
   github: 'GitHub', aws: 'AWS',
 }
 
+/** List and summary land together, so a frame can never show one without the other. */
+const NO_SPEND: { rows: SpendRecord[]; summary: SpendSummary | null } = { rows: [], summary: null }
+
 export function SpendTab() {
-  const [rows, setRows] = useState<SpendRecord[]>([])
-  const [summary, setSummary] = useState<SpendSummary | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
   const [modal, setModal] = useState<ModalMode<SpendRecord>>(null)
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
@@ -46,27 +46,31 @@ export function SpendTab() {
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
 
-  const load = useCallback(async () => {
-    if (!SPEND_URL)  { setError('VITE_SPEND_API_BASE_URL not configured.'); return }
-    if (!resolveAdminToken()) { setError(NO_TOKEN_MSG); return }
-    setLoading(true); setError(null)
-    try {
-      const params = new URLSearchParams()
-      params.set('limit', '200')
-      if (filterPlatform) params.set('platform', filterPlatform)
-      if (dateFrom) params.set('date_from', dateFrom)
-      if (dateTo) params.set('date_to', dateTo)
-      const [list, sum] = await Promise.all([
-        api<SpendListResponse>(`${SPEND_URL}/api/v1/spend?${params}`),
-        api<SpendSummary>(`${SPEND_URL}/api/v1/spend/summary?${params}`),
-      ])
-      setRows(list.data)
-      setSummary(sum)
-    } catch (e) { setError(e instanceof Error ? e.message : String(e)) }
-    finally     { setLoading(false) }
-  }, [filterPlatform, dateFrom, dateTo])
+  // Evaluated during render. The old loader set these as an error from inside
+  // the mount effect but never cleared its `loading` initial value of true, so
+  // a missing URL or token rendered a spinner forever; now the refusal is the
+  // first paint's state.
+  const blocked =
+    !SPEND_URL ? 'VITE_SPEND_API_BASE_URL not configured.'
+    : !resolveAdminToken() ? NO_TOKEN_MSG
+    : null
 
-  useEffect(() => { load() }, [load])
+  // The filters are part of the fetcher's identity, so a filter change
+  // re-loads (and shows the spinner again) without extra bookkeeping.
+  const fetchSpend = useCallback(async () => {
+    const params = new URLSearchParams()
+    params.set('limit', '200')
+    if (filterPlatform) params.set('platform', filterPlatform)
+    if (dateFrom) params.set('date_from', dateFrom)
+    if (dateTo) params.set('date_to', dateTo)
+    const [list, sum] = await Promise.all([
+      api<SpendListResponse>(`${SPEND_URL}/api/v1/spend?${params}`),
+      api<SpendSummary>(`${SPEND_URL}/api/v1/spend/summary?${params}`),
+    ])
+    return { rows: list.data, summary: sum }
+  }, [filterPlatform, dateFrom, dateTo])
+  const { data, loading, error, reload: load } = useResource(NO_SPEND, fetchSpend, blocked)
+  const { rows, summary } = data
 
   async function handleSync(platform: 'gcp' | 'flyio' | 'github' | 'aws') {
     setSyncing(platform); setSyncMsg(null)

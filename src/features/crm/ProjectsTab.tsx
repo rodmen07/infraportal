@@ -12,6 +12,7 @@ import {
 } from '../../lib/projectStatusVocabulary'
 import type { Project, Milestone, Deliverable, ProjectLink, PMessage, Collaborator, ProgressUpdate } from './types'
 import { api, PROJECTS_URL, PROJECTS_DEMO } from './api'
+import { useResource } from './useResource'
 import {
   Spinner, ErrorBox, CustomEmptyState, ProjectIcon, FlagIcon, UsersIcon,
   DocumentIcon, DemoDataBadge, Modal, FormField, SaveError, INPUT_CLS,
@@ -38,14 +39,13 @@ const STATUS_PILL: Record<string, string> = {
   accepted:    'bg-emerald-500/15 text-success-text',
 }
 
+const NO_PROJECTS: Project[] = []
+
 export function ProjectsTab() {
-  const [projects, setProjects]   = useState<Project[]>([])
   const [selected, setSelected]   = useState<Project | null>(null)
   const [milestones, setMilestones] = useState<Milestone[]>([])
   const [deliverables, setDeliverables] = useState<Record<string, Deliverable[]>>({})
   const [messages, setMessages]   = useState<PMessage[]>([])
-  const [loading, setLoading]     = useState(false)
-  const [error, setError]         = useState<string | null>(null)
   const [reply, setReply]         = useState('')
   const [sending, setSending]     = useState(false)
 
@@ -84,22 +84,11 @@ export function ProjectsTab() {
   // clone modal (demo mode only)
   const [cloneOpen, setCloneOpen] = useState(false)
 
-  const loadProjects = useCallback(async () => {
-    if (PROJECTS_DEMO) {
-      setProjects(projectsStore.listProjects())
-      setError(null)
-      return
-    }
-    setLoading(true); setError(null)
-    try {
-      const rows = await api<Project[]>(`${PROJECTS_URL}/api/v1/projects`)
-      setProjects(rows)
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load')
-    } finally {
-      setLoading(false)
-    }
+  const fetchProjects = useCallback(async () => {
+    if (PROJECTS_DEMO) return projectsStore.listProjects()
+    return api<Project[]>(`${PROJECTS_URL}/api/v1/projects`)
   }, [])
+  const { data: projects, loading, error, reload: loadProjects } = useResource(NO_PROJECTS, fetchProjects)
 
   const loadProject = useCallback(async (p: Project) => {
     setSelected(p); setMilestones([]); setDeliverables({}); setMessages([]); setLinks([])
@@ -135,7 +124,6 @@ export function ProjectsTab() {
     } catch { /* best-effort */ }
   }, [])
 
-  useEffect(() => { loadProjects() }, [loadProjects])
   // In demo mode, re-read whenever the shared mock store changes (clone,
   // template create, or a mutation from another component).
   useEffect(() => {
