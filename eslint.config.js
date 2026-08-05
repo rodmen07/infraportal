@@ -18,12 +18,13 @@ import { defineConfig, globalIgnores } from 'eslint/config'
  *
  * This list inverts that: new code is gated, the known sites are not. Two of
  * the original 14 files (the portal register and reset-password pages, which
- * parsed their URL in a mount effect) were fixed outright, and the three
- * portal panels that mirrored a localStorage-backed store into state now read
- * it through `useSyncExternalStore` instead, so the list is down to 9 files
- * covering 12 sites. Nine are fetch-then-setState loaders whose real fix is
- * moving data loading out of effects; three prune a selection set against
- * freshly loaded rows.
+ * parsed their URL in a mount effect) were fixed outright; the three portal
+ * panels that mirrored a localStorage-backed store into state moved to
+ * `useSyncExternalStore`; and the six CRM tab loaders moved to the shared
+ * `src/features/crm/useResource.ts` seam (v1.23.1, with the three
+ * selection-prune effects replaced by `src/lib/useRowSelection.ts`), so the
+ * list is down to 3 files covering 3 sites, all fetch-then-setState loaders
+ * whose real fix is moving data loading out of effects (v1.23.2).
  *
  * **The list may only shrink.** `src/features/site/setStateInEffect.test.ts`
  * re-lints every entry and fails on one that no longer violates, so a fixed
@@ -31,11 +32,6 @@ import { defineConfig, globalIgnores } from 'eslint/config'
  * DEP-MAJ-2 follow-up in the autodev portfolio backlog.
  */
 const SET_STATE_IN_EFFECT_LEGACY = [
-  'src/features/crm/AccountsTab.tsx',
-  'src/features/crm/ContactsTab.tsx',
-  'src/features/crm/OpportunitiesTab.tsx',
-  'src/features/crm/ProjectsTab.tsx',
-  'src/features/crm/SpendTab.tsx',
   'src/pages/AuditPage.tsx',
   'src/pages/PortalPage.tsx',
   'src/pages/ReportsPage.tsx',

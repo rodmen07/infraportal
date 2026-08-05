@@ -2,50 +2,44 @@ import { useState, useEffect, useCallback } from 'react'
 import { resolveAdminToken } from '../../config'
 import { BulkEditModal } from '../../components/BulkEditModal'
 import { crmStore } from '../../lib/crmStore.mock'
-import { clearSelection, pruneSelection, toggleAll, toggleRow } from '../../lib/rowSelection'
+import { clearSelection, toggleAll, toggleRow } from '../../lib/rowSelection'
+import { useRowSelection } from '../../lib/useRowSelection'
 import type { Opportunity, ModalMode } from './types'
 import { api, OPPS_URL, OPPS_DEMO } from './api'
+import { useResource } from './useResource'
 import {
   Spinner, ErrorBox, CustomEmptyState, DocumentIcon, DemoDataBadge,
   SelectionToolbar, SelectAllCheckbox, Badge, STAGE_COLOR, ActionButtons,
   Modal, FormField, INPUT_CLS, SaveError, DeleteModal, NO_TOKEN_MSG,
 } from './ui'
 
+const NO_OPPORTUNITIES: Opportunity[] = []
+
 // ---------------------------------------------------------------------------
 // OpportunitiesTab
 // ---------------------------------------------------------------------------
 export function OpportunitiesTab() {
-  const [rows, setRows]       = useState<Opportunity[]>([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError]     = useState<string | null>(null)
   const [modal, setModal]     = useState<ModalMode<Opportunity>>(null)
   const [saving, setSaving]   = useState(false)
   const [saveErr, setSaveErr] = useState<string | null>(null)
-  const [selected, setSelected] = useState<ReadonlySet<string>>(() => new Set())
   const [bulkEditOpen, setBulkEditOpen] = useState(false)
   const [form, setForm]       = useState({ name: '', account_id: '', stage: 'qualification', amount: '', close_date: '' })
 
-  const load = useCallback(async () => {
-    if (OPPS_DEMO) {
-      setRows(crmStore.list('opportunities'))
-      setError(null)
-      return
-    }
-    if (!resolveAdminToken()) { setError(NO_TOKEN_MSG); return }
-    setLoading(true); setError(null)
-    try   { setRows(await api<Opportunity[]>(`${OPPS_URL}/api/v1/opportunities`)) }
-    catch (e) { setError(e instanceof Error ? e.message : String(e)) }
-    finally   { setLoading(false) }
-  }, [])
+  // Evaluated during render, so a refused load is the FIRST paint's state
+  // instead of a second render pass over a briefly-wrong empty-state card.
+  const blocked = !OPPS_DEMO && !resolveAdminToken() ? NO_TOKEN_MSG : null
 
-  useEffect(() => { load() }, [load])
+  const fetchOpportunities = useCallback(async () => {
+    if (OPPS_DEMO) return crmStore.list('opportunities')
+    return api<Opportunity[]>(`${OPPS_URL}/api/v1/opportunities`)
+  }, [])
+  const { data: rows, loading, error, reload: load } = useResource(NO_OPPORTUNITIES, fetchOpportunities, blocked)
+  const [selected, setSelected] = useRowSelection(rows)
+
   useEffect(() => {
     if (!OPPS_DEMO) return
     return crmStore.subscribe(load)
   }, [load])
-  useEffect(() => {
-    setSelected(prev => pruneSelection(prev, rows.map(r => r.id)))
-  }, [rows])
 
   function openCreate() { setForm({ name: '', account_id: '', stage: 'qualification', amount: '', close_date: '' }); setSaveErr(null); setModal({ mode: 'create' }) }
   function openEdit(o: Opportunity) {

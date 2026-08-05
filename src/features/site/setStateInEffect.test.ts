@@ -52,9 +52,11 @@ const toPosix = (value: string) => value.replace(/\\/g, '/')
  * `useSyncExternalStore` (see `src/utils/externalStore.ts`), taking it to 9;
  * `ActivitiesTab` moved to the shared loader seam `src/features/crm/useResource.ts`
  * (slice 2, the exemplar for the eight remaining fetch-then-setState loaders),
- * taking it to 8.
+ * taking it to 8; v1.23.1 moved the five remaining CRM tabs onto the same seam
+ * (their selection-prune effects onto `src/lib/useRowSelection.ts`), taking it
+ * to 3.
  */
-const LEGACY_CEILING = 8
+const LEGACY_CEILING = 3
 
 /** A component that violates the rule in the simplest possible way. */
 const VIOLATING_SOURCE = `
