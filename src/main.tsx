@@ -75,7 +75,6 @@ const ApiDocsPage = lazy(() =>
   import('./pages/ApiDocsPage').then((module) => ({ default: module.ApiDocsPage })),
 )
 
-// eslint-disable-next-line react-refresh/only-export-components
 function FailureMessage({ reason }: { reason: string }) {
   return (
     <div className="min-h-screen bg-surface-0 px-4 py-10 text-text-primary">
@@ -148,12 +147,10 @@ function installLoadWatchdog(rootElement: HTMLElement) {
   window.addEventListener('load', clear, { once: true })
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
 function LazyRoute({ children }: { children: ReactNode }) {
   return <Suspense fallback={<RouteLoadingFallback />}>{children}</Suspense>
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
 function Root() {
   const [hash, setHash] = useState(() => window.location.hash)
 
