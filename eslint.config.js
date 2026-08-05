@@ -73,6 +73,23 @@ export default defineConfig([
     },
   },
   {
+    // eslint-plugin-react-refresh 0.5.x (DEP-REFRESH-1, filed 2026-08-04)
+    // extended `only-export-components` to flag locally-declared,
+    // never-exported component bindings too, including `lazy()` calls -
+    // it did not check those under 0.4.x. `src/main.tsx` is the app's entry
+    // point: it has ZERO module exports (nothing ever imports from it), so
+    // the rule's actual concern - a Fast Refresh boundary getting confused
+    // about what a file exports - cannot apply here regardless of how many
+    // route components or lazy() bindings it declares locally. Scoped to
+    // this one file rather than three new per-line disables (on top of the
+    // three that already existed for Root/LazyRoute/FailureMessage, now
+    // redundant and removed) or a repo-wide rule change.
+    files: ['src/main.tsx'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
+  },
+  {
     files: ['**/*.{js,jsx}'],
     extends: [
       js.configs.recommended,
