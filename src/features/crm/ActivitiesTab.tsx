@@ -3,6 +3,7 @@ import { resolveAdminToken } from '../../config'
 import type { Activity, ModalMode } from './types'
 import { api, ACTIVITIES_URL } from './api'
 import { useResource } from './useResource'
+import { ACTIVITY_TYPES } from './vocabulary'
 import {
   Spinner, ErrorBox, CustomEmptyState, DocumentIcon, Badge, ACTIVITY_COLOR,
   ActionButtons, Modal, FormField, INPUT_CLS, SaveError, DeleteModal, NO_TOKEN_MSG,
@@ -116,7 +117,7 @@ export function ActivitiesTab() {
             <div className="grid grid-cols-2 gap-3">
               <FormField label="Type">
                 <select className={INPUT_CLS} value={form.activity_type} onChange={e => setForm(f => ({ ...f, activity_type: e.target.value }))}>
-                  {['email','call','meeting','task'].map(t => <option key={t} value={t}>{t}</option>)}
+                  {ACTIVITY_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
                 </select>
               </FormField>
               <FormField label="Due date/time">

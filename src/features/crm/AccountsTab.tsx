@@ -7,6 +7,7 @@ import { useRowSelection } from '../../lib/useRowSelection'
 import type { Account, ModalMode, PagedResponse } from './types'
 import { api, ACCOUNTS_URL, ACCOUNTS_DEMO } from './api'
 import { useResource } from './useResource'
+import { ACCOUNT_STATUSES } from './vocabulary'
 import {
   Spinner, ErrorBox, CustomEmptyState, DocumentIcon, DemoDataBadge,
   SelectionToolbar, SelectAllCheckbox, Badge, STATUS_COLOR, ActionButtons,
@@ -162,7 +163,7 @@ export function AccountsTab() {
             </FormField>
             <FormField label="Status">
               <select className={INPUT_CLS} value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}>
-                {['active','inactive','churned'].map(s => <option key={s} value={s}>{s}</option>)}
+                {ACCOUNT_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
               </select>
             </FormField>
             {saveErr && <SaveError message={saveErr} />}
