@@ -4,6 +4,10 @@ import type { SpendRecord, SpendSummary, SpendListResponse, SyncResult, ModalMod
 import { api, SPEND_URL } from './api'
 import { useResource } from './useResource'
 import {
+  PLATFORM_COLOR, PLATFORM_LABELS, SOURCE_COLOR, SPEND_GRANULARITIES,
+  SPEND_PLATFORMS, SYNC_PLATFORMS, type SyncPlatform,
+} from './vocabulary'
+import {
   Spinner, ErrorBox, CustomEmptyState, DocumentIcon, Badge, FALLBACK_BADGE,
   ActionButtons, Modal, FormField, INPUT_CLS, SaveError, DeleteModal, NO_TOKEN_MSG,
 } from './ui'
@@ -11,25 +15,6 @@ import {
 // ---------------------------------------------------------------------------
 // Spend tab
 // ---------------------------------------------------------------------------
-const PLATFORM_COLOR: Record<string, string> = {
-  gcp:            'bg-blue-500/15 text-info-text ring-blue-500/30',
-  flyio:          'bg-purple-500/15 text-purple-300 ring-purple-500/30',
-  anthropic:      'bg-amber-500/15 text-amber-300 ring-amber-500/30',
-  github_copilot: 'bg-green-500/15 text-success-text ring-green-500/30',
-  github:         'bg-green-500/15 text-success-text ring-green-500/30',
-  aws:            'bg-orange-500/15 text-caution-text ring-orange-500/30',
-}
-const SOURCE_COLOR: Record<string, string> = {
-  manual:              'bg-zinc-500/15 text-text-muted ring-zinc-500/30',
-  bigquery:            'bg-blue-500/15 text-info-text ring-blue-500/30',
-  flyio_graphql:       'bg-purple-500/15 text-purple-300 ring-purple-500/30',
-  github_api:          'bg-green-500/15 text-success-text ring-green-500/30',
-  aws_cost_explorer:   'bg-orange-500/15 text-caution-text ring-orange-500/30',
-}
-const PLATFORM_LABELS: Record<string, string> = {
-  gcp: 'GCP', flyio: 'Fly.io', anthropic: 'Anthropic', github_copilot: 'GitHub Copilot',
-  github: 'GitHub', aws: 'AWS',
-}
 
 /** List and summary land together, so a frame can never show one without the other. */
 const NO_SPEND: { rows: SpendRecord[]; summary: SpendSummary | null } = { rows: [], summary: null }
@@ -72,7 +57,7 @@ export function SpendTab() {
   const { data, loading, error, reload: load } = useResource(NO_SPEND, fetchSpend, blocked)
   const { rows, summary } = data
 
-  async function handleSync(platform: 'gcp' | 'flyio' | 'github' | 'aws') {
+  async function handleSync(platform: SyncPlatform) {
     setSyncing(platform); setSyncMsg(null)
     try {
       const result = await api<SyncResult>(`${SPEND_URL}/api/v1/spend/sync/${platform}`, { method: 'POST' })
@@ -141,18 +126,11 @@ export function SpendTab() {
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-2">
         <button type="button" onClick={load} className="btn-neutral px-3 py-1.5 text-xs">Refresh</button>
-        <button type="button" onClick={() => handleSync('gcp')} disabled={!!syncing} className="btn-neutral px-3 py-1.5 text-xs disabled:opacity-50">
-          {syncing === 'gcp' ? 'Syncing…' : 'Sync GCP'}
-        </button>
-        <button type="button" onClick={() => handleSync('flyio')} disabled={!!syncing} className="btn-neutral px-3 py-1.5 text-xs disabled:opacity-50">
-          {syncing === 'flyio' ? 'Syncing…' : 'Sync Fly.io'}
-        </button>
-        <button type="button" onClick={() => handleSync('github')} disabled={!!syncing} className="btn-neutral px-3 py-1.5 text-xs disabled:opacity-50">
-          {syncing === 'github' ? 'Syncing…' : 'Sync GitHub'}
-        </button>
-        <button type="button" onClick={() => handleSync('aws')} disabled={!!syncing} className="btn-neutral px-3 py-1.5 text-xs disabled:opacity-50">
-          {syncing === 'aws' ? 'Syncing…' : 'Sync AWS'}
-        </button>
+        {SYNC_PLATFORMS.map(p => (
+          <button key={p} type="button" onClick={() => handleSync(p)} disabled={!!syncing} className="btn-neutral px-3 py-1.5 text-xs disabled:opacity-50">
+            {syncing === p ? 'Syncing…' : `Sync ${PLATFORM_LABELS[p]}`}
+          </button>
+        ))}
         <div className="flex-1" />
         {rows.length > 0 && ( /* Only show if there are rows, otherwise the empty state has it */
           <button type="button" onClick={() => { setModal({ mode: 'create' }); setSaveError(null) }} className="btn-accent px-3 py-1.5 text-xs">+ Manual Entry</button>
@@ -168,7 +146,7 @@ export function SpendTab() {
         <select value={filterPlatform} onChange={e => setFilterPlatform(e.target.value)}
           className={`${INPUT_CLS} w-auto min-w-[130px]`}>
           <option value="">All platforms</option>
-          {Object.entries(PLATFORM_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+          {SPEND_PLATFORMS.map(p => <option key={p} value={p}>{PLATFORM_LABELS[p]}</option>)}
         </select>
         <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} placeholder="From" className={`${INPUT_CLS} w-auto`} />
         <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} placeholder="To" className={`${INPUT_CLS} w-auto`} />
@@ -245,7 +223,7 @@ export function SpendTab() {
             <FormField label="Platform">
               <select name="platform" defaultValue={modal.mode === 'edit' ? modal.record.platform : ''} required className={INPUT_CLS}>
                 <option value="" disabled>Select platform</option>
-                {Object.entries(PLATFORM_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                {SPEND_PLATFORMS.map(p => <option key={p} value={p}>{PLATFORM_LABELS[p]}</option>)}
               </select>
             </FormField>
             <FormField label="Date">
@@ -256,8 +234,7 @@ export function SpendTab() {
             </FormField>
             <FormField label="Granularity">
               <select name="granularity" defaultValue={modal.mode === 'edit' ? modal.record.granularity : 'daily'} className={INPUT_CLS}>
-                <option value="daily">Daily</option>
-                <option value="monthly">Monthly</option>
+                {SPEND_GRANULARITIES.map(g => <option key={g} value={g}>{g[0].toUpperCase() + g.slice(1)}</option>)}
               </select>
             </FormField>
             <FormField label="Service label (optional)">

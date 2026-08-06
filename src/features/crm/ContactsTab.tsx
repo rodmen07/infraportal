@@ -7,6 +7,7 @@ import { useRowSelection } from '../../lib/useRowSelection'
 import type { Contact, ModalMode, PagedResponse } from './types'
 import { api, CONTACTS_URL, CONTACTS_DEMO } from './api'
 import { useResource } from './useResource'
+import { CONTACT_LIFECYCLE_STAGES } from './vocabulary'
 import {
   Spinner, ErrorBox, CustomEmptyState, DocumentIcon, DemoDataBadge,
   SelectionToolbar, SelectAllCheckbox, Badge, LIFECYCLE_COLOR, ActionButtons,
@@ -187,7 +188,7 @@ export function ContactsTab({ stageFilter }: { stageFilter?: string }) {
             </FormField>
             <FormField label="Lifecycle stage">
               <select className={INPUT_CLS} value={form.lifecycle_stage} onChange={e => setForm(f => ({ ...f, lifecycle_stage: e.target.value }))}>
-                {['lead','prospect','customer','churned','evangelist'].map(s => <option key={s} value={s}>{s}</option>)}
+                {CONTACT_LIFECYCLE_STAGES.map(s => <option key={s} value={s}>{s}</option>)}
               </select>
             </FormField>
             <FormField label="Account ID (optional)">

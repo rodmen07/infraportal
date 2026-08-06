@@ -7,6 +7,7 @@ import { useRowSelection } from '../../lib/useRowSelection'
 import type { Opportunity, ModalMode } from './types'
 import { api, OPPS_URL, OPPS_DEMO } from './api'
 import { useResource } from './useResource'
+import { OPPORTUNITY_STAGES } from './vocabulary'
 import {
   Spinner, ErrorBox, CustomEmptyState, DocumentIcon, DemoDataBadge,
   SelectionToolbar, SelectAllCheckbox, Badge, STAGE_COLOR, ActionButtons,
@@ -165,7 +166,7 @@ export function OpportunitiesTab() {
             <div className="grid grid-cols-2 gap-3">
               <FormField label="Stage">
                 <select className={INPUT_CLS} value={form.stage} onChange={e => setForm(f => ({ ...f, stage: e.target.value }))}>
-                  {['qualification','proposal','negotiation','closed-won','closed-lost'].map(s => <option key={s} value={s}>{s}</option>)}
+                  {OPPORTUNITY_STAGES.map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
               </FormField>
               <FormField label="Amount ($)">
