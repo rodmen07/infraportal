@@ -14,8 +14,9 @@
  * shape produced -- ever mounts the empty state while a fetch is pending or a
  * load is refused, the spy records it and the assertion reddens. Restoring
  * any tab's pre-v1.23.1 version from origin/main fails its pending-fetch case
- * here (and fails `eslint .` outright, since the tab is no longer on
- * `SET_STATE_IN_EFFECT_LEGACY`).
+ * here (and fails `eslint .` outright: the tab left the since-deleted
+ * `SET_STATE_IN_EFFECT_LEGACY` exemption list in v1.23.1, and v1.23.2 deleted
+ * the mechanism itself, so the rule is an error everywhere).
  *
  * Harness: the `react-dom/client` + `act` precedent from
  * `useResource.test.ts`, whose contract C covers `ActivitiesTab` the same way.

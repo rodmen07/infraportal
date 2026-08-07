@@ -17,8 +17,8 @@ import { useCallback, useEffect, useState } from 'react'
  *     }, [])
  *     useEffect(() => { load() }, [load])
  *
- * Nine files shipped that shape, and all nine sit on the
- * `SET_STATE_IN_EFFECT_LEGACY` list in `eslint.config.js` because of it. The
+ * Nine files shipped that shape, and all nine sat on the (since-deleted,
+ * v1.23.2) `SET_STATE_IN_EFFECT_LEGACY` list in `eslint.config.js` for it. The
  * violation is not stylistic. The guard branches and the `setLoading(true)`
  * prefix run SYNCHRONOUSLY inside the mount effect, so the first painted frame
  * shows neither the spinner nor the error -- it shows the component's idle

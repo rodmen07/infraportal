@@ -4,7 +4,8 @@
  * (SET-STATE-RATCHET slice 2, 2026-08-01), plus the first coverage of any kind
  * for `ActivitiesTab` -- the exemplar migrated onto it.
  *
- * The nine loaders on `SET_STATE_IN_EFFECT_LEGACY` all started their fetch with
+ * The nine loaders on the (since-deleted, v1.23.2) `SET_STATE_IN_EFFECT_LEGACY`
+ * exemption list all started their fetch with
  * a synchronous `setLoading(true)` (or a synchronous guard `setError`) inside
  * the mount effect. `react-hooks/set-state-in-effect` flags exactly that, and
  * the flag is sitting on a real defect: an effect runs AFTER the commit, so the
