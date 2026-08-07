@@ -33,6 +33,13 @@
  *   E  visible         no env-coupled module may carry a 'disabled' state, the
  *                      exact shape that made this failure invisible
  *
+ * (E) here is a cheap literal tripwire, deliberately kept: it is proven to
+ * fire on the retired modules and costs one regex. The STRUCTURAL version of
+ * the same contract -- which catches the shape under any name ('off',
+ * 'hidden', a bare `if (!SOME_URL) return null`) by walking the TypeScript
+ * AST -- lives beside this file in envVisibility.test.ts (v1.21.1 follow-up,
+ * closing the PR #93 scope cut).
+ *
  * (E) is the one that encodes the defect rather than its instances. The repo's
  * healthy pattern is to SAY it is unconfigured -- `PortalLoginGate` renders
  * "Auth service not configured (VITE_AUTH_SERVICE_URL)", `LiveFeedTab` renders
@@ -235,6 +242,9 @@ describe('env contract D: every config export is reachable', () => {
 })
 
 describe('env contract E: an unset variable degrades visibly, never invisibly', () => {
+  // The literal tripwire. The structural form of this contract (AST walk,
+  // catches renamed states and direct `return null` guards) is
+  // envVisibility.test.ts; keep both, they fail on different evidence.
   /** Files that read a VITE_* directly or import a URL constant from config. */
   const ENV_COUPLED = SOURCE_FILES.filter((file) => {
     const source = read(file)
