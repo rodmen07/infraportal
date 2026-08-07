@@ -1,7 +1,8 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useCallback } from 'react'
 import { PageLayout } from './PageLayout'
 import { resolveAdminToken } from '../config'
 import { useResource } from '../features/crm/useResource'
+import { useFocusTrap } from '../features/layout/useFocusTrap'
 
 // ---------------------------------------------------------------------------\
 // Config
@@ -209,20 +210,35 @@ function ReportsViewSkeleton() {
 // ---------------------------------------------------------------------------\
 // Modal
 // ---------------------------------------------------------------------------\
-function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [onClose])
+// v1.24.2 (D-14 + D-16): this was the site's ninth overlay and a dialog in
+// everything but name - `fixed inset-0` with a backdrop click and a hand-rolled
+// Escape listener, but no `role`, no `aria-modal` and no accessible name at
+// all, so assistive technology had no way to announce it as a dialog or to read
+// its title. It now declares the role, is named by its own heading, and adopts
+// the shared `useFocusTrap` seam; the hand-rolled Escape effect is DELETED
+// because the hook owns Escape (along with the Tab trap, focus-in and
+// focus-return-to-trigger it never had). Exported for the behaviour proof in
+// `src/features/layout/modalFocusTrap.test.ts`.
+export function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
+  // Every call site mounts this only while open ({modal?.mode === '…' && <Modal
+  // …/>}), so the trap is active for exactly the component's lifetime.
+  const containerRef = useFocusTrap<HTMLDivElement>(true, onClose)
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={onClose}>
+    <div
+      ref={containerRef}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+      onClick={onClose}
+      role="presentation"
+    >
       <div
         className="forge-panel surface-card-strong w-full max-w-md space-y-4 p-6"
         onClick={e => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="reports-modal-title"
       >
-        <h3 className="text-sm font-semibold text-text-primary">{title}</h3>
+        <h3 id="reports-modal-title" className="text-sm font-semibold text-text-primary">{title}</h3>
         {children}
       </div>
     </div>

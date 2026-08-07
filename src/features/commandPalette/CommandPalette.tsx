@@ -2,10 +2,25 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { COMMANDS, type Command } from './commands'
 import { filterCommands } from './search'
 import { PALETTE_OPEN_EVENT } from './paletteEvents'
+import { useFocusTrap } from '../layout/useFocusTrap'
 
 // A Cmd/Ctrl-K command palette for fast keyboard navigation across the site.
 // All matching/data lives in the tested pure modules (commands.ts, search.ts);
 // this component owns only the overlay, focus management, and key handling.
+//
+// v1.24.2 (D-14): this overlay declares aria-modal="true", so it owes the
+// keyboard the whole modal contract. It used to hand-roll three quarters of it
+// (Escape on the input only, focus-in, and a private restoreFocusRef) and had
+// no Tab trap at all, so Tab off the last result walked straight into the page
+// the aria-modal had just told assistive technology was inert. It now adopts
+// the shared `useFocusTrap` seam, and the two hand-rolled halves the hook
+// subsumes are DELETED rather than left to drift beside it:
+//   - Escape: the hook listens on document, so Escape now closes the palette
+//     from a result row too, not only while focus sits in the search input.
+//   - focus restore: the hook captures the trigger when it opens and restores
+//     it on close, which is exactly what restoreFocusRef did by hand.
+// The input-focus effect below is KEPT, because "focus the search box" is the
+// palette's own behaviour and is more specific than "focus the first focusable".
 
 function navigate(command: Command) {
   if (command.external) {
@@ -21,7 +36,6 @@ export function CommandPalette() {
   const [selected, setSelected] = useState(0)
   const inputRef = useRef<HTMLInputElement>(null)
   const listRef = useRef<HTMLUListElement>(null)
-  const restoreFocusRef = useRef<HTMLElement | null>(null)
 
   const results = useMemo(() => filterCommands(COMMANDS, query), [query])
 
@@ -29,14 +43,18 @@ export function CommandPalette() {
     setOpen(false)
     setQuery('')
     setSelected(0)
-    // Return focus to whatever the user was on when they opened the palette.
-    restoreFocusRef.current?.focus?.()
   }, [])
 
   const openPalette = useCallback(() => {
-    restoreFocusRef.current = document.activeElement as HTMLElement | null
     setOpen(true)
   }, [])
+
+  // Escape, the Tab/Shift+Tab trap, focus-in and focus-return-to-trigger, all
+  // from the one shared implementation. `open` (not a literal `true`) is the
+  // active flag because this component stays mounted for the app's whole life
+  // and renders null while closed: an always-active trap would swallow Tab and
+  // Escape across the entire site.
+  const containerRef = useFocusTrap<HTMLDivElement>(open, close)
 
   // Global shortcut: Cmd/Ctrl-K toggles the palette from anywhere.
   useEffect(() => {
@@ -78,11 +96,10 @@ export function CommandPalette() {
 
   if (!open) return null
 
+  // Escape is deliberately absent here: useFocusTrap owns it at the document
+  // level, so it closes the palette wherever focus sits, not just in the input.
   const onInputKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Escape') {
-      e.preventDefault()
-      close()
-    } else if (e.key === 'ArrowDown') {
+    if (e.key === 'ArrowDown') {
       e.preventDefault()
       setSelected((i) => (results.length === 0 ? 0 : (i + 1) % results.length))
     } else if (e.key === 'ArrowUp') {
@@ -106,6 +123,7 @@ export function CommandPalette() {
 
   return (
     <div
+      ref={containerRef}
       className="fixed inset-0 z-[100] flex items-start justify-center p-4 pt-[12vh]"
       role="dialog"
       aria-modal="true"
