@@ -19,15 +19,53 @@ interface AuthContextValue {
 
 const STORAGE_KEY = 'portal_token'
 
+const asString = (value: unknown): string | undefined => (typeof value === 'string' ? value : undefined)
+
+/**
+ * Role membership, never substring. A non-array claim yields NO roles rather
+ * than being handed to `Array.prototype.includes` — when `roles` arrived as a
+ * string, `roles.includes('admin')` was `String.prototype.includes`, so
+ * `"non-admin"` satisfied the admin gate; when it arrived as anything else,
+ * `.includes` did not exist and the read threw during render.
+ */
+const asRoles = (value: unknown): string[] =>
+  Array.isArray(value) ? value.filter((role): role is string => typeof role === 'string') : []
+
+/**
+ * Typed decode of an UNVERIFIED payload. The client never checks the
+ * signature, and the token can arrive from `?token=` / `#token=` in any link,
+ * so `JSON.parse` output is attacker-shaped `unknown` and every claim is
+ * narrowed before it reaches a consumer. Rejecting the token is the
+ * fail-closed answer for the two claims that identify the session (`sub`,
+ * `exp`); the display claims are simply dropped, since a missing username was
+ * already a supported state.
+ */
 function decodeJwt(token: string): AuthClaims | null {
   try {
     const payload = token.split('.')[1]
     if (!payload) return null
     const json = atob(payload.replace(/-/g, '+').replace(/_/g, '/'))
-    const claims = JSON.parse(json) as AuthClaims
-    if (!claims.sub || !claims.exp) return null
-    if (Date.now() / 1000 > claims.exp) return null
-    return claims
+    const raw: unknown = JSON.parse(json)
+    if (typeof raw !== 'object' || raw === null) return null
+    const claims = raw as Record<string, unknown>
+
+    const sub = asString(claims.sub)
+    if (!sub) return null
+
+    // A non-numeric `exp` used to mean the session NEVER expired, because
+    // `Date.now() / 1000 > NaN` is false. `src/config.ts` already guards its
+    // own decoder with `typeof payload.exp === 'number'`.
+    const exp = claims.exp
+    if (typeof exp !== 'number' || !Number.isFinite(exp)) return null
+    if (Date.now() / 1000 > exp) return null
+
+    return {
+      sub,
+      exp,
+      roles: asRoles(claims.roles),
+      username: asString(claims.username),
+      email: asString(claims.email),
+    }
   } catch {
     return null
   }
@@ -82,9 +120,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setToken(urlToken)
         setClaims(decoded)
-        // Remove the token from the URL, preserving the hash route
+        // Remove the token from the URL, preserving the hash route. The query
+        // string is rebuilt through URLSearchParams rather than regex-spliced:
+        // `search.replace(/[?&]token=[^&#]+/, '')` consumed the leading `?`
+        // whenever `token` came FIRST, so `?token=X&plan=pro` was rewritten
+        // into the path as `&plan=pro`.
         const cleanHash = window.location.hash.replace(/#token=[^&#]+/, '')
-        const cleanSearch = window.location.search.replace(/[?&]token=[^&#]+/, '')
+        params.delete('token')
+        const query = params.toString()
+        const cleanSearch = query ? `?${query}` : ''
         const cleanUrl = `${window.location.pathname}${cleanSearch}${cleanHash}`
         window.history.replaceState(null, '', cleanUrl)
         // Re-fire hashchange so the hash router re-reads the cleaned hash
