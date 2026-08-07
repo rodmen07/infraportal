@@ -20,7 +20,10 @@
 // ---------------------------------------------------------------------------
 import { useEffect, useRef } from 'react'
 
-const FOCUSABLE_SELECTOR = [
+// Exported so a test can compute the SAME ordered focusable set the trap uses
+// (v1.24.1); a private copy in the test would be a second source of truth for
+// what "the last focusable element" means.
+export const FOCUSABLE_SELECTOR = [
   'a[href]',
   'button:not([disabled])',
   'textarea:not([disabled])',
