@@ -13,23 +13,30 @@
  *     mounted, opens on Cmd/Ctrl-K, and closes without unmounting.
  *
  * The milestone's done-when is explicit that the grep clause
- * (`grep -rln "useFocusTrap" src --include=*.tsx` listing six files) can be
- * satisfied by a comment or an unused import (L-033), so it is paired with this
- * file: each modal is RENDERED for real under jsdom and driven through the whole
- * modal keyboard contract the hook exists to provide.
+ * (`grep -rln "useFocusTrap" src --include=*.tsx`) can be satisfied by a comment
+ * or an unused import (L-033), so it is paired with this file: each modal is
+ * RENDERED for real under jsdom and driven through the whole modal keyboard
+ * contract the hook exists to provide.
  *
- * Four assertions per modal, and every one of them fails if the
- * `useFocusTrap(...)` call is deleted from that component:
+ * Seven assertions per modal. FIVE of them fail if the `useFocusTrap(...)` call
+ * is deleted from that component (measured, v1.24.2 control: removing the call
+ * from ReportsPage's Modal while keeping the import gives `5 failed | 43
+ * passed`):
  *   1. focus-in     - opening moves focus to the first focusable element inside
  *                     the overlay, instead of leaving it on the trigger behind it.
  *   2. Escape       - Escape closes the modal.
  *   3. Tab trap     - Tab from the last focusable wraps to the first, and
- *                     Shift+Tab from the first wraps to the last, so the keyboard
+ *   4.                Shift+Tab from the first wraps to the last, so the keyboard
  *                     cannot walk out of a container that told assistive
  *                     technology (`aria-modal="true"`) that the page behind it
  *                     is inert.
- *   4. focus-return - closing (unmount, which is how every caller closes these)
+ *   5. focus-return - closing (unmount, which is how every caller closes these)
  *                     returns focus to the element that opened the overlay.
+ *
+ * The remaining TWO are markup assertions and deliberately survive that control,
+ * because they describe the D-16 contract rather than the hook: the overlay
+ * declares `aria-modal="true"`, and it carries an accessible name whose
+ * `aria-labelledby` target actually resolves to text.
  *
  * The focusable set is computed with the hook's own exported
  * FOCUSABLE_SELECTOR, so "the last focusable element" here means exactly what
@@ -232,10 +239,13 @@ describe.each(MODALS)('$name keyboard contract (v1.24.1 D-14)', ({ render }) => 
  * walked out of a container whose aria-modal="true" had just told assistive
  * technology the page behind it was inert.
  *
- * Every assertion here fails if the `useFocusTrap(open, close)` call is deleted
- * from CommandPalette.tsx, including the two that describe behaviour the old
- * hand-rolled code also had, because that code was deleted in the same change
- * rather than left to drift alongside the hook.
+ * Four of the six assertions here fail if the `useFocusTrap(open, close)` call
+ * is deleted from CommandPalette.tsx while its import is kept (measured control:
+ * `4 failed | 44 passed`) - including Escape and focus-return, which the old
+ * hand-rolled code also provided, because that code was deleted in the same
+ * change rather than left to drift alongside the hook. The two that survive are
+ * the markup assertion and focus-in, which the palette's own retained
+ * "focus the search box" effect keeps honest independently of the trap.
  */
 describe('CommandPalette keyboard contract (v1.24.2 D-14)', () => {
   let scrollIntoView: unknown
