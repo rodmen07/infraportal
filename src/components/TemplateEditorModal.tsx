@@ -20,6 +20,7 @@
 import { useState } from 'react'
 import { PROJECTS_STORE_BOUNDARY, projectsStore, type ProjectsStore } from '../lib/projectsStore.mock'
 import type { ProjectTemplate, TemplateDraftMilestone } from '../lib/projectClone'
+import { useFocusTrap } from '../features/layout/useFocusTrap'
 
 // v1.18.1 PR2: on the shared, token-built `.field-input` recipe from
 // src/styles/tokens.css. `min-w-0 flex-1` and the size utilities stay here
@@ -65,6 +66,11 @@ export function TemplateEditorModal({ template, store = projectsStore, onSaved, 
       : [{ key: nextKey(), name: '', deliverables: [{ key: nextKey(), name: '' }] }],
   )
   const [error, setError] = useState<string | null>(null)
+
+  // v1.24.1 (D-14): this overlay declares aria-modal="true", so it owes the
+  // keyboard the whole modal contract. The caller mounts it only while open,
+  // so the trap is active for the component's whole life.
+  const containerRef = useFocusTrap<HTMLDivElement>(true, onClose)
 
   const canSave = name.trim() !== '' && rows.some(row => row.name.trim() !== '')
 
@@ -131,7 +137,7 @@ export function TemplateEditorModal({ template, store = projectsStore, onSaved, 
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onMouseDown={onClose} role="presentation">
+    <div ref={containerRef} className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onMouseDown={onClose} role="presentation">
       <div
         className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-3xl border border-zinc-700/60 bg-zinc-900/80 p-6 shadow-2xl shadow-black/60 backdrop-blur-sm"
         onMouseDown={e => e.stopPropagation()}
