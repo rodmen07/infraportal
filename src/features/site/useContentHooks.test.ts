@@ -32,19 +32,29 @@ import { useSiteContent } from './useSiteContent'
 let container: HTMLDivElement
 let root: Root
 let latest: unknown
+let mounted: boolean
 
 beforeEach(() => {
   container = document.createElement('div')
   document.body.appendChild(container)
   root = createRoot(container)
   latest = undefined
+  mounted = true
 })
 
 afterEach(() => {
-  act(() => root.unmount())
+  if (mounted) act(() => root.unmount())
   container.remove()
   vi.unstubAllGlobals()
 })
+
+/** Unmount inside the test body (the lifetime tests below need to observe a
+ *  fetch resolving AFTER unmount); the `mounted` flag keeps afterEach from
+ *  unmounting twice (the pricingViewAnalytics.test.ts precedent). */
+function unmountProbe(): void {
+  act(() => root.unmount())
+  mounted = false
+}
 
 type AnyHook = (baseUrl: string) => unknown
 
@@ -380,4 +390,163 @@ describe('wrong-shape payloads keep the default instead of taking the page down'
     expect(Array.isArray(content[arrayField])).toBe(true)
     expect((content as { intro?: string; note?: string }).intro ?? (content as { note?: string }).note).toBe('ok')
   })
+})
+
+// ---------------------------------------------------------------------------
+// The `active` lifetime flag (v1.23.3, D-13; L-015 sibling sweep of the
+// PR #118 `usePricingContent` fix).
+//
+// Every content hook fetches inside a mount effect and writes state after the
+// await. Without a lifetime flag, an effect instance that has been CLEANED UP
+// (its `baseUrl` changed, or the component unmounted) still runs its
+// continuation when the response finally arrives. The observable defect is the
+// race: render against base A, re-render against base B, and A's slower
+// response lands LAST - overwriting B's fresher content, and for
+// `useSiteContent` pushing the stale title into `document.title` through its
+// title effect. The race tests below are the L-001 on/off proof: revert any
+// hook's `active` flag and that hook's race test goes red.
+//
+// The unmount tests pin the other half of the contract: a response resolving
+// after unmount writes nothing observable (for `useSiteContent`,
+// `document.title` is the live consumer that keeps this assertion out of
+// dead-surface territory - a post-unmount write could only ever surface
+// there). React 18 already no-ops a bare setState on an unmounted root, so
+// the unmount case alone cannot distinguish flag from no-flag; the race test
+// above is what carries the behaviour difference.
+// ---------------------------------------------------------------------------
+
+/** One controllable deferred per fetch call, resolvable out of order. */
+function stubFetchDeferredQueue(): {
+  calls: () => number
+  resolveCall: (index: number, payload: unknown) => void
+} {
+  const resolvers: Array<(response: { ok: boolean; json: () => Promise<unknown> }) => void> = []
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(
+      () =>
+        new Promise<{ ok: boolean; json: () => Promise<unknown> }>((resolve) => {
+          resolvers.push(resolve)
+        }),
+    ),
+  )
+  return {
+    calls: () => resolvers.length,
+    resolveCall: (index, payload) => {
+      resolvers[index]({ ok: true, json: async () => payload })
+    },
+  }
+}
+
+const LIFETIME_HOOKS = [
+  {
+    name: 'useSiteContent',
+    hook: useSiteContent as AnyHook,
+    freshPayload: { title: 'Fresh Title', subtitle: 'fresh', heroTagline: 'f' },
+    stalePayload: { title: 'Stale Title', subtitle: 'stale', heroTagline: 's' },
+    readMarker: (content: unknown) => (content as { title: string }).title,
+    freshMarker: 'Fresh Title',
+  },
+  {
+    name: 'useHomeSectionsContent',
+    hook: useHomeSectionsContent as AnyHook,
+    freshPayload: { title: 'Fresh Sections', cards: [{ heading: 'h', body: 'b' }] },
+    stalePayload: { title: 'Stale Sections', cards: [{ heading: 'h', body: 'b' }] },
+    readMarker: (content: unknown) => (content as { title: string }).title,
+    freshMarker: 'Fresh Sections',
+  },
+  {
+    name: 'useCaseStudiesContent',
+    hook: useCaseStudiesContent as AnyHook,
+    freshPayload: {
+      intro: 'fresh intro',
+      featured: { title: 'F', subtitle: 's', description: 'd', techStack: [], highlights: [] },
+      others: [],
+    },
+    stalePayload: {
+      intro: 'stale intro',
+      featured: { title: 'F', subtitle: 's', description: 'd', techStack: [], highlights: [] },
+      others: [],
+    },
+    readMarker: (content: unknown) => (content as { intro: string }).intro,
+    freshMarker: 'fresh intro',
+  },
+  {
+    name: 'useServicesContent',
+    hook: useServicesContent as AnyHook,
+    freshPayload: { intro: 'fresh intro', services: [] },
+    stalePayload: { intro: 'stale intro', services: [] },
+    readMarker: (content: unknown) => (content as { intro: string }).intro,
+    freshMarker: 'fresh intro',
+  },
+] as const
+
+describe('the active lifetime flag (v1.23.3): dead hook instances cannot write', () => {
+  it.each(LIFETIME_HOOKS)(
+    '$name: a stale response for a previous baseUrl cannot overwrite fresher content',
+    async ({ hook, freshPayload, stalePayload, readMarker, freshMarker }) => {
+      const deferred = stubFetchDeferredQueue()
+      await act(async () => {
+        root.render(createElement(Probe, { hook, baseUrl: '/a/' }))
+      })
+      await act(async () => {
+        root.render(createElement(Probe, { hook, baseUrl: '/b/' }))
+      })
+      expect(deferred.calls(), 'one fetch per baseUrl').toBe(2)
+
+      // The fresh load (base B) answers first ...
+      await act(async () => {
+        deferred.resolveCall(1, freshPayload)
+      })
+      expect(readMarker(latest)).toBe(freshMarker)
+
+      // ... and the stale load (base A) answers LAST. Its effect instance was
+      // cleaned up at the re-render, so `active` is false and the write must
+      // be skipped. Without the flag, this assertion reads the stale marker.
+      await act(async () => {
+        deferred.resolveCall(0, stalePayload)
+      })
+      expect(readMarker(latest)).toBe(freshMarker)
+    },
+  )
+
+  it('useSiteContent: the stale late response cannot reach document.title either', async () => {
+    const deferred = stubFetchDeferredQueue()
+    await act(async () => {
+      root.render(createElement(Probe, { hook: useSiteContent as AnyHook, baseUrl: '/a/' }))
+    })
+    await act(async () => {
+      root.render(createElement(Probe, { hook: useSiteContent as AnyHook, baseUrl: '/b/' }))
+    })
+    await act(async () => {
+      deferred.resolveCall(1, { title: 'Fresh Title', subtitle: 'x', heroTagline: 'y' })
+    })
+    expect(document.title).toBe('Fresh Title')
+    await act(async () => {
+      deferred.resolveCall(0, { title: 'Stale Title', subtitle: 'x', heroTagline: 'y' })
+    })
+    expect(document.title).toBe('Fresh Title')
+  })
+
+  it.each(LIFETIME_HOOKS)(
+    '$name: a fetch resolving after unmount writes nothing observable',
+    async ({ hook, stalePayload }) => {
+      const deferred = stubFetchDeferredQueue()
+      await act(async () => {
+        root.render(createElement(Probe, { hook, baseUrl: '/a/' }))
+      })
+      expect(deferred.calls()).toBe(1)
+
+      unmountProbe()
+      const titleAtUnmount = document.title
+
+      deferred.resolveCall(0, stalePayload)
+      // Flush the continuation's microtasks (json decode + the guarded write).
+      await Promise.resolve()
+      await Promise.resolve()
+      await Promise.resolve()
+
+      expect(document.title).toBe(titleAtUnmount)
+    },
+  )
 })

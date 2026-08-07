@@ -33,18 +33,29 @@ function isCaseStudiesContent(payload: unknown): payload is CaseStudiesContent {
 export function useCaseStudiesContent(baseUrl: string): CaseStudiesContent {
   const [content, setContent] = useState<CaseStudiesContent>(DEFAULT)
 
+  // The `active` lifetime flag (v1.23.3, D-13; the `usePricingContent`
+  // template): a response arriving after unmount, or after `baseUrl` changed
+  // and this effect instance was cleaned up, cannot write state, so a stale
+  // response can never overwrite fresher content. Guarded by
+  // useContentHooks.test.ts.
   useEffect(() => {
+    let active = true
+
     const load = async () => {
       try {
         const res = await fetch(`${baseUrl}content/case_studies.json`)
         if (!res.ok) return
         const payload: unknown = await res.json()
-        if (isCaseStudiesContent(payload)) setContent(payload)
+        if (active && isCaseStudiesContent(payload)) setContent(payload)
       } catch {
         // noop - error loading case studies
       }
     }
     void load()
+
+    return () => {
+      active = false
+    }
   }, [baseUrl])
 
   return content
