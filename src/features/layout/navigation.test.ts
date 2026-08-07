@@ -33,7 +33,6 @@ const read = (rel: string) => stripComments(readFileSync(path.join(ROOT, rel), '
 const TOPNAV = read('src/features/layout/TopNav.tsx')
 const PAGE_LAYOUT = read('src/pages/PageLayout.tsx')
 const APP = read('src/App.tsx')
-const SLIDE_OVER = read('src/features/site/SlideOver.tsx')
 const FOCUS_TRAP = read('src/features/layout/useFocusTrap.ts')
 const SKIP_LINK = read('src/features/layout/SkipLink.tsx')
 const INDEX_HTML = read('index.html')
@@ -149,10 +148,11 @@ describe('F11: overlays trap focus, close on Escape, and return focus', () => {
     expect(FOCUS_TRAP).toMatch(/previouslyFocused\?\.focus\?\.\(\)/)
   })
 
-  it('SlideOver uses the focus trap and is a labelled dialog', () => {
-    expect(SLIDE_OVER).toMatch(/useFocusTrap/)
-    expect(SLIDE_OVER).toMatch(/role="dialog"/)
-    expect(SLIDE_OVER).toMatch(/aria-modal="true"/)
-    expect(SLIDE_OVER).toMatch(/aria-label=/)
-  })
+  // The "SlideOver uses the focus trap and is a labelled dialog" case that
+  // used to sit here was DELETED by v1.24.3 (ROADMAP D-15). Its four
+  // assertions were pinned by name to the one file that had already adopted
+  // the hook, so the seven overlays that had not were invisible to it - the
+  // L-031 shape. All four are now subsumed by the glob-discovered
+  // `overlayContract.test.ts`, which asserts them over EVERY role="dialog" in
+  // src/** instead of over one named file.
 })
