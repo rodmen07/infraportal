@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { PageLayout } from './PageLayout'
 import { resolveAdminToken } from '../config'
+import { useResource } from '../features/crm/useResource'
 
 // ---------------------------------------------------------------------------\
 // Config
@@ -391,32 +392,34 @@ function DashboardCard({ summary }: { summary: DashboardSummary }) {
 // ---------------------------------------------------------------------------\
 // Reports view
 // ---------------------------------------------------------------------------\
+interface ReportsData {
+  summary: DashboardSummary | null
+  reports: SavedReport[]
+}
+
+const EMPTY_REPORTS_DATA: ReportsData = { summary: null, reports: [] }
+
 function ReportsView() {
-  const [summary, setSummary]   = useState<DashboardSummary | null>(null)
-  const [reports, setReports]   = useState<SavedReport[]>([])
-  const [loading, setLoading]   = useState(true)
-  const [error, setError]       = useState<string | null>(null)
   const [modal, setModal]       = useState<ModalMode>(null)
   const [deleting, setDeleting] = useState(false)
+  // A failed DELETE is not a load failure, but the page has always rendered it
+  // through the same full-width error panel; written only in event handlers.
+  const [actionError, setActionError] = useState<string | null>(null)
 
-  const load = useCallback(async () => {
-    if (!REPORTING_URL) { setError('VITE_REPORTING_API_BASE_URL is not configured'); setLoading(false); return }
-    setLoading(true); setError(null)
-    try {
-      const [s, r] = await Promise.all([
-        api<DashboardSummary>(`${REPORTING_URL}/api/v1/reports/dashboard`),
-        api<SavedReport[]>(`${REPORTING_URL}/api/v1/reports`),
-      ])
-      setSummary(s)
-      setReports(r)
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Load failed')
-    } finally {
-      setLoading(false)
-    }
+  const fetchReports = useCallback(async (): Promise<ReportsData> => {
+    const [summary, reports] = await Promise.all([
+      api<DashboardSummary>(`${REPORTING_URL}/api/v1/reports/dashboard`),
+      api<SavedReport[]>(`${REPORTING_URL}/api/v1/reports`),
+    ])
+    return { summary, reports }
   }, [])
 
-  useEffect(() => { load() }, [load])
+  const { data, loading, error, reload } = useResource<ReportsData>(
+    EMPTY_REPORTS_DATA,
+    fetchReports,
+    REPORTING_URL ? null : 'VITE_REPORTING_API_BASE_URL is not configured',
+  )
+  const { summary, reports } = data
 
   const handleSave = async (form: ReportFormData) => {
     const body = {
@@ -431,7 +434,7 @@ function ReportsView() {
       await api(`${REPORTING_URL}/api/v1/reports`, { method: 'POST', body: JSON.stringify(body) })
     }
     setModal(null)
-    load()
+    reload()
   }
 
   const handleDelete = async () => {
@@ -440,22 +443,23 @@ function ReportsView() {
     try {
       await api(`${REPORTING_URL}/api/v1/reports/${modal.id}`, { method: 'DELETE' })
       setModal(null)
-      load()
+      reload()
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Delete failed')
+      setActionError(e instanceof Error ? e.message : 'Delete failed')
     } finally {
       setDeleting(false)
     }
   }
 
+  const pageError = error ?? actionError
   if (loading) return <ReportsViewSkeleton />
-  if (error) return (
+  if (pageError) return (
     <div className="forge-panel surface-card-strong flex flex-col gap-3 border border-red-500/30 bg-red-500/10 p-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
         <p className="text-sm font-semibold text-danger-text">Unable to load saved reports</p>
-        <p className="mt-1 text-sm text-danger-text">{error}</p>
+        <p className="mt-1 text-sm text-danger-text">{pageError}</p>
       </div>
-      <button className="btn-accent px-3 py-2 text-sm" onClick={load}>Retry</button>
+      <button className="btn-accent px-3 py-2 text-sm" onClick={() => { setActionError(null); reload() }}>Retry</button>
     </div>
   )
 

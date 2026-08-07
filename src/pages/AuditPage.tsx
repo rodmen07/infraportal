@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useCallback } from 'react'
 import { PageLayout } from './PageLayout'
 import { resolveAdminToken } from '../config'
+import { useResource } from '../features/crm/useResource'
 import { countActiveAuditFilters, getAuditEmptyState } from '../utils/auditUi'
 
 // ---------------------------------------------------------------------------
@@ -283,35 +284,30 @@ const EMPTY_FILTERS: Filters = {
 function AuditView() {
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS)
   const [page, setPage]       = useState(0)
-  const [result, setResult]   = useState<AuditEventsResponse | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError]     = useState<string | null>(null)
   const activeFilterCount     = countActiveAuditFilters(filters)
   const emptyState            = getAuditEmptyState(filters)
 
-  const load = useCallback(async () => {
-    if (!AUDIT_URL) { setError('VITE_AUDIT_API_BASE_URL is not configured'); setLoading(false); return }
-    setLoading(true); setError(null)
-    try {
-      const params = new URLSearchParams({
-        limit: String(PAGE_SIZE),
-        offset: String(page * PAGE_SIZE),
-      })
-      if (filters.entity_type) params.set('entity_type', filters.entity_type)
-      if (filters.action)      params.set('action', filters.action)
-      if (filters.actor_id.trim()) params.set('actor_id', filters.actor_id.trim())
-      if (filters.created_after)  params.set('created_after',  filters.created_after.replace('T', ' ') + ':00Z')
-      if (filters.created_before) params.set('created_before', filters.created_before.replace('T', ' ') + ':00Z')
-      const data = await api<AuditEventsResponse>(`${AUDIT_URL}/api/v1/audit-events?${params}`)
-      setResult(data)
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Load failed')
-    } finally {
-      setLoading(false)
-    }
+  // The fetcher's identity is part of `useResource`'s freshness key, so a
+  // filter or page change re-loads (and shows the skeleton again) without any
+  // effect writing state; see src/features/crm/useResource.ts.
+  const fetchEvents = useCallback(() => {
+    const params = new URLSearchParams({
+      limit: String(PAGE_SIZE),
+      offset: String(page * PAGE_SIZE),
+    })
+    if (filters.entity_type) params.set('entity_type', filters.entity_type)
+    if (filters.action)      params.set('action', filters.action)
+    if (filters.actor_id.trim()) params.set('actor_id', filters.actor_id.trim())
+    if (filters.created_after)  params.set('created_after',  filters.created_after.replace('T', ' ') + ':00Z')
+    if (filters.created_before) params.set('created_before', filters.created_before.replace('T', ' ') + ':00Z')
+    return api<AuditEventsResponse>(`${AUDIT_URL}/api/v1/audit-events?${params}`)
   }, [filters, page])
 
-  useEffect(() => { load() }, [load])
+  const { data: result, loading, error, reload } = useResource<AuditEventsResponse | null>(
+    null,
+    fetchEvents,
+    AUDIT_URL ? null : 'VITE_AUDIT_API_BASE_URL is not configured',
+  )
 
   const changeFilter = (k: keyof Filters, v: string) => {
     setPage(0)
@@ -371,7 +367,7 @@ function AuditView() {
       )}
 
       {/* Error state */}
-      {error && <ErrorState message={error} onRetry={load} />}
+      {error && <ErrorState message={error} onRetry={reload} />}
 
       {/* Table */}
       {loading ? (
@@ -382,7 +378,7 @@ function AuditView() {
           title={emptyState.title}
           message={emptyState.description}
           actionLabel={emptyState.actionLabel}
-          onAction={activeFilterCount > 0 ? resetFilters : load}
+          onAction={activeFilterCount > 0 ? resetFilters : reload}
         />
       ) : result ? (
         <div className="overflow-x-auto rounded-xl border border-zinc-700/40">
