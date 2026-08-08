@@ -84,7 +84,7 @@ export function PortalRegisterPage() {
             <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2">
               <p className="text-xs text-amber-300">
                 No invite token found. Please use the link from your invitation email, or{' '}
-                <a href="#/contact" className="underline hover:text-amber-200">contact us</a> to request access.
+                <a href="#/contact" className="underline hover:text-accent-text">contact us</a> to request access.
               </p>
             </div>
           ) : (

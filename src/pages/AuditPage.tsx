@@ -150,7 +150,7 @@ function EmptyState({
         </svg>
       </div>
       <p className="mt-4 text-scale-xs font-semibold uppercase tracking-[0.24em] text-amber-300/90">{badge}</p>
-      <h3 className="mt-2 text-xl font-semibold text-zinc-50">{title}</h3>
+      <h3 className="mt-2 text-xl font-semibold text-text-primary">{title}</h3>
       <p className="mx-auto mt-2 max-w-2xl text-sm text-text-muted">{message}</p>
       <div className="mt-5 flex justify-center">
         <button className="btn-accent px-4 py-2 text-sm" onClick={onAction}>{actionLabel}</button>

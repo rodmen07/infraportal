@@ -65,7 +65,7 @@ function TopNavComponent() {
               <button
                 type="button"
                 onClick={() => { logout(); window.location.hash = '#/portal/login' }}
-                className="text-success-text hover:text-emerald-300"
+                className="text-success-text hover:text-success"
               >
                 Sign out
               </button>

@@ -480,7 +480,24 @@ describe('strangler rule: override-sheet rules for tokenized surfaces stay delet
     // class migrated onto danger-text, and the two sky status badges (POST
     // method, "in progress") onto info-text, resolving the held items; one dead
     // .text-red-100/90 override retired.
-    const CEILING = 209
+    // 212 after v1.26.1 (D-22) added exactly three: .text-cyan-300,
+    // .text-purple-300 and .text-violet-300, the decorative-hue badge
+    // foregrounds measured at 1.36:1 / 1.66:1 / 1.74:1 against this repo's own
+    // light --surface-2 - i.e. three more of the same invisible-in-one-theme
+    // defect the whole override sheet exists for. This ratchet guards SPRAWL,
+    // not correctness fixes, which is why it also went UP for v1.18.4's 25
+    // variant overrides and for the single bg-emerald-500/5 ghost above; the
+    // three classes here have no semantic token to migrate onto (D4 sanctions
+    // amber as the only accent hue and emerald/yellow/red/orange/blue as the
+    // only status hues, so purple/violet/cyan are decorative and tokenless),
+    // which is the one case v1.26.1 sanctions an override for. The three
+    // foregrounds v1.26.1 fixed that DO have a token took the other route and
+    // added nothing here: text-zinc-50 -> text-text-primary,
+    // hover:text-amber-200 -> hover:text-accent-text, hover:text-emerald-300 ->
+    // hover:text-success. v1.26.3 (D-25) lowers the ceiling by what it retires,
+    // and its arithmetic starts from THIS 212, not from the 209 the v1.26
+    // definition in ROADMAP.md was written against.
+    const CEILING = 212
     const remaining = (INDEX_CSS_RULES.match(/\[data-theme="light"\]/g) ?? []).length
     expect(remaining).toBeLessThanOrEqual(CEILING)
   })
