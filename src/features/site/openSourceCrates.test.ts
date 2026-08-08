@@ -85,7 +85,7 @@ describe('every outbound crate link is tracked, following the ProofStrip precede
     // which has intermediate `}` characters from the interpolation, so a
     // naive [^}]* would truncate the match before the object's real closing
     // brace (the same opaque-template-literal shape the backlog's own
-    // opacityColorThemeCoverage.test.ts header documents as a scanner
+    // colorThemeCoverage.test.ts header documents as a scanner
     // hazard). `\}\)` only matches a `}` immediately followed by `)`, which
     // in this source only occurs at each call's true closing `})`.
     //
