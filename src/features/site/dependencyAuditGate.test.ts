@@ -15,7 +15,8 @@
  * pre-fix lockfile: `--omit=dev --audit-level=high` exited 0, `--omit=dev
  * --audit-level=moderate` exited 1 with that one advisory.
  *
- * Two ways that gate can silently stop guarding, and this file locks both:
+ * Three ways that gate can silently stop guarding, and this file locks all
+ * three:
  *
  *   1. the THRESHOLD drifts back up (or the step gets neutered with
  *      `continue-on-error` / `|| true`, the pattern already live one step
@@ -25,6 +26,24 @@
  *      exactly `package.json`'s `dependencies` and nothing else. A package
  *      that runtime `src/` imports while being declared in `devDependencies`
  *      is shipped in the bundle and invisible to the required check.
+ *   3. the CADENCE stops covering the calendar. An audit that runs only on
+ *      `push`/`pull_request` is a function of our commit rate, not of the
+ *      advisory database's publication rate. Measured 2026-08-08 over the last
+ *      100 `Tests` runs on main: the largest gap between consecutive advisory
+ *      checks was 76.0 h, and zero schedule-triggered runs audited anything.
+ *      `.github/workflows/security-audit.yml` closes that; the assertion below
+ *      keeps it closed.
+ *
+ * WIDENED 2026-08-08 (DevSecOps). This file used to read exactly one
+ * hand-named workflow, `test.yml`. That was correct while `test.yml` held the
+ * only `npm audit` line in the repo, and it silently stopped being correct the
+ * moment a second workflow ran one: a step outside the corpus is not "clean",
+ * it is UNREAD, and the two are indistinguishable in a green report (L-046).
+ * The workflow set is now GLOB-DISCOVERED, so a third audit invocation is
+ * covered on the day it is written rather than on the day somebody remembers
+ * this file. `test.yml` keeps a named anchor of its own, because it is the one
+ * that is a REQUIRED context: without that anchor, deleting the required audit
+ * and leaving only the scheduled one would pass every assertion here.
  *
  * Drift guard, not a one-time check (L-003): every assertion reads BOTH
  * sources it compares (the workflow vs the recorded severity order; the real
@@ -48,7 +67,9 @@ import { parse } from 'yaml'
 import ts from 'typescript'
 
 const ROOT = process.cwd()
-const TESTS_WORKFLOW_PATH = '.github/workflows/test.yml'
+const WORKFLOWS_DIR = '.github/workflows'
+const TESTS_WORKFLOW_PATH = `${WORKFLOWS_DIR}/test.yml`
+const SCHEDULED_AUDIT_WORKFLOW_PATH = `${WORKFLOWS_DIR}/security-audit.yml`
 const PACKAGE_JSON_PATH = 'package.json'
 const SRC_DIR = 'src'
 
@@ -62,8 +83,18 @@ interface WorkflowJob {
   steps?: WorkflowStep[]
 }
 
+interface WorkflowTriggers {
+  schedule?: { cron?: string }[]
+}
+
 interface Workflow {
+  on?: WorkflowTriggers
   jobs?: Record<string, WorkflowJob>
+}
+
+/** An `npm audit` step, carrying the workflow it was read out of. */
+interface AuditStep extends WorkflowStep {
+  workflow: string
 }
 
 interface PackageManifest {
@@ -71,21 +102,58 @@ interface PackageManifest {
   devDependencies?: Record<string, string>
 }
 
-const workflow = parse(
-  readFileSync(path.join(ROOT, TESTS_WORKFLOW_PATH), 'utf-8'),
-) as Workflow
-
 const manifest = JSON.parse(
   readFileSync(path.join(ROOT, PACKAGE_JSON_PATH), 'utf-8'),
 ) as PackageManifest
 
-const STEPS: WorkflowStep[] = Object.values(workflow.jobs ?? {}).flatMap(
-  (job) => job.steps ?? [],
+/**
+ * Every workflow file, discovered rather than listed (L-031). A hand-written
+ * list is exactly what let a second `npm audit` step live outside this guard.
+ */
+function workflowFiles(): string[] {
+  return readdirSync(path.join(ROOT, WORKFLOWS_DIR), { withFileTypes: true })
+    .filter((entry) => entry.isFile() && /\.ya?ml$/.test(entry.name))
+    .map((entry) => `${WORKFLOWS_DIR}/${entry.name}`)
+    .sort()
+}
+
+const WORKFLOW_FILES = workflowFiles()
+
+/**
+ * `on` is a YAML 1.1 boolean. The `yaml` package parses these files as YAML
+ * 1.2, where it stays the string key GitHub actually means, but a parser or
+ * schema change would move it to the `true` key and silently empty out the
+ * trigger assertions below -- so read both and let the vacuity anchors speak.
+ */
+function triggersOf(workflow: Workflow): WorkflowTriggers {
+  const legacyBooleanKey = (workflow as Record<string, unknown>)['true']
+  return (workflow.on ?? (legacyBooleanKey as WorkflowTriggers) ?? {}) as WorkflowTriggers
+}
+
+const WORKFLOWS = new Map<string, Workflow>(
+  WORKFLOW_FILES.map((file) => [
+    file,
+    parse(readFileSync(path.join(ROOT, file), 'utf-8')) as Workflow,
+  ]),
 )
 
-const auditSteps = STEPS.filter(
-  (step) => typeof step.run === 'string' && /\bnpm audit\b/.test(step.run),
+/** Every `npm audit` step in the repo, from every workflow. */
+const auditSteps: AuditStep[] = [...WORKFLOWS.entries()].flatMap(
+  ([file, workflow]) =>
+    Object.values(workflow.jobs ?? {})
+      .flatMap((job) => job.steps ?? [])
+      .filter(
+        (step) => typeof step.run === 'string' && /\bnpm audit\b/.test(step.run),
+      )
+      .map((step) => ({ ...step, workflow: file })),
 )
+
+const auditStepsIn = (file: string) =>
+  auditSteps.filter((step) => step.workflow === file)
+
+/** Human-readable id for a failure message: which file, which step. */
+const whereIs = (step: AuditStep) =>
+  `${step.workflow}: ${step.name ?? (step.run as string)}`
 
 /**
  * npm's `--audit-level` scale, least to most severe. The gate must sit at or
@@ -198,19 +266,40 @@ function runtimePackageImports(): Map<string, string[]> {
 }
 
 describe('Required npm-audit gate: threshold', () => {
-  it('parses at least one npm audit step out of the tests workflow', () => {
+  it('discovers the workflow directory and parses it', () => {
+    // Vacuity anchors for the glob itself: if the discovery breaks, every
+    // assertion in this file passes on an empty set instead of failing.
     expect(
-      auditSteps.length,
-      `no \`npm audit\` step was parsed out of ${TESTS_WORKFLOW_PATH}; every ` +
-        'assertion below would pass vacuously. If the audit moved to another ' +
-        'workflow, point this guard at it rather than deleting it.',
+      WORKFLOW_FILES,
+      `no workflow files were discovered under ${WORKFLOWS_DIR}/; the glob is ` +
+        'broken and every assertion in this file would pass vacuously.',
+    ).toContain(TESTS_WORKFLOW_PATH)
+
+    expect(
+      [...WORKFLOWS.values()].filter((workflow) => workflow.jobs !== undefined)
+        .length,
+      'no discovered workflow parsed into a `jobs:` map, so the yaml parse is ' +
+        'broken and the audit-step scan below would find nothing.',
+    ).toBeGreaterThan(0)
+  })
+
+  it(`parses at least one npm audit step out of ${TESTS_WORKFLOW_PATH}`, () => {
+    // Named on purpose. `test.yml`'s audit is the one inside a REQUIRED
+    // context, so it is the one whose disappearance must fail here. The
+    // repo-wide assertions below would stay green if it were deleted and only
+    // the scheduled audit survived.
+    expect(
+      auditStepsIn(TESTS_WORKFLOW_PATH).length,
+      `no \`npm audit\` step was parsed out of ${TESTS_WORKFLOW_PATH}, the only ` +
+        'workflow whose audit sits in a required status context. If the audit ' +
+        'moved, move this anchor with it rather than deleting it.',
     ).toBeGreaterThan(0)
   })
 
   it('declares an explicit --audit-level on every npm audit step', () => {
     const missing = auditSteps
       .filter((step) => auditLevelOf(step.run as string) === undefined)
-      .map((step) => step.name ?? step.run)
+      .map(whereIs)
 
     expect(
       missing,
@@ -223,13 +312,14 @@ describe('Required npm-audit gate: threshold', () => {
   it(`keeps the threshold at or below "${AUDIT_LEVEL_CEILING}"`, () => {
     const ceiling = SEVERITY_ORDER.indexOf(AUDIT_LEVEL_CEILING)
     const tooLoose = auditSteps
-      .map((step) => auditLevelOf(step.run as string) as string)
-      .filter((level) => {
+      .filter((step) => {
+        const level = auditLevelOf(step.run as string) as string
         const index = SEVERITY_ORDER.indexOf(
           level as (typeof SEVERITY_ORDER)[number],
         )
         return index === -1 || index > ceiling
       })
+      .map((step) => `${whereIs(step)} (${auditLevelOf(step.run as string)})`)
 
     expect(
       tooLoose,
@@ -249,7 +339,7 @@ describe('Required npm-audit gate: threshold', () => {
       for (const { pattern, what } of NEUTERING_PATTERNS) {
         if (pattern.test(step.run as string)) found.push(what)
       }
-      return found.map((what) => `${step.name ?? 'audit step'}: ${what}`)
+      return found.map((what) => `${whereIs(step)}: ${what}`)
     })
 
     expect(
@@ -258,6 +348,102 @@ describe('Required npm-audit gate: threshold', () => {
         'to block a merge. `continue-on-error: true` is already live one step ' +
         'below it (the codecov upload), so this is a copy-paste away.',
     ).toEqual([])
+  })
+
+  it('runs every npm audit in the repo at the SAME scope and threshold', () => {
+    // Two hand-authored files, not a value compared against its own source, so
+    // this can really fail: the scheduled audit and the required one are
+    // written and edited independently, and a looser twin is worse than no
+    // twin -- it makes "the audit is green" mean two different things
+    // depending on which run you happen to be reading.
+    const commands = [
+      ...new Set(
+        auditSteps.map((step) => (step.run as string).trim().replace(/\s+/g, ' ')),
+      ),
+    ]
+
+    expect(
+      commands,
+      `the repo's \`npm audit\` invocations disagree: ${commands
+        .map((command) => JSON.stringify(command))
+        .join(' vs ')}. Discovered in ${auditSteps
+        .map((step) => step.workflow)
+        .join(', ')}. Keep one command, or state here why they must differ.`,
+    ).toHaveLength(1)
+  })
+})
+
+describe('Required npm-audit gate: cadence vs the advisory database', () => {
+  const scheduledAuditWorkflows = auditSteps
+    .map((step) => step.workflow)
+    .filter((file) => (triggersOf(WORKFLOWS.get(file) as Workflow).schedule ?? []).length > 0)
+
+  it('audits on a schedule, not only when somebody pushes', () => {
+    expect(
+      [...new Set(scheduledAuditWorkflows)],
+      'no workflow that runs `npm audit` carries a `schedule:` trigger, so the ' +
+        'advisory check is a function of our commit rate rather than of the ' +
+        'advisory database. Measured 2026-08-08 over the last 100 `Tests` runs ' +
+        `on main, the largest gap between checks was 76.0 h. ` +
+        `${SCHEDULED_AUDIT_WORKFLOW_PATH} exists to bound it at 24 h; restore ` +
+        'the cron rather than deleting this assertion.',
+    ).not.toEqual([])
+  })
+
+  it('gives the scheduled audit a cron that actually fires daily', () => {
+    // A `schedule:` key with no usable cron is the same inert surface as no
+    // schedule at all, and it reports identically in the yaml.
+    const crons = [...new Set(scheduledAuditWorkflows)].flatMap(
+      (file) =>
+        (triggersOf(WORKFLOWS.get(file) as Workflow).schedule ?? []).map(
+          (entry) => entry.cron,
+        ),
+    )
+
+    expect(
+      crons.filter((cron) => typeof cron === 'string' && cron.trim() !== ''),
+      'a `schedule:` block was found on an auditing workflow but it declares no ' +
+        'usable `cron:` expression.',
+    ).not.toEqual([])
+
+    const daily = crons.filter(
+      (cron) => typeof cron === 'string' && /^\S+ \S+ \* \* \*$/.test(cron),
+    )
+
+    expect(
+      daily,
+      `the auditing schedules are ${JSON.stringify(crons)}; none of them runs ` +
+        'every day. A weekly advisory check leaves a window of up to 7 days, ' +
+        'which is wider than the 76.0 h gap this workflow was written to close.',
+    ).not.toEqual([])
+  })
+
+  it('keeps the scheduled audit off the required-context path', () => {
+    // The scheduled workflow must never become a required status check: on a
+    // PR that does not touch it, the path filter means the check run is never
+    // created at all, and a required context that is never created blocks
+    // every PR forever. Same failure mode the portfolio playbook records for
+    // `Coverage` and `Deploy ${{ matrix.service }}`.
+    const scheduled = WORKFLOWS.get(SCHEDULED_AUDIT_WORKFLOW_PATH)
+    expect(
+      scheduled,
+      `${SCHEDULED_AUDIT_WORKFLOW_PATH} was not discovered; if the scheduled ` +
+        'audit moved, move this assertion with it.',
+    ).toBeDefined()
+
+    const pullRequest = (
+      triggersOf(scheduled as Workflow) as {
+        pull_request?: { paths?: string[] }
+      }
+    ).pull_request
+
+    expect(
+      pullRequest?.paths,
+      'the scheduled audit runs on `pull_request` with no `paths` filter, so it ' +
+        'creates a check run on every PR in the repo. Either filter it to its ' +
+        'own file (so it exercises itself and nothing else) or drop the ' +
+        'trigger.',
+    ).toContain(SCHEDULED_AUDIT_WORKFLOW_PATH)
   })
 })
 
