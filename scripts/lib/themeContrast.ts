@@ -157,11 +157,24 @@ export function cssVariable(theme: 'light' | 'dark', name: string): string {
   return match[1].trim()
 }
 
-/** The colour a card/panel fill actually presents to the eye in `theme`:
- * --surface-2 (the elevated panel/modal fill) composited onto the opaque page
- * background --surface-0. */
-export function surfaceBackdrop(theme: 'light' | 'dark'): Rgba {
-  return compositeOver(parseCssColor(cssVariable(theme, 'surface-2')), parseCssColor(cssVariable(theme, 'surface-0')))
+/** The three surface fills a colour in this app can sit on, page background
+ * first. Exported as data rather than re-listed per test because v1.27 gates a
+ * focus indicator against ALL of them: an indicator painted on a modal
+ * (--surface-2) and one painted on the bare page (--surface-0) meet different
+ * backdrops, and the page background is the darkest of the three in light, so
+ * measuring only the card fill measures the easy case. */
+export const SURFACE_NAMES = ['surface-0', 'surface-1', 'surface-2'] as const
+export type SurfaceName = (typeof SURFACE_NAMES)[number]
+
+/** The colour a surface fill actually presents to the eye in `theme`: the named
+ * fill composited onto the opaque page background --surface-0.
+ *
+ * Defaults to --surface-2 (the elevated panel/modal fill), which is what every
+ * caller before v1.27 wanted and what the foreground suites still measure
+ * against. --surface-0 composited onto itself is itself, so the general form is
+ * correct for the page background too. */
+export function surfaceBackdrop(theme: 'light' | 'dark', surface: SurfaceName = 'surface-2'): Rgba {
+  return compositeOver(parseCssColor(cssVariable(theme, surface)), parseCssColor(cssVariable(theme, 'surface-0')))
 }
 
 /* -------------------------------------------------------------------------
