@@ -159,8 +159,12 @@ export function PortalPage() {
 
   const project = snapshot?.kind === 'project' ? snapshot.project : null
 
-  const sendMessage = async (body: string) => {
-    if (!token || !project) return
+  // v1.25.2 (D-19, PORTAL-DRAFT-LOSS-1): answers whether the message actually
+  // landed. Every early return below is a NOT-SENT, and the declared
+  // `Promise<boolean>` is what makes tsc say so — a bare `return` here is a
+  // type error, so a future failure path cannot silently read as success.
+  const sendMessage = async (body: string): Promise<boolean> => {
+    if (!token || !project) return false
     setSending(true)
     setSendError(null)
     try {
@@ -170,6 +174,7 @@ export function PortalPage() {
         { method: 'POST', body: JSON.stringify({ body }) }
       )
       setSentMessages((prev) => [...prev, msg])
+      return true
     } catch (e) {
       const errMsg = e instanceof Error ? e.message : ''
       if (errMsg.includes('401')) {
@@ -182,13 +187,16 @@ export function PortalPage() {
               { method: 'POST', body: JSON.stringify({ body }) }
             )
             setSentMessages((prev) => [...prev, retryMsg])
-            return
+            return true
           } catch { /* fall through to set error */ }
         } else {
-          return // logout triggered, login gate will appear
+          // Logout triggered, login gate will appear. The draft survives with
+          // the rest of the page state, so it is still there after signing in.
+          return false
         }
       }
       setSendError(errMsg || 'Failed to send message.')
+      return false
     } finally {
       setSending(false)
     }

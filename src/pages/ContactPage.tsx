@@ -4,19 +4,23 @@ import { PageHeader } from '../features/site/PageHeader'
 import { SCHEDULING_URL } from '../config'
 import { saveConsultationRequest, type ConsultationRequest } from '../features/consulting/consultationStore'
 import { submitPublicLead } from '../features/consulting/leadIntake'
+import { DeliveryFailureNotice, type DeliveryStatus } from '../features/consulting/DeliveryFailureNotice'
 import { trackPortfolioEvent } from '../utils/analytics'
 import { PORTFOLIO_EVENTS } from '../utils/analyticsEvents'
 import { PricingTrustStrip } from '../features/consulting/PricingTrustStrip'
 import { PricingFaq } from '../features/consulting/PricingFaq'
 
-type Phase = 'idle' | 'sending' | 'sent'
+// v1.25.2 (D-19) added 'error': a delivery failure no longer ends the form,
+// it annotates it, so the visitor keeps what they typed and gets a way out.
+type Phase = 'idle' | 'sending' | 'sent' | 'error'
 
 // v1.25.1 (ROADMAP decision D-17): the same three-state delivery vocabulary
 // LeadMagnetPage already derives from `LeadIntakeResult`, adopted verbatim
 // rather than redesigned. Before this slice `submitPublicLead`'s result was
 // discarded here in statement position and `phase` went to 'sent' on every
 // path, so a relay outage rendered "✓ Message sent" (LEAD-SILENT-DROP-1).
-type DeliveryStatus = 'sent' | 'not-configured' | 'failed'
+// The type moved to DeliveryFailureNotice in v1.25.2 so the panel and its two
+// callers share one vocabulary.
 
 export function ContactPage() {
   const [name, setName] = useState('')
@@ -24,6 +28,8 @@ export function ContactPage() {
   const [message, setMessage] = useState('')
   const [phase, setPhase] = useState<Phase>('idle')
   const [deliveryStatus, setDeliveryStatus] = useState<DeliveryStatus>('sent')
+  // v1.25.2 (D-19): the request that failed, so the recovery mailto carries it.
+  const [failedRequest, setFailedRequest] = useState<ConsultationRequest | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const sending = phase === 'sending'
   const messageLength = message.trim().length
@@ -88,6 +94,17 @@ export function ContactPage() {
       delivery_status: delivery,
     })
 
+    // v1.25.2 (D-19): only a confirmed delivery clears the form. Before this
+    // slice the fields were wiped on every path, so the honest failure panel
+    // v1.25.1 shipped was rendered over an empty form and the visitor had to
+    // retype the note they had just been told did not arrive.
+    if (delivery !== 'sent') {
+      setFailedRequest(request)
+      setPhase('error')
+      return
+    }
+
+    setFailedRequest(null)
     setPhase('sent')
     setName('')
     setEmail('')
@@ -130,27 +147,9 @@ export function ContactPage() {
       <section className="forge-panel surface-card-strong rounded-3xl p-8 shadow-2xl shadow-black/50 sm:p-10">
         {phase === 'sent' ? (
           <div className="space-y-4">
-            {deliveryStatus === 'sent' ? (
-              <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-5 py-4 text-sm text-success-text">
-                ✓ Message sent — I'll be in touch within 1 business day.
-              </div>
-            ) : deliveryStatus === 'failed' ? (
-              <div className="space-y-2 rounded-xl border border-danger-line bg-danger-soft px-5 py-4 text-sm text-danger-text">
-                <p className="font-medium">Your message did not reach my inbox.</p>
-                <p className="text-xs">
-                  The delivery service refused it, so I have not received this note. Please email me directly at
-                  rodmendoza07@gmail.com, or book a call, and I will pick it up from there.
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-2 rounded-xl border border-warning-line bg-warning-soft px-5 py-4 text-sm text-warning-text">
-                <p className="font-medium">This message was not delivered.</p>
-                <p className="text-xs">
-                  Message delivery is not configured on this site yet, so nothing was sent to my inbox. Please email
-                  me directly at rodmendoza07@gmail.com, or book a call, and I will pick it up from there.
-                </p>
-              </div>
-            )}
+            <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-5 py-4 text-sm text-success-text">
+              ✓ Message sent — I'll be in touch within 1 business day.
+            </div>
             <button
               type="button"
               onClick={() => setPhase('idle')}
@@ -161,6 +160,12 @@ export function ContactPage() {
           </div>
         ) : (
         <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+          {/* v1.25.2 (D-19): annotate the still-filled form instead of
+              replacing it, so "it is still in the form below" is literally
+              true and the recovery mailto has a payload to carry. */}
+          {phase === 'error' && failedRequest && deliveryStatus !== 'sent' && (
+            <DeliveryFailureNotice status={deliveryStatus} noun="message" request={failedRequest} />
+          )}
           <div className="rounded-xl border border-zinc-700/50 bg-zinc-900/40 px-4 py-3 text-sm text-text-secondary">
             <p className="font-medium text-text-primary">Helpful context to include</p>
             <p className="mt-1 text-text-muted">Project type, current stack, target timeline, and the main blocker you want solved first.</p>

@@ -36,7 +36,8 @@
 import { act, createElement, type ReactElement, type ReactNode } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { LEAD_INTAKE_URL } from '../../config'
+import { LEAD_INTAKE_URL, SCHEDULING_URL } from '../../config'
+import { OWNER_EMAIL } from '../consulting/leadRecovery'
 import { ContactCTA } from './ContactCTA'
 import { ContactPage } from '../../pages/ContactPage'
 import { ThemeProvider } from '../layout/ThemeContext'
@@ -160,25 +161,41 @@ function paramsFor(eventName: string): Record<string, unknown> {
   return match[0].params
 }
 
+/** What the visitor types. Asserted back out of the DOM by the v1.25.2
+ *  block below, so these must stay distinctive enough to find. */
+const TYPED_NAME = 'Jane Smith'
+const TYPED_EMAIL = 'jane@company.com'
+const TYPED_MESSAGE = 'We need an infrastructure review before launch.'
+
 interface Surface {
   name: string
   event: string
   successCopy: string
+  /** The word the surface uses for what was submitted (v1.25.2 copy). */
+  noun: 'request' | 'message'
   render: () => void
   fillAndSubmit: () => Promise<void>
+  /** The live name/email/message controls, read back after a submit. */
+  typedValues: () => string[]
 }
 
 const CONTACT_CTA: Surface = {
   name: 'ContactCTA (the closer embedded on Home, About, Services, Pricing, Case Studies, Retainers)',
   event: 'consultation_form_submit',
   successCopy: 'your request is in',
+  noun: 'request',
   render: () => render(createElement(ContactCTA)),
   fillAndSubmit: async () => {
     const inputs = [...container.querySelectorAll('input')]
-    type(inputs[0], 'Jane Smith')
-    type(inputs[1], 'jane@company.com')
-    type(container.querySelector('textarea')!, 'We need an infrastructure review before launch.')
+    type(inputs[0], TYPED_NAME)
+    type(inputs[1], TYPED_EMAIL)
+    type(container.querySelector('textarea')!, TYPED_MESSAGE)
     await submit(container.querySelector('form')!)
+  },
+  typedValues: () => {
+    const inputs = [...container.querySelectorAll('input')]
+    const textarea = container.querySelector('textarea')
+    return [inputs[0]?.value ?? '', inputs[1]?.value ?? '', textarea?.value ?? '']
   },
 }
 
@@ -186,13 +203,18 @@ const CONTACT_PAGE: Surface = {
   name: 'ContactPage (#/contact)',
   event: 'contact_form_submit',
   successCopy: 'Message sent',
+  noun: 'message',
   render: () => render(createElement(ContactPage)),
   fillAndSubmit: async () => {
-    type(container.querySelector('#name')!, 'Jane Smith')
-    type(container.querySelector('#email')!, 'jane@company.com')
-    type(container.querySelector('#message')!, 'We need an infrastructure review before launch.')
+    type(container.querySelector('#name')!, TYPED_NAME)
+    type(container.querySelector('#email')!, TYPED_EMAIL)
+    type(container.querySelector('#message')!, TYPED_MESSAGE)
     await submit(container.querySelector('#message')!.closest('form')!)
   },
+  typedValues: () =>
+    ['#name', '#email', '#message'].map(
+      (sel) => (container.querySelector(sel) as HTMLInputElement | HTMLTextAreaElement | null)?.value ?? '',
+    ),
 }
 
 const SURFACES = [CONTACT_CTA, CONTACT_PAGE]
@@ -237,6 +259,120 @@ describe.each(SURFACES)('$name', (surface: Surface) => {
     expect(container.textContent).not.toContain(surface.successCopy)
     expect(container.textContent).toContain(FAILURE_COPY)
     expect(paramsFor(surface.event).delivery_status).toBe('failed')
+  })
+})
+
+/**
+ * v1.25.2 (ROADMAP decision D-19): a failed lead is RECOVERABLE.
+ *
+ * v1.25.1 stopped the lie; it did not stop the loss. Both handlers still ran
+ * `setName('') / setEmail('') / setMessage('')` on every path, so the honest
+ * failure panel it shipped was painted over an emptied form: the visitor was
+ * told their request never arrived, and the text they would have had to
+ * retype had already been destroyed. The panel's own remedy was prose — an
+ * email address to copy by hand.
+ *
+ * These cases are the behaviour difference (L-001) for that slice. They are
+ * rendering assertions on the REAL components for the same reason the block
+ * above is: `grep buildRecoveryMailtoHref` is satisfied by an import nothing
+ * renders, and a `setDraft`-style ordering fix is invisible to any source
+ * scan (L-033). Restore either handler's unconditional clear, or drop the
+ * notice from either surface, and these go red while the v1.25.1 cases above
+ * and `leadIntake.test.ts` both stay green.
+ */
+describe.each(SURFACES)('$name — v1.25.2 recovery (D-19)', (surface: Surface) => {
+  it('keeps every typed value when the relay refuses, so nothing must be retyped', async () => {
+    relay = 'refuses'
+    surface.render()
+    await surface.fillAndSubmit()
+
+    expect(intakeCalls, 'the intake relay must actually have been called').toBe(1)
+    expect(
+      surface.typedValues(),
+      'a refused submit must leave the visitor with what they typed',
+    ).toEqual([TYPED_NAME, TYPED_EMAIL, TYPED_MESSAGE])
+  })
+
+  it('offers a mailto carrying the same payload the relay was handed', async () => {
+    relay = 'refuses'
+    surface.render()
+    await surface.fillAndSubmit()
+
+    // Scoped to the notice itself: ContactPage's page footer carries a plain
+    // `mailto:` all the time, so a container-wide search would pass on that
+    // one and never notice the recovery link was missing.
+    const notice = container.querySelector('[role="alert"]')
+    expect(notice, 'the failure state must render the recovery notice').toBeTruthy()
+    const mailto = [...notice!.querySelectorAll('a')].find((a) =>
+      a.getAttribute('href')?.startsWith('mailto:'),
+    )
+    expect(mailto, 'the failure state must offer a working mail escape hatch').toBeTruthy()
+
+    const href = mailto!.getAttribute('href')!
+    expect(href.startsWith(`mailto:${OWNER_EMAIL}?`), `unexpected recipient in ${href}`).toBe(true)
+    // Decoded, because the body is percent-encoded: an assertion on the raw
+    // href would pass on a link no mail client could open.
+    const body = decodeURIComponent(new URL(href).searchParams.get('body') ?? '')
+    for (const typed of [TYPED_NAME, TYPED_EMAIL, TYPED_MESSAGE]) {
+      expect(body, `the recovery mail must carry "${typed}"`).toContain(typed)
+    }
+  })
+
+  it('offers the booking link as the second recovery path', async () => {
+    relay = 'refuses'
+    surface.render()
+    await surface.fillAndSubmit()
+
+    const notice = container.querySelector('[role="alert"]')
+    expect(notice, 'the failure state must render the recovery notice').toBeTruthy()
+    const booking = [...notice!.querySelectorAll('a')].filter(
+      (a) => a.getAttribute('href') === SCHEDULING_URL,
+    )
+    expect(
+      booking.length,
+      'the failure state must reach the same booking URL the page already trusts',
+    ).toBeGreaterThan(0)
+  })
+
+  it('shows no recovery notice when the relay accepts, so it is failure-only', async () => {
+    relay = 'accepts'
+    surface.render()
+    await surface.fillAndSubmit()
+
+    expect(container.textContent).toContain(surface.successCopy)
+    expect(
+      container.querySelector('[role="alert"]'),
+      'a delivered lead must not be offered a recovery path',
+    ).toBeNull()
+  })
+
+  it("names what failed using the surface's own noun", async () => {
+    relay = 'refuses'
+    surface.render()
+    await surface.fillAndSubmit()
+    expect(container.textContent).toContain(`Your ${surface.noun} did not reach my inbox.`)
+  })
+})
+
+describe('v1.25.2: a DELIVERED lead really does clear the form', () => {
+  it('ContactPage empties every field behind "Send another message"', async () => {
+    // The success path unmounts the form, so "the fields are empty" can only
+    // be observed by walking back to it — otherwise the assertion would pass
+    // on a form that is merely absent, which is also true of a crash.
+    relay = 'accepts'
+    CONTACT_PAGE.render()
+    await CONTACT_PAGE.fillAndSubmit()
+    expect(container.textContent).toContain('Message sent')
+
+    const again = [...container.querySelectorAll('button')].find(
+      (b) => b.textContent === 'Send another message',
+    )
+    expect(again, 'the success panel must offer a way back to the form').toBeTruthy()
+    await act(async () => {
+      again!.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    })
+
+    expect(CONTACT_PAGE.typedValues()).toEqual(['', '', ''])
   })
 })
 
