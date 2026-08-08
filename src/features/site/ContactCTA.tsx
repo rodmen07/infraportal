@@ -3,6 +3,7 @@ import { SCHEDULING_URL } from '../../config'
 import { getConsultationRequests, saveConsultationRequest, type ConsultationRequest } from '../consulting/consultationStore'
 import { calculateLeadScore, getLeadPriority } from '../consulting/leadScoring'
 import { submitPublicLead } from '../consulting/leadIntake'
+import { DeliveryFailureNotice, type DeliveryStatus } from '../consulting/DeliveryFailureNotice'
 import { trackPortfolioEvent } from '../../utils/analytics'
 import { PORTFOLIO_EVENTS } from '../../utils/analyticsEvents'
 import { DEFAULT_TIMELINE, WHAT_YOU_NEED_OPTIONS } from './contactFormDefaults'
@@ -16,7 +17,9 @@ type Phase = 'idle' | 'sending' | 'sent' | 'error'
 // visitor was told the request was "in" on every path, including a relay
 // outage — the reachable failure, since config.ts always falls back to the
 // third-party formsubmit.co relay (LEAD-SILENT-DROP-1).
-type DeliveryStatus = 'sent' | 'not-configured' | 'failed'
+//
+// v1.25.2 (D-19) moved the type itself next to the panel that renders it, so
+// the two surfaces and the shared notice cannot drift apart on the vocabulary.
 
 // v1.18.3 (D9, contact-form shortening; F8): this used to collect seven
 // fields (name, email, engagement, budget, timeline, referral source,
@@ -38,6 +41,9 @@ export function ContactCTA() {
   const [message, setMessage] = useState('')
   const [phase, setPhase] = useState<Phase>('idle')
   const [deliveryStatus, setDeliveryStatus] = useState<DeliveryStatus>('sent')
+  // v1.25.2 (D-19): the request that failed to reach the relay, kept so the
+  // recovery mailto carries what the visitor typed rather than an empty shell.
+  const [failedRequest, setFailedRequest] = useState<ConsultationRequest | null>(null)
   const [savedRequests, setSavedRequests] = useState<ConsultationRequest[]>(() => getConsultationRequests())
 
   async function handleSubmit(e: React.FormEvent) {
@@ -89,6 +95,20 @@ export function ContactCTA() {
     })
 
     setSavedRequests(getConsultationRequests())
+
+    // v1.25.2 (D-19): the fields are cleared ONLY on a confirmed delivery.
+    // Until v1.25.1 every path reached `setPhase('sent')` and wiped the form,
+    // so the v1.25.1 failure panel told the visitor their request never
+    // arrived while destroying the text they would have had to retype — a
+    // second, quieter version of the same data loss (the portal thread had
+    // the identical ordering bug, PORTAL-DRAFT-LOSS-1, fixed in this slice).
+    if (delivery !== 'sent') {
+      setFailedRequest(request)
+      setPhase('error')
+      return
+    }
+
+    setFailedRequest(null)
     setPhase('sent')
     setName('')
     setEmail('')
@@ -123,34 +143,22 @@ export function ContactCTA() {
       )}
 
       {phase === 'sent' ? (
-        deliveryStatus === 'sent' ? (
-          <div className="mt-6 space-y-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-5 py-4 text-sm text-success-text">
-            <p>Thanks, your request is in and I will reach out shortly.</p>
-            {latestRequest && (
-              <p className="text-xs text-emerald-200/90">
-                Saved request for {latestRequest.name} with {latestRequest.projectType.toLowerCase()} planning.
-              </p>
-            )}
-          </div>
-        ) : deliveryStatus === 'failed' ? (
-          <div className="mt-6 space-y-3 rounded-xl border border-danger-line bg-danger-soft px-5 py-4 text-sm text-danger-text">
-            <p className="font-medium">Your request did not reach my inbox.</p>
-            <p className="text-xs">
-              The delivery service refused the message, so I have not received it. Please email me directly at
-              rodmendoza07@gmail.com, or book a call, and I will pick it up from there.
+        <div className="mt-6 space-y-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-5 py-4 text-sm text-success-text">
+          <p>Thanks, your request is in and I will reach out shortly.</p>
+          {latestRequest && (
+            <p className="text-xs text-emerald-200/90">
+              Saved request for {latestRequest.name} with {latestRequest.projectType.toLowerCase()} planning.
             </p>
-          </div>
-        ) : (
-          <div className="mt-6 space-y-3 rounded-xl border border-warning-line bg-warning-soft px-5 py-4 text-sm text-warning-text">
-            <p className="font-medium">This request was not delivered.</p>
-            <p className="text-xs">
-              Message delivery is not configured on this site yet, so nothing was sent to my inbox. Please email me
-              directly at rodmendoza07@gmail.com, or book a call, and I will pick it up from there.
-            </p>
-          </div>
-        )
+          )}
+        </div>
       ) : (
         <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4">
+          {/* v1.25.2 (D-19): the failure notice sits ABOVE the still-filled
+              form rather than replacing it, which is what makes "your answers
+              are still here" true rather than a promise. */}
+          {phase === 'error' && failedRequest && deliveryStatus !== 'sent' && (
+            <DeliveryFailureNotice status={deliveryStatus} noun="request" request={failedRequest} />
+          )}
           <div className="flex flex-col gap-4 sm:flex-row">
             <input
               required
@@ -188,9 +196,6 @@ export function ContactCTA() {
             maxLength={4000}
             className="field-input resize-none px-4 py-2.5 text-sm"
           />
-          {phase === 'error' && (
-            <p className="text-sm text-danger-text">Something went wrong, please try again.</p>
-          )}
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="text-sm text-text-subtle">I typically reply within one business day.</p>
             <button

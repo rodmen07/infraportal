@@ -65,7 +65,11 @@ const ALLOWLISTED_SITES = new Set([
   'src/features/notifications/NotificationBell.tsx:92', // 16px count badge, capped "9+", redundant with the button's aria-label
   'src/features/portal/projectDetail.tsx:218', // 16px checkbox glyph, redundant with strike-through + StatusBadge
   'src/features/portal/projectDetail.tsx:309', // 20px avatar-initial fallback, redundant with the adjacent name
-  'src/features/portal/projectDetail.tsx:389', // 24px chat-avatar initial, redundant with the message bubble's side/colour
+  // Was :389 until v1.25.2 (PR for D-19) added the `onSend: Promise<boolean>`
+  // contract docstring above MessageThread, shifting this site down 10 lines.
+  // The allowlist is keyed by file:line, so a fix in the same FILE moves it —
+  // this entry belongs to whichever commit moves the disk, not to a later one.
+  'src/features/portal/projectDetail.tsx:399', // 24px chat-avatar initial, redundant with the message bubble's side/colour
 ])
 
 function allComponentFiles(dir = 'src'): string[] {
