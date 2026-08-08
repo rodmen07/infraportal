@@ -52,6 +52,27 @@ jobs:
       - name: Run tests with coverage
         run: npm run test:coverage
 
+      - name: Assert every test file actually ran
+        # COVERAGE-UNDERRUN-1 (observed 2026-08-08): the step above printed
+        # `Test Files  85 passed (85)` and exited 0 while `src/**/*.test.ts`
+        # held 95 files. Ten files never ran, nothing was reported failed or
+        # skipped, and the only symptom was a number in a summary line that
+        # nothing compared against anything.
+        #
+        # A vitest run cannot police its own file discovery -- a test that did
+        # not load cannot assert that it did not load -- so this is the only
+        # place the check can live: after the runner, against the runner's own
+        # JSON enumeration of the files it loaded, compared to the disk.
+        #
+        # It is a separate step rather than a flag on the one above because the
+        # under-run signature is exit 0 with a short count: the suite must be
+        # allowed to finish and report success before this contradicts it.
+        #
+        # Locked against silent loosening (a dropped --reporter=json, a moved
+        # report path, a `continue-on-error`, this step being reordered before
+        # the suite) by src/features/site/testDiscoveryGuard.test.ts.
+        run: npm run check-test-discovery
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v7
         with:
