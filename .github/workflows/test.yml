@@ -25,10 +25,29 @@ jobs:
         run: npm ci
 
       - name: Audit npm dependencies
-        # Audit shipped (production) dependencies and fail on high+ severity.
-        # Dev/build-tool advisories (e.g. a vite major-version bump) are tracked
-        # separately so they do not block delivery of the app itself.
-        run: npm audit --omit=dev --audit-level=high
+        # Audit shipped (production) dependencies and fail on moderate+ severity.
+        # Dev/build-tool advisories (e.g. a typescript major-version bump) are
+        # tracked separately so they do not block delivery of the app itself.
+        #
+        # The threshold was `high` until 2026-08-07, when GHSA-55q2-fjhq-7xh7
+        # (dompurify <=3.4.12, MODERATE: "IN_PLACE hook removal leaves a
+        # detached subtree executable, causing XSS") sat in a DIRECT production
+        # dependency while this step still exited 0. Measured both directions on
+        # the same pre-fix lockfile: `--audit-level=high` PRINTED the advisory
+        # and exited 0; `--audit-level=moderate` exited 1. dompurify is the
+        # app's only untrusted-HTML sanitiser -- `DOMPurify.sanitize(email
+        # .body_html)` feeds the single dangerouslySetInnerHTML on a portal
+        # surface (src/features/portal/projectDetail.tsx:193) -- so the one
+        # advisory class this gate exists to stop was exactly the class it could
+        # not see. `high` is a reasonable floor for a large dependency tree;
+        # this repo's production tree is four direct packages (dompurify,
+        # highlight.js, react, react-dom), so `moderate` costs ~nothing.
+        #
+        # Locked against silent loosening (threshold drift, `continue-on-error`,
+        # `|| true`) and against scope drift (a devDependency that shipped code
+        # imports would be bundled yet invisible to `--omit=dev`) by
+        # src/features/site/dependencyAuditGate.test.ts.
+        run: npm audit --omit=dev --audit-level=moderate
 
       - name: Run tests with coverage
         run: npm run test:coverage
