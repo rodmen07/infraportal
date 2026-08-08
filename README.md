@@ -119,7 +119,7 @@ about before adding code:
 
 - `src/styles/tokens.test.ts` — every CSS class used in `.tsx` must actually be defined
   (a class that does not exist renders an invisible card, which has shipped here twice).
-- `src/styles/opacityColorThemeCoverage.test.ts` and `typeScaleFloor.test.ts` — no raw
+- `src/styles/colorThemeCoverage.test.ts` and `typeScaleFloor.test.ts` — no raw
   palette class without a light-theme override, and a 12px type-scale floor.
 - `src/features/layout/routeIntegrity.test.ts` — every internal destination in the nav,
   command palette and guided tour resolves against the router vocabulary parsed out of
