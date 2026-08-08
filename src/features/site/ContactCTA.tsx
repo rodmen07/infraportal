@@ -9,6 +9,15 @@ import { DEFAULT_TIMELINE, WHAT_YOU_NEED_OPTIONS } from './contactFormDefaults'
 
 type Phase = 'idle' | 'sending' | 'sent' | 'error'
 
+// v1.25.1 (ROADMAP decision D-17): the three-state delivery vocabulary is
+// adopted VERBATIM from LeadMagnetPage, which has mapped `LeadIntakeResult`
+// onto exactly these three states since v1.22. Before this slice the result
+// of `submitPublicLead` was discarded in statement position here and the
+// visitor was told the request was "in" on every path, including a relay
+// outage — the reachable failure, since config.ts always falls back to the
+// third-party formsubmit.co relay (LEAD-SILENT-DROP-1).
+type DeliveryStatus = 'sent' | 'not-configured' | 'failed'
+
 // v1.18.3 (D9, contact-form shortening; F8): this used to collect seven
 // fields (name, email, engagement, budget, timeline, referral source,
 // message). Per D9 the form keeps name, email, message, and one optional
@@ -28,6 +37,7 @@ export function ContactCTA() {
   const [whatYouNeed, setWhatYouNeed] = useState(WHAT_YOU_NEED_OPTIONS[0])
   const [message, setMessage] = useState('')
   const [phase, setPhase] = useState<Phase>('idle')
+  const [deliveryStatus, setDeliveryStatus] = useState<DeliveryStatus>('sent')
   const [savedRequests, setSavedRequests] = useState<ConsultationRequest[]>(() => getConsultationRequests())
 
   async function handleSubmit(e: React.FormEvent) {
@@ -57,14 +67,25 @@ export function ContactCTA() {
     }
 
     saveConsultationRequest(request)
-    // Best-effort server-side intake; no-ops until VITE_LEAD_INTAKE_URL is set.
-    await submitPublicLead(request)
+    // Server-side intake. The result is BOUND and read (v1.25.1 / D-17): the
+    // local copy above lives in the visitor's own localStorage, which the
+    // owner can never read, so a dropped relay call is an unrecoverable lead
+    // unless the visitor is told about it.
+    const intakeResult = await submitPublicLead(request)
+    const delivery: DeliveryStatus = intakeResult.ok
+      ? 'sent'
+      : intakeResult.reason === 'not-configured'
+        ? 'not-configured'
+        : 'failed'
+    setDeliveryStatus(delivery)
+
     trackPortfolioEvent(PORTFOLIO_EVENTS.consultation_form_submit, {
       engagement,
       budget: DEFAULT_TIMELINE,
       timeline: DEFAULT_TIMELINE,
       leadPriority,
       referral_source: 'none',
+      delivery_status: delivery,
     })
 
     setSavedRequests(getConsultationRequests())
@@ -102,14 +123,32 @@ export function ContactCTA() {
       )}
 
       {phase === 'sent' ? (
-        <div className="mt-6 space-y-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-5 py-4 text-sm text-success-text">
-          <p>Thanks, your request is in and I will reach out shortly.</p>
-          {latestRequest && (
-            <p className="text-xs text-emerald-200/90">
-              Saved request for {latestRequest.name} with {latestRequest.projectType.toLowerCase()} planning.
+        deliveryStatus === 'sent' ? (
+          <div className="mt-6 space-y-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-5 py-4 text-sm text-success-text">
+            <p>Thanks, your request is in and I will reach out shortly.</p>
+            {latestRequest && (
+              <p className="text-xs text-emerald-200/90">
+                Saved request for {latestRequest.name} with {latestRequest.projectType.toLowerCase()} planning.
+              </p>
+            )}
+          </div>
+        ) : deliveryStatus === 'failed' ? (
+          <div className="mt-6 space-y-3 rounded-xl border border-danger-line bg-danger-soft px-5 py-4 text-sm text-danger-text">
+            <p className="font-medium">Your request did not reach my inbox.</p>
+            <p className="text-xs">
+              The delivery service refused the message, so I have not received it. Please email me directly at
+              rodmendoza07@gmail.com, or book a call, and I will pick it up from there.
             </p>
-          )}
-        </div>
+          </div>
+        ) : (
+          <div className="mt-6 space-y-3 rounded-xl border border-warning-line bg-warning-soft px-5 py-4 text-sm text-warning-text">
+            <p className="font-medium">This request was not delivered.</p>
+            <p className="text-xs">
+              Message delivery is not configured on this site yet, so nothing was sent to my inbox. Please email me
+              directly at rodmendoza07@gmail.com, or book a call, and I will pick it up from there.
+            </p>
+          </div>
+        )
       ) : (
         <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4">
           <div className="flex flex-col gap-4 sm:flex-row">

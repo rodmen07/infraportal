@@ -11,11 +11,19 @@ import { PricingFaq } from '../features/consulting/PricingFaq'
 
 type Phase = 'idle' | 'sending' | 'sent'
 
+// v1.25.1 (ROADMAP decision D-17): the same three-state delivery vocabulary
+// LeadMagnetPage already derives from `LeadIntakeResult`, adopted verbatim
+// rather than redesigned. Before this slice `submitPublicLead`'s result was
+// discarded here in statement position and `phase` went to 'sent' on every
+// path, so a relay outage rendered "✓ Message sent" (LEAD-SILENT-DROP-1).
+type DeliveryStatus = 'sent' | 'not-configured' | 'failed'
+
 export function ContactPage() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [message, setMessage] = useState('')
   const [phase, setPhase] = useState<Phase>('idle')
+  const [deliveryStatus, setDeliveryStatus] = useState<DeliveryStatus>('sent')
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const sending = phase === 'sending'
   const messageLength = message.trim().length
@@ -63,12 +71,21 @@ export function ContactPage() {
       status: 'new',
     }
 
-    // Always persist locally so the lead is never lost.
+    // Persist locally first. This copy lives in the VISITOR's localStorage,
+    // which the owner can never read, so it is not a delivery guarantee — the
+    // bound result below is what decides what the visitor is told (v1.25.1).
     saveConsultationRequest(request)
-    // Best-effort server delivery — no-ops when VITE_LEAD_INTAKE_URL is unset.
-    await submitPublicLead(request)
+    const intakeResult = await submitPublicLead(request)
+    const delivery: DeliveryStatus = intakeResult.ok
+      ? 'sent'
+      : intakeResult.reason === 'not-configured'
+        ? 'not-configured'
+        : 'failed'
+    setDeliveryStatus(delivery)
+
     trackPortfolioEvent(PORTFOLIO_EVENTS.contact_form_submit, {
       hasSchedulingLink: Boolean(SCHEDULING_URL),
+      delivery_status: delivery,
     })
 
     setPhase('sent')
@@ -113,9 +130,27 @@ export function ContactPage() {
       <section className="forge-panel surface-card-strong rounded-3xl p-8 shadow-2xl shadow-black/50 sm:p-10">
         {phase === 'sent' ? (
           <div className="space-y-4">
-            <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-5 py-4 text-sm text-success-text">
-              ✓ Message sent — I'll be in touch within 1 business day.
-            </div>
+            {deliveryStatus === 'sent' ? (
+              <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-5 py-4 text-sm text-success-text">
+                ✓ Message sent — I'll be in touch within 1 business day.
+              </div>
+            ) : deliveryStatus === 'failed' ? (
+              <div className="space-y-2 rounded-xl border border-danger-line bg-danger-soft px-5 py-4 text-sm text-danger-text">
+                <p className="font-medium">Your message did not reach my inbox.</p>
+                <p className="text-xs">
+                  The delivery service refused it, so I have not received this note. Please email me directly at
+                  rodmendoza07@gmail.com, or book a call, and I will pick it up from there.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-2 rounded-xl border border-warning-line bg-warning-soft px-5 py-4 text-sm text-warning-text">
+                <p className="font-medium">This message was not delivered.</p>
+                <p className="text-xs">
+                  Message delivery is not configured on this site yet, so nothing was sent to my inbox. Please email
+                  me directly at rodmendoza07@gmail.com, or book a call, and I will pick it up from there.
+                </p>
+              </div>
+            )}
             <button
               type="button"
               onClick={() => setPhase('idle')}
