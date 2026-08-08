@@ -36,8 +36,13 @@
  * The six are named explicitly because they are this slice's scope, not its
  * evidence. Widening the scan to every colour-bearing utility is v1.26.3
  * (D-21/D-22/D-23/D-25) and deliberately lands AFTER v1.26.2 retires the JS
- * theming path, because `text-amber-600` in PricingFaq.tsx is light-AUTHORED
- * and would redden a repo-wide sweep run today. The pure helpers below are
+ * theming path, because the amber-600 icon colour in PricingFaq.tsx was
+ * light-AUTHORED and would have reddened a repo-wide sweep run then. (Named in
+ * parts rather than as a class string on purpose: tailwind.config.js's content
+ * glob covers `./src/**` and the extractor reads comments, so the whole class
+ * written here kept that utility alive in the shipped stylesheet after v1.26.2
+ * removed its last consumer - TAILWIND-TESTPROSE-LEAK-1, observed in the built
+ * bundle rather than inferred.) The pure helpers below are
  * exported so that widening can reuse this exact arithmetic rather than write
  * a second, subtly different copy of it - two scanners with two scopes is
  * precisely how NotificationBell's chip got its fill checked and its text not.
