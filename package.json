@@ -11,10 +11,11 @@
     "stripe:setup-links": "node ./scripts/setup-stripe-payment-links.mjs",
     "sync-specs": "node ./scripts/sync-api-specs.mjs",
     "check-spec-drift": "node ./scripts/check-spec-drift.mjs",
+    "check-test-discovery": "node ./scripts/check-test-discovery.mjs",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage --reporter=default --reporter=json --outputFile.json=./test-report.json"
   },
   "dependencies": {
     "dompurify": "^3.4.13",

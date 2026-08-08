@@ -23,6 +23,12 @@ dist-ssr
 .eslintcache
 coverage/
 
+# vitest's JSON report, written by `npm run test:coverage` and read by
+# `npm run check-test-discovery` (COVERAGE-UNDERRUN-1). It must never be
+# committed: a stale report on disk is exactly what would let the discovery
+# gate pass vacuously, which is the failure it exists to catch.
+test-report.json
+
 # Editor crash-recovery / temp files
 *.tmp
 *.tmp.*
