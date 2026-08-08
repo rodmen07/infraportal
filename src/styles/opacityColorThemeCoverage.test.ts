@@ -46,6 +46,25 @@
  *    classes beyond the 2 originally named, all fixed in src/index.css
  *    alongside this revision.
  *
+ * FALSIFIED 2026-08-08 by the v1.26 definition pass, annotated in place rather
+ * than rewritten so the original claims stay auditable. Both "deliberately
+ * scoped to" bullets below assert a coverage that does not exist, measured by
+ * running THIS FILE's own `opacityColorClassesIn` / `hasLightOverride` over the
+ * same 100 .tsx files with only the class pattern widened:
+ *  - "covered by the separate, long-standing systematic overrides" (bare
+ *    text-/bg-/border-): 42 distinct bare palette utilities are used and 19
+ *    have no `[data-theme="light"]` override at all - 45% uncovered. The live
+ *    consequence is `text-zinc-50` on AuditPage.tsx:153, inside a
+ *    `.surface-card-strong` whose light fill is rgba(248,248,248,0.97), at a
+ *    computed 1.02:1 - an invisible heading, the same defect class as the
+ *    `text-emerald-200/80` bug that created this file.
+ *  - "a smaller, largely-covered surface" (ring-/divide-/gradient stops and
+ *    the other colour prefixes): 31 distinct utilities used, 25 uncovered -
+ *    81%, i.e. largely UNcovered, the opposite of the claim.
+ * Correcting these sentences, and widening the scan they describe, is v1.26.3
+ * in ROADMAP.md; this comment exists so no reader inherits them as true in the
+ * meantime. The annotating PR changed no behaviour in this file.
+ *
  * Deliberately still scoped to:
  *  - `text-*`/`bg-*`/`border-*` classes only, and only the OPACITY-SUFFIXED
  *    ones. Bare (non-opacity) classes of any of these three prefixes are
