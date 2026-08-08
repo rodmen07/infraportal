@@ -289,7 +289,7 @@ The four confirmed instances, each measured rather than argued:
 
 **Explicitly not in this milestone.** FORGOT-5XX-BLIND-1 (the anti-enumeration 5xx question above) — it is a security-copy decision on one page, not a funnel slice, and D-20 deliberately leaves it outside the guard's structural scope. The `axe-core` runtime harness and `eslint-plugin-jsx-a11y` (both recorded under v1.24; the latter still BLOCKED on the eslint-10 peer, checkable with `npm view eslint-plugin-jsx-a11y peerDependencies`). v1.22.2 (still USER-GATED on the D-8 site code; `actions/variables` `total_count` re-tested **0** today). v1.19 D11's remaining surface slices (HELD 2026-07-22 on a user glance — an L-006 user stop scoped to that item, which no measurement in this milestone clears). v1.18.6 override-sheet retirement. NF-4b and Cost Intelligence (BLOCKED below). DEP-AUDIT-SCOPE-1, a DevSecOps owner decision tracked in the autodev backlog.
 
-## v1.26 - The light theme stops being a patch (DEFINED 2026-08-08; defaults apply unless the owner overrides)
+## v1.26 - The light theme stops being a patch (DEFINED 2026-08-08; defaults apply unless the owner overrides. STATUS 2026-08-08: **v1.26.1 SHIPPED as PR #145** — all six sub-2:1 foregrounds cleared, three onto semantic text tokens (`text-zinc-50`→`text-text-primary`, `hover:text-amber-200`→`hover:text-accent-text`, `hover:text-emerald-300`→`hover:text-success`) and three onto light overrides at the 700 rung (`text-cyan-300` 5.04:1, `text-purple-300` 6.57:1, `text-violet-300` 6.68:1), gated by the computed-contrast suite `src/styles/lightForegroundContrast.test.ts`. Two knock-on facts the remaining slices must not inherit stale: **`tokens.test.ts`'s `CEILING` is now 212, not 209** — three correctness overrides, recorded in that file's ceiling-history comment — so **D-25 subtracts what it retires from 212**; and the ratio table below was re-measured on disk during the slice, which corrected one of its own numbers (see the `hover:text-emerald-300` row).)
 
 **Why this is next.** v1.20 made the shipped surface TRUE, v1.21 LIVE, v1.22 COUNTED, v1.23 honest about what is not yet KNOWN, v1.24 gave the overlay layer a keyboard contract, and v1.25 stopped the funnel confirming a delivery it never got. Each ended by making a class of defect *unrepresentable*. v1.26 takes the same discipline to the one surface property this repo has never been able to check: **whether a colour is correct in BOTH themes.** It is the standing candidate the v1.25 closure named as needing no user gate, and unlike v1.19 D11's remaining slices it is not behind an owner glance.
 
@@ -315,13 +315,15 @@ The four confirmed instances, each measured rather than argued:
 | `text-zinc-50` (AuditPage empty state) | `#fafafa` | **1.02:1** | invisible |
 | `hover:text-amber-200` (5 files, API docs + PortalRegister) | `#fde68a` | **1.17:1** | vanishes on hover |
 | `text-cyan-300` (NotificationBell) | `#67e8f9` | **1.36:1** | fails |
-| `hover:text-emerald-300` (TopNav) | `#6ee7b7` | **1.44:1** | vanishes on hover |
+| `hover:text-emerald-300` (TopNav) | `#6ee7b7` | **1.43:1** | vanishes on hover |
 | `text-purple-300` (4 files) | `#d8b4fe` | **1.66:1** | fails |
 | `text-violet-300` (SpecView) | `#c4b5fd` | **1.74:1** | fails |
 | `text-amber-600` (PricingFaq, light-authored) | `#d97706` | **3.00:1** | fails AA for body text |
 | `text-zinc-600` (15 files) | `#52525b` | 7.28:1 | **passes — needs nothing** |
 | `placeholder-zinc-500` (20 files) | `#71717a` | 4.55:1 | **passes — needs nothing** |
 | `text-zinc-900` (3 files) | `#18181b` | 16.68:1 | **passes — needs nothing** |
+
+**One number in that table was corrected 2026-08-08 by the v1.26.1 slice that re-measured it (PR #145), and the original is quoted here so the correction is auditable.** The row now reading 1.43:1 was written as `| hover:text-emerald-300 (TopNav) | #6ee7b7 | **1.44:1** | vanishes on hover |`. Recomputing `#6ee7b7` against `--surface-2` composited over `--surface-0` gives 1.4318…:1, i.e. 1.43. Nothing else moved: the other five rows in v1.26.1's scope reproduced to the digit. The correction is cosmetic in size and is recorded anyway, because the point of the slice text's "the implementer re-measures" instruction is that a number nobody re-derives is a number nobody can trust — and the re-derivation is only worth anything if what it finds gets written down. The remaining rows (`text-amber-600`, and the three "needs nothing" entries) are v1.26.2/v1.26.3 scope and were **not** re-measured here; treat them as still-unverified 2026-08-08 snapshots.
 
 `hover:text-amber-200` is worth naming on its own: the bare `.text-amber-200` **is** overridden to amber-700 for contrast (`index.css:307-309`), but `grep -cF 'hover\:text-amber-200' src/index.css` = **0** while `grep -cF 'hover\:text-' src/index.css` = **5**, so the variant-state section exists and this one is simply missing from it. In light mode the API-docs copy buttons and `<summary>` rows are legible until you point at them.
 
