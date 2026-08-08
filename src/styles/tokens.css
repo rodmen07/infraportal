@@ -225,7 +225,16 @@
   --accent-line-hover: rgba(180, 100, 10, 0.65);
   --accent-text: #92400e; /* amber-800 - 6.9:1 on the light accent fill */
 
-  --focus-ring: rgba(180, 100, 10, 0.75);
+  /* v1.27.1 (ROADMAP.md D-27). Was rgba(180, 100, 10, 0.75), which composited
+     to 2.75 / 2.90 / 2.81 against --surface-0/1/2 - under the 3:1 WCAG 1.4.11
+     bar on all three, so the app's widest-reaching focus indicator was
+     invisible-ish in light. The HUE was never wrong: rgba(180,100,10,.) is the
+     amber-700 family. The ALPHA was. Dropping it lands on the exact value
+     --accent already carries in this block, which is a colour this repo has
+     already reasoned about, and it makes the token and focus-visible:ring-accent
+     - the one focus indicator that already passed - indistinguishable.
+     Measured by src/styles/focusRingToken.test.ts, not asserted here. */
+  --focus-ring: #b45309;
 
   --grid-line-x: rgba(180, 83, 9, 0.06);
   --grid-line-y: rgba(180, 83, 9, 0.05);
