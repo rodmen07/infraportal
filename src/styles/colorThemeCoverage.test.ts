@@ -83,20 +83,36 @@
  *   RULE-EXISTENCE criterion, unchanged and unweakened, for the opacity-
  *   suffixed forms that have carried it since v1.18.4.
  *
+ *   FOCUS INDICATORS (v1.27.3, D-26 + D-29) are gated on a COMPUTED ratio at
+ *   3:1 - WCAG 1.4.11's bar for visual information that identifies a
+ *   component's STATE - against ALL THREE surface backdrops, in BOTH themes.
+ *   The targets are discovered from source and from index.css rather than
+ *   listed, they include the arbitrary-value and semantic-token spellings that
+ *   parseColorUtility cannot see, and a focus spelling the classifier cannot
+ *   measure is a HARD FAILURE, never a silent skip. See the criterion's own
+ *   section below for the boundary it draws.
+ *
  * WHAT IS DELIBERATELY NOT GATED, WITH THE MEASUREMENT RATHER THAN AN
  * ASSERTION. A blanket 3:1 contrast bar on hairlines was the v1.26 definition's
  * recommended default and it is NOT implemented here, because measuring it
- * falsified it: 72 of this repo's 76 hairline utilities land below 3:1 in light
- * mode, and most of them do so because index.css deliberately overrides them to
- * a faint rgba(0,0,0,0.08-0.16). That is an authored design decision about
- * decorative card hairlines, not 72 bugs, and WCAG's non-text-contrast
- * requirement applies to boundaries that IDENTIFY a control or its state rather
- * than to every rule and divider. Applying the bar as written would have
- * demanded redesigning every border in the app inside a scanner increment. The
- * sub-question that IS a real defect - focus indicators that vanish in light,
- * measured as low as 1.10:1 - is filed separately with its numbers. Choosing
- * the hairline criterion is ROADMAP.md v1.26.4; until it is chosen this file
- * says so instead of pretending the surface is covered.
+ * falsified it: 73 of this repo's 76 hairline utilities land below 3:1 in light
+ * mode (this header read "72 of this repo's 76" as written on 2026-08-08; the
+ * v1.27 definition pass re-ran the same census the same day and measured 73,
+ * naming the three passing rows - see ROADMAP.md's v1.26.3 correction), and
+ * most of them do so because index.css deliberately overrides them to a faint
+ * rgba(0,0,0,0.08-0.16). That is an authored design decision about decorative
+ * card hairlines, not 73 bugs, and WCAG's non-text-contrast requirement
+ * applies to boundaries that IDENTIFY a control or its state rather than to
+ * every rule and divider. Applying the bar as written would have demanded
+ * redesigning every border in the app inside a scanner increment.
+ *
+ * The v1.26.4 decision this header used to defer to IS NOW TAKEN. Until
+ * v1.27.3 this paragraph ended: "The sub-question that IS a real defect -
+ * focus indicators that vanish in light, measured as low as 1.10:1 - is filed
+ * separately with its numbers. Choosing the hairline criterion is ROADMAP.md
+ * v1.26.4; until it is chosen this file says so instead of pretending the
+ * surface is covered." ROADMAP.md D-26 answered it: focus indicators are gated
+ * at 3:1 (implemented below), decorative hairlines stay on rule-existence.
  *
  * FILLS ARE OUT OF THE CONTRAST CRITERION STRUCTURALLY, not by exemption: a
  * fill has no contrast of its own, its legibility is a property of the
@@ -105,20 +121,30 @@
 import { describe, expect, it } from 'vitest'
 import {
   AA_NORMAL_TEXT,
+  classTokensIn,
   COLOR_PREFIXES,
   type ColorUtility,
   colorUtilitiesIn,
+  compositeOver,
   consumersOf,
+  contrastRatio,
+  cssVariable,
   hasLightOverride,
+  INDEX_CSS,
   lightContrastRatio,
   lightOverrideColor,
   lightOverrideSelectorFor,
+  lightResolvedColor,
   paletteColorFor,
   parseColorUtility,
+  parseCssColor,
   PALETTE_HUES,
   relativeLuminance,
+  type Rgba,
   SOURCE_ENTRIES,
   SOURCE_FILES,
+  SURFACE_NAMES,
+  type SurfaceName,
   surfaceBackdrop,
 } from '../../scripts/lib/themeContrast'
 
@@ -235,6 +261,519 @@ describe('every opacity-suffixed fill and hairline still has a light override (v
       ).toBe(true)
     },
   )
+})
+
+/* -------------------------------------------------------------------------
+   D-26 + D-29 (v1.27.3): every focus indicator clears 3:1, both themes, all
+   three surfaces.
+
+   THE BOUNDARY, stated once. WCAG 1.4.11's state bar applies to the BOUNDARY
+   that identifies focus, so the criterion covers the hairline spellings (ring,
+   outline, border, divide) in every form this repo can write them: palette
+   utility, arbitrary var() value, semantic token, named keyword. What it
+   deliberately does NOT cover, each with its owner:
+
+     - `outline-none` suppressions: the ABSENCE of an indicator, not a colour
+       to measure. focusSpelling.test.ts contract C pins that inventory to a
+       documented allowlist that can only shrink, and the two real-control
+       entries in it are FOCUS-OUTLINE-SUPPRESSED-1 in the backlog.
+     - focus-variant FOREGROUNDS: gated at AA (4.5:1, a stricter bar) by the
+       D-22 sweep above, which is variant-aware.
+     - focus-variant FILLS and positioning/reveal classes (the skip link's
+       focus-revealed panel): a fill identifies state by area, not boundary,
+       and its legibility is its foreground's, which D-22 gates.
+
+   Ring and outline WIDTHS are geometry, not colour - but a focus-variant ring
+   width with no ring colour in the same file falls back to Tailwind's stock
+   blue-500/50 default (measured in v1.27.2, which deleted exactly that
+   pairing hazard), and an outline width with no named colour paints a colour
+   this criterion cannot measure. Both are therefore REQUIRED to name a
+   measurable colour in the same file, and anything the classifier cannot
+   place is a HARD FAILURE with instructions, never a silent skip.
+   ------------------------------------------------------------------------- */
+
+/** WCAG 2.2 SC 1.4.11 non-text contrast: 3:1 for the visual information that
+ * identifies a component's state. Pinned, not derived - the bar is a standard,
+ * and deriving it from the tree would make it unfalsifiable. */
+const FOCUS_INDICATOR_MIN = 3
+
+const FOCUS_VARIANTS = new Set(['focus', 'focus-visible', 'focus-within'])
+
+/** Leading `variant:` segments of a class token, split from the utility they
+ * modify. The variant charset is [a-z0-9-], so a bracketed arbitrary value
+ * (which may contain anything) can never be mistaken for a variant chain. */
+function splitVariants(token: string): { variants: string[]; bare: string } {
+  const variants: string[] = []
+  let bare = token
+  let match: RegExpExecArray | null
+  while ((match = /^([a-z][a-z0-9-]*):(.+)$/.exec(bare)) !== null) {
+    variants.push(match[1])
+    bare = match[2]
+  }
+  return { variants, bare }
+}
+
+type FocusClassification =
+  | { role: 'indicator'; light: Rgba; dark: Rgba; via: string }
+  | { role: 'geometry'; family: string; needsColour: boolean }
+  | { role: 'outside'; why: string }
+
+function withAlpha(colour: Rgba, alpha: number): Rgba {
+  return [colour[0], colour[1], colour[2], alpha]
+}
+
+/** Tailwind's shadeless colour keywords, plus this repo's semantic tokens
+ * (tailwind.config.js maps each onto var(--<name>) in tokens.css, DEFAULT keys
+ * dropping their suffix, so the class remainder IS the variable name). */
+function namedOrSemanticColour(name: string, theme: 'light' | 'dark'): Rgba | null {
+  if (name === 'white') return [255, 255, 255, 1]
+  if (name === 'black') return [0, 0, 0, 1]
+  if (name === 'transparent') return [0, 0, 0, 0]
+  try {
+    return parseCssColor(cssVariable(theme, name))
+  } catch {
+    return null
+  }
+}
+
+/**
+ * What a focus-variant class token PAINTS, or where its measurement lives
+ * instead. Throws - a hard failure, by design - on any spelling it cannot
+ * place, including a focus-visible PALETTE colour utility (the override
+ * lookup's VARIANT_SELECTOR_SUFFIX does not map that variant; the v1.27
+ * milestone constraint says the edit that introduces one adds the mapping).
+ */
+function classifyFocusToken(token: string): FocusClassification {
+  const { bare } = splitVariants(token)
+
+  if (bare === 'outline-none') {
+    return { role: 'outside', why: 'suppression - inventoried and allowlisted by focusSpelling.test.ts contract C' }
+  }
+
+  // Palette utilities: COLOR_PREFIXES is the one vocabulary that decides kind.
+  const palette = parseColorUtility(token)
+  if (palette !== null) {
+    if (palette.kind === 'foreground') {
+      return { role: 'outside', why: 'foreground - gated at AA by the D-22 sweep, which is variant-aware' }
+    }
+    if (palette.kind === 'fill') {
+      return { role: 'outside', why: 'fill - identifies state by area, not boundary; its foreground is D-22 gated' }
+    }
+    const property = COLOR_PREFIXES[palette.prefix].property ?? 'color'
+    const base = parseCssColor(paletteColorFor(token))
+    return {
+      role: 'indicator',
+      // Light honours the override sheet exactly like every real render does;
+      // dark is authored directly on the palette (index.css carries zero
+      // [data-theme="dark"] rules - see the module header of themeContrast).
+      light: lightResolvedColor(token, property),
+      dark: palette.alpha === null ? base : withAlpha(base, palette.alpha),
+      via: `palette ${palette.kind}`,
+    }
+  }
+
+  const familyMatch = /^(ring|outline|border|divide)(?:-(.+))?$/.exec(bare)
+  if (familyMatch === null) {
+    return { role: 'outside', why: 'not a boundary property - positioning, reveal and fill classes identify nothing by boundary' }
+  }
+  const family = familyMatch[1]
+  const rest = familyMatch[2]
+
+  // Bare `ring` (width 3) / `outline` (style solid) / `border` (width 1).
+  if (rest === undefined) {
+    return { role: 'geometry', family, needsColour: family === 'ring' || family === 'outline' }
+  }
+
+  // Arbitrary values: the app's own recipe is the --focus-ring arbitrary
+  // outline (spelled whole only at its live call sites - a bare copy here
+  // would become a dead rule in the shipped stylesheet).
+  const arbitrary = /^\[(.+)\]$/.exec(rest)
+  if (arbitrary !== null) {
+    const varRef = /^var\(--([a-z0-9-]+)\)$/.exec(arbitrary[1])
+    if (varRef !== null) {
+      return {
+        role: 'indicator',
+        light: parseCssColor(cssVariable('light', varRef[1])),
+        dark: parseCssColor(cssVariable('dark', varRef[1])),
+        via: `var(--${varRef[1]})`,
+      }
+    }
+    if (/^\d/.test(arbitrary[1])) {
+      return { role: 'geometry', family, needsColour: family === 'ring' || family === 'outline' }
+    }
+    const literal = parseCssColor(arbitrary[1]) // throws on a non-colour: hard failure with the parser's message
+    return { role: 'indicator', light: literal, dark: literal, via: 'arbitrary literal colour' }
+  }
+
+  // Widths, styles and offsets - geometry, not colour. A border/divide width
+  // inherits its colour from the element's resting border utility, which the
+  // hairline scope covers; ring and outline widths must name theirs (below).
+  if (/^\d+$/.test(rest)) {
+    return { role: 'geometry', family, needsColour: family === 'ring' || family === 'outline' }
+  }
+  if (['solid', 'dashed', 'dotted', 'double', 'hidden', 'none', 'inset'].includes(rest)) {
+    return { role: 'geometry', family, needsColour: false }
+  }
+  if (/^offset-/.test(rest)) {
+    return { role: 'geometry', family, needsColour: false }
+  }
+
+  // Semantic tokens and shadeless keywords, with the opacity-modifier trap
+  // called out: tailwind.config.js's own comment records that Tailwind cannot
+  // apply an alpha channel to a bare var() colour, so `/NN` on one of these is
+  // a spelling that does not compile to what it reads as.
+  const alphaMatch = /^(.+?)\/(\d{1,3})$/.exec(rest)
+  const name = alphaMatch === null ? rest : alphaMatch[1]
+  const alpha = alphaMatch === null ? null : Number(alphaMatch[2]) / 100
+  const light = namedOrSemanticColour(name, 'light')
+  const dark = namedOrSemanticColour(name, 'dark')
+  if (light !== null && dark !== null) {
+    if (alpha !== null) {
+      if (!['white', 'black', 'transparent'].includes(name)) {
+        throw new Error(
+          `"${token}": an opacity modifier on a var()-backed colour does not compile ` +
+            '(tailwind.config.js documents this); spell the translucent role as its own token in tokens.css.',
+        )
+      }
+      return { role: 'indicator', light: withAlpha(light, alpha), dark: withAlpha(dark, alpha), via: `keyword ${name}/${alphaMatch![2]}` }
+    }
+    return { role: 'indicator', light, dark, via: `token --${name}` }
+  }
+  throw new Error(
+    `"${token}" carries a focus variant but cannot be classified: not a palette utility, not var(--...) or a ` +
+      'literal colour, not a width/style/offset, and not a token tokens.css defines in both themes. A focus ' +
+      'indicator this criterion cannot measure is a hard failure, never a silent skip - either respell it with ' +
+      'a measurable colour (the app recipe is the --focus-ring outline) or teach classifyFocusToken the new form.',
+  )
+}
+
+/** Every focus-variant class token in non-test source, with its files. */
+const FOCUS_CLASS_FILES = new Map<string, string[]>()
+for (const { rel, source } of SOURCE_ENTRIES) {
+  for (const token of classTokensIn(source)) {
+    if (!splitVariants(token).variants.some((v) => FOCUS_VARIANTS.has(v))) continue
+    const files = FOCUS_CLASS_FILES.get(token)
+    if (files === undefined) FOCUS_CLASS_FILES.set(token, [rel])
+    else if (!files.includes(rel)) files.push(rel)
+  }
+}
+
+const FOCUS_CLASSIFIED = [...FOCUS_CLASS_FILES.entries()]
+  .map(([token, files]) => ({ token, files: [...files].sort() }))
+  .sort((a, b) => a.token.localeCompare(b.token))
+  .map((entry) => {
+    try {
+      return { ...entry, classification: classifyFocusToken(entry.token), error: null as Error | null }
+    } catch (error) {
+      return { ...entry, classification: null, error: error as Error }
+    }
+  })
+
+const FOCUS_CLASS_INDICATORS = FOCUS_CLASSIFIED.filter(
+  (e): e is typeof e & { classification: Extract<FocusClassification, { role: 'indicator' }> } =>
+    e.classification?.role === 'indicator',
+)
+
+/** Flat {selector, body} list of index.css rules, descending into at-rule
+ * bodies so a rule one @media deep is still seen. Written as a tiny
+ * depth-aware walk because the flat regex the sibling suites use would treat
+ * an @media header and its first nested rule as one giant selector. */
+function cssRules(css: string): { selector: string; body: string }[] {
+  const rules: { selector: string; body: string }[] = []
+  const walk = (from: number, to: number): void => {
+    let start = from
+    let idx = from
+    while (idx < to) {
+      if (css[idx] === '{') {
+        let depth = 1
+        let close = idx + 1
+        while (close < to && depth > 0) {
+          if (css[close] === '{') depth += 1
+          else if (css[close] === '}') depth -= 1
+          close += 1
+        }
+        const selector = css.slice(start, idx).trim()
+        if (selector.startsWith('@')) walk(idx + 1, close - 1)
+        else rules.push({ selector, body: css.slice(idx + 1, close - 1) })
+        start = close
+        idx = close
+      } else {
+        idx += 1
+      }
+    }
+  }
+  walk(0, css.length)
+  return rules
+}
+
+const FOCUS_SELECTOR = /:focus(?:-visible|-within)?(?![a-z-])/
+
+/** The boundary-colour properties an index.css focus rule can paint an
+ * indicator with. Background is deliberately absent: a fill identifies state
+ * by area, not boundary, and its legibility is its foreground's. */
+const BOUNDARY_PROPERTIES = ['outline-color', 'outline', 'border-color', 'border', 'box-shadow', '--tw-ring-color']
+
+function classifyFocusRule(rule: { selector: string; body: string }):
+  | { role: 'indicator'; light: Rgba | null; dark: Rgba | null; via: string }
+  | { role: 'outside'; why: string } {
+  const themes: ('light' | 'dark')[] = rule.selector.includes('[data-theme="light"]')
+    ? ['light']
+    : rule.selector.includes('[data-theme="dark"]')
+      ? ['dark']
+      : ['light', 'dark']
+  for (const property of BOUNDARY_PROPERTIES) {
+    const escaped = property.replace(/[.*+?^${}()|[\]\\-]/g, '\\$&')
+    const declared = new RegExp(`(?:^|;)\\s*${escaped}\\s*:\\s*([^;]+)`).exec(rule.body)
+    if (declared === null) continue
+    const value = declared[1].trim()
+    const varRef = /var\(--([a-z0-9-]+)\)/.exec(value)
+    if (varRef !== null) {
+      return {
+        role: 'indicator',
+        light: themes.includes('light') ? parseCssColor(cssVariable('light', varRef[1])) : null,
+        dark: themes.includes('dark') ? parseCssColor(cssVariable('dark', varRef[1])) : null,
+        via: `${property}: var(--${varRef[1]})`,
+      }
+    }
+    for (const piece of value.split(/[\s,]+/)) {
+      try {
+        const colour = parseCssColor(piece)
+        return {
+          role: 'indicator',
+          light: themes.includes('light') ? colour : null,
+          dark: themes.includes('dark') ? colour : null,
+          via: `${property} literal`,
+        }
+      } catch {
+        // not a colour piece; keep looking
+      }
+    }
+    throw new Error(
+      `index.css rule "${rule.selector}" declares "${property}: ${value}" on a focus selector, but no colour in ` +
+        'that value resolves. Spell it as var(--token) or a hex/rgb literal so this criterion can measure it - ' +
+        'an unmeasurable focus indicator is a hard failure, never a silent skip.',
+    )
+  }
+  return { role: 'outside', why: 'no boundary-colour declaration (geometry or positioning only)' }
+}
+
+const FOCUS_RULES_CLASSIFIED = cssRules(INDEX_CSS)
+  .filter((rule) => FOCUS_SELECTOR.test(rule.selector))
+  .map((rule) => {
+    const selector = rule.selector.replace(/\s+/g, ' ')
+    try {
+      return { selector, classification: classifyFocusRule(rule), error: null as Error | null }
+    } catch (error) {
+      return { selector, classification: null, error: error as Error }
+    }
+  })
+
+const FOCUS_RULE_INDICATORS = FOCUS_RULES_CLASSIFIED.filter(
+  (e): e is typeof e & { classification: { role: 'indicator'; light: Rgba | null; dark: Rgba | null; via: string } } =>
+    e.classification?.role === 'indicator',
+)
+
+function indicatorRatio(colour: Rgba, theme: 'light' | 'dark', surface: SurfaceName): number {
+  const backdrop = surfaceBackdrop(theme, surface)
+  return contrastRatio(compositeOver(colour, backdrop), backdrop)
+}
+
+function ratioTriple(colour: Rgba, theme: 'light' | 'dark'): string {
+  return SURFACE_NAMES.map((s) => indicatorRatio(colour, theme, s).toFixed(2)).join('/')
+}
+
+/** Files whose focus-variant ring/outline WIDTHS have no measurable colour of
+ * the same family beside them. Parameterised over the corpus so the sweep's
+ * own failure mode is testable on a synthetic file (L-031). */
+function pairingViolations(entries: readonly { rel: string; source: string }[]): string[] {
+  const violations: string[] = []
+  for (const { rel, source } of entries) {
+    const tokens = classTokensIn(source).filter((t) => splitVariants(t).variants.some((v) => FOCUS_VARIANTS.has(v)))
+    const classified = tokens.flatMap((t) => {
+      try {
+        return [{ token: t, classification: classifyFocusToken(t) }]
+      } catch {
+        return [] // unclassifiable tokens are the classifiability test's finding, not this sweep's
+      }
+    })
+    for (const family of ['ring', 'outline']) {
+      const widths = classified.filter(
+        (e) => e.classification.role === 'geometry' && e.classification.family === family && e.classification.needsColour,
+      )
+      if (widths.length === 0) continue
+      const colours = classified.filter(
+        (e) => e.classification.role === 'indicator' && splitVariants(e.token).bare.startsWith(family),
+      )
+      if (colours.length === 0) {
+        violations.push(
+          `${rel}: ${widths.map((e) => e.token).join(' ')} with no focus-variant ${family} colour in the same ` +
+            `file - a ring width alone paints Tailwind's stock blue default, and an outline width alone ` +
+            'paints a colour this criterion cannot measure. Name the colour (the app recipe pairs the width ' +
+            'with the --focus-ring arbitrary outline or the accent ring token).',
+        )
+      }
+    }
+  }
+  return violations
+}
+
+describe('every focus indicator clears 3:1 in both themes (D-26 + D-29, v1.27.3)', () => {
+  it('classifies every focus spelling - an unclassifiable one is a hard failure, never a skip', () => {
+    expect(FOCUS_CLASSIFIED.filter((e) => e.error !== null).map((e) => `${e.token}: ${e.error!.message}`)).toEqual([])
+    expect(
+      FOCUS_RULES_CLASSIFIED.filter((e) => e.error !== null).map((e) => `${e.selector}: ${e.error!.message}`),
+    ).toEqual([])
+  })
+
+  it('discovers a real corpus, and prints every classification and ratio (L-031)', () => {
+    const lines: string[] = []
+    for (const e of FOCUS_CLASSIFIED) {
+      const c = e.classification
+      if (c === null) lines.push(`  ${e.token} -> UNCLASSIFIABLE: ${e.error!.message}`)
+      else if (c.role === 'indicator') {
+        lines.push(
+          `  ${e.token} [${c.via}] light ${ratioTriple(c.light, 'light')} dark ${ratioTriple(c.dark, 'dark')} (${e.files.join(', ')})`,
+        )
+      } else if (c.role === 'geometry') {
+        lines.push(`  ${e.token} [geometry: ${c.family}${c.needsColour ? ', must pair with a colour' : ''}] (${e.files.join(', ')})`)
+      } else lines.push(`  ${e.token} [outside: ${c.why}] (${e.files.join(', ')})`)
+    }
+    for (const e of FOCUS_RULE_INDICATORS) {
+      const c = e.classification
+      lines.push(
+        `  index.css "${e.selector}" [${c.via}]` +
+          (c.light !== null ? ` light ${ratioTriple(c.light, 'light')}` : '') +
+          (c.dark !== null ? ` dark ${ratioTriple(c.dark, 'dark')}` : ''),
+      )
+    }
+    console.log(`[focusIndicators] ratios vs --surface-0/1/2, bar ${FOCUS_INDICATOR_MIN}:1:\n${lines.join('\n')}`)
+
+    // Zero-match floors: this tree HAS focus indicators, so a scan that finds
+    // fewer than it must has gone blind, not clean. The arbitrary --focus-ring
+    // outline reaches at least five files, and index.css contributes at least
+    // the styled-button rule and the form-control rule.
+    expect(FOCUS_CLASS_INDICATORS.length).toBeGreaterThanOrEqual(2)
+    expect(FOCUS_RULE_INDICATORS.length).toBeGreaterThanOrEqual(2)
+    const arbitraryForm = FOCUS_CLASS_INDICATORS.find((e) => e.classification.via.includes('focus-ring'))
+    expect(arbitraryForm, 'the var(--focus-ring) outline utility vanished from source').toBeDefined()
+    expect(arbitraryForm!.files.length).toBeGreaterThanOrEqual(5)
+  })
+
+  it.each(FOCUS_CLASS_INDICATORS.map((e) => ({ token: e.token, e })))(
+    '$token clears 3:1 on every surface in both themes',
+    ({ e }) => {
+      const c = e.classification
+      for (const theme of ['light', 'dark'] as const) {
+        const colour = theme === 'light' ? c.light : c.dark
+        for (const surface of SURFACE_NAMES) {
+          const ratio = indicatorRatio(colour, theme, surface)
+          expect(
+            ratio,
+            `"${e.token}" (${c.via}) lands at ${ratio.toFixed(2)}:1 on --${surface} in ${theme}, under the ` +
+              `${FOCUS_INDICATOR_MIN}:1 WCAG 1.4.11 bar for a focus indicator. Used by: ${e.files.join(', ')}. ` +
+              'Fix the value - this criterion has zero exemptions by design.',
+          ).toBeGreaterThanOrEqual(FOCUS_INDICATOR_MIN)
+        }
+      }
+    },
+  )
+
+  it.each(FOCUS_RULE_INDICATORS.map((e) => ({ selector: e.selector, e })))(
+    'index.css $selector clears 3:1 on every surface it applies in',
+    ({ e }) => {
+      const c = e.classification
+      for (const theme of ['light', 'dark'] as const) {
+        const colour = theme === 'light' ? c.light : c.dark
+        if (colour === null) continue
+        for (const surface of SURFACE_NAMES) {
+          const ratio = indicatorRatio(colour, theme, surface)
+          expect(
+            ratio,
+            `index.css "${e.selector}" (${c.via}) lands at ${ratio.toFixed(2)}:1 on --${surface} in ${theme}, ` +
+              `under the ${FOCUS_INDICATOR_MIN}:1 WCAG 1.4.11 bar.`,
+          ).toBeGreaterThanOrEqual(FOCUS_INDICATOR_MIN)
+        }
+      }
+    },
+  )
+
+  it('a focus-variant ring or outline width names its colour in the same file - and the sweep can fail', () => {
+    expect(pairingViolations(SOURCE_ENTRIES)).toEqual([])
+    // Both halves on a synthetic corpus, so the empty list above cannot be
+    // vacuous. Composed from fragments (TAILWIND-TESTPROSE-LEAK-1): the width
+    // alone must be reported, the width beside a measurable colour must not.
+    const width = ['focus-visible', `ring-${2}`].join(':')
+    const colour = ['focus-visible', ['ring', 'accent'].join('-')].join(':')
+    expect(pairingViolations([{ rel: 'synthetic.tsx', source: `"${width}"` }])).toHaveLength(1)
+    expect(pairingViolations([{ rel: 'synthetic.tsx', source: `"${width} ${colour}"` }])).toEqual([])
+  })
+
+  it('draws its boundary where the milestone does, per class', () => {
+    // Live spellings only, written whole because regenerating a class the app
+    // really uses is a no-op for the content extractor.
+    expect(classifyFocusToken('focus:outline-none').role).toBe('outside')
+    expect(classifyFocusToken('focus-visible:ring-2')).toEqual({ role: 'geometry', family: 'ring', needsColour: true })
+    expect(classifyFocusToken('focus-visible:outline-offset-2')).toEqual({
+      role: 'geometry',
+      family: 'outline',
+      needsColour: false,
+    })
+    // A focus-variant foreground stays with D-22's stricter bar.
+    const foreground = ['focus', ['text', 'zinc', '200'].join('-')].join(':')
+    expect(classifyFocusToken(foreground).role).toBe('outside')
+  })
+
+  it('judges the pre-v1.27.1 translucent token below the bar - the permanent anchor', () => {
+    // The exact value FOCUS-RING-LIGHT-1 shipped with, measured through the
+    // identical path the live criterion uses. Its recorded triple (2.75 /
+    // 2.90 / 2.81 on --surface-0/1/2) is re-derived here on every run, so the
+    // arithmetic drifting generous cannot keep the sweeps above green.
+    const old = parseCssColor('rgba(180, 100, 10, 0.75)')
+    const expected: Record<SurfaceName, string> = { 'surface-0': '2.75', 'surface-1': '2.90', 'surface-2': '2.81' }
+    for (const surface of SURFACE_NAMES) {
+      const ratio = indicatorRatio(old, 'light', surface)
+      expect(ratio).toBeLessThan(FOCUS_INDICATOR_MIN)
+      expect(ratio.toFixed(2), `--${surface}`).toBe(expected[surface])
+    }
+  })
+
+  it('judges a below-bar palette focus ring through the same path a live one would take', () => {
+    // The class v1.27.2 retired, composed from fragments so the content
+    // extractor cannot resurrect it as a dead rule in the shipped stylesheet.
+    const retired = ['focus', ['ring', 'amber', '500/30'].join('-')].join(':')
+    const c = classifyFocusToken(retired)
+    expect(c.role).toBe('indicator')
+    if (c.role === 'indicator') {
+      expect(indicatorRatio(c.light, 'light', 'surface-2')).toBeLessThan(2)
+    }
+    // A transparent ring is an indicator that FAILS (ratio 1), never a skip:
+    // pairing a width with the transparent ring keyword must not read as
+    // covered.
+    const transparent = ['focus-visible', ['ring', 'transparent'].join('-')].join(':')
+    const t = classifyFocusToken(transparent)
+    expect(t.role).toBe('indicator')
+    if (t.role === 'indicator') {
+      expect(indicatorRatio(t.light, 'light', 'surface-0')).toBeLessThan(FOCUS_INDICATOR_MIN)
+    }
+  })
+
+  it('hard-fails on the spellings it cannot measure, with instructions', () => {
+    // A shadeless hue with no semantic token behind it.
+    expect(() => classifyFocusToken(['focus', ['ring', 'fuchsia'].join('-')].join(':'))).toThrow(/cannot be classified/)
+    // A non-colour arbitrary value on a colour-capable prefix, composed so the
+    // content extractor cannot compile it into a garbage rule.
+    expect(() => classifyFocusToken(['focus-visible', ['outline-[o', 'ops]'].join('')].join(':'))).toThrow(
+      /unparseable/,
+    )
+    // An opacity modifier on a var()-backed token - the spelling that does not
+    // compile to what it reads as.
+    expect(() => classifyFocusToken(['focus', ['ring', 'accent/50'].join('-')].join(':'))).toThrow(/opacity modifier/)
+    // A focus-visible PALETTE colour utility: the override lookup throws until
+    // VARIANT_SELECTOR_SUFFIX learns the variant, per the milestone constraint.
+    expect(() => classifyFocusToken(['focus-visible', ['ring', 'amber', '500/30'].join('-')].join(':'))).toThrow(
+      /does not know how Tailwind compiles/,
+    )
+  })
 })
 
 /* -------------------------------------------------------------------------
