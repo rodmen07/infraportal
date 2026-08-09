@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useCallback } from 'react'
 import { PageLayout } from './PageLayout'
 import { resolveAdminToken } from '../config'
+import { useResource } from '../features/crm/useResource'
 import { countActiveAuditFilters, getAuditEmptyState } from '../utils/auditUi'
 
 // ---------------------------------------------------------------------------
@@ -63,7 +64,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
           value={input}
           onChange={e => { setInput(e.target.value); setError(false) }}
           placeholder="Admin key"
-          className="w-full rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
+          className="w-full rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 outline-none"
         />
         {error && <p className="text-xs text-danger-text">Invalid key</p>}
         <button type="submit" className="btn-accent w-full">Unlock</button>
@@ -149,7 +150,7 @@ function EmptyState({
         </svg>
       </div>
       <p className="mt-4 text-scale-xs font-semibold uppercase tracking-[0.24em] text-amber-300/90">{badge}</p>
-      <h3 className="mt-2 text-xl font-semibold text-zinc-50">{title}</h3>
+      <h3 className="mt-2 text-xl font-semibold text-text-primary">{title}</h3>
       <p className="mx-auto mt-2 max-w-2xl text-sm text-text-muted">{message}</p>
       <div className="mt-5 flex justify-center">
         <button className="btn-accent px-4 py-2 text-sm" onClick={onAction}>{actionLabel}</button>
@@ -159,7 +160,7 @@ function EmptyState({
   )
 }
 
-const SELECT = 'rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary focus:border-amber-400/50 focus:outline-none'
+const SELECT = 'rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary outline-none'
 const INPUT  = `${SELECT} w-full placeholder-zinc-500`
 
 function actionBadge(action: string) {
@@ -283,35 +284,30 @@ const EMPTY_FILTERS: Filters = {
 function AuditView() {
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS)
   const [page, setPage]       = useState(0)
-  const [result, setResult]   = useState<AuditEventsResponse | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError]     = useState<string | null>(null)
   const activeFilterCount     = countActiveAuditFilters(filters)
   const emptyState            = getAuditEmptyState(filters)
 
-  const load = useCallback(async () => {
-    if (!AUDIT_URL) { setError('VITE_AUDIT_API_BASE_URL is not configured'); setLoading(false); return }
-    setLoading(true); setError(null)
-    try {
-      const params = new URLSearchParams({
-        limit: String(PAGE_SIZE),
-        offset: String(page * PAGE_SIZE),
-      })
-      if (filters.entity_type) params.set('entity_type', filters.entity_type)
-      if (filters.action)      params.set('action', filters.action)
-      if (filters.actor_id.trim()) params.set('actor_id', filters.actor_id.trim())
-      if (filters.created_after)  params.set('created_after',  filters.created_after.replace('T', ' ') + ':00Z')
-      if (filters.created_before) params.set('created_before', filters.created_before.replace('T', ' ') + ':00Z')
-      const data = await api<AuditEventsResponse>(`${AUDIT_URL}/api/v1/audit-events?${params}`)
-      setResult(data)
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Load failed')
-    } finally {
-      setLoading(false)
-    }
+  // The fetcher's identity is part of `useResource`'s freshness key, so a
+  // filter or page change re-loads (and shows the skeleton again) without any
+  // effect writing state; see src/features/crm/useResource.ts.
+  const fetchEvents = useCallback(() => {
+    const params = new URLSearchParams({
+      limit: String(PAGE_SIZE),
+      offset: String(page * PAGE_SIZE),
+    })
+    if (filters.entity_type) params.set('entity_type', filters.entity_type)
+    if (filters.action)      params.set('action', filters.action)
+    if (filters.actor_id.trim()) params.set('actor_id', filters.actor_id.trim())
+    if (filters.created_after)  params.set('created_after',  filters.created_after.replace('T', ' ') + ':00Z')
+    if (filters.created_before) params.set('created_before', filters.created_before.replace('T', ' ') + ':00Z')
+    return api<AuditEventsResponse>(`${AUDIT_URL}/api/v1/audit-events?${params}`)
   }, [filters, page])
 
-  useEffect(() => { load() }, [load])
+  const { data: result, loading, error, reload } = useResource<AuditEventsResponse | null>(
+    null,
+    fetchEvents,
+    AUDIT_URL ? null : 'VITE_AUDIT_API_BASE_URL is not configured',
+  )
 
   const changeFilter = (k: keyof Filters, v: string) => {
     setPage(0)
@@ -371,7 +367,7 @@ function AuditView() {
       )}
 
       {/* Error state */}
-      {error && <ErrorState message={error} onRetry={load} />}
+      {error && <ErrorState message={error} onRetry={reload} />}
 
       {/* Table */}
       {loading ? (
@@ -382,7 +378,7 @@ function AuditView() {
           title={emptyState.title}
           message={emptyState.description}
           actionLabel={emptyState.actionLabel}
-          onAction={activeFilterCount > 0 ? resetFilters : load}
+          onAction={activeFilterCount > 0 ? resetFilters : reload}
         />
       ) : result ? (
         <div className="overflow-x-auto rounded-xl border border-zinc-700/40">

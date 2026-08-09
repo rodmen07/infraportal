@@ -348,7 +348,17 @@ export function MessageThread({
   sendError,
 }: {
   messages: Message[]
-  onSend: (body: string) => Promise<void>
+  /**
+   * v1.25.2 (D-19, PORTAL-DRAFT-LOSS-1): resolves TRUE only when the message
+   * actually reached the API. The contract is a value rather than a rejection
+   * because `PortalPage.sendMessage` already catches (it renders `sendError`
+   * itself), so a `Promise<void>` gave this component no way to tell a
+   * delivered message from a refused one — and it cleared the draft either
+   * way, destroying the visitor's text at exactly the moment they needed it.
+   * Declaring `Promise<boolean>` makes tsc reject every silent `return` in a
+   * sender, so a new failure path cannot be added without answering.
+   */
+  onSend: (body: string) => Promise<boolean>
   currentUserId: string
   sending: boolean
   sendError?: string | null
@@ -364,8 +374,8 @@ export function MessageThread({
     e.preventDefault()
     const body = draft.trim()
     if (!body) return
-    setDraft('')
-    await onSend(body)
+    const sent = await onSend(body)
+    if (sent) setDraft('')
   }
 
   return (
@@ -413,7 +423,7 @@ export function MessageThread({
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             placeholder="Ask a question or request an update…"
-            className="min-w-0 flex-1 rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
+            className="min-w-0 flex-1 rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 outline-none"
           />
           <button
             type="submit"

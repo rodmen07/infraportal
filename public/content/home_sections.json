@@ -27,6 +27,11 @@
       "link": "#/pricing"
     },
     {
+      "heading": "Shipped product: ADHD Daily Coach",
+      "body": "A Next.js static export with no server routes, live on GitHub Pages. Its backlog is worked by an autonomous dev agent that opens its own pull requests, gated by the same lint, typecheck and test suite CI runs.",
+      "link": "#/case-studies/adhd-daily-coach"
+    },
+    {
       "heading": "Latest: Autonomous Document Processing",
       "body": "Recently shipped an autonomous document processing system leveraging GCP's AI services. Built the platform, infrastructure, and DevOps workflows from ground zero to production.",
       "link": "#/case-studies"

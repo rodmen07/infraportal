@@ -12,6 +12,7 @@ import {
 } from '../../lib/projectStatusVocabulary'
 import type { Project, Milestone, Deliverable, ProjectLink, PMessage, Collaborator, ProgressUpdate } from './types'
 import { api, PROJECTS_URL, PROJECTS_DEMO } from './api'
+import { useResource } from './useResource'
 import {
   Spinner, ErrorBox, CustomEmptyState, ProjectIcon, FlagIcon, UsersIcon,
   DocumentIcon, DemoDataBadge, Modal, FormField, SaveError, INPUT_CLS,
@@ -38,14 +39,13 @@ const STATUS_PILL: Record<string, string> = {
   accepted:    'bg-emerald-500/15 text-success-text',
 }
 
+const NO_PROJECTS: Project[] = []
+
 export function ProjectsTab() {
-  const [projects, setProjects]   = useState<Project[]>([])
   const [selected, setSelected]   = useState<Project | null>(null)
   const [milestones, setMilestones] = useState<Milestone[]>([])
   const [deliverables, setDeliverables] = useState<Record<string, Deliverable[]>>({})
   const [messages, setMessages]   = useState<PMessage[]>([])
-  const [loading, setLoading]     = useState(false)
-  const [error, setError]         = useState<string | null>(null)
   const [reply, setReply]         = useState('')
   const [sending, setSending]     = useState(false)
 
@@ -84,22 +84,11 @@ export function ProjectsTab() {
   // clone modal (demo mode only)
   const [cloneOpen, setCloneOpen] = useState(false)
 
-  const loadProjects = useCallback(async () => {
-    if (PROJECTS_DEMO) {
-      setProjects(projectsStore.listProjects())
-      setError(null)
-      return
-    }
-    setLoading(true); setError(null)
-    try {
-      const rows = await api<Project[]>(`${PROJECTS_URL}/api/v1/projects`)
-      setProjects(rows)
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load')
-    } finally {
-      setLoading(false)
-    }
+  const fetchProjects = useCallback(async () => {
+    if (PROJECTS_DEMO) return projectsStore.listProjects()
+    return api<Project[]>(`${PROJECTS_URL}/api/v1/projects`)
   }, [])
+  const { data: projects, loading, error, reload: loadProjects } = useResource(NO_PROJECTS, fetchProjects)
 
   const loadProject = useCallback(async (p: Project) => {
     setSelected(p); setMilestones([]); setDeliverables({}); setMessages([]); setLinks([])
@@ -135,7 +124,6 @@ export function ProjectsTab() {
     } catch { /* best-effort */ }
   }, [])
 
-  useEffect(() => { loadProjects() }, [loadProjects])
   // In demo mode, re-read whenever the shared mock store changes (clone,
   // template create, or a mutation from another component).
   useEffect(() => {
@@ -402,13 +390,13 @@ export function ProjectsTab() {
             ))}
             <form onSubmit={createLink} className="flex flex-wrap gap-2 pt-1">
               <select value={linkForm.link_type} onChange={e => setLinkForm(f => ({ ...f, link_type: e.target.value }))}
-                className="rounded-lg border border-zinc-700 bg-surface-control px-2 py-1.5 text-xs text-zinc-200 outline-none focus:border-amber-500/60">
+                className="rounded-lg border border-zinc-700 bg-surface-control px-2 py-1.5 text-xs text-zinc-200 outline-none">
                 {['upwork', 'drive', 'github', 'figma', 'other'].map(t => <option key={t} value={t}>{t}</option>)}
               </select>
               <input placeholder="Label" value={linkForm.label} onChange={e => setLinkForm(f => ({ ...f, label: e.target.value }))}
-                className="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-surface-control px-2 py-1.5 text-xs text-zinc-200 outline-none focus:border-amber-500/60 placeholder-zinc-500" />
+                className="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-surface-control px-2 py-1.5 text-xs text-zinc-200 outline-none placeholder-zinc-500" />
               <input placeholder="URL" value={linkForm.url} onChange={e => setLinkForm(f => ({ ...f, url: e.target.value }))}
-                className="min-w-0 flex-[2] rounded-lg border border-zinc-700 bg-surface-control px-2 py-1.5 text-xs text-zinc-200 outline-none focus:border-amber-500/60 placeholder-zinc-500" />
+                className="min-w-0 flex-[2] rounded-lg border border-zinc-700 bg-surface-control px-2 py-1.5 text-xs text-zinc-200 outline-none placeholder-zinc-500" />
               <button type="submit" disabled={savingLink || !linkForm.label || !linkForm.url} className="btn-accent btn-sm disabled:opacity-50">Add link</button>
             </form>
           </div>
@@ -434,9 +422,9 @@ export function ProjectsTab() {
             ))}
             <form onSubmit={createCollaborator} className="flex gap-2 pt-1">
               <input placeholder="Name" value={collabForm.name} onChange={e => setCollabForm(f => ({ ...f, name: e.target.value }))} required
-                className="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-surface-control px-2 py-1.5 text-xs text-zinc-200 outline-none focus:border-amber-500/60 placeholder-zinc-500" />
+                className="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-surface-control px-2 py-1.5 text-xs text-zinc-200 outline-none placeholder-zinc-500" />
               <select value={collabForm.role} onChange={e => setCollabForm(f => ({ ...f, role: e.target.value }))}
-                className="rounded-lg border border-zinc-700 bg-surface-control px-2 py-1.5 text-xs text-zinc-200 outline-none focus:border-amber-500/60">
+                className="rounded-lg border border-zinc-700 bg-surface-control px-2 py-1.5 text-xs text-zinc-200 outline-none">
                 {['contributor', 'designer', 'developer', 'manager', 'reviewer'].map(r => <option key={r} value={r}>{r}</option>)}
               </select>
               <button type="submit" disabled={savingCollab || !collabForm.name.trim()} className="btn-accent btn-sm disabled:opacity-50">Add</button>
@@ -461,7 +449,7 @@ export function ProjectsTab() {
             ))}
             <form onSubmit={createProgressUpdate} className="flex gap-2 pt-1">
               <input placeholder="Post an update…" value={updateContent} onChange={e => setUpdateContent(e.target.value)} required
-                className="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-surface-control px-2 py-1.5 text-xs text-zinc-200 outline-none focus:border-amber-500/60 placeholder-zinc-500" />
+                className="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-surface-control px-2 py-1.5 text-xs text-zinc-200 outline-none placeholder-zinc-500" />
               <button type="submit" disabled={savingUpdate || !updateContent.trim()} className="btn-accent btn-sm disabled:opacity-50">Post</button>
             </form>
           </div>
@@ -486,7 +474,7 @@ export function ProjectsTab() {
               {sendError && <p className="rounded-lg bg-red-500/10 px-3 py-1.5 text-xs text-danger-text">{sendError}</p>}
               <div className="flex gap-2">
                 <input value={reply} onChange={e => setReply(e.target.value)} placeholder="Reply to client…"
-                  className="min-w-0 flex-1 rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none" />
+                  className="min-w-0 flex-1 rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 outline-none" />
                 <button type="submit" disabled={!reply.trim() || sending} className="btn-accent btn-sm disabled:opacity-50">Send</button>
               </div>
             </form>

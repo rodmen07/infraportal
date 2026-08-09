@@ -18,8 +18,9 @@ import {
   type BulkEditTarget,
 } from '../hooks/useBulkEdit'
 import { MOCK_EDIT_BOUNDARY, mockBulkEditApi } from '../lib/bulkEditApi.mock'
+import { useFocusTrap } from '../features/layout/useFocusTrap'
 
-const INPUT_CLS = 'w-full rounded-xl border border-zinc-700 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 outline-none transition hover:border-zinc-600 hover:bg-zinc-800/80 focus:border-amber-500/60 focus:ring-2 focus:ring-amber-500/30'
+const INPUT_CLS = 'w-full rounded-xl border border-zinc-700 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 outline-none transition hover:border-zinc-600 hover:bg-zinc-800/80'
 
 interface BulkEditModalProps {
   entity: ImportEntity
@@ -58,8 +59,13 @@ export function BulkEditModal({ entity, targets: initialTargets, api = mockBulkE
     void editor.start(entity, targets, { field: spec.field, value })
   }
 
+  // v1.24.1 (D-14): this overlay declares aria-modal="true", so it owes the
+  // keyboard the whole modal contract. The caller mounts it only while open,
+  // so the trap is active for the component's whole life.
+  const containerRef = useFocusTrap<HTMLDivElement>(true, handleClose)
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onMouseDown={handleClose} role="presentation">
+    <div ref={containerRef} className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onMouseDown={handleClose} role="presentation">
       <div
         className="forge-panel surface-card-strong max-h-[90vh] w-full max-w-md overflow-y-auto rounded-3xl p-6 shadow-2xl shadow-black/60"
         onMouseDown={e => e.stopPropagation()}

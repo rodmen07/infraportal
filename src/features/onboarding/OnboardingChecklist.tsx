@@ -1,25 +1,30 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useSyncExternalStore } from 'react'
 import {
   DEFAULT_ONBOARDING_STEPS,
-  getCompletedStepIds,
+  getCompletedStepIdsSnapshot,
+  onboardingPercentFor,
   setStepCompleted,
+  subscribeToOnboardingStore,
 } from './onboardingStore'
 
+/**
+ * The store is the single source of completion here: a toggle writes, and every
+ * subscriber (this list and the health panel above it) re-reads. Mirroring the
+ * store into component state is what let the two disagree.
+ */
 export function OnboardingChecklist({ projectId }: { projectId: string }) {
-  const [completed, setCompleted] = useState<string[]>(() => getCompletedStepIds(projectId))
-
-  useEffect(() => {
-    setCompleted(getCompletedStepIds(projectId))
-  }, [projectId])
+  const completed = useSyncExternalStore(subscribeToOnboardingStore, () =>
+    getCompletedStepIdsSnapshot(projectId),
+  )
 
   const completedSet = useMemo(() => new Set(completed), [completed])
   const total = DEFAULT_ONBOARDING_STEPS.length
   const doneCount = completed.length
-  const percent = total === 0 ? 0 : Math.round((doneCount / total) * 100)
+  const percent = onboardingPercentFor(doneCount)
   const allDone = doneCount === total
 
   const toggle = (stepId: string, isDone: boolean) => {
-    setCompleted(setStepCompleted(projectId, stepId, !isDone))
+    setStepCompleted(projectId, stepId, !isDone)
   }
 
   return (
@@ -66,7 +71,7 @@ export function OnboardingChecklist({ projectId }: { projectId: string }) {
                   type="checkbox"
                   checked={isDone}
                   onChange={() => toggle(step.id, isDone)}
-                  className="mt-0.5 h-4 w-4 shrink-0 rounded border-zinc-600 bg-zinc-900 text-amber-500 focus:ring-amber-500/40"
+                  className="mt-0.5 h-4 w-4 shrink-0 rounded border-zinc-600 bg-zinc-900 text-amber-500"
                 />
                 <span className="min-w-0">
                   <span className={`block text-sm font-medium ${isDone ? 'text-success-text line-through' : 'text-text-primary'}`}>

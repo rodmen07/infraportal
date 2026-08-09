@@ -33,7 +33,14 @@ function resolveMediaUrl(baseUrl: string, value: string | undefined): string | u
 export function useHomeSectionsContent(baseUrl: string): HomeSectionsContent {
   const [content, setContent] = useState<HomeSectionsContent>(DEFAULT_HOME_SECTIONS)
 
+  // The `active` lifetime flag (v1.23.3, D-13; the `usePricingContent`
+  // template): a response arriving after unmount, or after `baseUrl` changed
+  // and this effect instance was cleaned up, cannot write state, so a stale
+  // response can never overwrite fresher content. Guarded by
+  // useContentHooks.test.ts.
   useEffect(() => {
+    let active = true
+
     const loadContent = async () => {
       try {
         const response = await fetch(`${baseUrl}content/home_sections.json`)
@@ -42,6 +49,7 @@ export function useHomeSectionsContent(baseUrl: string): HomeSectionsContent {
         }
 
         const payload = (await response.json()) as HomeSectionsContent
+        if (!active) return
         setContent({
           title: payload.title || DEFAULT_HOME_SECTIONS.title,
           cards: Array.isArray(payload.cards)
@@ -61,6 +69,10 @@ export function useHomeSectionsContent(baseUrl: string): HomeSectionsContent {
     }
 
     void loadContent()
+
+    return () => {
+      active = false
+    }
   }, [baseUrl])
 
   return content

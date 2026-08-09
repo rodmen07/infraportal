@@ -26,13 +26,30 @@ export default defineConfig([
     },
     rules: {
       '@typescript-eslint/no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
-      // react-hooks 7.1 (required by the eslint 10 peer range) added
-      // set-state-in-effect to its recommended set at "error". At adoption time
-      // it flagged 17 existing fetch-then-setState loaders across 14 files.
-      // Held at "warn" so the toolchain major stays behavior-preserving; the
-      // per-site triage is a filed backlog item (DEP-MAJ-2 follow-up,
-      // 2026-07-27). Deleting this line restores the plugin default.
-      'react-hooks/set-state-in-effect': 'warn',
+      // `react-hooks/set-state-in-effect` is deliberately NOT listed here: it
+      // stays at the recommended "error" for EVERY file, so a cascading-render
+      // effect fails the Linting gate. The path-scoped exemption list that
+      // once held the legacy loaders at "warn" emptied and was deleted in
+      // v1.23.2 (D-12; history in ROADMAP.md), and
+      // src/features/site/setStateInEffect.test.ts asserts the mechanism
+      // stays gone.
+    },
+  },
+  {
+    // eslint-plugin-react-refresh 0.5.x (DEP-REFRESH-1, filed 2026-08-04)
+    // extended `only-export-components` to flag locally-declared,
+    // never-exported component bindings too, including `lazy()` calls -
+    // it did not check those under 0.4.x. `src/main.tsx` is the app's entry
+    // point: it has ZERO module exports (nothing ever imports from it), so
+    // the rule's actual concern - a Fast Refresh boundary getting confused
+    // about what a file exports - cannot apply here regardless of how many
+    // route components or lazy() bindings it declares locally. Scoped to
+    // this one file rather than three new per-line disables (on top of the
+    // three that already existed for Root/LazyRoute/FailureMessage, now
+    // redundant and removed) or a repo-wide rule change.
+    files: ['src/main.tsx'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
     },
   },
   {

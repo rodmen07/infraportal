@@ -6,21 +6,42 @@ const DEFAULT: ServicesContent = {
   services: [],
 }
 
+/**
+ * True when a decoded payload is shaped like `ServicesContent`. The third of
+ * the typed-decode siblings (QA 2026-08-01, L-015): without it a valid-JSON
+ * body missing `services` replaced the default wholesale and `ServicesPage`'s
+ * `services.length` threw into the root error boundary.
+ */
+function isServicesContent(payload: unknown): payload is ServicesContent {
+  return typeof payload === 'object' && payload !== null && Array.isArray((payload as ServicesContent).services)
+}
+
 export function useServicesContent(baseUrl: string): ServicesContent {
   const [content, setContent] = useState<ServicesContent>(DEFAULT)
 
+  // The `active` lifetime flag (v1.23.3, D-13; the `usePricingContent`
+  // template): a response arriving after unmount, or after `baseUrl` changed
+  // and this effect instance was cleaned up, cannot write state, so a stale
+  // response can never overwrite fresher content. Guarded by
+  // useContentHooks.test.ts.
   useEffect(() => {
+    let active = true
+
     const load = async () => {
       try {
         const res = await fetch(`${baseUrl}content/services.json`)
         if (!res.ok) return
-        const payload = (await res.json()) as ServicesContent
-        setContent(payload)
+        const payload: unknown = await res.json()
+        if (active && isServicesContent(payload)) setContent(payload)
       } catch {
         // noop - error loading services
       }
     }
     void load()
+
+    return () => {
+      active = false
+    }
   }, [baseUrl])
 
   return content

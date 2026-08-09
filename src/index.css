@@ -309,6 +309,26 @@ textarea:disabled {
 
 [data-theme="light"] .text-amber-400 { color: #92400e !important; } /* amber-800 */
 
+/* The three decorative-hue badge foregrounds (v1.26.1 / D-22). purple, violet
+   and cyan are the hues D4 sanctions for neither accent (amber) nor status
+   (emerald/yellow/red/orange/blue), so - unlike the sub-2:1 foregrounds fixed
+   alongside them - there is no semantic text token to migrate these onto, and
+   the v1.26.1 slice takes its second sanctioned route: a light override.
+   Measured on this repo's own light --surface-2 (rgba(248,248,248,0.97) over
+   --surface-0 #f4f4f5, i.e. #f8f8f8) rather than "on white", by
+   src/styles/lightForegroundContrast.test.ts, which recomputes these from
+   THESE rules and tokens.css on disk instead of trusting the comment:
+     .text-cyan-300   #67e8f9 -> 1.36:1 (invisible)  =>  cyan-700   5.04:1
+     .text-purple-300 #d8b4fe -> 1.66:1 (invisible)  =>  purple-700 6.57:1
+     .text-violet-300 #c4b5fd -> 1.74:1 (invisible)  =>  violet-700 6.68:1
+   The 700 rung, not 800: it clears 4.5:1 with margin while staying the most
+   saturated (i.e. most recognisably purple/violet/cyan) shade that does, which
+   matters because each of these is one half of a coloured badge whose fill
+   stays on its own hue. */
+[data-theme="light"] .text-cyan-300 { color: #0e7490 !important; }   /* cyan-700: 5.04:1 on --surface-2 */
+[data-theme="light"] .text-purple-300 { color: #7e22ce !important; } /* purple-700: 6.57:1 on --surface-2 */
+[data-theme="light"] .text-violet-300 { color: #6d28d9 !important; } /* violet-700: 6.68:1 on --surface-2 */
+
 
 /* .text-red-400 override retired (v1.19 D12): all bare consumers migrated onto
    the text-danger-text token, which carries the danger text colour per theme. */
@@ -477,9 +497,7 @@ textarea:disabled {
 /* Hover states */
 [data-theme="light"] .hover\:bg-zinc-900\/40:hover { background-color: rgba(0,0,0,0.04) !important; }
 [data-theme="light"] .hover\:bg-zinc-800:hover      { background-color: rgba(0,0,0,0.06) !important; }
-[data-theme="light"] .hover\:text-zinc-300:hover    { color: #27272a !important; }
 [data-theme="light"] .hover\:text-zinc-200:hover    { color: #18181b !important; }
-[data-theme="light"] .hover\:text-zinc-100:hover    { color: #18181b !important; }
 [data-theme="light"] .hover\:text-amber-300:hover   { color: #b45309 !important; }
 [data-theme="light"] .hover\:text-amber-100:hover   { color: #78350f !important; }
 [data-theme="light"] .hover\:border-zinc-600\/50:hover { border-color: rgba(0,0,0,0.16) !important; }
@@ -497,7 +515,7 @@ textarea:disabled {
 /* ═══════════════════════════════════════════════════════════════════════
    v1.18.4 contrast fix: opacity-suffixed bg-* and border-* ghost classes.
 
-   src/styles/opacityColorThemeCoverage.test.ts was widened this milestone
+   src/styles/colorThemeCoverage.test.ts was widened this milestone
    from text-* only to also scan bg-* and border-*, per the two repo-wide bugs
    named in the portfolio backlog: `border-amber-400/30` and
    `border-amber-400/60` (the primary CTA button's border and hover-border,
@@ -535,7 +553,6 @@ textarea:disabled {
 
 /* Backgrounds: amber (accent-hue soft tints, same hue as dark mode) */
 [data-theme="light"] .bg-amber-400\/10 { background-color: rgba(251,191,36,0.07) !important; }
-[data-theme="light"] .bg-amber-400\/60 { background-color: rgba(251,191,36,0.5)  !important; }
 [data-theme="light"] .bg-amber-400\/70 { background-color: rgba(251,191,36,0.6)  !important; }
 [data-theme="light"] .bg-amber-500\/5  { background-color: rgba(245,158,11,0.04) !important; }
 [data-theme="light"] .bg-amber-500\/10 { background-color: rgba(245,158,11,0.07) !important; }
@@ -560,9 +577,8 @@ textarea:disabled {
 [data-theme="light"] .bg-orange-500\/10 { background-color: rgba(249,115,22,0.08) !important; }
 [data-theme="light"] .bg-orange-500\/15 { background-color: rgba(249,115,22,0.12) !important; }
 [data-theme="light"] .bg-orange-500\/20 { background-color: rgba(249,115,22,0.15) !important; }
-[data-theme="light"] .bg-orange-500\/60 { background-color: rgba(249,115,22,0.5)  !important; } /* PipelineMetrics data-viz legend swatch, decorative - kept vivid */
 /* bg-red-500\/8 (below) and border-red-500\/60 (further down) were NOT
-   caught by the widened opacityColorThemeCoverage.test.ts sweep - they were
+   caught by the widened colorThemeCoverage.test.ts sweep - they were
    already a known bug filed in the portfolio backlog (ContactPage.tsx's
    invalid-field input state, `field-input ${hasError ? 'border-red-500/60
    bg-red-500/8' : ''} ...`). The scanner's regex-based literal extraction
@@ -580,7 +596,7 @@ textarea:disabled {
 
 /* Backgrounds: emerald / green (status-success family, darkened to the
    emerald-800/green-800 tone like the existing .bg-emerald-950\/20 rule) */
-[data-theme="light"] .bg-emerald-500\/5  { background-color: rgba(6,95,70,0.05)  !important; } /* OnboardingChecklist done-row tint; ternary-in-template-literal ghost, found by the fixed opacityColorThemeCoverage scanner */
+[data-theme="light"] .bg-emerald-500\/5  { background-color: rgba(6,95,70,0.05)  !important; } /* OnboardingChecklist done-row tint; ternary-in-template-literal ghost, found by the fixed colorThemeCoverage scanner */
 [data-theme="light"] .bg-emerald-500\/8  { background-color: rgba(6,95,70,0.06)  !important; }
 [data-theme="light"] .bg-emerald-500\/10 { background-color: rgba(6,95,70,0.08)  !important; } /* named v1.18.4 bug */
 [data-theme="light"] .bg-emerald-500\/15 { background-color: rgba(6,95,70,0.12) !important; }
@@ -606,11 +622,6 @@ textarea:disabled {
 [data-theme="light"] .bg-zinc-900\/70 { background-color: rgba(0,0,0,0.05)  !important; }
 [data-theme="light"] .bg-zinc-950\/40 { background-color: rgba(0,0,0,0.03)  !important; }
 [data-theme="light"] .bg-zinc-950\/50 { background-color: rgba(0,0,0,0.035) !important; }
-
-/* PipelineMetrics uses `bg-zinc-400/60` as a data-viz legend swatch colour,
-   not a surface fill - a mid-grey stays meaningfully visible on white
-   without the near-black-wash treatment above washing it out entirely. */
-[data-theme="light"] .bg-zinc-400\/60 { background-color: rgba(0,0,0,0.35) !important; }
 
 /* Backgrounds: near-opaque zinc-900 used as a floating panel/backdrop fill
    (NotificationBell's dropdown, the top-level error boundary card), not a
@@ -699,7 +710,7 @@ textarea:disabled {
    pseudo-class; `open:` (the `<details>`/`<dialog>` state variant) compiles
    to a trailing `[open]` attribute selector instead - confirmed against a
    real `tailwindcss` CLI build of this repo's content, not guessed. See
-   src/styles/opacityColorThemeCoverage.test.ts's `VARIANT_SELECTOR_SUFFIX`
+   src/styles/colorThemeCoverage.test.ts's `VARIANT_SELECTOR_SUFFIX`
    map, which enforces (rather than assumes) this file stays in sync: any
    future variant-prefixed opacity class this app starts using must be added
    both there and here, or the test fails loudly instead of silently passing.
@@ -707,8 +718,6 @@ textarea:disabled {
 [data-theme="light"] .hover\:border-amber-400\/40:hover   { border-color: rgba(180,100,10,0.45) !important; }
 [data-theme="light"] .hover\:border-amber-400\/50:hover   { border-color: rgba(180,100,10,0.55) !important; }
 [data-theme="light"] .hover\:border-amber-400\/60:hover   { border-color: rgba(180,100,10,0.65) !important; } /* named v1.18.4 bug, hover state */
-[data-theme="light"] .focus\:border-amber-400\/50:focus   { border-color: rgba(180,100,10,0.55) !important; }
-[data-theme="light"] .focus\:border-amber-500\/60:focus   { border-color: rgba(180,100,10,0.65) !important; } /* named v1.18.4 bug, focus state */
 [data-theme="light"] .open\:border-amber-400\/30[open]    { border-color: rgba(180,100,10,0.35) !important; }
 [data-theme="light"] .hover\:border-emerald-400\/60:hover { border-color: rgba(6,95,70,0.5)     !important; } /* named v1.18.4 bug, hover state */
 [data-theme="light"] .hover\:border-red-500\/70:hover     { border-color: rgba(239,68,68,0.7)   !important; }

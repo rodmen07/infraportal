@@ -58,7 +58,7 @@ export function SnippetsSection({
       data-snippets={operation.operationId}
       className="mt-2 rounded-lg border border-zinc-700/40 bg-zinc-950/40"
     >
-      <summary className="cursor-pointer p-3 text-scale-xs font-semibold uppercase tracking-widest text-text-secondary hover:text-amber-200">
+      <summary className="cursor-pointer p-3 text-scale-xs font-semibold uppercase tracking-widest text-text-secondary hover:text-accent-text">
         Snippets: curl + TypeScript SDK
       </summary>
       <div className="space-y-3 border-t border-zinc-700/30 p-3">

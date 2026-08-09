@@ -374,7 +374,7 @@ export function ServiceSpecView({
         </div>
         {spec.info.description && (
           <details className="mt-2">
-            <summary className="cursor-pointer text-xs text-amber-300/90 hover:text-amber-200">
+            <summary className="cursor-pointer text-xs text-amber-300/90 hover:text-accent-text">
               Service description and auth model
             </summary>
             <p className="mt-2 whitespace-pre-line text-xs leading-5 text-text-muted">

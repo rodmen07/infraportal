@@ -4,18 +4,32 @@ import { PageHeader } from '../features/site/PageHeader'
 import { SCHEDULING_URL } from '../config'
 import { saveConsultationRequest, type ConsultationRequest } from '../features/consulting/consultationStore'
 import { submitPublicLead } from '../features/consulting/leadIntake'
+import { DeliveryFailureNotice, type DeliveryStatus } from '../features/consulting/DeliveryFailureNotice'
 import { trackPortfolioEvent } from '../utils/analytics'
 import { PORTFOLIO_EVENTS } from '../utils/analyticsEvents'
 import { PricingTrustStrip } from '../features/consulting/PricingTrustStrip'
 import { PricingFaq } from '../features/consulting/PricingFaq'
 
-type Phase = 'idle' | 'sending' | 'sent'
+// v1.25.2 (D-19) added 'error': a delivery failure no longer ends the form,
+// it annotates it, so the visitor keeps what they typed and gets a way out.
+type Phase = 'idle' | 'sending' | 'sent' | 'error'
+
+// v1.25.1 (ROADMAP decision D-17): the same three-state delivery vocabulary
+// LeadMagnetPage already derives from `LeadIntakeResult`, adopted verbatim
+// rather than redesigned. Before this slice `submitPublicLead`'s result was
+// discarded here in statement position and `phase` went to 'sent' on every
+// path, so a relay outage rendered "✓ Message sent" (LEAD-SILENT-DROP-1).
+// The type moved to DeliveryFailureNotice in v1.25.2 so the panel and its two
+// callers share one vocabulary.
 
 export function ContactPage() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [message, setMessage] = useState('')
   const [phase, setPhase] = useState<Phase>('idle')
+  const [deliveryStatus, setDeliveryStatus] = useState<DeliveryStatus>('sent')
+  // v1.25.2 (D-19): the request that failed, so the recovery mailto carries it.
+  const [failedRequest, setFailedRequest] = useState<ConsultationRequest | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const sending = phase === 'sending'
   const messageLength = message.trim().length
@@ -63,14 +77,34 @@ export function ContactPage() {
       status: 'new',
     }
 
-    // Always persist locally so the lead is never lost.
+    // Persist locally first. This copy lives in the VISITOR's localStorage,
+    // which the owner can never read, so it is not a delivery guarantee — the
+    // bound result below is what decides what the visitor is told (v1.25.1).
     saveConsultationRequest(request)
-    // Best-effort server delivery — no-ops when VITE_LEAD_INTAKE_URL is unset.
-    await submitPublicLead(request)
+    const intakeResult = await submitPublicLead(request)
+    const delivery: DeliveryStatus = intakeResult.ok
+      ? 'sent'
+      : intakeResult.reason === 'not-configured'
+        ? 'not-configured'
+        : 'failed'
+    setDeliveryStatus(delivery)
+
     trackPortfolioEvent(PORTFOLIO_EVENTS.contact_form_submit, {
       hasSchedulingLink: Boolean(SCHEDULING_URL),
+      delivery_status: delivery,
     })
 
+    // v1.25.2 (D-19): only a confirmed delivery clears the form. Before this
+    // slice the fields were wiped on every path, so the honest failure panel
+    // v1.25.1 shipped was rendered over an empty form and the visitor had to
+    // retype the note they had just been told did not arrive.
+    if (delivery !== 'sent') {
+      setFailedRequest(request)
+      setPhase('error')
+      return
+    }
+
+    setFailedRequest(null)
     setPhase('sent')
     setName('')
     setEmail('')
@@ -126,6 +160,12 @@ export function ContactPage() {
           </div>
         ) : (
         <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+          {/* v1.25.2 (D-19): annotate the still-filled form instead of
+              replacing it, so "it is still in the form below" is literally
+              true and the recovery mailto has a payload to carry. */}
+          {phase === 'error' && failedRequest && deliveryStatus !== 'sent' && (
+            <DeliveryFailureNotice status={deliveryStatus} noun="message" request={failedRequest} />
+          )}
           <div className="rounded-xl border border-zinc-700/50 bg-zinc-900/40 px-4 py-3 text-sm text-text-secondary">
             <p className="font-medium text-text-primary">Helpful context to include</p>
             <p className="mt-1 text-text-muted">Project type, current stack, target timeline, and the main blocker you want solved first.</p>

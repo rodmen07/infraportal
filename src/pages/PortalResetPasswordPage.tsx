@@ -1,20 +1,19 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { PageLayout } from './PageLayout'
+import { parseResetToken } from '../features/auth/hashParams'
 import { AUTH_SERVICE_URL } from '../config'
 
 export function PortalResetPasswordPage() {
-  const [resetToken, setResetToken] = useState<string | null>(null)
+  // Read once at mount, not in an effect: the link is fixed for the life of
+  // the page, and the old mount effect made the first paint claim the link
+  // carried no token ("No reset token found...") before correcting itself on
+  // the next render.
+  const [resetToken] = useState<string | null>(() => parseResetToken(window.location.hash))
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [done, setDone] = useState(false)
-
-  useEffect(() => {
-    const hashParams = new URLSearchParams(window.location.hash.split('?')[1] ?? '')
-    const token = hashParams.get('token')
-    setResetToken(token)
-  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -90,7 +89,7 @@ export function PortalResetPasswordPage() {
                   required
                   autoComplete="new-password"
                   minLength={6}
-                  className="w-full rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
+                  className="w-full rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 outline-none"
                   placeholder="Minimum 6 characters"
                 />
               </div>
@@ -102,7 +101,7 @@ export function PortalResetPasswordPage() {
                   onChange={(e) => setConfirm(e.target.value)}
                   required
                   autoComplete="new-password"
-                  className="w-full rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
+                  className="w-full rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 outline-none"
                   placeholder="Re-enter your password"
                 />
               </div>

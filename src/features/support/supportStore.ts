@@ -1,3 +1,5 @@
+import { createRawSnapshotCache, createStoreSubscription } from '../../utils/externalStore'
+
 export type SupportStatus = 'open' | 'in_progress' | 'resolved'
 
 export const SUPPORT_CATEGORIES = ['Maintenance', 'Bug', 'Question', 'Change request'] as const
@@ -26,6 +28,16 @@ function storageKey(projectId: string): string {
   return `${STORAGE_PREFIX}${projectId}`
 }
 
+const subscription = createStoreSubscription((key) => key.startsWith(STORAGE_PREFIX))
+
+/** Subscribe to every support write, in the shape `useSyncExternalStore` expects. */
+export const subscribeToSupportStore = subscription.subscribe
+
+function readRaw(projectId: string): string {
+  if (typeof window === 'undefined') return ''
+  return window.localStorage.getItem(storageKey(projectId)) ?? ''
+}
+
 function readRequests(projectId: string): SupportRequest[] {
   if (typeof window === 'undefined') return []
   try {
@@ -41,10 +53,21 @@ function readRequests(projectId: string): SupportRequest[] {
 function writeRequests(projectId: string, requests: SupportRequest[]): void {
   if (typeof window === 'undefined') return
   window.localStorage.setItem(storageKey(projectId), JSON.stringify(requests))
+  subscription.notify()
 }
 
 export function getSupportRequests(projectId: string): SupportRequest[] {
   return readRequests(projectId)
+}
+
+const requestsSnapshot = createRawSnapshotCache(readRequests)
+
+/**
+ * `getSupportRequests` with a stable reference while the stored bytes are
+ * unchanged, so a component may read it on every render.
+ */
+export function getSupportRequestsSnapshot(projectId: string): SupportRequest[] {
+  return requestsSnapshot(projectId, readRaw(projectId))
 }
 
 /**
@@ -95,4 +118,5 @@ export function removeSupportRequest(projectId: string, id: string): SupportRequ
 export function clearSupportRequests(projectId: string): void {
   if (typeof window === 'undefined') return
   window.localStorage.removeItem(storageKey(projectId))
+  subscription.notify()
 }

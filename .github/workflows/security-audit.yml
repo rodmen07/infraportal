@@ -1,0 +1,106 @@
+name: Scheduled security audit
+
+# ─── Why this exists, given test.yml already has an "Audit npm dependencies" step ──
+#
+# test.yml's audit step fires on `push` to main and on `pull_request`. That makes
+# the advisory check a function of OUR commit cadence rather than of the GitHub
+# Advisory Database's publication cadence, and those two are unrelated. A newly
+# published advisory against a package that is ALREADY pinned in
+# package-lock.json is invisible until somebody happens to push.
+#
+# Measured on 2026-08-08, before this workflow existed, over the last 100 `Tests`
+# runs on main (2026-07-20T21:21:53Z .. 2026-08-08T18:15:12Z):
+#
+#   largest gap between consecutive advisory checks   76.0 h  (2026-08-01T19:25:59Z
+#                                                              -> 2026-08-04T23:23:24Z)
+#   second                                            62.8 h
+#   third                                             48.9 h
+#   schedule-triggered runs that audit anything            0
+#
+# So the window between "advisory published" and "we find out" was bounded by
+# nothing but our own commit rate, and it has already been open for more than
+# three days at a stretch inside the last three weeks. This workflow bounds it at
+# 24 hours.
+#
+# The repo's OTHER scheduled workflow does not close this: spec-drift.yml's
+# weekly cron (`0 6 * * 1`) runs `check-spec-drift` and never touches npm audit.
+# `grep -rn "npm audit" .github/workflows/` returned exactly one line before this
+# file existed (test.yml:50).
+#
+# It is deliberately a SEPARATE, LEAN workflow rather than a `schedule:` trigger
+# added to test.yml: that workflow's other steps (coverage, typecheck, lint,
+# build) cost several minutes per run and tell us nothing about advisories, and a
+# daily cron there would also inject schedule-event runs into the history of
+# `Unit Tests`, a REQUIRED status context. This job installs and audits only.
+#
+# ─── What guards this file ──────────────────────────────────────────────────────
+#
+# src/features/site/dependencyAuditGate.test.ts discovers every `npm audit`
+# invocation across ALL workflow files (glob, not a hand-written list) and holds
+# each one to the same floor, so the command below cannot drift looser than the
+# required gate's without that suite going red.
+
+on:
+  schedule:
+    # Daily. Deliberately off the hour: GitHub queues cron workloads at :00 and
+    # runs scheduled there are routinely delayed by tens of minutes. Also off
+    # spec-drift.yml's `0 6 * * 1` so the two never contend.
+    - cron: '37 6 * * *'
+
+  # Manual runs, and — importantly — this workflow exercises ITSELF whenever it
+  # is edited. A schedule-only workflow cannot run on the pull request that
+  # introduces or changes it, which is precisely how a gate ships inert. The
+  # path filter keeps that to PRs that touch this file; "Scheduled security
+  # audit" is NOT a required status context, so a PR that does not touch this
+  # file simply never creates the check run and nothing waits on it.
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/security-audit.yml'
+
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    name: Scheduled security audit
+    runs-on: ubuntu-latest
+
+    # Least privilege. This job reads the lockfile and reports through its own
+    # conclusion; it creates no check run of its own, writes no comment, and
+    # opens no issue, so `contents: read` is the whole requirement.
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Audit npm dependencies
+        # IDENTICAL to test.yml's "Audit npm dependencies" step (test.yml:50).
+        # test.yml remains the source of truth for the threshold and the scope;
+        # if either changes, both commands change together, and
+        # dependencyAuditGate.test.ts fails if they ever disagree.
+        #
+        # --omit=dev: audits what actually ships. Dev/build-tool advisories are
+        # tracked separately so they do not block delivery of the app itself.
+        # The gate that keeps a bundled package from hiding in devDependencies
+        # is the scope half of dependencyAuditGate.test.ts.
+        #
+        # --audit-level=moderate: `high` until 2026-08-07, when
+        # GHSA-55q2-fjhq-7xh7 (dompurify <=3.4.12, MODERATE: "IN_PLACE hook
+        # removal leaves a detached subtree executable, causing XSS") sat in a
+        # DIRECT production dependency while that step still exited 0.
+        run: npm audit --omit=dev --audit-level=moderate

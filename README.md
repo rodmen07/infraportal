@@ -119,7 +119,7 @@ about before adding code:
 
 - `src/styles/tokens.test.ts` — every CSS class used in `.tsx` must actually be defined
   (a class that does not exist renders an invisible card, which has shipped here twice).
-- `src/styles/opacityColorThemeCoverage.test.ts` and `typeScaleFloor.test.ts` — no raw
+- `src/styles/colorThemeCoverage.test.ts` and `typeScaleFloor.test.ts` — no raw
   palette class without a light-theme override, and a 12px type-scale floor.
 - `src/features/layout/routeIntegrity.test.ts` — every internal destination in the nav,
   command palette and guided tour resolves against the router vocabulary parsed out of
@@ -138,6 +138,13 @@ about before adding code:
 - `src/features/site/conversionInstrumentation.test.ts` — every analytics call site uses
   a name from the typed event registry (`src/utils/analyticsEvents.ts`), every declared
   conversion surface carries tracking, and no registered name goes unused.
+- `src/features/site/setStateInEffect.test.ts` — `react-hooks/set-state-in-effect` runs
+  at `error` for every file except the shrinking legacy list in `eslint.config.js`, and
+  no listed file may keep its exemption after it stops violating the rule.
+- `src/features/portal/portalStoreSubscription.test.ts` — the portal panels read the
+  localStorage-backed onboarding and support stores through `useSyncExternalStore`, so a
+  write from one panel reaches its siblings; every store mutator must notify, and no
+  panel may mirror a store into state inside an effect.
 - `src/features/site/analyticsSink.test.ts` — an analytics sink's forwarding code in
   `src/utils/analytics.ts` and its loader script in `index.html` must arrive and leave
   together (no dispatching into a void, no sink that drops funnel events), and every

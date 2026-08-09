@@ -19,6 +19,23 @@
   },
   "others": [
     {
+      "title": "ADHD Daily Coach — Static Export, No Server Routes",
+      "subtitle": "Next.js 16 · React 19 · TypeScript · Firebase · Firestore · Stripe Payment Links · GitHub Pages",
+      "description": "An ADHD friendly daily-dose coaching app shipped as a Next.js static export with no server routes — and still doing Google auth, cloud sync, a paid membership flow, and guest-to-account data migration entirely from the browser.",
+      "techStack": ["Next.js 16", "React 19", "TypeScript", "Tailwind CSS 4", "Firebase Auth", "Cloud Firestore", "Zod", "Vitest", "Playwright", "Stripe Payment Links", "GitHub Actions", "GitHub Pages", "Python"],
+      "highlights": [
+        "output: \"export\" with zero route handlers and zero middleware — enforced by a test that reads the config live and bans Node built-in imports under src/",
+        "Stripe Payment Links carry the Firebase uid as client_reference_id, so a site with no webhook endpoint can still attribute every payment",
+        "Guest-to-account migration with an opt-in per-collection conflict guard: the guest copy is never deleted, and a failed run leaves the marker unset so the next load retries",
+        "Product rules are mechanical: no infinite feed, no streak pressure, and a daily cap message, each wired to an assertion rather than a README promise",
+        "564 vitest tests across 74 files, plus 4 Playwright journeys run against the real static export served by a stdlib Node server that reproduces the hosting shape",
+        "Blocking Quality Gate (lint, typecheck, build, npm audit, coverage) with a daily scheduled detector for the non-hermetic audit step",
+        "An autonomous Python dev agent that edits the repo, verifies with the project's own npm scripts, and opens its own pull requests: 5 merged off dev-agent/* branches, 2 of which shipped application code"
+      ],
+      "githubUrl": "https://github.com/rodmen07/adhd-daily-coach",
+      "detailUrl": "#/case-studies/adhd-daily-coach"
+    },
+    {
       "title": "Observaboard — Observability Dashboard",
       "subtitle": "Python · Django 5 · DRF · HTMX · Celery · PostgreSQL FTS · Fly.io",
       "description": "Full-stack observability platform with a live HTMX dashboard, REST API, Celery async event classification, and PostgreSQL full-text search — deployed on Fly.io with CI/CD.",
@@ -96,23 +113,6 @@
       ],
       "githubUrl": "https://github.com/rodmen07/dynamodb_prototype",
       "detailUrl": "#/case-studies/dynamodb-idempotency"
-    },
-    {
-      "title": "ADHD Daily Coach — Static Export, No Server Routes",
-      "subtitle": "Next.js 16 · React 19 · TypeScript · Firebase · Firestore · Stripe Payment Links · GitHub Pages",
-      "description": "An ADHD friendly daily-dose coaching app shipped as a Next.js static export with no server routes — and still doing Google auth, cloud sync, a paid membership flow, and guest-to-account data migration entirely from the browser.",
-      "techStack": ["Next.js 16", "React 19", "TypeScript", "Tailwind CSS 4", "Firebase Auth", "Cloud Firestore", "Zod", "Vitest", "Playwright", "Stripe Payment Links", "GitHub Actions", "GitHub Pages", "Python"],
-      "highlights": [
-        "output: \"export\" with zero route handlers and zero middleware — enforced by a test that reads the config live and bans Node built-in imports under src/",
-        "Stripe Payment Links carry the Firebase uid as client_reference_id, so a site with no webhook endpoint can still attribute every payment",
-        "Guest-to-account migration with an opt-in per-collection conflict guard: the guest copy is never deleted, and a failed run leaves the marker unset so the next load retries",
-        "Product rules are mechanical: no infinite feed, no streak pressure, and a daily cap message, each wired to an assertion rather than a README promise",
-        "564 vitest tests across 74 files, plus 4 Playwright journeys run against the real static export served by a stdlib Node server that reproduces the hosting shape",
-        "Blocking Quality Gate (lint, typecheck, build, npm audit, coverage) with a daily scheduled detector for the non-hermetic audit step",
-        "An autonomous Python dev agent that edits the repo, verifies with the project's own npm scripts, and opens its own pull requests: 5 merged off dev-agent/* branches, 2 of which shipped application code"
-      ],
-      "githubUrl": "https://github.com/rodmen07/adhd-daily-coach",
-      "detailUrl": "#/case-studies/adhd-daily-coach"
     },
     {
       "title": "CloudTrail Medallion Data Pipeline",

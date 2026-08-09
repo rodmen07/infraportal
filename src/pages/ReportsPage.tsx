@@ -1,6 +1,8 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useCallback } from 'react'
 import { PageLayout } from './PageLayout'
 import { resolveAdminToken } from '../config'
+import { useResource } from '../features/crm/useResource'
+import { useFocusTrap } from '../features/layout/useFocusTrap'
 
 // ---------------------------------------------------------------------------\
 // Config
@@ -62,7 +64,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
           value={input}
           onChange={e => { setInput(e.target.value); setError(false) }}
           placeholder="Admin key"
-          className="w-full rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
+          className="w-full rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 outline-none"
         />
         {error && <p className="text-xs text-danger-text">Invalid key</p>}
         <button type="submit" className="btn-accent w-full">Unlock</button>
@@ -122,7 +124,7 @@ function FormField({ label, children }: { label: string; children: React.ReactNo
   )
 }
 
-const INPUT = 'w-full rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none'
+const INPUT = 'w-full rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 outline-none'
 
 // ---------------------------------------------------------------------------\
 // Skeleton components
@@ -208,20 +210,35 @@ function ReportsViewSkeleton() {
 // ---------------------------------------------------------------------------\
 // Modal
 // ---------------------------------------------------------------------------\
-function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [onClose])
+// v1.24.2 (D-14 + D-16): this was the site's ninth overlay and a dialog in
+// everything but name - `fixed inset-0` with a backdrop click and a hand-rolled
+// Escape listener, but no `role`, no `aria-modal` and no accessible name at
+// all, so assistive technology had no way to announce it as a dialog or to read
+// its title. It now declares the role, is named by its own heading, and adopts
+// the shared `useFocusTrap` seam; the hand-rolled Escape effect is DELETED
+// because the hook owns Escape (along with the Tab trap, focus-in and
+// focus-return-to-trigger it never had). Exported for the behaviour proof in
+// `src/features/layout/modalFocusTrap.test.ts`.
+export function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
+  // Every call site mounts this only while open ({modal?.mode === '…' && <Modal
+  // …/>}), so the trap is active for exactly the component's lifetime.
+  const containerRef = useFocusTrap<HTMLDivElement>(true, onClose)
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={onClose}>
+    <div
+      ref={containerRef}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+      onClick={onClose}
+      role="presentation"
+    >
       <div
         className="forge-panel surface-card-strong w-full max-w-md space-y-4 p-6"
         onClick={e => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="reports-modal-title"
       >
-        <h3 className="text-sm font-semibold text-text-primary">{title}</h3>
+        <h3 id="reports-modal-title" className="text-sm font-semibold text-text-primary">{title}</h3>
         {children}
       </div>
     </div>
@@ -391,32 +408,34 @@ function DashboardCard({ summary }: { summary: DashboardSummary }) {
 // ---------------------------------------------------------------------------\
 // Reports view
 // ---------------------------------------------------------------------------\
+interface ReportsData {
+  summary: DashboardSummary | null
+  reports: SavedReport[]
+}
+
+const EMPTY_REPORTS_DATA: ReportsData = { summary: null, reports: [] }
+
 function ReportsView() {
-  const [summary, setSummary]   = useState<DashboardSummary | null>(null)
-  const [reports, setReports]   = useState<SavedReport[]>([])
-  const [loading, setLoading]   = useState(true)
-  const [error, setError]       = useState<string | null>(null)
   const [modal, setModal]       = useState<ModalMode>(null)
   const [deleting, setDeleting] = useState(false)
+  // A failed DELETE is not a load failure, but the page has always rendered it
+  // through the same full-width error panel; written only in event handlers.
+  const [actionError, setActionError] = useState<string | null>(null)
 
-  const load = useCallback(async () => {
-    if (!REPORTING_URL) { setError('VITE_REPORTING_API_BASE_URL is not configured'); setLoading(false); return }
-    setLoading(true); setError(null)
-    try {
-      const [s, r] = await Promise.all([
-        api<DashboardSummary>(`${REPORTING_URL}/api/v1/reports/dashboard`),
-        api<SavedReport[]>(`${REPORTING_URL}/api/v1/reports`),
-      ])
-      setSummary(s)
-      setReports(r)
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Load failed')
-    } finally {
-      setLoading(false)
-    }
+  const fetchReports = useCallback(async (): Promise<ReportsData> => {
+    const [summary, reports] = await Promise.all([
+      api<DashboardSummary>(`${REPORTING_URL}/api/v1/reports/dashboard`),
+      api<SavedReport[]>(`${REPORTING_URL}/api/v1/reports`),
+    ])
+    return { summary, reports }
   }, [])
 
-  useEffect(() => { load() }, [load])
+  const { data, loading, error, reload } = useResource<ReportsData>(
+    EMPTY_REPORTS_DATA,
+    fetchReports,
+    REPORTING_URL ? null : 'VITE_REPORTING_API_BASE_URL is not configured',
+  )
+  const { summary, reports } = data
 
   const handleSave = async (form: ReportFormData) => {
     const body = {
@@ -431,7 +450,7 @@ function ReportsView() {
       await api(`${REPORTING_URL}/api/v1/reports`, { method: 'POST', body: JSON.stringify(body) })
     }
     setModal(null)
-    load()
+    reload()
   }
 
   const handleDelete = async () => {
@@ -440,22 +459,23 @@ function ReportsView() {
     try {
       await api(`${REPORTING_URL}/api/v1/reports/${modal.id}`, { method: 'DELETE' })
       setModal(null)
-      load()
+      reload()
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Delete failed')
+      setActionError(e instanceof Error ? e.message : 'Delete failed')
     } finally {
       setDeleting(false)
     }
   }
 
+  const pageError = error ?? actionError
   if (loading) return <ReportsViewSkeleton />
-  if (error) return (
+  if (pageError) return (
     <div className="forge-panel surface-card-strong flex flex-col gap-3 border border-red-500/30 bg-red-500/10 p-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
         <p className="text-sm font-semibold text-danger-text">Unable to load saved reports</p>
-        <p className="mt-1 text-sm text-danger-text">{error}</p>
+        <p className="mt-1 text-sm text-danger-text">{pageError}</p>
       </div>
-      <button className="btn-accent px-3 py-2 text-sm" onClick={load}>Retry</button>
+      <button className="btn-accent px-3 py-2 text-sm" onClick={() => { setActionError(null); reload() }}>Retry</button>
     </div>
   )
 

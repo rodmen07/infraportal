@@ -2,58 +2,56 @@ import { useState, useEffect, useCallback } from 'react'
 import { resolveAdminToken } from '../../config'
 import { BulkEditModal } from '../../components/BulkEditModal'
 import { crmStore } from '../../lib/crmStore.mock'
-import { clearSelection, pruneSelection, toggleAll, toggleRow } from '../../lib/rowSelection'
+import { clearSelection, toggleAll, toggleRow } from '../../lib/rowSelection'
+import { useRowSelection } from '../../lib/useRowSelection'
 import type { Contact, ModalMode, PagedResponse } from './types'
 import { api, CONTACTS_URL, CONTACTS_DEMO } from './api'
+import { useResource } from './useResource'
+import { CONTACT_LIFECYCLE_STAGES } from './vocabulary'
 import {
   Spinner, ErrorBox, CustomEmptyState, DocumentIcon, DemoDataBadge,
   SelectionToolbar, SelectAllCheckbox, Badge, LIFECYCLE_COLOR, ActionButtons,
   Modal, FormField, INPUT_CLS, SaveError, DeleteModal, NO_TOKEN_MSG,
 } from './ui'
 
+const NO_CONTACTS: Contact[] = []
+
 // ---------------------------------------------------------------------------
 // ContactsTab (shared with LeadsTab via stageFilter prop)
 // ---------------------------------------------------------------------------
 export function ContactsTab({ stageFilter }: { stageFilter?: string }) {
-  const [rows, setRows]       = useState<Contact[]>([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError]     = useState<string | null>(null)
   const [modal, setModal]     = useState<ModalMode<Contact>>(null)
   const [saving, setSaving]   = useState(false)
   const [saveErr, setSaveErr] = useState<string | null>(null)
-  const [selected, setSelected] = useState<ReadonlySet<string>>(() => new Set())
   const [bulkEditOpen, setBulkEditOpen] = useState(false)
 
   const [form, setForm] = useState({ first_name: '', last_name: '', email: '', phone: '', lifecycle_stage: stageFilter ?? 'lead', account_id: '' })
 
-  const load = useCallback(async () => {
+  // Evaluated during render, so a refused load is the FIRST paint's state
+  // instead of a second render pass over a briefly-wrong empty-state card.
+  const blocked = !CONTACTS_DEMO && !resolveAdminToken() ? NO_TOKEN_MSG : null
+
+  // `stageFilter` is part of the fetcher's identity, so a stage change
+  // re-loads (and shows the spinner again) without extra bookkeeping.
+  const fetchContacts = useCallback(async () => {
     if (CONTACTS_DEMO) {
       const all = crmStore.list('contacts')
-      setRows(stageFilter ? all.filter(c => c.lifecycle_stage === stageFilter) : all)
-      setError(null)
-      return
+      return stageFilter ? all.filter(c => c.lifecycle_stage === stageFilter) : all
     }
-    if (!resolveAdminToken()) { setError(NO_TOKEN_MSG); return }
-    setLoading(true); setError(null)
-    try {
-      const qs = stageFilter ? `lifecycle_stage=${stageFilter}&limit=100` : 'limit=100'
-      const body = await api<PagedResponse<Contact>>(`${CONTACTS_URL}/api/v1/contacts?${qs}`)
-      setRows(body.data)
-    } catch (e) { setError(e instanceof Error ? e.message : String(e)) }
-    finally     { setLoading(false) }
+    const qs = stageFilter ? `lifecycle_stage=${stageFilter}&limit=100` : 'limit=100'
+    const body = await api<PagedResponse<Contact>>(`${CONTACTS_URL}/api/v1/contacts?${qs}`)
+    return body.data
   }, [stageFilter])
+  const { data: rows, loading, error, reload: load } = useResource(NO_CONTACTS, fetchContacts, blocked)
+  // Selection is pruned against the rendered rows (refresh, delete, stage change).
+  const [selected, setSelected] = useRowSelection(rows)
 
-  useEffect(() => { load() }, [load])
   // In demo mode, re-read whenever the shared mock store changes (bulk
   // import, bulk edit, or CRUD from another tab).
   useEffect(() => {
     if (!CONTACTS_DEMO) return
     return crmStore.subscribe(load)
   }, [load])
-  // Drop selected ids that left the list (refresh, delete, stage change).
-  useEffect(() => {
-    setSelected(prev => pruneSelection(prev, rows.map(r => r.id)))
-  }, [rows])
 
   function openCreate() {
     setForm({ first_name: '', last_name: '', email: '', phone: '', lifecycle_stage: stageFilter ?? 'lead', account_id: '' })
@@ -190,7 +188,7 @@ export function ContactsTab({ stageFilter }: { stageFilter?: string }) {
             </FormField>
             <FormField label="Lifecycle stage">
               <select className={INPUT_CLS} value={form.lifecycle_stage} onChange={e => setForm(f => ({ ...f, lifecycle_stage: e.target.value }))}>
-                {['lead','prospect','customer','churned','evangelist'].map(s => <option key={s} value={s}>{s}</option>)}
+                {CONTACT_LIFECYCLE_STAGES.map(s => <option key={s} value={s}>{s}</option>)}
               </select>
             </FormField>
             <FormField label="Account ID (optional)">

@@ -395,7 +395,7 @@ describe('strangler rule: override-sheet rules for tokenized surfaces stay delet
     //     deleted.
     //  2. ADDITIONS: fixing the two named repo-wide contrast bugs
     //     (`border-amber-400/30`/`/60`, `bg-emerald-500/10`) plus the
-    //     ~80-class sweep widening src/styles/opacityColorThemeCoverage.test.ts
+    //     ~80-class sweep widening src/styles/colorThemeCoverage.test.ts
     //     to bg-*/border-* surfaced required MORE override rules, not
     //     fewer: those classes are still raw Tailwind utilities in roughly
     //     40 case-study/admin/portal files that have not been migrated onto
@@ -431,7 +431,7 @@ describe('strangler rule: override-sheet rules for tokenized surfaces stay delet
     // ever") is incompatible with v1.18.4 PR2's own real fix: 25 further
     // `[data-theme="light"] .hover\:...`/`.focus\:...`/`.open\:...` rules
     // were genuinely required to close a bug the bare-class overrides could
-    // never fix (see opacityColorThemeCoverage.test.ts's file header) - a
+    // never fix (see colorThemeCoverage.test.ts's file header) - a
     // correctness fix, not sprawl, and zero-tolerance would have blocked it.
     // What the design doc actually needed, and what this test provides, is
     // a RATCHET: growth is not silently free, but it is possible when a
@@ -445,7 +445,7 @@ describe('strangler rule: override-sheet rules for tokenized surfaces stay delet
     // compiled class, not guessed -> 230 after the QA scanner-blindspot fix
     // added one override for `bg-emerald-500/5` (OnboardingChecklist's
     // done-row tint), a genuine light-mode ghost that was invisible to this
-    // suite until opacityColorThemeCoverage's ternary-in-template-literal
+    // suite until colorThemeCoverage's ternary-in-template-literal
     // extraction bug was fixed in the same PR. A single correctness override,
     // not sprawl.
     // 227 after v1.18.6's first retirement: 3 zero-consumer override rules
@@ -480,7 +480,58 @@ describe('strangler rule: override-sheet rules for tokenized surfaces stay delet
     // class migrated onto danger-text, and the two sky status badges (POST
     // method, "in progress") onto info-text, resolving the held items; one dead
     // .text-red-100/90 override retired.
-    const CEILING = 209
+    // 212 after v1.26.1 (D-22) added exactly three: .text-cyan-300,
+    // .text-purple-300 and .text-violet-300, the decorative-hue badge
+    // foregrounds measured at 1.36:1 / 1.66:1 / 1.74:1 against this repo's own
+    // light --surface-2 - i.e. three more of the same invisible-in-one-theme
+    // defect the whole override sheet exists for. This ratchet guards SPRAWL,
+    // not correctness fixes, which is why it also went UP for v1.18.4's 25
+    // variant overrides and for the single bg-emerald-500/5 ghost above; the
+    // three classes here have no semantic token to migrate onto (D4 sanctions
+    // amber as the only accent hue and emerald/yellow/red/orange/blue as the
+    // only status hues, so purple/violet/cyan are decorative and tokenless),
+    // which is the one case v1.26.1 sanctions an override for. The three
+    // foregrounds v1.26.1 fixed that DO have a token took the other route and
+    // added nothing here: text-zinc-50 -> text-text-primary,
+    // hover:text-amber-200 -> hover:text-accent-text, hover:text-emerald-300 ->
+    // hover:text-success. v1.26.3 (D-25) lowers the ceiling by what it retires,
+    // and its arithmetic starts from THIS 212, not from the 209 the v1.26
+    // definition in ROADMAP.md was written against.
+    // 207 after v1.26.3 (D-25) retired FIVE strictly-orphaned overrides - rules
+    // whose class has no consumer in any form anywhere in non-test src or
+    // index.html: two hover text colours and three fills (an amber, an orange
+    // and a zinc, all at /60). Two of them carried a comment citing a
+    // "PipelineMetrics" component that no longer exists in this repo, which is
+    // how an override outlives its consumer in the first place.
+    //   The v1.26 definition in ROADMAP.md predicted SIX and it was re-derived
+    // rather than transcribed (L-026), which is what caught that one of the six
+    // - an orange fill at /15 - is LIVE. Its consumer is
+    // src/features/crm/vocabulary.ts, a class-name registry in a plain `.ts`
+    // file, and every sweep in this repo scanned `.tsx` only, so the class was
+    // invisible to the measurement that called it orphaned. Deleting it would
+    // have broken the AWS integration chip in light mode. v1.26.3 widened the
+    // scanners' file set to non-test `.ts` for exactly that reason; see
+    // scripts/lib/themeContrast.ts.
+    //   This scanner (`allComponentFiles` above) is still `.tsx`-only. That is
+    // deliberate and not an oversight: its subject is this repo's OWN
+    // design-system class namespaces, whose consumers are components, and
+    // widening it is a separate question filed rather than folded in here.
+    // 205 after v1.27.2 (D-28) retired the five palette focus utilities: the
+    // two BORDER ones (at amber-400/50 and amber-500/60 - written elided here
+    // on purpose, see TAILWIND-TESTPROSE-LEAK-1 and the note in
+    // src/styles/focusSpelling.test.ts: naming a retired class whole inside
+    // `src/**` regenerates it into the shipped bundle, which is how the first
+    // draft of that file silently undid this deletion) carried light
+    // overrides, and those became strictly orphaned the moment their classes
+    // left source, so they went out in the same edit. The three RING ones
+    // never had an override to retire.
+    //   This FALSIFIES D-30, which predicted "CEILING expected to stay 207" and
+    // was written on the assumption v1.27.2 would only delete classes. It was
+    // re-read by command rather than inherited: `remaining` measures 205 on this
+    // tree. The ceiling is lowered by exactly what was retired, the same
+    // arithmetic v1.26.3 used, so the ratchet keeps its zero headroom instead of
+    // banking two free rules for the next increment to spend silently.
+    const CEILING = 205
     const remaining = (INDEX_CSS_RULES.match(/\[data-theme="light"\]/g) ?? []).length
     expect(remaining).toBeLessThanOrEqual(CEILING)
   })

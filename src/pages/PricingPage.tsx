@@ -12,9 +12,19 @@ import { SCHEDULING_URL } from '../config'
 
 export function PricingPage() {
   const baseUrl = import.meta.env.BASE_URL
-  const { note, tiers } = usePricingContent(baseUrl)
+  const { note, tiers, settled } = usePricingContent(baseUrl)
 
+  // ANALYTICS-PHANTOM-1 (QA 2026-08-01). This effect used to key on `tiers`
+  // alone, so it ran once over the hook's pre-fetch default and again over the
+  // loaded payload: TWO `pricing_page_view` events per visit, the first always
+  // claiming `tier_count: 0, has_retainer_link: false`. Waiting for `settled`
+  // means the page is measured once, after the content has actually answered -
+  // including when it answers with nothing, which is a real state worth one
+  // honest record rather than a phantom followed by a correction.
+  // Guarded by src/pages/pricingViewAnalytics.test.ts.
   useEffect(() => {
+    if (!settled) return
+
     trackPortfolioEvent(PORTFOLIO_EVENTS.pricing_page_view, {
       tier_count: tiers.length,
       has_retainer_link: tiers.some(t => t.tier === 'Retainer'),
@@ -27,7 +37,7 @@ export function PricingPage() {
         highlighted: tier.highlighted ? 'yes' : 'no',
       })
     })
-  }, [tiers])
+  }, [settled, tiers])
 
   return (
     <PageLayout>

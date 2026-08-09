@@ -1,7 +1,8 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useCallback } from 'react'
 import { PageLayout } from './PageLayout'
 import { useAuth } from '../features/auth/useAuth'
 import { PROJECTS_API_BASE_URL, AUTH_SERVICE_URL } from '../config'
+import { useResource } from '../features/crm/useResource'
 import { OnboardingChecklist } from '../features/onboarding/OnboardingChecklist'
 import { SupportRequestPanel } from '../features/support/SupportRequestPanel'
 import { ServiceHealthIndicators } from '../features/health/ServiceHealthIndicators'
@@ -46,21 +47,38 @@ async function api<T>(path: string, token: string, opts: RequestInit = {}): Prom
   return res.json()
 }
 
+/** Everything one load of the portal produces, settled together or not at all. */
+type PortalSnapshot =
+  | { kind: 'no_project' }
+  | {
+      kind: 'project'
+      project: Project
+      milestones: Milestone[]
+      deliverablesByMilestone: Record<string, Deliverable[]>
+      messages: Message[]
+      collaborators: Collaborator[]
+      progressUpdates: ProgressUpdate[]
+      links: ProjectLink[]
+      emails: ProjectEmail[]
+    }
+
+/**
+ * The loaded thread plus anything sent into it since it was loaded. A later
+ * reload that already includes a sent message wins by id, so nothing
+ * duplicates; scoping to the loaded project's id keeps a message sent under a
+ * previous login out of another client's thread.
+ */
+function mergeMessages(projectId: string, loaded: Message[], sent: Message[]): Message[] {
+  const seen = new Set(loaded.map((m) => m.id))
+  return [...loaded, ...sent.filter((m) => m.project_id === projectId && !seen.has(m.id))]
+}
+
 export function PortalPage() {
   const { token, claims, login, logout } = useAuth()
 
-  const [project, setProject] = useState<Project | null>(null)
-  const [milestones, setMilestones] = useState<Milestone[]>([])
-  const [deliverablesByMilestone, setDeliverablesByMilestone] = useState<Record<string, Deliverable[]>>({})
-  const [messages, setMessages] = useState<Message[]>([])
-  const [collaborators, setCollaborators] = useState<Collaborator[]>([])
-  const [progressUpdates, setProgressUpdates] = useState<ProgressUpdate[]>([])
-  const [links, setLinks] = useState<ProjectLink[]>([])
-  const [emails, setEmails] = useState<ProjectEmail[]>([])
-  const [status, setStatus] = useState<'idle' | 'loading' | 'error' | 'no_project'>('idle')
-  const [error, setError] = useState<string | null>(null)
   const [sending, setSending] = useState(false)
   const [sendError, setSendError] = useState<string | null>(null)
+  const [sentMessages, setSentMessages] = useState<Message[]>([])
 
   const tryRefresh = useCallback(async (): Promise<string | null> => {
     if (!AUTH_SERVICE_URL) return null
@@ -79,20 +97,14 @@ export function PortalPage() {
     }
   }, [login, logout])
 
-  const load = useCallback(async () => {
-    if (!token) return
-    setStatus('loading')
-    setError(null)
+  const fetchPortal = useCallback(async (): Promise<PortalSnapshot | null> => {
+    if (!token) return null // unreachable: the resource is blocked without a token
 
     try {
       const projects = await api<Project[]>('/api/v1/projects', token)
-      if (projects.length === 0) {
-        setStatus('no_project')
-        return
-      }
+      if (projects.length === 0) return { kind: 'no_project' }
 
       const p = projects[0]
-      setProject(p)
 
       const [ms, msgs, lnks, emls, collabs, updates] = await Promise.all([
         api<Milestone[]>(`/api/v1/projects/${p.id}/milestones`, token),
@@ -104,12 +116,6 @@ export function PortalPage() {
       ])
 
       const sorted = [...ms].sort((a, b) => a.sort_order - b.sort_order)
-      setMilestones(sorted)
-      setMessages(msgs)
-      setLinks(lnks)
-      setEmails(emls)
-      setCollaborators(collabs)
-      setProgressUpdates(updates)
 
       const deliverables = await Promise.all(
         sorted.map((m) =>
@@ -121,25 +127,44 @@ export function PortalPage() {
 
       const byId: Record<string, Deliverable[]> = {}
       deliverables.forEach(({ id, ds }) => { byId[id] = ds })
-      setDeliverablesByMilestone(byId)
-      setStatus('idle')
+
+      return {
+        kind: 'project',
+        project: p,
+        milestones: sorted,
+        deliverablesByMilestone: byId,
+        messages: msgs,
+        collaborators: collabs,
+        progressUpdates: updates,
+        links: lnks,
+        emails: emls,
+      }
     } catch (e) {
       const errMsg = e instanceof Error ? e.message : 'Failed to load project data'
       if (errMsg.includes('401')) {
-        await tryRefresh() // on success, token state changes → useEffect re-runs load()
-        return
+        // On success, login() swaps the token, which re-keys the resource and
+        // marks this attempt stale (its rejection never paints); on failure,
+        // logout() clears the token and the login gate renders instead.
+        await tryRefresh()
       }
-      setError(errMsg)
-      setStatus('error')
+      throw e instanceof Error ? e : new Error(errMsg)
     }
   }, [token, tryRefresh])
 
-  useEffect(() => {
-    if (token) load()
-  }, [token, load])
+  const { data: snapshot, loading, error, reload } = useResource<PortalSnapshot | null>(
+    null,
+    fetchPortal,
+    token ? null : 'Not signed in.',
+  )
 
-  const sendMessage = async (body: string) => {
-    if (!token || !project) return
+  const project = snapshot?.kind === 'project' ? snapshot.project : null
+
+  // v1.25.2 (D-19, PORTAL-DRAFT-LOSS-1): answers whether the message actually
+  // landed. Every early return below is a NOT-SENT, and the declared
+  // `Promise<boolean>` is what makes tsc say so — a bare `return` here is a
+  // type error, so a future failure path cannot silently read as success.
+  const sendMessage = async (body: string): Promise<boolean> => {
+    if (!token || !project) return false
     setSending(true)
     setSendError(null)
     try {
@@ -148,7 +173,8 @@ export function PortalPage() {
         token,
         { method: 'POST', body: JSON.stringify({ body }) }
       )
-      setMessages((prev) => [...prev, msg])
+      setSentMessages((prev) => [...prev, msg])
+      return true
     } catch (e) {
       const errMsg = e instanceof Error ? e.message : ''
       if (errMsg.includes('401')) {
@@ -160,14 +186,17 @@ export function PortalPage() {
               newToken,
               { method: 'POST', body: JSON.stringify({ body }) }
             )
-            setMessages((prev) => [...prev, retryMsg])
-            return
+            setSentMessages((prev) => [...prev, retryMsg])
+            return true
           } catch { /* fall through to set error */ }
         } else {
-          return // logout triggered, login gate will appear
+          // Logout triggered, login gate will appear. The draft survives with
+          // the rest of the page state, so it is still there after signing in.
+          return false
         }
       }
       setSendError(errMsg || 'Failed to send message.')
+      return false
     } finally {
       setSending(false)
     }
@@ -194,41 +223,44 @@ export function PortalPage() {
     <PageLayout title="Client portal">
       <ClientHeader claims={claims!} onLogout={logout} />
 
-      {status === 'loading' && <Spinner />}
+      {/* Exactly one branch renders, mirroring the old status machine: a
+          reload keeps the previous snapshot in `data`, so the settled branches
+          must yield to the spinner and the error panel rather than coexist. */}
+      {loading && <Spinner />}
 
-      {status === 'error' && (
+      {!loading && error && (
         <div className="forge-panel surface-card-strong p-4">
           <p className="text-sm text-danger-text">{error}</p>
-          <button className="btn-neutral btn-sm mt-3" onClick={load}>Retry</button>
+          <button className="btn-neutral btn-sm mt-3" onClick={reload}>Retry</button>
         </div>
       )}
 
-      {status === 'no_project' && claims && (
+      {!loading && !error && snapshot?.kind === 'no_project' && claims && (
         <NoProjectPanel sub={claims.sub} />
       )}
 
-      {status === 'idle' && project && (
+      {!loading && !error && snapshot?.kind === 'project' && (
         <div className="space-y-5">
-          <ManagedServiceSnapshot project={project} />
-          <ServiceHealthIndicators projectId={project.id} />
-          <OnboardingChecklist projectId={project.id} />
-          <SupportRequestPanel projectId={project.id} />
+          <ManagedServiceSnapshot project={snapshot.project} />
+          <ServiceHealthIndicators projectId={snapshot.project.id} />
+          <OnboardingChecklist projectId={snapshot.project.id} />
+          <SupportRequestPanel projectId={snapshot.project.id} />
           <ProjectSummaryCard
-            project={project}
-            deliverablesByMilestone={deliverablesByMilestone}
+            project={snapshot.project}
+            deliverablesByMilestone={snapshot.deliverablesByMilestone}
           />
-          <CollaboratorsSection collaborators={collaborators} />
-          <ProgressUpdatesSection updates={progressUpdates} />
-          <LinksSection links={links} />
+          <CollaboratorsSection collaborators={snapshot.collaborators} />
+          <ProgressUpdatesSection updates={snapshot.progressUpdates} />
+          <LinksSection links={snapshot.links} />
 
-          {milestones.length > 0 ? (
+          {snapshot.milestones.length > 0 ? (
             <div className="space-y-3">
               <h3 className="text-xs font-semibold uppercase tracking-widest text-text-muted">Timeline</h3>
-              {milestones.map((m) => (
+              {snapshot.milestones.map((m) => (
                 <MilestoneCard
                   key={m.id}
                   milestone={m}
-                  deliverables={deliverablesByMilestone[m.id] ?? []}
+                  deliverables={snapshot.deliverablesByMilestone[m.id] ?? []}
                 />
               ))}
             </div>
@@ -236,16 +268,16 @@ export function PortalPage() {
             <p className="text-sm text-text-subtle">No milestones have been set yet.</p>
           )}
 
-          <EmailsSection emails={emails} />
+          <EmailsSection emails={snapshot.emails} />
 
           <MessageThread
-            messages={messages}
+            messages={mergeMessages(snapshot.project.id, snapshot.messages, sentMessages)}
             onSend={sendMessage}
             currentUserId={claims?.sub ?? ''}
             sending={sending}
             sendError={sendError}
           />
-          <ProjectRepoBuildStatus links={links} />
+          <ProjectRepoBuildStatus links={snapshot.links} />
         </div>
       )}
     </PageLayout>

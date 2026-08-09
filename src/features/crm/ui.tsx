@@ -1,11 +1,12 @@
 import { useEffect, useRef } from 'react'
 import { CRM_STORE_BOUNDARY } from '../../lib/crmStore.mock'
 import { isAllSelected, isSomeSelected } from '../../lib/rowSelection'
+import { useFocusTrap } from '../layout/useFocusTrap'
 
 // ---------------------------------------------------------------------------
 // Shared UI primitives
 // ---------------------------------------------------------------------------
-export const INPUT_CLS = 'w-full rounded-xl border border-zinc-700 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 outline-none transition hover:border-zinc-600 hover:bg-zinc-800/80 focus:border-amber-500/60 focus:ring-2 focus:ring-amber-500/30'
+export const INPUT_CLS = 'w-full rounded-xl border border-zinc-700 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 outline-none transition hover:border-zinc-600 hover:bg-zinc-800/80'
 
 export function Spinner({ label }: { label: string }) {
   return (
@@ -103,8 +104,13 @@ export function CustomEmptyState({ icon, title, description, onRefresh, ctaText,
 }
 
 export function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
+  // v1.24.1 (D-14): this overlay declares aria-modal="true", so it owes the
+  // keyboard the whole modal contract. Every caller mounts it only while open
+  // ({modal && <Modal .../>}), so the trap is active for its whole life.
+  const containerRef = useFocusTrap<HTMLDivElement>(true, onClose)
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onMouseDown={onClose} role="presentation">
+    <div ref={containerRef} className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onMouseDown={onClose} role="presentation">
       <div
         className="forge-panel surface-card-strong w-full max-w-md rounded-3xl p-6 shadow-2xl shadow-black/60"
         onMouseDown={e => e.stopPropagation()}

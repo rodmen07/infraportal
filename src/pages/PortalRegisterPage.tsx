@@ -1,35 +1,29 @@
 import { useEffect, useState } from 'react'
 import { PageLayout } from './PageLayout'
 import { useAuth } from '../features/auth/useAuth'
+import { parseInviteParams } from '../features/auth/hashParams'
 import { AUTH_SERVICE_URL } from '../config'
 
 export function PortalRegisterPage() {
   const { isClient, login } = useAuth()
-  const [email, setEmail] = useState('')
+  // The invite link (#/portal/register?token=...&email=...) is fixed for the
+  // life of the page, so it is read once by these initializers rather than in
+  // a mount effect. The effect version painted an empty email field first and
+  // filled it on the next render, so a fast typist's first keystrokes were
+  // overwritten.
+  const [invite] = useState(() => parseInviteParams(window.location.hash))
+  const inviteToken = invite.token
+  const [email, setEmail] = useState(invite.email)
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
-  const [inviteToken, setInviteToken] = useState<string | null>(null)
 
   useEffect(() => {
     if (isClient) {
       window.location.hash = '#/portal'
     }
   }, [isClient])
-
-  useEffect(() => {
-    // Extract invite token from URL: #/portal/register?token=...
-    // Hash-based URLs produce a hash like: #/portal/register?token=abc
-    const hashParams = new URLSearchParams(window.location.hash.split('?')[1] ?? '')
-    const token = hashParams.get('token')
-    if (token) {
-      setInviteToken(token)
-      // Pre-fill email if provided as a query param too
-      const em = hashParams.get('email')
-      if (em) setEmail(decodeURIComponent(em))
-    }
-  }, [])
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -90,7 +84,7 @@ export function PortalRegisterPage() {
             <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2">
               <p className="text-xs text-amber-300">
                 No invite token found. Please use the link from your invitation email, or{' '}
-                <a href="#/contact" className="underline hover:text-amber-200">contact us</a> to request access.
+                <a href="#/contact" className="underline hover:text-accent-text">contact us</a> to request access.
               </p>
             </div>
           ) : (
@@ -108,7 +102,7 @@ export function PortalRegisterPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   autoComplete="email"
-                  className="w-full rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
+                  className="w-full rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 outline-none"
                   placeholder="you@example.com"
                 />
               </div>
@@ -121,7 +115,7 @@ export function PortalRegisterPage() {
                   required
                   autoComplete="new-password"
                   minLength={6}
-                  className="w-full rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
+                  className="w-full rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 outline-none"
                   placeholder="Minimum 6 characters"
                 />
               </div>
@@ -133,7 +127,7 @@ export function PortalRegisterPage() {
                   onChange={(e) => setConfirm(e.target.value)}
                   required
                   autoComplete="new-password"
-                  className="w-full rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
+                  className="w-full rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 outline-none"
                   placeholder="Re-enter your password"
                 />
               </div>
