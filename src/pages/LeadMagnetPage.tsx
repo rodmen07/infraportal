@@ -155,7 +155,7 @@ export function LeadMagnetPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="flex-1 rounded-xl border border-zinc-700/60 bg-surface-control px-4 py-3 text-sm text-text-primary placeholder-zinc-500 outline-none focus:border-amber-400/50 focus:ring-1 focus:ring-amber-400/20"
+                  className="flex-1 rounded-xl border border-zinc-700/60 bg-surface-control px-4 py-3 text-sm text-text-primary placeholder-zinc-500 outline-none"
                 />
                 <button
                   type="submit"

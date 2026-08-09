@@ -59,7 +59,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
           value={input}
           onChange={e => { setInput(e.target.value); setError(false) }}
           placeholder="Admin key"
-          className="w-full rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
+          className="w-full rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 outline-none"
         />
         {error && <p className="text-xs text-danger-text">Invalid key</p>}
         <button type="submit" className="btn-accent w-full">Unlock</button>
@@ -246,19 +246,19 @@ function ObservaboardView() {
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Search events…"
-          className="flex-1 min-w-[160px] rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
+          className="flex-1 min-w-[160px] rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 outline-none"
         />
         <input
           type="text"
           value={source}
           onChange={e => setSource(e.target.value)}
           placeholder="Source"
-          className="w-32 rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
+          className="w-32 rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 outline-none"
         />
         <select
           value={category}
           onChange={e => setCategory(e.target.value)}
-          className="rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary focus:border-amber-400/50 focus:outline-none"
+          className="rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary outline-none"
         >
           <option value="">All categories</option>
           {['deployment','security','alert','metric','info'].map(c => (
@@ -268,7 +268,7 @@ function ObservaboardView() {
         <select
           value={severity}
           onChange={e => setSeverity(e.target.value)}
-          className="rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary focus:border-amber-400/50 focus:outline-none"
+          className="rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary outline-none"
         >
           <option value="">All severities</option>
           {['low','medium','high','critical'].map(s => (

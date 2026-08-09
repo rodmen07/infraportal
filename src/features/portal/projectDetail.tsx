@@ -423,7 +423,7 @@ export function MessageThread({
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             placeholder="Ask a question or request an update…"
-            className="min-w-0 flex-1 rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
+            className="min-w-0 flex-1 rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 outline-none"
           />
           <button
             type="submit"
