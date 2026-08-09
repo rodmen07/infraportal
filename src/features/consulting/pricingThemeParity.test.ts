@@ -387,30 +387,140 @@ describe('the JS theming mechanism is retired repo-wide (D-24 done-when)', () =>
 })
 
 /* -------------------------------------------------------------------------
- * Characterisation test for a defect this slice deliberately did NOT fix
+ * DIVIDE-COLOR-INERT-1: divider colour rides the divide utility
  * ---------------------------------------------------------------------- */
 
-describe('known_gap_divide_color_is_inert (DIVIDE-COLOR-INERT-1)', () => {
-  /**
-   * PricingTrustStrip puts a border-colour utility on the flex CONTAINER while
-   * `divide-y` / `sm:divide-x` put their border-WIDTH on the children, and
-   * border-color is not inherited - so that class has never coloured a divider,
-   * in either theme, and did not before this migration either. It is carried
-   * across unchanged (`border-border-soft`) rather than corrected to
-   * `divide-border-soft`, because this slice's claim is that nothing renders
-   * differently; fixing it is a visual change and gets its own increment.
-   *
-   * This test PINS THE WRONG BEHAVIOUR (L-052) so the bug cannot be quietly
-   * lost: when someone fixes DIVIDE-COLOR-INERT-1 this suite fails, which is
-   * the signal to delete it and close the bug.
-   */
-  it('the divider colour still sits on the container, which carries no border width', () => {
+/**
+ * PricingTrustStrip's divider colour used to sit on the flex CONTAINER as a
+ * border-colour utility while `divide-y` / `sm:divide-x` put their
+ * border-WIDTH on the CHILDREN - and border-color is not inherited, so the
+ * children painted Tailwind's preflight default in both themes (bright
+ * hairlines on a dark card). The characterisation block that PINNED that
+ * wrong behaviour (L-052, `known_gap_divide_color_is_inert`) was deleted when
+ * the class was fixed, per its own instructions; these two suites replace it:
+ *
+ *   1. a rendering assertion that the real container now carries the
+ *      `divide-` spelling of the colour and no longer the container-level
+ *      border-colour form;
+ *   2. the bug entry's "worth a sweep when taken", executed on every run
+ *      rather than run by hand once: any class-string literal in non-test
+ *      source that names a positive divide WIDTH must name a divide COLOUR
+ *      in the same literal, otherwise its dividers silently render the
+ *      preflight default - the exact shape that shipped here.
+ *
+ * The `divide` word is interpolated into the regex sources below so no whole
+ * width/style class token appears contiguously in this file's raw text
+ * (TAILWIND-TESTPROSE-LEAK-1). `divide-border-soft` and the token spelled by
+ * the rendering assertion are live classes with non-test consumers, so naming
+ * them cannot resurrect a retired rule.
+ */
+
+const DIVIDE = 'divide'
+// Width: the x/y utilities with an optional numeric or px suffix. A zero
+// width paints nothing and must not demand a colour by itself; -reverse only
+// flips which sibling carries the border. (This comment names no whole class
+// token: its first draft spelled the bare x-axis one and the extractor
+// emitted a fresh rule for it into production CSS - the leak's exact shape.)
+const DIVIDE_WIDTH = new RegExp(`^${DIVIDE}-(x|y)(-(\\d+|px))?$`)
+const DIVIDE_ZERO = new RegExp(`^${DIVIDE}-(x|y)-0$`)
+const DIVIDE_ORDER = new RegExp(`^${DIVIDE}-(x|y)-reverse$`)
+const DIVIDE_STYLE = new RegExp(`^${DIVIDE}-(solid|dashed|dotted|double|none)$`)
+
+/** Drops variant prefixes (`sm:`, `hover:`) from a token; mirrors classTokens() above. */
+function stripVariants(token: string): string {
+  return token.slice(token.lastIndexOf(':') + 1)
+}
+
+function isDivideWidth(token: string): boolean {
+  return DIVIDE_WIDTH.test(token) && !DIVIDE_ZERO.test(token)
+}
+
+function isDivideColour(token: string): boolean {
+  if (!token.startsWith(`${DIVIDE}-`)) return false
+  return !DIVIDE_WIDTH.test(token) && !DIVIDE_ORDER.test(token) && !DIVIDE_STYLE.test(token)
+}
+
+/**
+ * Every quoted string literal in a source file, template literals included.
+ * A character walker rather than a regex because comments must be SKIPPED: a
+ * doc comment naming `a-utility` in backticks reads exactly like a template
+ * literal to a pattern over raw text, and this guard's first draft flagged
+ * the fixed component's own header comment that way.
+ */
+function stringLiteralsIn(source: string): string[] {
+  const literals: string[] = []
+  let i = 0
+  while (i < source.length) {
+    const ch = source[i]
+    if (ch === '/' && source[i + 1] === '/') {
+      const end = source.indexOf('\n', i)
+      i = end === -1 ? source.length : end + 1
+    } else if (ch === '/' && source[i + 1] === '*') {
+      const end = source.indexOf('*/', i + 2)
+      i = end === -1 ? source.length : end + 2
+    } else if (ch === '"' || ch === "'" || ch === '`') {
+      let j = i + 1
+      while (j < source.length && source[j] !== ch) j += source[j] === '\\' ? 2 : 1
+      literals.push(source.slice(i + 1, j))
+      i = j + 1
+    } else {
+      i += 1
+    }
+  }
+  return literals
+}
+
+describe('DIVIDE-COLOR-INERT-1 stays fixed (rendering half)', () => {
+  it('the trust-strip divider container colours its dividers with the divide utility', () => {
     renderUnderTheme('dark', createElement(PricingTrustStrip))
-    const divider = container.querySelector<HTMLElement>('[class*="divide-y"]')
+    const divider = container.querySelector<HTMLElement>(`[class*="${DIVIDE}-y"]`)
     expect(divider).not.toBeNull()
-    const classes = divider!.getAttribute('class') ?? ''
-    expect(classes).toMatch(/\bborder-border-soft\b/)
-    expect(classes).not.toMatch(/\bdivide-border-soft\b/)
-    expect(classes).not.toMatch(/\bborder(?:-[trblxy])?\b(?!-)/)
+    const classes = (divider!.getAttribute('class') ?? '').split(/\s+/)
+    expect(classes).toContain('divide-border-soft')
+    // The inert form: a border-COLOUR utility on the container, which has no
+    // border width of its own for the colour to apply to.
+    expect(classes).not.toContain('border-border-soft')
+  })
+})
+
+describe('DIVIDE-COLOR-INERT-1 stays fixed (repo-wide sweep)', () => {
+  it('the classifier tells the divide families apart, both directions', () => {
+    expect(isDivideWidth(stripVariants(`sm:${DIVIDE}-x`))).toBe(true)
+    expect(isDivideWidth(`${DIVIDE}-y`)).toBe(true)
+    expect(isDivideWidth([DIVIDE, 'y', '2'].join('-'))).toBe(true)
+    expect(isDivideWidth([DIVIDE, 'y', '0'].join('-'))).toBe(false)
+    expect(isDivideColour('divide-border-soft')).toBe(true)
+    expect(isDivideColour([DIVIDE, 'zinc', '700/20'].join('-'))).toBe(true)
+    expect(isDivideColour([DIVIDE, 'dotted'].join('-'))).toBe(false)
+    expect(isDivideColour([DIVIDE, 'y', 'reverse'].join('-'))).toBe(false)
+    expect(isDivideWidth([DIVIDE, 'y', 'reverse'].join('-'))).toBe(false)
+    expect(isDivideWidth('border-b')).toBe(false)
+    expect(isDivideColour('border-border-soft')).toBe(false)
+  })
+
+  it('every divide-width literal in non-test source names its divider colour', () => {
+    const withWidth: string[] = []
+    const offenders: string[] = []
+    for (const rel of SOURCE_FILES) {
+      const source = readFileSync(path.join(ROOT, rel), 'utf-8')
+      for (const literal of stringLiteralsIn(source)) {
+        const tokens = literal.split(/\s+/).filter(Boolean).map(stripVariants)
+        if (!tokens.some(isDivideWidth)) continue
+        withWidth.push(`${rel}: "${literal}"`)
+        if (!tokens.some(isDivideColour)) offenders.push(`${rel}: "${literal}"`)
+      }
+    }
+    // Vacuity floor (L-031): the corpus is known to hold divide consumers
+    // (DataTable, ActivityFeed, the trust strip, the case-study tables).
+    expect(withWidth.length).toBeGreaterThanOrEqual(3)
+    expect(
+      offenders,
+      offenders.length === 0
+        ? ''
+        : 'these class strings set a divider WIDTH with no divide COLOUR in the same literal, ' +
+          'so their dividers render the Tailwind preflight default (gray-200) in BOTH themes - ' +
+          'the DIVIDE-COLOR-INERT-1 shape. Add the matching divide colour to the same class ' +
+          'string (this repo spells it divide-border-soft for hairlines).',
+    ).toEqual([])
   })
 })
