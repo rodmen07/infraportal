@@ -40,7 +40,7 @@ function statusTone(status: number): string {
 // themes; only the size and monospace treatment specific to an API field
 // stays here.
 const inputClass =
-  'field-input px-2 py-1 font-mono text-scale-xs focus:outline-none disabled:opacity-50'
+  'field-input px-2 py-1 font-mono text-scale-xs outline-none disabled:opacity-50'
 
 function FieldInput({
   field,
