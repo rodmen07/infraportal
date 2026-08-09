@@ -5,17 +5,20 @@
 // byte-identical (`text-text-subtle` either way), a branch that had never done
 // anything (THEME-JS-NOOP-TERNARY-1).
 //
-// One deliberate NON-change, so the migration stays behaviour-preserving: the
-// divider colour utility below sits on the flex CONTAINER while `divide-y` /
-// `sm:divide-x` put their border-width on the CHILDREN, and border-color is not
-// an inherited CSS property - so that class has never coloured a divider in
-// either theme (DIVIDE-COLOR-INERT-1, filed rather than fixed, with the
-// characterisation test in pricingThemeParity.test.ts pinning the current
-// behaviour). It is carried across as `border-border-soft` so it stays exactly
-// as inert as it was, instead of being silently turned into a visual change by
-// a migration whose whole claim is that nothing renders differently.
+// DIVIDE-COLOR-INERT-1 (fixed): `divide-y` / `sm:divide-x` put their
+// border-WIDTH on the CHILDREN, and border-color is not an inherited CSS
+// property - so the border-colour utility this container used to carry never
+// coloured a divider, and the children painted Tailwind's preflight default
+// (gray-200) in BOTH themes: bright hairlines on a dark card. The colour now
+// rides `divide-border-soft`, the spelling DataTable.tsx and ActivityFeed.tsx
+// already use, so the dividers follow `--border-soft` per theme like every
+// other hairline here. (v1.26.2 deliberately carried the inert form across
+// unchanged because that migration's whole claim was that nothing renders
+// differently; this fix is the separate increment it called for.)
 //
-// Guarded by pricingThemeParity.test.ts.
+// Guarded by pricingThemeParity.test.ts: a rendering assertion on this
+// container plus a repo-wide sweep that fails any class-string literal
+// setting a divide width without a divide colour.
 
 interface TrustStat {
   value: string
@@ -35,7 +38,7 @@ const STATS: TrustStat[] = [
 export function PricingTrustStrip() {
   return (
     <section className="rounded-2xl border border-border-soft bg-surface-1 px-6 py-4">
-      <div className="flex flex-wrap items-center justify-around gap-4 divide-y sm:divide-y-0 sm:divide-x border-border-soft">
+      <div className="flex flex-wrap items-center justify-around gap-4 divide-y sm:divide-y-0 sm:divide-x divide-border-soft">
         {STATS.map(({ value, label }) => (
           <div key={label} className="flex flex-col items-center px-4 text-center">
             <span className="text-lg leading-tight text-text-primary font-bold">{value}</span>
