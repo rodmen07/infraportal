@@ -467,17 +467,35 @@ export const SOURCE_ENTRIES = SOURCE_FILES.map((rel) => ({
  */
 export function colorUtilitiesIn(source: string): ColorUtility[] {
   const found = new Map<string, ColorUtility>()
+  for (const token of classTokensIn(source)) {
+    const utility = parseColorUtility(token)
+    if (utility !== null) found.set(token, utility)
+  }
+  return [...found.values()]
+}
+
+/**
+ * Every whitespace-delimited token in a source file's string or template
+ * literals, edge quotes stripped, deduplicated. This is the tokenization half
+ * of colorUtilitiesIn, exported on its own (v1.27.3) because the focus-
+ * indicator criterion needs the RAW tokens: an arbitrary-value utility
+ * (`outline-[var(...)]`) or a semantic-token class (`ring-accent`) is not a
+ * palette utility, so parseColorUtility discards it - yet a focus indicator
+ * can be spelled as either, and a criterion that only sees palette utilities
+ * silently skips the two spellings this repo actually uses most.
+ */
+export function classTokensIn(source: string): string[] {
+  const found = new Set<string>()
   const literalPattern = /'([^'\n]*)'|"([^"\n]*)"|`([^`]*)`/g
   let match: RegExpExecArray | null
   while ((match = literalPattern.exec(source)) !== null) {
     const literal = match[1] ?? match[2] ?? match[3] ?? ''
     for (const rawToken of literal.split(/\s+/)) {
       const token = rawToken.replace(/^['"`]+/, '').replace(/['"`]+$/, '')
-      const utility = parseColorUtility(token)
-      if (utility !== null) found.set(token, utility)
+      if (token !== '') found.add(token)
     }
   }
-  return [...found.values()]
+  return [...found]
 }
 
 /** Files whose literals use `token` as a whole class token. Matched on
