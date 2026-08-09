@@ -17,7 +17,7 @@ import { useBulkImport, type BulkImportApi } from '../hooks/useBulkImport'
 import { MOCK_BOUNDARY, mockBulkImportApi } from '../lib/bulkImportApi.mock'
 import { useFocusTrap } from '../features/layout/useFocusTrap'
 
-const INPUT_CLS = 'w-full rounded-xl border border-zinc-700 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 outline-none transition hover:border-zinc-600 hover:bg-zinc-800/80 focus:border-amber-500/60 focus:ring-2 focus:ring-amber-500/30'
+const INPUT_CLS = 'w-full rounded-xl border border-zinc-700 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 outline-none transition hover:border-zinc-600 hover:bg-zinc-800/80'
 
 const PREVIEW_ROW_LIMIT = 5
 const ERROR_DISPLAY_LIMIT = 8

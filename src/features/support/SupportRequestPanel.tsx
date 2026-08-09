@@ -68,7 +68,7 @@ export function SupportRequestPanel({ projectId }: { projectId: string }) {
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value as SupportCategory)}
-            className="rounded-xl border border-zinc-700/60 bg-surface-control px-4 py-2.5 text-sm text-text-primary outline-none focus:border-amber-400/50 focus:ring-1 focus:ring-amber-400/20 sm:w-48"
+            className="rounded-xl border border-zinc-700/60 bg-surface-control px-4 py-2.5 text-sm text-text-primary outline-none sm:w-48"
           >
             {SUPPORT_CATEGORIES.map((c) => (
               <option key={c}>{c}</option>
@@ -83,7 +83,7 @@ export function SupportRequestPanel({ projectId }: { projectId: string }) {
               setJustSent(false)
             }}
             maxLength={120}
-            className="flex-1 rounded-xl border border-zinc-700/60 bg-surface-control px-4 py-2.5 text-sm text-text-primary placeholder-zinc-500 outline-none focus:border-amber-400/50 focus:ring-1 focus:ring-amber-400/20"
+            className="flex-1 rounded-xl border border-zinc-700/60 bg-surface-control px-4 py-2.5 text-sm text-text-primary placeholder-zinc-500 outline-none"
           />
         </div>
         <textarea
@@ -95,7 +95,7 @@ export function SupportRequestPanel({ projectId }: { projectId: string }) {
             setJustSent(false)
           }}
           maxLength={2000}
-          className="resize-none rounded-xl border border-zinc-700/60 bg-surface-control px-4 py-2.5 text-sm text-text-primary placeholder-zinc-500 outline-none focus:border-amber-400/50 focus:ring-1 focus:ring-amber-400/20"
+          className="resize-none rounded-xl border border-zinc-700/60 bg-surface-control px-4 py-2.5 text-sm text-text-primary placeholder-zinc-500 outline-none"
         />
         <div className="flex flex-wrap items-center justify-between gap-3">
           {justSent ? (

@@ -71,7 +71,7 @@ export function OnboardingChecklist({ projectId }: { projectId: string }) {
                   type="checkbox"
                   checked={isDone}
                   onChange={() => toggle(step.id, isDone)}
-                  className="mt-0.5 h-4 w-4 shrink-0 rounded border-zinc-600 bg-zinc-900 text-amber-500 focus:ring-amber-500/40"
+                  className="mt-0.5 h-4 w-4 shrink-0 rounded border-zinc-600 bg-zinc-900 text-amber-500"
                 />
                 <span className="min-w-0">
                   <span className={`block text-sm font-medium ${isDone ? 'text-success-text line-through' : 'text-text-primary'}`}>

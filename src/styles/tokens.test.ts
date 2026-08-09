@@ -516,7 +516,22 @@ describe('strangler rule: override-sheet rules for tokenized surfaces stay delet
     // deliberate and not an oversight: its subject is this repo's OWN
     // design-system class namespaces, whose consumers are components, and
     // widening it is a separate question filed rather than folded in here.
-    const CEILING = 207
+    // 205 after v1.27.2 (D-28) retired the five palette focus utilities: the
+    // two BORDER ones (at amber-400/50 and amber-500/60 - written elided here
+    // on purpose, see TAILWIND-TESTPROSE-LEAK-1 and the note in
+    // src/styles/focusSpelling.test.ts: naming a retired class whole inside
+    // `src/**` regenerates it into the shipped bundle, which is how the first
+    // draft of that file silently undid this deletion) carried light
+    // overrides, and those became strictly orphaned the moment their classes
+    // left source, so they went out in the same edit. The three RING ones
+    // never had an override to retire.
+    //   This FALSIFIES D-30, which predicted "CEILING expected to stay 207" and
+    // was written on the assumption v1.27.2 would only delete classes. It was
+    // re-read by command rather than inherited: `remaining` measures 205 on this
+    // tree. The ceiling is lowered by exactly what was retired, the same
+    // arithmetic v1.26.3 used, so the ratchet keeps its zero headroom instead of
+    // banking two free rules for the next increment to spend silently.
+    const CEILING = 205
     const remaining = (INDEX_CSS_RULES.match(/\[data-theme="light"\]/g) ?? []).length
     expect(remaining).toBeLessThanOrEqual(CEILING)
   })

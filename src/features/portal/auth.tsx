@@ -143,7 +143,7 @@ export function ClientLoginGate() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 autoComplete="email"
-                className="w-full rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
+                className="w-full rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 outline-none"
                 placeholder="you@example.com"
               />
             </div>
@@ -155,7 +155,7 @@ export function ClientLoginGate() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 autoComplete="current-password"
-                className="w-full rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
+                className="w-full rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 outline-none"
                 placeholder="••••••••"
               />
             </div>

@@ -6,7 +6,7 @@ import { useFocusTrap } from '../layout/useFocusTrap'
 // ---------------------------------------------------------------------------
 // Shared UI primitives
 // ---------------------------------------------------------------------------
-export const INPUT_CLS = 'w-full rounded-xl border border-zinc-700 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 outline-none transition hover:border-zinc-600 hover:bg-zinc-800/80 focus:border-amber-500/60 focus:ring-2 focus:ring-amber-500/30'
+export const INPUT_CLS = 'w-full rounded-xl border border-zinc-700 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 outline-none transition hover:border-zinc-600 hover:bg-zinc-800/80'
 
 export function Spinner({ label }: { label: string }) {
   return (

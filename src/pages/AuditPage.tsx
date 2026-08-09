@@ -64,7 +64,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
           value={input}
           onChange={e => { setInput(e.target.value); setError(false) }}
           placeholder="Admin key"
-          className="w-full rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 focus:border-amber-400/50 focus:outline-none"
+          className="w-full rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary placeholder-zinc-500 outline-none"
         />
         {error && <p className="text-xs text-danger-text">Invalid key</p>}
         <button type="submit" className="btn-accent w-full">Unlock</button>
@@ -160,7 +160,7 @@ function EmptyState({
   )
 }
 
-const SELECT = 'rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary focus:border-amber-400/50 focus:outline-none'
+const SELECT = 'rounded-lg border border-zinc-600/50 bg-surface-control px-3 py-2 text-sm text-text-primary outline-none'
 const INPUT  = `${SELECT} w-full placeholder-zinc-500`
 
 function actionBadge(action: string) {
