@@ -323,33 +323,47 @@ describe('the migrated components emit no raw Tailwind palette colour', () => {
  * The source-level half: the mechanism itself is gone
  * ---------------------------------------------------------------------- */
 
-function allComponentFiles(dir = 'src'): string[] {
+/**
+ * `.tsx` plus non-test `.ts` (SWEEP-TSX-ONLY-1; was `.tsx`-only until
+ * 2026-08-08). The mechanism this scan retires — deriving a colour from a
+ * light/dark boolean — fits a plain-.ts hook or helper just as well as a
+ * component, so the corpus is every non-test source file. Test files stay
+ * excluded by the explicit filter below rather than by the extension
+ * coincidence the previous revision leaned on.
+ */
+function allSourceFiles(dir = 'src'): string[] {
   const found: string[] = []
   for (const entry of readdirSync(path.join(ROOT, dir), { withFileTypes: true })) {
     const rel = path.posix.join(dir, entry.name)
-    if (entry.isDirectory()) found.push(...allComponentFiles(rel))
-    else if (entry.name.endsWith('.tsx')) found.push(rel)
+    if (entry.isDirectory()) found.push(...allSourceFiles(rel))
+    else if (/\.tsx?$/.test(entry.name) && !/\.test\.tsx?$/.test(entry.name)) found.push(rel)
   }
   return found
 }
 
-const COMPONENT_FILES = allComponentFiles()
+const SOURCE_FILES = allSourceFiles()
 
 describe('the JS theming mechanism is retired repo-wide (D-24 done-when)', () => {
-  it('finds components to scan', () => {
-    expect(COMPONENT_FILES.length).toBeGreaterThan(40)
+  it('finds source files to scan, including the non-test .ts half', () => {
+    expect(SOURCE_FILES.length).toBeGreaterThan(40)
+    // The widened half's own non-vacuity floor (SWEEP-TSX-ONLY-1, mirroring
+    // colorThemeCoverage.test.ts): a filter edit that silently drops plain
+    // .ts modules must fail here, not narrow the sweep quietly.
+    expect(SOURCE_FILES.filter((rel) => rel.endsWith('.ts') && !rel.endsWith('.tsx')).length).toBeGreaterThan(0)
   })
 
-  it('scanning .tsx really is the same thing as "excluding tests"', () => {
-    // The ROADMAP's done-when says "excluding tests" and this scan implements
-    // that by extension: every test file in this repo is `.test.ts`, never
-    // `.test.tsx`. The day that stops being true, this fails loudly instead of
-    // letting a test file's own prose satisfy or break the scan below.
-    expect(COMPONENT_FILES.filter((rel) => rel.endsWith('.test.tsx'))).toEqual([])
+  it('the corpus really does exclude test files ("excluding tests" is the ROADMAP done-when)', () => {
+    // Until 2026-08-08 this asserted the repo held no `.test.tsx` files,
+    // because the scan excluded tests by the COINCIDENCE that every test was
+    // `.test.ts` and the corpus was `.tsx`-only. The corpus now excludes
+    // `.test.ts(x)` by explicit filter; this re-checks the OUTPUT list so a
+    // future filter regression that lets a test file's own prose satisfy or
+    // break the scan below fails loudly here first.
+    expect(SOURCE_FILES.filter((rel) => /\.test\.tsx?$/.test(rel))).toEqual([])
   })
 
   it('no component derives a colour from a light/dark boolean', () => {
-    const offenders = COMPONENT_FILES.filter((rel) =>
+    const offenders = SOURCE_FILES.filter((rel) =>
       /\bisLight\b/.test(readFileSync(path.join(ROOT, rel), 'utf-8')),
     )
     expect(

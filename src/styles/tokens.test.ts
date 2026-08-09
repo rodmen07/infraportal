@@ -181,18 +181,27 @@ function blockFor(selectorSnippet: string): string {
   return TOKENS_CSS.slice(openBrace + 1, closeBrace)
 }
 
-/** Every .tsx file under src/, relative to the repo root, sorted. */
-function allComponentFiles(dir = 'src'): string[] {
+/**
+ * Every source file under src/ that can carry a class name: `.tsx` plus
+ * non-test `.ts`, relative to the repo root, sorted (SWEEP-TSX-ONLY-1).
+ * Was `.tsx`-only until 2026-08-08; this repo keeps real class-name
+ * registries in plain `.ts` modules (src/features/crm/vocabulary.ts is the
+ * live example), and a ghost class in one of those renders exactly as
+ * invisibly as a ghost class in a component. `.test.ts(x)` stays excluded:
+ * test prose quotes class names illustratively, and scanning it would also
+ * feed Tailwind's content glob hazard (TAILWIND-TESTPROSE-LEAK-1).
+ */
+function allSourceFiles(dir = 'src'): string[] {
   const found: string[] = []
   for (const entry of readdirSync(path.join(ROOT, dir), { withFileTypes: true })) {
     const relPath = `${dir}/${entry.name}`
-    if (entry.isDirectory()) found.push(...allComponentFiles(relPath))
-    else if (entry.name.endsWith('.tsx')) found.push(relPath)
+    if (entry.isDirectory()) found.push(...allSourceFiles(relPath))
+    else if (/\.tsx?$/.test(entry.name) && !/\.test\.tsx?$/.test(entry.name)) found.push(relPath)
   }
   return found.sort()
 }
 
-const COMPONENT_FILES = allComponentFiles()
+const SOURCE_FILES = allSourceFiles()
 
 /**
  * Class-like tokens used by a component. Reads every string and template
@@ -307,12 +316,16 @@ describe('audit-cited pages (F1) use classes that now resolve to a real rule', (
   })
 })
 
-describe('no ghost classes anywhere in src/**/*.tsx (F1, repo-wide)', () => {
-  it('finds components to scan', () => {
-    expect(COMPONENT_FILES.length).toBeGreaterThan(40)
+describe('no ghost classes anywhere in non-test src/** (F1, repo-wide)', () => {
+  it('finds source files to scan, including the non-test .ts half', () => {
+    expect(SOURCE_FILES.length).toBeGreaterThan(40)
+    // The widened half's own non-vacuity floor (SWEEP-TSX-ONLY-1, mirroring
+    // colorThemeCoverage.test.ts): if a future filter edit silently drops
+    // plain .ts modules, this fails instead of the sweep quietly narrowing.
+    expect(SOURCE_FILES.filter((rel) => rel.endsWith('.ts')).length).toBeGreaterThan(0)
   })
 
-  it.each(COMPONENT_FILES)('%s uses only design-system classes that have a CSS rule', (relPath) => {
+  it.each(SOURCE_FILES)('%s uses only design-system classes that have a CSS rule', (relPath) => {
     const source = readFileSync(path.join(ROOT, relPath), 'utf-8')
     const undefinedClasses = ownedClassesIn(source).filter(
       (className) => definitionSourceFor(className) === null,
@@ -330,7 +343,7 @@ describe('no ghost classes anywhere in src/**/*.tsx (F1, repo-wide)', () => {
   })
 
   it('the design system actually owns some classes in components', () => {
-    const total = COMPONENT_FILES.reduce(
+    const total = SOURCE_FILES.reduce(
       (count, relPath) => count + ownedClassesIn(readFileSync(path.join(ROOT, relPath), 'utf-8')).length,
       0,
     )
@@ -512,10 +525,14 @@ describe('strangler rule: override-sheet rules for tokenized surfaces stay delet
     // have broken the AWS integration chip in light mode. v1.26.3 widened the
     // scanners' file set to non-test `.ts` for exactly that reason; see
     // scripts/lib/themeContrast.ts.
-    //   This scanner (`allComponentFiles` above) is still `.tsx`-only. That is
-    // deliberate and not an oversight: its subject is this repo's OWN
-    // design-system class namespaces, whose consumers are components, and
-    // widening it is a separate question filed rather than folded in here.
+    //   This scanner (`allSourceFiles` above) was `.tsx`-only until
+    // 2026-08-08, when SWEEP-TSX-ONLY-1 — the "separate question filed rather
+    // than folded in here" that an earlier revision of this comment named —
+    // was answered by widening it to non-test `.ts` too, matching
+    // scripts/lib/themeContrast.ts. Its findings were measured before and
+    // after on the same tree: zero either way (the only non-test `.ts` file
+    // carrying an owned-prefix substring is formModel.ts, in an unquoted
+    // comment the literal extractor cannot see).
     // 205 after v1.27.2 (D-28) retired the five palette focus utilities: the
     // two BORDER ones (at amber-400/50 and amber-500/60 - written elided here
     // on purpose, see TAILWIND-TESTPROSE-LEAK-1 and the note in
@@ -549,7 +566,9 @@ describe('code blocks stay dark in both themes via a decoupled marker (v1.18.6)'
   })
 
   it('the code-surface marker is applied to real <pre> elements (rule not orphaned)', () => {
-    const marked = COMPONENT_FILES.reduce((count, relPath) => {
+    // JSX can only appear in .tsx, but scanning the whole SOURCE_FILES corpus
+    // is harmless here: the <pre pattern cannot match a plain .ts module.
+    const marked = SOURCE_FILES.reduce((count, relPath) => {
       const source = readFileSync(path.join(ROOT, relPath), 'utf-8')
       return count + (source.match(/<pre[^>]*\bcode-surface\b/g)?.length ?? 0)
     }, 0)
