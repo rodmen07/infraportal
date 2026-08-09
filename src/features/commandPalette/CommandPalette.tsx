@@ -156,7 +156,7 @@ export function CommandPalette() {
             aria-controls="command-palette-list"
             autoComplete="off"
             spellCheck={false}
-            className="w-full bg-transparent px-2 py-1.5 text-sm text-text-primary placeholder-text-subtle focus:outline-none"
+            className="w-full bg-transparent px-2 py-1.5 text-sm text-text-primary placeholder-text-subtle outline-none"
           />
         </div>
 

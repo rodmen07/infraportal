@@ -56,7 +56,7 @@
  * Measured on the first draft: all five retired utilities survived in the built
  * CSS, plus two brand-new rules. So every retired class name here is composed
  * from fragments at runtime and every mention in prose is elided. The classes
- * that ARE still live (`outline-none` and its focus-variant form, which five
+ * that ARE still live (`outline-none` and its focus-variant form, which three
  * documented files still use) are written normally, because regenerating a
  * class the app really uses is a no-op.
  */
@@ -80,6 +80,10 @@ import {
 import { SupportRequestPanel } from '../features/support/SupportRequestPanel'
 import { OnboardingChecklist } from '../features/onboarding/OnboardingChecklist'
 import { INPUT_CLS } from '../features/crm/ui'
+import { TryItPanel } from '../features/apiDocs/tryIt/TryItPanel'
+import { CommandPalette } from '../features/commandPalette/CommandPalette'
+import { loadSpec } from '../api-specs'
+import { extractOperations } from '../features/apiDocs/specModel'
 
 ;(globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true
 
@@ -110,18 +114,19 @@ const FOCUS_OUTLINE_NONE = `${V}:outline-none`
 /**
  * Files still carrying it, pinned so the set can only shrink.
  *
- * The first three are deliberate and stay: all three are programmatic focus
- * targets (`tabIndex={-1}`) that receive focus from a skip link or a dialog
- * opening, where a 2px ring around a whole page region is noise rather than
- * information. The last two are FOCUS-OUTLINE-SUPPRESSED-1 in the backlog: real
- * form controls whose token outline is suppressed exactly the way the 25
- * migrated call sites' was. They carry none of the five palette utilities, so
- * they are outside D-28's scope, and they are filed rather than folded in.
+ * All three are deliberate and stay: each is a programmatic focus target
+ * (`tabIndex={-1}`) that receives focus from a skip link or a dialog opening,
+ * where a 2px ring around a whole page region is noise rather than
+ * information. The two FORM CONTROLS this list used to carry - the Try-it
+ * panel's shared field class and the command palette's search input, filed as
+ * FOCUS-OUTLINE-SUPPRESSED-1 - were fixed 2026-08-09 by demoting the
+ * focus-variant suppression to the unconditional form, exactly the v1.27.2
+ * mechanism; contract H below is the rendering proof that the app rule now
+ * reaches them, and this allowlist shrinking by two is what keeps the fix
+ * from quietly reverting.
  */
 const OUTLINE_NONE_ALLOWED = [
   'src/App.tsx', // <main tabIndex={-1}>, skip-link target
-  'src/features/apiDocs/tryIt/TryItPanel.tsx', // FOCUS-OUTLINE-SUPPRESSED-1
-  'src/features/commandPalette/CommandPalette.tsx', // FOCUS-OUTLINE-SUPPRESSED-1
   'src/features/tour/GuidedTour.tsx', // <div tabIndex={-1}>, dialog card
   'src/pages/PageLayout.tsx', // <main tabIndex={-1}>, skip-link target
 ]
@@ -223,20 +228,20 @@ function mount(element: ReturnType<typeof createElement>): HTMLElement[] {
   return [...container.querySelectorAll('input, select, textarea')] as HTMLElement[]
 }
 
-describe('D. the rendered controls emit the migrated recipe', () => {
-  /** Which tag names src/index.css actually grants the token outline to, read
-   * out of the sheet rather than assumed. */
-  const guardedTags = new Set<string>()
-  for (const rule of INDEX_CSS.matchAll(/([^{}]+)\{([^}]*)\}/g)) {
-    if (!/outline:[^;]*var\(--focus-ring\)/.test(rule[2])) continue
-    for (const selector of rule[1].split(',')) {
-      const tag = selector.trim().replace(/:focus-visible$/, '')
-      // Bare tag selectors only: `.btn-accent:focus-visible` is a class rule
-      // covering styled buttons, not the form-control rule under test here.
-      if (/^[a-z]+$/.test(tag)) guardedTags.add(tag)
-    }
+/** Which tag names src/index.css actually grants the token outline to, read
+ * out of the sheet rather than assumed. Shared by contracts D and H. */
+const guardedTags = new Set<string>()
+for (const rule of INDEX_CSS.matchAll(/([^{}]+)\{([^}]*)\}/g)) {
+  if (!/outline:[^;]*var\(--focus-ring\)/.test(rule[2])) continue
+  for (const selector of rule[1].split(',')) {
+    const tag = selector.trim().replace(/:focus-visible$/, '')
+    // Bare tag selectors only: `.btn-accent:focus-visible` is a class rule
+    // covering styled buttons, not the form-control rule under test here.
+    if (/^[a-z]+$/.test(tag)) guardedTags.add(tag)
   }
+}
 
+describe('D. the rendered controls emit the migrated recipe', () => {
   it('index.css grants the outline to the three form-control tags', () => {
     expect([...guardedTags].sort()).toEqual(['input', 'select', 'textarea'])
   })
@@ -371,4 +376,81 @@ describe('G. the emitted selectors changed, proven by compiling both class lists
     expect(before).toHaveLength(2)
     for (const selector of before) expect(selector).toMatch(/:focus$/)
   }, 30_000)
+})
+
+/* -------------------------------------------------------------------------
+ * H. FOCUS-OUTLINE-SUPPRESSED-1: the two once-suppressed controls, rendered.
+ * ---------------------------------------------------------------------- */
+
+describe('H. the two once-suppressed form controls now receive the app rule', () => {
+  /** The Try-it panel's shared field class and the command palette's search
+   * input carried the focus-variant suppression until 2026-08-09, so on both
+   * the corrected `--focus-ring` token never painted (the (0,2,0)-vs-(0,1,1)
+   * cascade fact contract F keeps as a running control) and a keyboard user
+   * got no indicator at all. Every control they render must now (a) not carry
+   * the focus-variant form, (b) keep the unconditional form the migrated
+   * recipe uses - which contract F proves LOSES to the app rule - and (c) be
+   * one of the tags src/index.css grants the token outline to. Contract E is
+   * the computed proof that that outline clears 3:1 in light on all three
+   * surfaces; H is the proof the rule REACHES these controls at all. */
+  function expectGuarded(controls: HTMLElement[]) {
+    for (const control of controls) {
+      const classes = (control.getAttribute('class') ?? '').split(/\s+/)
+      expect(classes).not.toContain(FOCUS_OUTLINE_NONE)
+      expect(classes).toContain('outline-none')
+      expect(guardedTags).toContain(control.tagName.toLowerCase())
+    }
+  }
+
+  it('TryItPanel: a read operation renders its parameter input on the app rule', async () => {
+    const ops = new Map(
+      extractOperations(await loadSpec('accounts')).map((op) => [op.operationId, op]),
+    )
+    const controls = mount(
+      createElement(TryItPanel, { serviceId: 'accounts', operation: ops.get('getAccount')! }),
+    )
+    // Vacuity: the operation must actually render a form control.
+    expect(controls.filter((c) => c.tagName.toLowerCase() === 'input').length).toBeGreaterThan(0)
+    expectGuarded(controls)
+  })
+
+  it('TryItPanel: a create operation renders the JSON body editor on the app rule', async () => {
+    const ops = new Map(
+      extractOperations(await loadSpec('accounts')).map((op) => [op.operationId, op]),
+    )
+    mount(
+      createElement(TryItPanel, { serviceId: 'accounts', operation: ops.get('createAccount')! }),
+    )
+    // The body opens in form mode; the textarea is behind the real JSON toggle.
+    const toggle = [...container.querySelectorAll('button')].find(
+      (b) => b.textContent?.trim() === 'JSON',
+    )
+    expect(toggle, 'the Form/JSON toggle did not render').toBeDefined()
+    act(() => {
+      toggle!.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    })
+    const controls = [...container.querySelectorAll('input, select, textarea')] as HTMLElement[]
+    expect(controls.filter((c) => c.tagName.toLowerCase() === 'textarea').length).toBeGreaterThan(0)
+    expectGuarded(controls)
+  })
+
+  it('CommandPalette: the search input opened by Ctrl-K is on the app rule', () => {
+    // jsdom implements no layout; the palette scrolls the highlighted row.
+    const proto = Element.prototype as unknown as Record<string, unknown>
+    const original = proto.scrollIntoView
+    proto.scrollIntoView = () => {}
+    try {
+      mount(createElement(CommandPalette))
+      act(() => {
+        document.dispatchEvent(
+          new KeyboardEvent('keydown', { key: 'k', ctrlKey: true, bubbles: true }),
+        )
+      })
+      const input = container.querySelector<HTMLInputElement>('input[type="text"]')
+      expect(input, 'the palette did not open on Ctrl+K').not.toBeNull()
+      expectGuarded([input!])
+    } finally {
+      proto.scrollIntoView = original
+    }
+  })
 })
