@@ -69,20 +69,25 @@ function definedColorClasses(): Set<string> {
 
 const UTILITY_PREFIXES = ['bg', 'text', 'border', 'ring', 'divide', 'from', 'via', 'to', 'placeholder', 'decoration', 'outline'] as const
 
-/** Every .tsx file under src/, relative to the repo root. Mirrors
- * tokens.test.ts's allComponentFiles() (kept local: importing across test
- * files couples their maintenance for no shared benefit here). */
-function allComponentFiles(dir = 'src'): string[] {
+/** Every source file under src/ that can carry a class name: `.tsx` plus
+ * non-test `.ts` (SWEEP-TSX-ONLY-1; was `.tsx`-only until 2026-08-08, which
+ * made the owned-role classes in src/features/crm/vocabulary.ts — a plain-.ts
+ * class registry consumed via className — invisible to this exact check).
+ * Mirrors tokens.test.ts's allSourceFiles() (kept local: importing across
+ * test files couples their maintenance for no shared benefit here).
+ * `.test.ts(x)` stays excluded: test prose quotes class names
+ * illustratively. */
+function allSourceFiles(dir = 'src'): string[] {
   const found: string[] = []
   for (const entry of readdirSync(path.join(ROOT, dir), { withFileTypes: true })) {
     const relPath = `${dir}/${entry.name}`
-    if (entry.isDirectory()) found.push(...allComponentFiles(relPath))
-    else if (entry.name.endsWith('.tsx')) found.push(relPath)
+    if (entry.isDirectory()) found.push(...allSourceFiles(relPath))
+    else if (/\.tsx?$/.test(entry.name) && !/\.test\.tsx?$/.test(entry.name)) found.push(relPath)
   }
   return found.sort()
 }
 
-const COMPONENT_FILES = allComponentFiles()
+const SOURCE_FILES = allSourceFiles()
 
 /** Every class-like literal token in a component's source, ignoring
  * interpolated template fragments (`` `text-${tone}` `` never yields a
@@ -124,10 +129,18 @@ describe('tailwind.config.js colour roles actually generate the utilities compon
     expect(defined.size).toBeGreaterThan(15)
   })
 
-  it('every owned-role colour class referenced in src/**/*.tsx resolves to a real config key', () => {
+  it('the corpus includes the non-test .ts half (scanner non-vacuity)', () => {
+    // SWEEP-TSX-ONLY-1, mirroring colorThemeCoverage.test.ts: a filter edit
+    // that silently drops plain .ts modules would re-open the vocabulary.ts
+    // blind spot while every check below stays green.
+    expect(SOURCE_FILES.length).toBeGreaterThan(40)
+    expect(SOURCE_FILES.filter((rel) => rel.endsWith('.ts')).length).toBeGreaterThan(0)
+  })
+
+  it('every owned-role colour class referenced in non-test src/** resolves to a real config key', () => {
     const defined = definedColorClasses()
     const offenders: string[] = []
-    for (const relPath of COMPONENT_FILES) {
+    for (const relPath of SOURCE_FILES) {
       const source = readFileSync(path.join(ROOT, relPath), 'utf-8')
       for (const token of classTokensIn(source)) {
         const suffix = ownedColorSuffix(token)

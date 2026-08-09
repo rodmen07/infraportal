@@ -72,17 +72,26 @@ const ALLOWLISTED_SITES = new Set([
   'src/features/portal/projectDetail.tsx:399', // 24px chat-avatar initial, redundant with the message bubble's side/colour
 ])
 
-function allComponentFiles(dir = 'src'): string[] {
+/**
+ * `.tsx` plus non-test `.ts` (SWEEP-TSX-ONLY-1; was `.tsx`-only until
+ * 2026-08-08). An undersized text class in a plain-.ts class registry (the
+ * src/features/crm/vocabulary.ts consumption pattern) reaches rendered text
+ * exactly as a component's own literal does, so "rendered text" is not a
+ * JSX-scoped subject. Measured at widening time: zero sub-floor sizes in any
+ * non-test `.ts` file, so this changes findings by nothing today and exists
+ * to keep the registry pattern visible tomorrow.
+ */
+function allSourceFiles(dir = 'src'): string[] {
   const found: string[] = []
   for (const entry of readdirSync(path.join(ROOT, dir), { withFileTypes: true })) {
     const relPath = `${dir}/${entry.name}`
-    if (entry.isDirectory()) found.push(...allComponentFiles(relPath))
-    else if (entry.name.endsWith('.tsx')) found.push(relPath)
+    if (entry.isDirectory()) found.push(...allSourceFiles(relPath))
+    else if (/\.tsx?$/.test(entry.name) && !/\.test\.tsx?$/.test(entry.name)) found.push(relPath)
   }
   return found.sort()
 }
 
-const COMPONENT_FILES = allComponentFiles().filter((f) => !EXEMPT_FILES.has(f))
+const SOURCE_FILES = allSourceFiles().filter((f) => !EXEMPT_FILES.has(f))
 
 /** Strips JS comments so a docstring's illustrative, backtick-quoted class
  * name (e.g. Badge.tsx's history note) is never mistaken for live usage.
@@ -99,11 +108,15 @@ function stripJsComments(source: string): string {
 }
 
 describe('type-scale 12px floor: no arbitrary text-[10px]/text-[11px] on real content', () => {
-  it('finds components to scan', () => {
-    expect(COMPONENT_FILES.length).toBeGreaterThan(40)
+  it('finds source files to scan, including the non-test .ts half', () => {
+    expect(SOURCE_FILES.length).toBeGreaterThan(40)
+    // The widened half's own non-vacuity floor (SWEEP-TSX-ONLY-1, mirroring
+    // colorThemeCoverage.test.ts): a filter edit that silently drops plain
+    // .ts modules must fail here, not narrow the sweep quietly.
+    expect(SOURCE_FILES.filter((rel) => rel.endsWith('.ts')).length).toBeGreaterThan(0)
   })
 
-  it.each(COMPONENT_FILES)('%s uses no unlisted text-[10px]/text-[11px]', (relPath) => {
+  it.each(SOURCE_FILES)('%s uses no unlisted text-[10px]/text-[11px]', (relPath) => {
     const source = stripJsComments(readFileSync(path.join(ROOT, relPath), 'utf-8'))
     const lines = source.split('\n')
     const offenders: string[] = []
