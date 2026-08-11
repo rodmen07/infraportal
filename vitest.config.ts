@@ -26,11 +26,53 @@ import { defineConfig } from 'vitest/config'
  */
 const TEST_TIMEOUT_MS = 20_000
 
+/**
+ * Worker-pool ceiling (COVERAGE-UNDERRUN-1, measured 2026-08-11).
+ *
+ * With `maxWorkers` unset, vitest sizes the pool from the host:
+ * `resolveMaxWorkers` (node_modules/vitest/dist/chunks/cli-api.BK8pd4xc.js,
+ * the `availableParallelism() - 1` branch) returns 11 on this 12-thread
+ * development box and 3 on the 4-vCPU ubuntu runner CI uses. So this constant
+ * is what CI already resolves to on its own, and it changes only the local run.
+ *
+ * The pool is FORKS, not threads, and that was measured rather than read:
+ * inside a worker `globalThis.__vitest_worker__.config.pool` is `forks` and
+ * `worker_threads.isMainThread` is true in a process whose pid differs from its
+ * parent, i.e. every worker is a real child process. (Two default assignments
+ * disagree in vitest 4.1.10's own dist -- `resolved.pool ??= "forks"` at
+ * coverage.DM_a_rWm.js:180 and `resolved.pool ??= "threads"` at :378 -- and the
+ * earlier one wins, so reading the later line alone gives the wrong answer.)
+ *
+ * Eleven concurrently starting child processes is what COVERAGE-UNDERRUN-1 is
+ * made of. Observed on this tree at 2026-08-11 with the pool uncapped, while
+ * the machine was busy:
+ *
+ *   Test Files  75 passed (75)          <- a green summary
+ *   Tests       2471 passed (2471)
+ *   Errors      23 errors               <- and 75 + 23 = the 98 files on disk
+ *   Duration    221.23s
+ *   Error: [vitest-pool]: Failed to start forks worker for test files <path>
+ *   Caused by: Error: [vitest-pool-runner]: Timeout waiting for worker to respond
+ *
+ * Twenty-three files never ran and the summary still said "passed". Capping the
+ * pool removes eight of the eleven simultaneous process starts that time out.
+ * It is a liveness bound only: no test is skipped, excluded or weakened, the
+ * same 98 files run, and `npm run check-test-discovery` still fails the run if
+ * any of them silently does not.
+ *
+ * Guarded by src/features/site/testPoolBudget.test.ts. Note `VITEST_MAX_WORKERS`
+ * overrides this value at resolution time (coverage.DM_a_rWm.js:380), which is
+ * why that guard checks both what the runner resolved AND what this file
+ * declares.
+ */
+const MAX_WORKERS = 3
+
 export default defineConfig({
   test: {
     environment: 'node',
     include: ['src/**/*.test.ts'],
     testTimeout: TEST_TIMEOUT_MS,
+    maxWorkers: MAX_WORKERS,
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],
