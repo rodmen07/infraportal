@@ -1,6 +1,27 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: ['./index.html', './src/**/*.{ts,tsx}'],
+  // v1.28.1 (D-31): test files are excluded from the extractor's corpus.
+  //
+  // Tailwind's extractor reads RAW TEXT, not code: any token that looks like a
+  // utility emits a rule, including one that appears only inside a string
+  // literal, an assertion message, or a comment. `src/**/*.test.ts` is 100
+  // files of prose ABOUT class names, so every utility a test names by hand
+  // shipped a live rule to production for no rendered element
+  // (TAILWIND-TESTPROSE-LEAK-1, first found in PR #145 and re-caught by hand in
+  // #146 x2, #147, #152, #153).
+  //
+  // Measured on this branch: the negation removes exactly 17 utilities from the
+  // built stylesheet and nothing else, each independently re-verified at zero
+  // whole-token consumers across the non-test sources -- see the PR body for
+  // the entry-by-entry accounting. The mechanism is proven in BOTH directions
+  // by src/styles/testProseLeak.test.ts, which builds the real config through
+  // PostCSS and asserts a class named only in a test file emits no rule while
+  // the same class in a component does.
+  //
+  // Order matters to Tailwind: the negation must come AFTER the positive glob
+  // it narrows. `.test.tsx` is named even though zero such files exist today,
+  // so the class cannot reappear through a new file kind.
+  content: ['./index.html', './src/**/*.{ts,tsx}', '!./src/**/*.test.{ts,tsx}'],
   theme: {
     extend: {
       // v1.18.1 PR1 token foundation: mapped from the CSS custom properties
