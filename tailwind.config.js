@@ -4,10 +4,11 @@ export default {
   //
   // Tailwind's extractor reads RAW TEXT, not code: any token that looks like a
   // utility emits a rule, including one that appears only inside a string
-  // literal, an assertion message, or a comment. `src/**/*.test.ts` is 98 files
-  // of prose ABOUT class names, so every utility a test names by hand shipped a
-  // live rule to production for no rendered element (TAILWIND-TESTPROSE-LEAK-1,
-  // first found in PR #145 and re-caught by hand in #146 x2, #147, #152, #153).
+  // literal, an assertion message, or a comment. `src/**/*.test.ts` is 100
+  // files of prose ABOUT class names, so every utility a test names by hand
+  // shipped a live rule to production for no rendered element
+  // (TAILWIND-TESTPROSE-LEAK-1, first found in PR #145 and re-caught by hand in
+  // #146 x2, #147, #152, #153).
   //
   // Measured on this branch: the negation removes exactly 17 utilities from the
   // built stylesheet and nothing else, each independently re-verified at zero

@@ -3,11 +3,16 @@
  *
  * Tailwind's extractor reads RAW TEXT, not code. It has no parser, no notion of
  * a string literal and no notion of a comment: any token that looks like a
- * utility becomes a candidate, wherever it appears. `vitest.config.ts` puts 99
- * test files under `src/`, and those files are 500 KB of prose ABOUT class
- * names — assertion messages, regexes, doc comments explaining which utility a
- * milestone retired. Every one of those names emitted a live rule into the
- * production stylesheet for an element that does not exist.
+ * utility becomes a candidate, wherever it appears. `vitest.config.ts` puts 100
+ * test files under `src/` (99 before this one), and those files are prose ABOUT
+ * class names — assertion messages, regexes, doc comments explaining which
+ * utility a milestone retired. Every one of those names emitted a live rule
+ * into the production stylesheet for an element that does not exist.
+ *
+ * THIS FILE IS ITS OWN DEMONSTRATION. The paragraph below names all 17 leaked
+ * utilities as whole tokens, exactly the way the retired convention forbade,
+ * and the built stylesheet on this branch contains none of them. Before the
+ * glob change that paragraph alone would have re-emitted every one.
  *
  * That is not a hypothesis. Measured on `10a4353` (= `origin/main`), whose
  * build is byte-identical to the live deploy (sha256 `31eda5c0…b2c7667`, 67458
