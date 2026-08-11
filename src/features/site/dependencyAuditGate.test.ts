@@ -34,6 +34,17 @@
  *      `.github/workflows/security-audit.yml` closes that; the assertion below
  *      keeps it closed.
  *
+ *   4. the two SCOPES collapse into one. Since 2026-08-10 this repo audits at
+ *      two scopes on purpose (DEP-AUDIT-SCOPE-1, owner decision: option (b)):
+ *      `--omit=dev` in the required `Unit Tests` job, which blocks, and the
+ *      FULL tree in `Full-tree audit (advisory)`, which reports and does not.
+ *      Either half can be undone by a one-line edit that reads as harmless --
+ *      dropping `--omit=dev` from the required step makes a dev-tool advisory
+ *      merge-blocking (option (c), which the owner did NOT choose), and moving
+ *      the full-tree step into `test` does the same from the other direction.
+ *      The last describe block asserts both directions against the recorded
+ *      required-context list.
+ *
  * WIDENED 2026-08-08 (DevSecOps). This file used to read exactly one
  * hand-named workflow, `test.yml`. That was correct while `test.yml` held the
  * only `npm audit` line in the repo, and it silently stopped being correct the
@@ -80,6 +91,7 @@ interface WorkflowStep {
 }
 
 interface WorkflowJob {
+  name?: string
   steps?: WorkflowStep[]
 }
 
@@ -92,9 +104,17 @@ interface Workflow {
   jobs?: Record<string, WorkflowJob>
 }
 
-/** An `npm audit` step, carrying the workflow it was read out of. */
+/** An `npm audit` step, carrying the workflow and the JOB it was read out of. */
 interface AuditStep extends WorkflowStep {
   workflow: string
+  jobId: string
+  /**
+   * The status-check context GitHub creates for the owning job: its `name:` if
+   * it declares one, otherwise the job id. This is the string branch
+   * protection matches on, which is what makes "required" vs "advisory" a
+   * property this file can actually assert.
+   */
+  context: string
 }
 
 interface PackageManifest {
@@ -137,23 +157,61 @@ const WORKFLOWS = new Map<string, Workflow>(
   ]),
 )
 
-/** Every `npm audit` step in the repo, from every workflow. */
+/** Every `npm audit` step in the repo, from every workflow, with its job. */
 const auditSteps: AuditStep[] = [...WORKFLOWS.entries()].flatMap(
   ([file, workflow]) =>
-    Object.values(workflow.jobs ?? {})
-      .flatMap((job) => job.steps ?? [])
-      .filter(
-        (step) => typeof step.run === 'string' && /\bnpm audit\b/.test(step.run),
-      )
-      .map((step) => ({ ...step, workflow: file })),
+    Object.entries(workflow.jobs ?? {}).flatMap(([jobId, job]) =>
+      (job.steps ?? [])
+        .filter(
+          (step) =>
+            typeof step.run === 'string' && /\bnpm audit\b/.test(step.run),
+        )
+        .map((step) => ({
+          ...step,
+          workflow: file,
+          jobId,
+          context: job.name ?? jobId,
+        })),
+    ),
 )
 
 const auditStepsIn = (file: string) =>
   auditSteps.filter((step) => step.workflow === file)
 
-/** Human-readable id for a failure message: which file, which step. */
+/** Human-readable id for a failure message: which file, which job, which step. */
 const whereIs = (step: AuditStep) =>
-  `${step.workflow}: ${step.name ?? (step.run as string)}`
+  `${step.workflow} [${step.context}]: ${step.name ?? (step.run as string)}`
+
+/**
+ * The required status contexts on `main`, read from
+ * `repos/rodmen07/infraportal/branches/main/protection` on 2026-08-10:
+ * `["Build","Linting","Type Check","Unit Tests","GitGuardian Security Checks"]`,
+ * `strict: true`.
+ *
+ * Recorded rather than fetched, because this suite runs offline. The API stays
+ * the authority; this is the copy the two scope assertions compare the WORKFLOW
+ * against, and it can genuinely fail without anyone editing it — renaming a
+ * job, or moving an `npm audit` step from one job to another, breaks the
+ * comparison on the next run.
+ */
+const REQUIRED_CONTEXTS = [
+  'Build',
+  'Linting',
+  'Type Check',
+  'Unit Tests',
+  'GitGuardian Security Checks',
+] as const
+
+const isRequiredContext = (context: string) =>
+  (REQUIRED_CONTEXTS as readonly string[]).includes(context)
+
+/**
+ * `--omit=dev` is what makes an audit a PRODUCTION-tree audit: it drops the
+ * whole devDependencies tree, so a step carrying it is structurally incapable
+ * of reporting a dev-tool advisory. A step WITHOUT it audits the full tree.
+ */
+const isProductionScoped = (step: AuditStep) =>
+  /--omit=dev\b/.test(step.run as string)
 
 /**
  * npm's `--audit-level` scale, least to most severe. The gate must sit at or
@@ -350,26 +408,134 @@ describe('Required npm-audit gate: threshold', () => {
     ).toEqual([])
   })
 
-  it('runs every npm audit in the repo at the SAME scope and threshold', () => {
+  it('runs every PRODUCTION-scoped npm audit with the SAME command', () => {
     // Two hand-authored files, not a value compared against its own source, so
     // this can really fail: the scheduled audit and the required one are
     // written and edited independently, and a looser twin is worse than no
     // twin -- it makes "the audit is green" mean two different things
     // depending on which run you happen to be reading.
+    //
+    // NARROWED 2026-08-10 from "every npm audit in the repo" to "every
+    // PRODUCTION-scoped one". This assertion used to demand exactly ONE
+    // distinct command repo-wide, and its own failure message said "Keep one
+    // command, or state here why they must differ." The reason they must
+    // differ is now recorded: DEP-AUDIT-SCOPE-1, answered by the owner on
+    // 2026-08-10 with option (b) -- a second, NON-REQUIRED job auditing the
+    // FULL tree, deliberately at a different scope from the required gate.
+    // The narrowing costs nothing, because everything the old assertion
+    // actually protected (a looser production twin) is still asserted here,
+    // and the new scope is held by the three assertions below plus the
+    // threshold-parity one.
     const commands = [
       ...new Set(
-        auditSteps.map((step) => (step.run as string).trim().replace(/\s+/g, ' ')),
+        auditSteps
+          .filter(isProductionScoped)
+          .map((step) => (step.run as string).trim().replace(/\s+/g, ' ')),
       ),
     ]
 
     expect(
       commands,
-      `the repo's \`npm audit\` invocations disagree: ${commands
-        .map((command) => JSON.stringify(command))
-        .join(' vs ')}. Discovered in ${auditSteps
-        .map((step) => step.workflow)
-        .join(', ')}. Keep one command, or state here why they must differ.`,
+      `the repo's production (\`--omit=dev\`) \`npm audit\` invocations ` +
+        `disagree: ${commands
+          .map((command) => JSON.stringify(command))
+          .join(' vs ')}. Discovered in ${auditSteps
+          .filter(isProductionScoped)
+          .map((step) => step.workflow)
+          .join(', ')}. Keep one command, or state here why they must differ.`,
     ).toHaveLength(1)
+  })
+
+  it('holds the full-tree audit to the SAME threshold as the required gate', () => {
+    // The two scopes are allowed to differ. The severity floor is not: if the
+    // advisory job sat at `high` while the required gate sat at `moderate`,
+    // "the audit is green" would mean two different things again, which is the
+    // exact confusion the assertion above exists to prevent.
+    const levels = (predicate: (step: AuditStep) => boolean) => [
+      ...new Set(
+        auditSteps
+          .filter(predicate)
+          .map((step) => auditLevelOf(step.run as string)),
+      ),
+    ]
+
+    const production = levels(isProductionScoped)
+    const fullTree = levels((step) => !isProductionScoped(step))
+
+    expect(
+      production,
+      'no production-scoped audit declared an --audit-level, so the comparison ' +
+        'below would be vacuous.',
+    ).toHaveLength(1)
+
+    expect(
+      fullTree,
+      `the full-tree audit runs at ${JSON.stringify(fullTree)} while the ` +
+        `required production gate runs at ${JSON.stringify(production)}. ` +
+        'Both scopes must use the same severity floor.',
+    ).toEqual(production)
+  })
+})
+
+describe('Advisory full-tree audit: visible, and structurally non-blocking', () => {
+  // DEP-AUDIT-SCOPE-1, owner decision 2026-08-10: option (b).
+  //
+  // The required gate keeps `--omit=dev` and is NOT weakened, narrowed, or
+  // replaced. A second job audits the FULL tree and reports without blocking.
+  // Option (c) -- making the full tree required -- was explicitly NOT chosen:
+  // a dev-tool advisory must not hold unrelated merges hostage.
+  //
+  // Both halves of that decision are asserted here, because each of them can
+  // be undone by a one-line edit that looks harmless in review: deleting
+  // `--omit=dev` from the required step silently makes a dev advisory
+  // merge-blocking, and moving the full-tree step into the `test` job does the
+  // same thing from the other direction.
+
+  const fullTreeAudits = auditSteps.filter((step) => !isProductionScoped(step))
+
+  it('runs at least one audit over the FULL tree', () => {
+    expect(
+      fullTreeAudits.map(whereIs),
+      'no `npm audit` in this repo omits `--omit=dev`, so nothing can see a ' +
+        'dev-tree advisory at all. That blind spot is what DEP-AUDIT-SCOPE-1 ' +
+        'was filed about and what the owner decided on 2026-08-10; restore the ' +
+        'full-tree job rather than deleting this assertion.',
+    ).not.toEqual([])
+  })
+
+  it('keeps every full-tree audit OUT of a required-context job', () => {
+    const blocking = fullTreeAudits
+      .filter((step) => isRequiredContext(step.context))
+      .map((step) => `${whereIs(step)} -> required context "${step.context}"`)
+
+    expect(
+      blocking,
+      'a full-tree `npm audit` is running inside a job whose name is a REQUIRED ' +
+        `status context (${REQUIRED_CONTEXTS.join(', ')}), so a dev-tool ` +
+        'advisory would block every merge. That is option (c), which the owner ' +
+        'did NOT choose on 2026-08-10. Give the full-tree audit its own ' +
+        'non-required job. Re-read the live list with `gh api ' +
+        'repos/rodmen07/infraportal/branches/main/protection` if it has moved.',
+    ).toEqual([])
+  })
+
+  it('keeps the production gate INSIDE a required-context job', () => {
+    // The other direction, and the one that matters more: adding a visible
+    // advisory job is worthless if it arrives by demoting the gate that
+    // actually blocks. This fails if the `--omit=dev` audit is deleted from
+    // `test.yml`, or moved out of the job whose name is a required context.
+    const requiredGates = auditSteps
+      .filter(isProductionScoped)
+      .filter((step) => isRequiredContext(step.context))
+      .map(whereIs)
+
+    expect(
+      requiredGates,
+      'no `npm audit --omit=dev` step is running inside a job whose name is a ' +
+        `required status context (${REQUIRED_CONTEXTS.join(', ')}). The ` +
+        'merge-blocking dependency gate is gone: an advisory against a SHIPPED ' +
+        'package would no longer stop a merge.',
+    ).not.toEqual([])
   })
 })
 
