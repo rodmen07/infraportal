@@ -101,12 +101,23 @@ is imported by both the generator and its test so the two cannot drift.
 
 ```bash
 npm ci
-npm audit --omit=dev --audit-level=high
+npm audit --omit=dev --audit-level=moderate
 npm run typecheck
 npm run lint
 npm run test:coverage
 npm run build
 ```
+
+A second job, **Full-tree audit (advisory)**, runs `npm audit --audit-level=moderate`
+over the whole tree including devDependencies. It is deliberately NOT a required
+context: it makes dev-tool advisories visible without letting a toolchain
+advisory block delivery of the app (DEP-AUDIT-SCOPE-1, owner decision
+2026-08-10). A red there is a triage item, not a broken build.
+
+(This block read `--audit-level=high` until 2026-08-10. The threshold moved to
+`moderate` in PR #137 on 2026-08-07, after GHSA-55q2-fjhq-7xh7 — a moderate XSS
+in dompurify, the app's only HTML sanitiser — sat in a direct production
+dependency while the `high` gate exited 0.)
 
 The required contexts on `main` are **Build**, **Linting**, **Type Check**,
 **Unit Tests** and **GitGuardian Security Checks**, with strict up-to-date branches.

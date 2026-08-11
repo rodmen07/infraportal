@@ -8,6 +8,87 @@ on:
   workflow_dispatch:
 
 jobs:
+  # ─── The advisory full-tree audit (DEP-AUDIT-SCOPE-1, owner decision 2026-08-10) ──
+  #
+  # A SECOND audit, at a SECOND scope, in a job of its own. The required gate in
+  # `test` below keeps `--omit=dev` and is not weakened, narrowed, or replaced by
+  # this; the two answer different questions and both answers are wanted.
+  #
+  #   test / "Unit Tests"                 npm audit --omit=dev --audit-level=moderate
+  #     what a VISITOR downloads. REQUIRED context -> blocks the merge.
+  #
+  #   audit-full-tree / this job          npm audit --audit-level=moderate
+  #     what the BUILD and a developer's machine run. NOT a required context ->
+  #     reports, never blocks.
+  #
+  # Why the second scope exists at all: `--omit=dev` drops the entire
+  # devDependencies tree, so it is structurally incapable of seeing a dev-tool
+  # advisory. Measured on the pre-PR-#137 lockfile: both HIGH advisories cleared
+  # by PR #131 were `"dev": true` and the required step reported "found 0
+  # vulnerabilities" before AND after — it never saw either one.
+  #
+  # Why it must NOT block: a dev-tool advisory whose only fix is a toolchain
+  # major (dependabot #108, TypeScript 5.9.3 -> 7.0.2) would otherwise hold every
+  # unrelated merge hostage to a triage. The owner chose visibility over a veto
+  # on 2026-08-10. Non-blocking is a property of BRANCH PROTECTION, not of this
+  # file: the required contexts on `main` are exactly Build, Linting, Type Check,
+  # Unit Tests, GitGuardian Security Checks (read from
+  # `repos/rodmen07/infraportal/branches/main/protection` on 2026-08-10, and this
+  # job's name is deliberately absent from that list). `Deploy to GitHub Pages`
+  # is a separate `push`-triggered workflow, not a `workflow_run` consumer of
+  # this one, so a red here cannot hold the deploy either.
+  #
+  # Deliberately NOT `continue-on-error: true`. That would make the job report
+  # green while finding advisories, which is an inert surface, not a
+  # non-blocking one — the distinction this whole item is about.
+  #
+  # OPERATIONAL NOTE: because this job also runs on `push` to main, a dev-tree
+  # advisory will show the `Tests` workflow RUN as failed on main while all five
+  # required contexts stay green. That is a TRIAGE signal, not a broken-main
+  # incident: read which job failed before treating it as one.
+  #
+  # Guarded by src/features/site/dependencyAuditGate.test.ts, which discovers
+  # every `npm audit` invocation in every workflow, holds each to the same
+  # severity floor, and asserts this one lives outside the required-context jobs
+  # while the `--omit=dev` gate stays inside one.
+  audit-full-tree:
+    runs-on: ubuntu-latest
+    name: Full-tree audit (advisory)
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Audit the full dependency tree
+        # No `--omit=dev`: that omission IS the point of this job.
+        # Same `--audit-level=moderate` floor as the required gate, so the two
+        # never disagree about what counts as a finding — only about scope.
+        run: npm audit --audit-level=moderate
+
+      - name: Explain a failure
+        # The message deliberately avoids the literal token this job's own
+        # guard scans for -- dependencyAuditGate.test.ts discovers audit steps
+        # by matching `npm audit` in `run:`, so prose naming the command would
+        # be parsed as a THIRD audit invocation with no `--audit-level`. It was:
+        # the first version of this step reddened three assertions in that file
+        # before this branch was pushed, which is the guard working.
+        if: failure()
+        run: |
+          echo "::warning::The full-tree dependency audit found a moderate+ advisory outside the shipped tree."
+          echo "::warning::This job is NOT a required status check and does NOT block this merge (DEP-AUDIT-SCOPE-1, owner decision 2026-08-10)."
+          echo "::warning::Triage it: fix, or record an accepted risk with its advisory id in the infraportal backlog."
+        shell: bash
+
   test:
     runs-on: ubuntu-latest
     name: Unit Tests
