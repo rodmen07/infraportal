@@ -15,32 +15,16 @@
  *
  * The committed snapshot stays authoritative for the deployed site; this
  * check exists so drift in the microservices repo gets NOTICED here, with a
- * documented one-command fix:
+ * documented one-command fix that runs from the SAME source this check read:
  *
- *   npm run sync-specs      # regenerate src/api-specs/ from the source specs
+ *   npm run sync-specs -- --source remote --ref <the ref reported below>
  *   (then commit the diff)
  *
- * Where the source specs come from:
- *
- *   --source local (default)
- *     Reads `<microservices>/<id>-service/openapi.yaml` from the sibling
- *     checkout on disk: the positional argument, else $MICROSERVICES_DIR,
- *     else `../microservices` relative to this repo. This is the dev-machine
- *     mode and matches sync-api-specs.mjs exactly.
- *
- *   --source remote
- *     CI mode. GitHub Actions runners check out only this repo; they have no
- *     sibling microservices checkout and cannot clone one without extra
- *     configuration. Instead of pretending otherwise, remote mode fetches the
- *     canonical spec files from the PUBLIC microservices repo over HTTPS:
- *
- *       https://raw.githubusercontent.com/rodmen07/microservices/<ref>/<id>-service/openapi.yaml
- *
- *     The ref is pinned by flag (--ref) or $SPEC_DRIFT_REF and defaults to
- *     `main`, the branch the committed snapshots are synced from. Pinning to
- *     main means the check answers exactly one question: "do the committed
- *     snapshots still match the canonical published specs?" A commit SHA or
- *     tag can be passed instead to compare against a frozen point.
+ * Where the source specs come from -- local checkout or the public repo over
+ * HTTPS, and which flags and environment variables select between them -- is
+ * documented once, in scripts/lib/specSources.mjs, and is shared verbatim with
+ * sync-api-specs.mjs. GitHub Actions runners check out only this repo, which
+ * is why CI passes `--source remote`.
  *
  * Usage:
  *   npm run check-spec-drift                          # local sibling checkout
@@ -54,18 +38,12 @@
  *   2  operational failure (source unavailable, fetch error, invalid spec)
  */
 
-import { mkdtempSync, readFileSync, rmSync, writeFileSync, existsSync } from 'node:fs'
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import {
-  SERVICE_IDS,
-  buildSnapshotFiles,
-  compareSnapshotDirs,
-  formatComparisonReport,
-} from './lib/specSnapshot.mjs'
-
-const RAW_BASE = 'https://raw.githubusercontent.com/rodmen07/microservices'
+import { buildSnapshotFiles, compareSnapshotDirs, formatComparisonReport } from './lib/specSnapshot.mjs'
+import { loadSpecSources } from './lib/specSources.mjs'
 
 const scriptDir = dirname(fileURLToPath(import.meta.url))
 const repoRoot = resolve(scriptDir, '..')
@@ -77,80 +55,26 @@ function fail(message) {
 }
 
 // ---------------------------------------------------------------------------
-// Argument parsing
+// Source loading (flags, environment and both sources live in specSources.mjs)
 // ---------------------------------------------------------------------------
 
-const args = process.argv.slice(2)
-let source = process.env.SPEC_DRIFT_SOURCE ?? 'local'
-let ref = process.env.SPEC_DRIFT_REF ?? 'main'
-let localDirArg
-
-for (let i = 0; i < args.length; i += 1) {
-  const arg = args[i]
-  if (arg === '--source') {
-    source = args[++i] ?? fail('--source requires a value (local | remote)')
-  } else if (arg === '--ref') {
-    ref = args[++i] ?? fail('--ref requires a value')
-  } else if (arg.startsWith('--')) {
-    fail(`unknown flag ${arg}`)
-  } else {
-    localDirArg = arg
-  }
-}
-
-if (source !== 'local' && source !== 'remote') {
-  fail(`--source must be "local" or "remote", got "${source}"`)
-}
-
-// ---------------------------------------------------------------------------
-// Source loading
-// ---------------------------------------------------------------------------
-
-function loadLocalSources() {
-  const sourceRoot = resolve(
-    localDirArg ?? process.env.MICROSERVICES_DIR ?? join(repoRoot, '..', 'microservices'),
-  )
-  if (!existsSync(sourceRoot)) {
-    fail(
-      `microservices checkout not found at ${sourceRoot}\n` +
-        'Pass the path as an argument, set MICROSERVICES_DIR, or use --source remote.',
-    )
-  }
-  const sources = []
-  for (const id of SERVICE_IDS) {
-    const yamlPath = join(sourceRoot, `${id}-service`, 'openapi.yaml')
-    if (!existsSync(yamlPath)) {
-      fail(`missing spec ${yamlPath}`)
-    }
-    sources.push({ id, text: readFileSync(yamlPath, 'utf8'), label: yamlPath })
-  }
-  return { sources, description: `local sibling checkout at ${sourceRoot}` }
-}
-
-async function loadRemoteSources() {
-  const sources = await Promise.all(
-    SERVICE_IDS.map(async (id) => {
-      const url = `${RAW_BASE}/${ref}/${id}-service/openapi.yaml`
-      let response
-      try {
-        response = await fetch(url)
-      } catch (err) {
-        fail(`fetch failed for ${url}: ${err instanceof Error ? err.message : err}`)
-      }
-      if (!response.ok) {
-        fail(`fetch failed for ${url}: HTTP ${response.status}`)
-      }
-      return { id, text: await response.text(), label: url }
-    }),
-  )
-  return { sources, description: `public microservices repo (raw.githubusercontent.com) at ref "${ref}"` }
+let sources
+let description
+let source
+let ref
+try {
+  ;({ sources, description, source, ref } = await loadSpecSources({
+    repoRoot,
+    argv: process.argv.slice(2),
+    env: process.env,
+  }))
+} catch (err) {
+  fail(err instanceof Error ? err.message : String(err))
 }
 
 // ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
-
-const { sources, description } = source === 'remote' ? await loadRemoteSources() : loadLocalSources()
 
 let build
 try {
@@ -178,9 +102,10 @@ try {
   }
 
   if (!report.clean) {
+    const resyncFlags = source === 'remote' ? ` -- --source remote --ref ${ref}` : ''
     console.log('')
     console.log('The committed snapshot stays authoritative for the deployed site until resynced.')
-    console.log('To resync: run `npm run sync-specs` against an up-to-date microservices checkout')
+    console.log(`To resync: run \`npm run sync-specs${resyncFlags}\``)
     console.log('and commit the resulting diff under src/api-specs/.')
     process.exit(1)
   }
