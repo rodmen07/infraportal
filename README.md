@@ -62,8 +62,8 @@ npm run dev
 | `npm run typecheck` | `tsc --noEmit` |
 | `npm test` | Vitest, single run |
 | `npm run test:coverage` | Vitest with v8 coverage |
-| `npm run sync-specs` | Copy the OpenAPI specs from the microservices repo into `src/api-specs/` |
-| `npm run check-spec-drift` | Fail if the committed specs differ from their source |
+| `npm run sync-specs` | Copy the OpenAPI specs from the microservices repo into `src/api-specs/`. Add `-- --source remote --ref <sha-or-branch>` to fetch them from the public repo instead of a sibling checkout |
+| `npm run check-spec-drift` | Fail if the committed specs differ from their source. Takes the same `--source` / `--ref` flags |
 | `npm run stripe:setup-links` | Bootstrap Stripe products, prices and Payment Links (see below) |
 
 ## Environment configuration
