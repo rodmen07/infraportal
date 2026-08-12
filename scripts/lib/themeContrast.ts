@@ -47,6 +47,7 @@
  */
 import { readFileSync, readdirSync } from 'node:fs'
 import path from 'node:path'
+import postcss from 'postcss'
 import colors from 'tailwindcss/colors.js'
 
 export const ROOT = process.cwd()
@@ -55,7 +56,12 @@ export function stripCssComments(source: string): string {
   return source.replace(/\/\*[\s\S]*?\*\//g, '')
 }
 
-export const INDEX_CSS = stripCssComments(readFileSync(path.join(ROOT, 'src/index.css'), 'utf-8'))
+/** src/index.css exactly as authored. Kept beside the comment-stripped form
+ * because the D-34 discovery below hands it to a real CSS parser, which does
+ * its own comment handling - and does it correctly, which is the point. */
+export const RAW_INDEX_CSS = readFileSync(path.join(ROOT, 'src/index.css'), 'utf-8')
+
+export const INDEX_CSS = stripCssComments(RAW_INDEX_CSS)
 const TOKENS_CSS = stripCssComments(readFileSync(path.join(ROOT, 'src/styles/tokens.css'), 'utf-8'))
 
 /** WCAG AA for normal-size text. Everything this repo paints with a palette
@@ -506,4 +512,140 @@ export function consumersOf(token: string): string[] {
   const escaped = token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
   const pattern = new RegExp(`(^|[\\s'"\`])${escaped}(?=[\\s'"\`]|$)`, 'm')
   return SOURCE_ENTRIES.filter(({ source }) => pattern.test(source)).map(({ rel }) => rel)
+}
+
+/* -------------------------------------------------------------------------
+ * The override sheet's own consumers: the D-34 criterion (v1.28.3).
+ *
+ * Every guard above asks "this class is USED - does index.css cover it?". This
+ * one asks the mirror question, "index.css covers this - does anything still
+ * USE it?", and it is the direction nothing watched. The ratchet in
+ * src/styles/tokens.test.ts bounds the sheet's SIZE, so it cannot tell eleven
+ * dead rules leaving from eleven different dead rules arriving; v1.28.2 paid
+ * that ratchet out (205 -> 194) and recorded the gap in its own ceiling
+ * comment. This is the gap.
+ *
+ * THE CRITERION IS FORM-EXACT, and that is the whole defect class. Tailwind
+ * compiles `hover:border-zinc-600/60` to `.hover\:border-zinc-600\/60:hover`,
+ * a different selector token from the bare `.border-zinc-600\/60`, so a bare
+ * override rule can never match a variant-only consumer. All eleven rules
+ * THEME-VARIANT-ORPHAN-1 retired were bare heads whose only consumers were
+ * variant-prefixed: live-looking, and matching zero elements. `consumersOf`
+ * matches on delimiter boundaries, so asking it for the class name the
+ * SELECTOR spells is exactly the form-exact question.
+ * ---------------------------------------------------------------------- */
+
+export const LIGHT_THEME_ATTR = '[data-theme="light"]'
+
+/**
+ * Every class name a CSS compound selector names, backslash escapes resolved.
+ *
+ * A hand lexer rather than a regex because the two `:` in
+ * `.hover\:bg-zinc-800:hover` mean opposite things - the escaped one is part of
+ * the class NAME, the bare one is a pseudo-class - and so do the two `.` in
+ * `.animate-pulse.bg-zinc-800\/60`. It is a lexer over a string a real CSS
+ * parser already handed us as one selector, never a sweep over a source file.
+ */
+export function classNamesInSelector(selector: string): string[] {
+  const names: string[] = []
+  for (let i = 0; i < selector.length; i += 1) {
+    if (selector[i] !== '.') continue
+    if (i > 0 && selector[i - 1] === '\\') continue
+    let j = i + 1
+    let name = ''
+    while (j < selector.length) {
+      const ch = selector[j]
+      if (ch === '\\') {
+        if (j + 1 >= selector.length) break
+        name += selector[j + 1]
+        j += 2
+        continue
+      }
+      if (/[\s.:[\]>~+,()#*='"]/.test(ch)) break
+      name += ch
+      j += 1
+    }
+    if (name !== '') names.push(name)
+    i = j - 1
+  }
+  return names
+}
+
+/**
+ * Every `[data-theme="light"]` rule head src/index.css declares, one entry per
+ * selector in a selector list, whitespace normalised.
+ *
+ * Parsed with postcss - already a devDependency, already the engine that
+ * compiles this stylesheet - rather than grepped, because this file argues with
+ * itself in prose: it carries CSS comments that QUOTE override rules deleted in
+ * earlier milestones, including `[data-theme="light"] .border-amber-400\/60`,
+ * whose bare form has had no consumer since v1.27.2. A regex sweep resurrects
+ * those comments as rules and reports them as orphans, and a guard that reports
+ * garbage gets deleted (L-031). Measured on this tree: the regex form reads 202
+ * occurrences, 8 of them inside comments; the parser reads 194 real ones.
+ */
+export function lightOverrideSelectors(css: string = RAW_INDEX_CSS): string[] {
+  const found: string[] = []
+  postcss.parse(css, { from: 'src/index.css' }).walkRules((rule) => {
+    for (const selector of rule.selectors) {
+      const normalised = selector.replace(/\s+/g, ' ').trim()
+      if (normalised.includes(LIGHT_THEME_ATTR)) found.push(normalised)
+    }
+  })
+  return found
+}
+
+export const LIGHT_OVERRIDE_SELECTORS = lightOverrideSelectors()
+
+export interface LightOverrideHead {
+  readonly selector: string
+  readonly classNames: readonly string[]
+}
+
+export function lightOverrideHeads(
+  selectors: readonly string[] = LIGHT_OVERRIDE_SELECTORS,
+): LightOverrideHead[] {
+  return selectors.map((selector) => ({ selector, classNames: classNamesInSelector(selector) }))
+}
+
+/**
+ * Heads whose selector NAMES a class the lexer could not read.
+ *
+ * "This selector has no class" and "this selector's class could not be read"
+ * are the same zero, and the second one silently removes a rule from the sweep
+ * below - so the criterion would go quiet exactly when the parse is wrong
+ * (L-069). Attribute selectors are stripped first so a future `[href=".pdf"]`
+ * cannot read as a class.
+ */
+export function unreadableOverrideHeads(
+  heads: readonly LightOverrideHead[] = lightOverrideHeads(),
+): LightOverrideHead[] {
+  return heads.filter(
+    (head) => head.classNames.length === 0 && head.selector.replace(/\[[^\]]*\]/g, '').includes('.'),
+  )
+}
+
+export interface LightOverrideOrphan {
+  readonly selector: string
+  readonly className: string
+}
+
+/**
+ * Every (rule head, class name) pair with no consumer in the exact form the
+ * selector matches.
+ *
+ * `consumers` is injectable so the criterion can be driven over a synthetic
+ * corpus in its own negative control without touching either real source.
+ */
+export function lightOverrideOrphans(
+  heads: readonly LightOverrideHead[] = lightOverrideHeads(),
+  consumers: (token: string) => string[] = consumersOf,
+): LightOverrideOrphan[] {
+  const orphans: LightOverrideOrphan[] = []
+  for (const head of heads) {
+    for (const className of head.classNames) {
+      if (consumers(className).length === 0) orphans.push({ selector: head.selector, className })
+    }
+  }
+  return orphans
 }

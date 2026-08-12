@@ -128,17 +128,24 @@ import {
   compositeOver,
   consumersOf,
   contrastRatio,
+  classNamesInSelector,
   cssVariable,
   hasLightOverride,
   INDEX_CSS,
+  LIGHT_OVERRIDE_SELECTORS,
+  LIGHT_THEME_ATTR,
   lightContrastRatio,
   lightOverrideColor,
+  lightOverrideHeads,
+  lightOverrideOrphans,
   lightOverrideSelectorFor,
+  lightOverrideSelectors,
   lightResolvedColor,
   paletteColorFor,
   parseColorUtility,
   parseCssColor,
   PALETTE_HUES,
+  RAW_INDEX_CSS,
   relativeLuminance,
   type Rgba,
   SOURCE_ENTRIES,
@@ -146,6 +153,7 @@ import {
   SURFACE_NAMES,
   type SurfaceName,
   surfaceBackdrop,
+  unreadableOverrideHeads,
 } from '../../scripts/lib/themeContrast'
 
 /* -------------------------------------------------------------------------
@@ -773,6 +781,139 @@ describe('every focus indicator clears 3:1 in both themes (D-26 + D-29, v1.27.3)
     expect(() => classifyFocusToken(['focus-visible', ['ring', 'amber', '500/30'].join('-')].join(':'))).toThrow(
       /does not know how Tailwind compiles/,
     )
+  })
+})
+
+/* -------------------------------------------------------------------------
+   D-34 (v1.28.3): the mirror direction. Every criterion above asks "this class
+   is used - is it covered?"; this one asks "this rule exists - is it used?",
+   form-exactly. See the criterion's own header in scripts/lib/themeContrast.ts.
+   ------------------------------------------------------------------------- */
+
+const OVERRIDE_HEADS = lightOverrideHeads()
+const OVERRIDE_CLASS_HEADS = OVERRIDE_HEADS.filter((h) => h.classNames.length > 0)
+const OVERRIDE_ELEMENT_HEADS = OVERRIDE_HEADS.filter((h) => h.classNames.length === 0)
+const OVERRIDE_ORPHANS = lightOverrideOrphans(OVERRIDE_HEADS)
+
+/** Every selector SHAPE the live sheet uses, labelled by what it stands for and
+ * asserted to still BE in the live sheet below - a fixture authored beside the
+ * lexer would be drawn from the lexer's own assumptions and agree with its bugs
+ * instead of catching them (L-069). Written as whole class names, which
+ * v1.28.1's content glob made safe for new tests (see testProseLeak.test.ts). */
+const SELECTOR_SHAPES: ReadonlyArray<readonly [string, string, readonly string[]]> = [
+  ['element only, no class to consume', `${LIGHT_THEME_ATTR} body`, []],
+  ['an authored component class', `${LIGHT_THEME_ATTR} .forge-panel`, ['forge-panel']],
+  ['authored class + a real pseudo-class', `${LIGHT_THEME_ATTR} .forge-panel:hover`, ['forge-panel']],
+  ['element qualified by a class', `${LIGHT_THEME_ATTR} pre.code-surface`, ['code-surface']],
+  ['escaped opacity modifier', `${LIGHT_THEME_ATTR} .bg-zinc-900\\/80`, ['bg-zinc-900/80']],
+  [
+    'Tailwind variant: the escaped colon is part of the NAME, the bare one is a pseudo-class',
+    `${LIGHT_THEME_ATTR} .hover\\:border-zinc-600\\/50:hover`,
+    ['hover:border-zinc-600/50'],
+  ],
+  [
+    'a variant compiling to an attribute rather than a pseudo-class',
+    `${LIGHT_THEME_ATTR} .open\\:border-amber-400\\/30[open]`,
+    ['open:border-amber-400/30'],
+  ],
+  [
+    'compound: two classes that must both be on one element',
+    `${LIGHT_THEME_ATTR} .animate-pulse.bg-zinc-800\\/60`,
+    ['animate-pulse', 'bg-zinc-800/60'],
+  ],
+  [
+    'combinators and a functional pseudo-class after the class',
+    `${LIGHT_THEME_ATTR} .divide-zinc-800\\/40 > :not([hidden]) ~ :not([hidden])`,
+    ['divide-zinc-800/40'],
+  ],
+]
+
+describe('every [data-theme="light"] override still has a consumer (D-34, v1.28.3)', () => {
+  it('discovers a real rule list from index.css, and prints it (L-031)', () => {
+    console.log(
+      `[lightOverrideConsumers] ${OVERRIDE_HEADS.length} rule heads, ${OVERRIDE_CLASS_HEADS.length} class-bearing, ` +
+        `${OVERRIDE_ELEMENT_HEADS.length} element-only (${OVERRIDE_ELEMENT_HEADS.map((h) => h.selector).join(', ')}):\n` +
+        OVERRIDE_CLASS_HEADS.map((h) => `  ${h.selector} -> ${h.classNames.join(' + ')}`).join('\n'),
+    )
+    // A zero-match hard failure, and only that: the sheet is deliberately
+    // SHRINKING milestone by milestone (this criterion exists because v1.28.2
+    // took 11 rules out of it), so a floor at today's 194 would redden on the
+    // next legitimate deletion and send the reader to edit the guard instead of
+    // reading the finding (L-090). The upper bound is the ratchet's job.
+    expect(
+      OVERRIDE_HEADS.length,
+      'no [data-theme="light"] rule was parsed out of src/index.css - the discovery has gone blind, not clean',
+    ).toBeGreaterThanOrEqual(1)
+  })
+
+  it('separates "this selector has no class" from "its class could not be read" (L-069)', () => {
+    // Both are zero class names, and the second silently drops a rule from the
+    // sweep below - so the criterion would go quiet exactly when the lexer is
+    // wrong. Element-only heads are outside the criterion STRUCTURALLY: their
+    // consumer is an HTML element, which this scanner does not parse.
+    expect(unreadableOverrideHeads(OVERRIDE_HEADS)).toEqual([])
+    expect(OVERRIDE_CLASS_HEADS.length + OVERRIDE_ELEMENT_HEADS.length).toBe(OVERRIDE_HEADS.length)
+  })
+
+  it.each(OVERRIDE_CLASS_HEADS.map((h) => ({ selector: h.selector, head: h })))(
+    '$selector has a consumer in the form it matches',
+    ({ head }) => {
+      const orphaned = OVERRIDE_ORPHANS.filter((o) => o.selector === head.selector).map((o) => o.className)
+      expect(
+        orphaned,
+        `src/index.css declares "${head.selector}" and no non-test source under src/ uses ` +
+          `${orphaned.map((c) => `"${c}"`).join(' or ')} in that exact form. Tailwind compiles a variant to a ` +
+          'different selector than the bare class, so a bare rule cannot cover a variant-only consumer and vice ' +
+          'versa - that mismatch IS this defect (THEME-VARIANT-ORPHAN-1, 11 rules matching zero elements). Delete ' +
+          'the rule and lower the ratchet in src/styles/tokens.test.ts, or point it at the form really in use. ' +
+          'This criterion has no exemptions by design.',
+      ).toEqual([])
+    },
+  )
+
+  it('reads the shapes off the LIVE sheet, not off its own assumptions (L-069)', () => {
+    for (const [shape, selector, expected] of SELECTOR_SHAPES) {
+      expect(classNamesInSelector(selector), shape).toEqual([...expected])
+      expect(
+        LIGHT_OVERRIDE_SELECTORS,
+        `index.css no longer declares "${selector}" (${shape}). Re-derive this table from the live sheet rather ` +
+          'than keeping a shape the parser was written against.',
+      ).toContain(selector)
+    }
+  })
+
+  it('does not mistake a rule QUOTED IN A COMMENT for a rule (L-031)', () => {
+    // index.css argues with itself in prose: it quotes override rules deleted in
+    // earlier milestones, `.border-amber-400\/60` among them, whose bare form
+    // has had no consumer since v1.27.2. A regex sweep resurrects those and
+    // reports them as orphans - a guard that reports garbage gets deleted.
+    const commented = `${LIGHT_THEME_ATTR} .border-amber-400\\/60`
+    expect(RAW_INDEX_CSS).toContain(commented)
+    expect(LIGHT_OVERRIDE_SELECTORS).not.toContain(commented)
+    expect(consumersOf('border-amber-400/60')).toEqual([])
+    expect(consumersOf('hover:border-amber-400/60').length).toBeGreaterThan(5)
+    // The same count, both ways, on the real file.
+    expect((RAW_INDEX_CSS.match(/\[data-theme="light"\]/g) ?? []).length).toBeGreaterThan(
+      LIGHT_OVERRIDE_SELECTORS.length,
+    )
+    expect((INDEX_CSS.match(/\[data-theme="light"\]/g) ?? []).length).toBe(LIGHT_OVERRIDE_SELECTORS.length)
+  })
+
+  it('the criterion can actually fail, and only on the orphan', () => {
+    // Driven over a synthetic corpus so neither real source is touched: one head
+    // whose class the corpus uses, one whose class it uses only through a
+    // variant - the exact THEME-VARIANT-ORPHAN-1 shape.
+    const heads = lightOverrideHeads([
+      `${LIGHT_THEME_ATTR} .border-zinc-600\\/60`,
+      `${LIGHT_THEME_ATTR} .hover\\:border-zinc-600\\/60:hover`,
+    ])
+    const corpus = 'className="hover:border-zinc-600/60"'
+    const consumers = (token: string) => (new RegExp(`(^|["\\s])${token.replace(/[/\\]/g, '\\$&')}(?=["\\s]|$)`).test(corpus) ? ['synthetic.tsx'] : [])
+    expect(lightOverrideOrphans(heads, consumers)).toEqual([
+      { selector: `${LIGHT_THEME_ATTR} .border-zinc-600\\/60`, className: 'border-zinc-600/60' },
+    ])
+    // And the parser half can fail too: an empty sheet discovers nothing.
+    expect(lightOverrideSelectors('/* [data-theme="light"] .bg-zinc-800 { color: red } */')).toEqual([])
   })
 })
 
