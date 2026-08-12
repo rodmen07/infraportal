@@ -548,7 +548,25 @@ describe('strangler rule: override-sheet rules for tokenized surfaces stay delet
     // tree. The ceiling is lowered by exactly what was retired, the same
     // arithmetic v1.26.3 used, so the ratchet keeps its zero headroom instead of
     // banking two free rules for the next increment to spend silently.
-    const CEILING = 205
+    // 194 after v1.28.2 (D-33) retired the ELEVEN THEME-VARIANT-ORPHAN-1 rules:
+    // bare-form overrides whose class has a live consumer only through a
+    // variant prefix, so the bare rule could never match the variant-compiled
+    // selector and was matching zero elements. Ten are that shape; the
+    // eleventh (a border amber at /60) had already slid into the strictly-
+    // orphaned class when v1.27.2 retired its focus: consumers, which is the
+    // membership change the v1.28 definition pass caught by re-executing the
+    // census instead of inheriting it.
+    //   Measured, not predicted, in BOTH directions: on the compiled artifact
+    // each of the eleven bare selectors occurred exactly ONCE (its own
+    // override head, never a Tailwind-emitted utility), and over the extractor
+    // corpus read out of tailwind.config.js each had zero bare consumers while
+    // ten had variant ones. `remaining` re-read by command on this tree: 205
+    // on origin/main, 194 here. The ceiling is lowered by exactly what left,
+    // the arithmetic v1.26.3 and v1.27.2 both used, so zero headroom holds.
+    //   Note this ratchet is a SPRAWL guard and cannot see the orphan class it
+    // just paid out: nothing here would redden if these eleven came back as
+    // eleven DIFFERENT dead rules. That gap is v1.28.3's (D-34) to close.
+    const CEILING = 194
     const remaining = (INDEX_CSS_RULES.match(/\[data-theme="light"\]/g) ?? []).length
     expect(remaining).toBeLessThanOrEqual(CEILING)
   })

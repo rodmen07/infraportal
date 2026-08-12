@@ -339,7 +339,10 @@ textarea:disabled {
 [data-theme="light"] .bg-zinc-900\/80 { background-color: rgba(255,255,255,0.9) !important; }[data-theme="light"] .bg-zinc-800\/60 { background-color: rgba(0,0,0,0.04) !important; }
 [data-theme="light"] .bg-zinc-800\/70 { background-color: rgba(0,0,0,0.05) !important; }
 [data-theme="light"] .bg-amber-500\/15 { background-color: rgba(245,158,11,0.1) !important; }
-[data-theme="light"] .bg-amber-500\/25 { background-color: rgba(245,158,11,0.15) !important; }
+/* .bg-amber-500/25 override retired (v1.28.2 D-33, THEME-VARIANT-ORPHAN-1):
+   zero bare consumers, so the rule matched nothing. The
+   .hover:bg-amber-500/25:hover variant rule below carries its 9 real
+   consumers and stays. */
 [data-theme="light"] .bg-emerald-950\/20 { background-color: rgba(6,95,70,0.08) !important; }
 
 /* Border overrides */
@@ -482,7 +485,9 @@ textarea:disabled {
 [data-theme="light"] .border-zinc-800\/60  { border-color: rgba(0,0,0,0.08) !important; }
 [data-theme="light"] .border-zinc-700\/60  { border-color: rgba(0,0,0,0.12) !important; }
 [data-theme="light"] .border-zinc-700\/50  { border-color: rgba(0,0,0,0.10) !important; }
-[data-theme="light"] .border-zinc-600\/60  { border-color: rgba(0,0,0,0.14) !important; }
+/* .border-zinc-600/60 override retired (v1.28.2 D-33, THEME-VARIANT-ORPHAN-1):
+   zero bare consumers. The .hover:border-zinc-600/60:hover variant rule below
+   carries its one real consumer (OnboardingChecklist) and stays. */
 [data-theme="light"] .border-zinc-500\/40  { border-color: rgba(0,0,0,0.12) !important; }
 [data-theme="light"] .border-red-500\/30   { border-color: rgba(239,68,68,0.30)    !important; }
 [data-theme="light"] .border-orange-500\/40{ border-color: rgba(249,115,22,0.40)   !important; }
@@ -592,7 +597,9 @@ textarea:disabled {
 [data-theme="light"] .bg-red-500\/10    { background-color: rgba(239,68,68,0.08)  !important; }
 [data-theme="light"] .bg-red-500\/15    { background-color: rgba(239,68,68,0.12) !important; }
 [data-theme="light"] .bg-red-500\/20    { background-color: rgba(239,68,68,0.15) !important; }
-[data-theme="light"] .bg-red-500\/25    { background-color: rgba(239,68,68,0.18) !important; }
+/* .bg-red-500/25 override retired (v1.28.2 D-33, THEME-VARIANT-ORPHAN-1): zero
+   bare consumers. The .hover:bg-red-500/25:hover variant rule below carries its
+   two real consumers and stays. */
 
 /* Backgrounds: emerald / green (status-success family, darkened to the
    emerald-800/green-800 tone like the existing .bg-emerald-950\/20 rule) */
@@ -601,7 +608,9 @@ textarea:disabled {
 [data-theme="light"] .bg-emerald-500\/10 { background-color: rgba(6,95,70,0.08)  !important; } /* named v1.18.4 bug */
 [data-theme="light"] .bg-emerald-500\/15 { background-color: rgba(6,95,70,0.12) !important; }
 [data-theme="light"] .bg-emerald-500\/20 { background-color: rgba(6,95,70,0.15) !important; }
-[data-theme="light"] .bg-emerald-500\/25 { background-color: rgba(6,95,70,0.18) !important; }
+/* .bg-emerald-500/25 override retired (v1.28.2 D-33, THEME-VARIANT-ORPHAN-1):
+   zero bare consumers. The .hover:bg-emerald-500/25:hover variant rule below
+   carries its two real consumers and stays. */
 [data-theme="light"] .bg-emerald-900\/20 { background-color: rgba(6,95,70,0.08) !important; }
 [data-theme="light"] .bg-green-500\/10   { background-color: rgba(22,101,52,0.08) !important; }
 [data-theme="light"] .bg-green-500\/15   { background-color: rgba(22,101,52,0.12) !important; }
@@ -611,7 +620,9 @@ textarea:disabled {
 /* Backgrounds: zinc subtle fills (near-black wash, same tier as the
    existing bg-zinc-800\/* family above) */
 [data-theme="light"] .bg-zinc-500\/15 { background-color: rgba(0,0,0,0.1)   !important; }
-[data-theme="light"] .bg-zinc-600\/60 { background-color: rgba(0,0,0,0.09)  !important; }
+/* .bg-zinc-600/60 override retired (v1.28.2 D-33, THEME-VARIANT-ORPHAN-1): zero
+   bare consumers. The .hover:bg-zinc-600/60:hover variant rule below carries
+   its one real consumer (HomeSections) and stays. */
 [data-theme="light"] .bg-zinc-700\/40 { background-color: rgba(0,0,0,0.03)  !important; }
 [data-theme="light"] .bg-zinc-700\/50 { background-color: rgba(0,0,0,0.04)  !important; }
 /* .bg-zinc-700/60 override retired (v1.19 D11 slice 1): migrated to
@@ -638,12 +649,19 @@ textarea:disabled {
 [data-theme="light"] .border-amber-400\/25 { border-color: rgba(180,100,10,0.3)  !important; }
 [data-theme="light"] .border-amber-400\/30 { border-color: rgba(180,100,10,0.35) !important; } /* named v1.18.4 bug */
 [data-theme="light"] .border-amber-400\/50 { border-color: rgba(180,100,10,0.55) !important; }
-[data-theme="light"] .border-amber-400\/60 { border-color: rgba(180,100,10,0.65) !important; } /* named v1.18.4 bug */
+/* .border-amber-400/60 override retired (v1.28.2 D-33, THEME-VARIANT-ORPHAN-1):
+   zero bare consumers. This is the worked example the variant-state block
+   header below describes; its .hover:border-amber-400/60:hover variant rule
+   carries the primary CTA button's 9 real consumers and stays. */
 [data-theme="light"] .border-amber-500\/20 { border-color: rgba(180,100,10,0.25) !important; }
 [data-theme="light"] .border-amber-500\/25 { border-color: rgba(180,100,10,0.3)  !important; }
 [data-theme="light"] .border-amber-500\/30 { border-color: rgba(180,100,10,0.35) !important; }
 [data-theme="light"] .border-amber-500\/40 { border-color: rgba(180,100,10,0.45) !important; }
-[data-theme="light"] .border-amber-500\/60 { border-color: rgba(180,100,10,0.65) !important; }
+/* .border-amber-500/60 override retired (v1.28.2 D-33, THEME-VARIANT-ORPHAN-1).
+   The one member of the eleven that is STRICTLY orphaned rather than
+   variant-live: v1.27.2 (D-28) retired focus:border-amber-500/60 from every
+   call site, so as of that increment this class has zero consumers in ANY
+   form and no variant rule remains below either. */
 [data-theme="light"] .border-amber-600\/40 { border-color: rgba(180,100,10,0.45) !important; }
 
 /* Borders: already-saturated mid shades pass through unchanged, matching
@@ -661,13 +679,18 @@ textarea:disabled {
 [data-theme="light"] .border-red-500\/40    { border-color: rgba(239,68,68,0.4)   !important; }
 [data-theme="light"] .border-red-500\/50    { border-color: rgba(239,68,68,0.5)   !important; }
 [data-theme="light"] .border-red-500\/60    { border-color: rgba(239,68,68,0.6)   !important; }
-[data-theme="light"] .border-red-500\/70    { border-color: rgba(239,68,68,0.7)   !important; }
+/* .border-red-500/70 override retired (v1.28.2 D-33, THEME-VARIANT-ORPHAN-1):
+   zero bare consumers. The .hover:border-red-500/70:hover variant rule below
+   carries its two real consumers and stays. */
 [data-theme="light"] .border-orange-700\/40 { border-color: rgba(194,65,12,0.4)  !important; }
 
 /* Borders: emerald / green (status-success family), matching the existing
    .border-emerald-500\/30 rule's emerald-800 tone above. */
 [data-theme="light"] .border-emerald-400\/40 { border-color: rgba(6,95,70,0.4)  !important; }
-[data-theme="light"] .border-emerald-400\/60 { border-color: rgba(6,95,70,0.5)  !important; }
+/* .border-emerald-400/60 override retired (v1.28.2 D-33,
+   THEME-VARIANT-ORPHAN-1): zero bare consumers. The
+   .hover:border-emerald-400/60:hover variant rule below carries its two real
+   consumers and stays. */
 [data-theme="light"] .border-emerald-500\/25 { border-color: rgba(6,95,70,0.25) !important; }
 [data-theme="light"] .border-emerald-500\/40 { border-color: rgba(6,95,70,0.4)  !important; }
 [data-theme="light"] .border-emerald-600\/40 { border-color: rgba(6,95,70,0.4)  !important; }
@@ -678,8 +701,14 @@ textarea:disabled {
    (zinc-500 family -> 0.12, zinc-600 family -> 0.14, zinc-700 family ->
    0.08-0.1 scaling with source opacity). */
 [data-theme="light"] .border-zinc-500\/35 { border-color: rgba(0,0,0,0.12) !important; }
-[data-theme="light"] .border-zinc-500\/50 { border-color: rgba(0,0,0,0.12) !important; }
-[data-theme="light"] .border-zinc-500\/60 { border-color: rgba(0,0,0,0.12) !important; }
+/* .border-zinc-500/50 and /60 overrides retired (v1.28.2 D-33,
+   THEME-VARIANT-ORPHAN-1): zero bare consumers for either. Their
+   .hover:border-zinc-500/50:hover and .hover:border-zinc-500/60:hover variant
+   rules below carry the 2 and 14 real consumers respectively and stay. NOTE
+   for anyone diffing the built artifact: these two shared the .border-zinc-500
+   /35 rule's body byte-for-byte and were adjacent, so the minifier had merged
+   all three into ONE grouped rule -- retiring them SHRINKS that group's
+   selector list rather than removing a rule. */
 [data-theme="light"] .border-zinc-600\/30 { border-color: rgba(0,0,0,0.14) !important; }
 [data-theme="light"] .border-zinc-700\/20 { border-color: rgba(0,0,0,0.08) !important; }
 [data-theme="light"] .border-zinc-700\/30 { border-color: rgba(0,0,0,0.09) !important; }
@@ -714,6 +743,16 @@ textarea:disabled {
    map, which enforces (rather than assumes) this file stays in sync: any
    future variant-prefixed opacity class this app starts using must be added
    both there and here, or the test fails loudly instead of silently passing.
+
+   UPDATE 2026-08-12 (v1.28.2, D-33): the paragraph above is preserved as the
+   original finding, but its worked example is now historical - the bare
+   `[data-theme="light"] .border-amber-400\/60` rule it points at no longer
+   exists in this file. That rule, and the ten others whose bare form had no
+   consumer while a variant form did, were retired by v1.28.2; each is marked
+   with a retirement comment where it stood. The reasoning is unchanged and is
+   exactly why they could go: a bare rule cannot match a variant-compiled
+   selector, so it was matching zero elements. The variant rules BELOW this
+   header are the live half of every one of those pairs and must stay.
    --------------------------------------------------------------------------- */
 [data-theme="light"] .hover\:border-amber-400\/40:hover   { border-color: rgba(180,100,10,0.45) !important; }
 [data-theme="light"] .hover\:border-amber-400\/50:hover   { border-color: rgba(180,100,10,0.55) !important; }
