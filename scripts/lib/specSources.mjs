@@ -170,7 +170,17 @@ export function loadLocalSources({ repoRoot, dir, env = {}, serviceIds = SERVICE
 export async function loadRemoteSources({ ref = DEFAULT_REF, serviceIds = SERVICE_IDS, fetchImpl } = {}) {
   const doFetch = fetchImpl ?? fetch
 
-  const sources = await Promise.all(
+  // allSettled, not all: the eleven fetches race, and `Promise.all` rejects
+  // the moment the FIRST one does, while the other ten sockets are still open.
+  // The caller's handler then calls process.exit() on a live event loop, which
+  // on Windows aborts the process --
+  //   Assertion failed: !(handle->flags & UV_HANDLE_CLOSING), src\win\async.c
+  // -- so a bad ref exited 127 with a C assertion instead of the documented
+  // operational-failure code, and named whichever service happened to lose the
+  // race (observed naming spend, activities and audit on three consecutive
+  // runs of the same command). Settling every request first makes the exit
+  // clean and the reported failure deterministic.
+  const settled = await Promise.allSettled(
     serviceIds.map(async (id) => {
       const url = `${RAW_BASE}/${ref}/${id}-service/openapi.yaml`
       let response
@@ -180,6 +190,14 @@ export async function loadRemoteSources({ ref = DEFAULT_REF, serviceIds = SERVIC
         throw new SpecSourceError(`fetch failed for ${url}: ${err instanceof Error ? err.message : err}`)
       }
       if (!response.ok) {
+        // Drain the error body before throwing. An unconsumed response keeps
+        // its socket open, and a still-open handle is the other half of the
+        // Windows abort described above.
+        try {
+          await response.text()
+        } catch {
+          /* nothing left to drain */
+        }
         throw new SpecSourceError(`fetch failed for ${url}: HTTP ${response.status}`)
       }
       const text = await response.text()
@@ -188,8 +206,13 @@ export async function loadRemoteSources({ ref = DEFAULT_REF, serviceIds = SERVIC
     }),
   )
 
+  // Report in serviceIds order so the message does not depend on which
+  // request finished first.
+  const failed = settled.find((result) => result.status === 'rejected')
+  if (failed) throw failed.reason
+
   return {
-    sources,
+    sources: settled.map((result) => result.value),
     description: `public microservices repo (raw.githubusercontent.com) at ref "${ref}"`,
   }
 }

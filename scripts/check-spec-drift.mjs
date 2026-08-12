@@ -49,66 +49,60 @@ const scriptDir = dirname(fileURLToPath(import.meta.url))
 const repoRoot = resolve(scriptDir, '..')
 const committedDir = join(repoRoot, 'src', 'api-specs')
 
-function fail(message) {
-  console.error(`error: ${message}`)
-  process.exit(2)
-}
-
 // ---------------------------------------------------------------------------
-// Source loading (flags, environment and both sources live in specSources.mjs)
+// Main (flags, environment and both sources live in specSources.mjs)
 // ---------------------------------------------------------------------------
 
-let sources
-let description
-let source
-let ref
-try {
-  ;({ sources, description, source, ref } = await loadSpecSources({
+async function main() {
+  const { sources, description, source, ref } = await loadSpecSources({
     repoRoot,
     argv: process.argv.slice(2),
     env: process.env,
-  }))
-} catch (err) {
-  fail(err instanceof Error ? err.message : String(err))
-}
+  })
 
-// ---------------------------------------------------------------------------
-// Main
-// ---------------------------------------------------------------------------
+  const build = buildSnapshotFiles(sources)
 
-let build
-try {
-  build = buildSnapshotFiles(sources)
-} catch (err) {
-  fail(err instanceof Error ? err.message : String(err))
-}
+  const freshDir = mkdtempSync(join(tmpdir(), 'spec-drift-'))
 
-const freshDir = mkdtempSync(join(tmpdir(), 'spec-drift-'))
+  try {
+    for (const [fileName, content] of build.files) {
+      writeFileSync(join(freshDir, fileName), content, 'utf8')
+    }
 
-try {
-  for (const [fileName, content] of build.files) {
-    writeFileSync(join(freshDir, fileName), content, 'utf8')
-  }
+    const report = compareSnapshotDirs(freshDir, committedDir)
 
-  const report = compareSnapshotDirs(freshDir, committedDir)
-
-  console.log('spec drift check')
-  console.log(`  source:      ${description}`)
-  console.log(`  committed:   ${committedDir}`)
-  console.log(`  regenerated: ${freshDir}`)
-  console.log('')
-  for (const line of formatComparisonReport(report)) {
-    console.log(line)
-  }
-
-  if (!report.clean) {
-    const resyncFlags = source === 'remote' ? ` -- --source remote --ref ${ref}` : ''
+    console.log('spec drift check')
+    console.log(`  source:      ${description}`)
+    console.log(`  committed:   ${committedDir}`)
+    console.log(`  regenerated: ${freshDir}`)
     console.log('')
-    console.log('The committed snapshot stays authoritative for the deployed site until resynced.')
-    console.log(`To resync: run \`npm run sync-specs${resyncFlags}\``)
-    console.log('and commit the resulting diff under src/api-specs/.')
-    process.exit(1)
+    for (const line of formatComparisonReport(report)) {
+      console.log(line)
+    }
+
+    if (!report.clean) {
+      const resyncFlags = source === 'remote' ? ` -- --source remote --ref ${ref}` : ''
+      console.log('')
+      console.log('The committed snapshot stays authoritative for the deployed site until resynced.')
+      console.log(`To resync: run \`npm run sync-specs${resyncFlags}\``)
+      console.log('and commit the resulting diff under src/api-specs/.')
+      return 1
+    }
+  } finally {
+    rmSync(freshDir, { recursive: true, force: true })
   }
-} finally {
-  rmSync(freshDir, { recursive: true, force: true })
+
+  return 0
+}
+
+// process.exitCode, never process.exit(): remote mode leaves HTTP sockets
+// closing after a failed fetch, and exiting on a live handle aborts the
+// process on Windows (Assertion failed: !(handle->flags & UV_HANDLE_CLOSING),
+// src\win\async.c) -- which reported 127 and a C assertion instead of the
+// exit codes documented above. Setting the code lets node drain and exit.
+try {
+  process.exitCode = await main()
+} catch (err) {
+  console.error(`error: ${err instanceof Error ? err.message : String(err)}`)
+  process.exitCode = 2
 }

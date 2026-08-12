@@ -47,39 +47,37 @@ const scriptDir = dirname(fileURLToPath(import.meta.url))
 const repoRoot = resolve(scriptDir, '..')
 const outDir = join(repoRoot, 'src', 'api-specs')
 
-function fail(message) {
-  console.error(`error: ${message}`)
-  process.exit(1)
-}
-
-let sources
-let description
-try {
-  ;({ sources, description } = await loadSpecSources({
+async function main() {
+  const { sources, description } = await loadSpecSources({
     repoRoot,
     argv: process.argv.slice(2),
     env: process.env,
-  }))
-} catch (err) {
-  fail(err instanceof Error ? err.message : String(err))
+  })
+
+  const build = buildSnapshotFiles(sources)
+
+  mkdirSync(outDir, { recursive: true })
+
+  console.log(`source: ${description}`)
+
+  for (const service of build.services) {
+    const fileName = specFileName(service.id)
+    writeFileSync(join(outDir, fileName), build.files.get(fileName), 'utf8')
+    console.log(`synced ${service.id}-service (${service.operationCount} operations) -> src/api-specs/${fileName}`)
+  }
+
+  writeFileSync(join(outDir, MANIFEST_FILE_NAME), build.files.get(MANIFEST_FILE_NAME), 'utf8')
+  console.log(`wrote manifest.json (${build.services.length} services, ${build.totalOperations} operations)`)
 }
 
-let build
+// process.exitCode, never process.exit(): remote mode leaves HTTP sockets
+// closing after a failed fetch, and exiting on a live handle aborts the
+// process on Windows (Assertion failed: !(handle->flags & UV_HANDLE_CLOSING),
+// src\win\async.c) -- which reported 127 and a C assertion instead of this
+// script's documented exit code. Setting the code lets node drain and exit.
 try {
-  build = buildSnapshotFiles(sources)
+  await main()
 } catch (err) {
-  fail(err instanceof Error ? err.message : String(err))
+  console.error(`error: ${err instanceof Error ? err.message : String(err)}`)
+  process.exitCode = 1
 }
-
-mkdirSync(outDir, { recursive: true })
-
-console.log(`source: ${description}`)
-
-for (const service of build.services) {
-  const fileName = specFileName(service.id)
-  writeFileSync(join(outDir, fileName), build.files.get(fileName), 'utf8')
-  console.log(`synced ${service.id}-service (${service.operationCount} operations) -> src/api-specs/${fileName}`)
-}
-
-writeFileSync(join(outDir, MANIFEST_FILE_NAME), build.files.get(MANIFEST_FILE_NAME), 'utf8')
-console.log(`wrote manifest.json (${build.services.length} services, ${build.totalOperations} operations)`)

@@ -261,6 +261,39 @@ describe('loadRemoteSources', () => {
     const { impl } = recordingFetch(() => response('', { ok: false, status: 500 }))
     await expect(loadRemoteSources({ fetchImpl: impl })).rejects.toBeInstanceOf(SpecSourceError)
   })
+
+  it('names the FIRST failing service in id order, not whichever request lost the race', async () => {
+    // `accounts` is first in SERVICE_IDS and `spend` is last. Resolving spend's
+    // rejection sooner must not change which one the message names.
+    const slowFirst = (url: string) =>
+      url.includes('accounts-service')
+        ? new Promise((resolve) => setTimeout(() => resolve(response('nope', { ok: false, status: 404 })), 25))
+        : url.includes('spend-service')
+          ? response('nope', { ok: false, status: 404 })
+          : response(specYaml(url))
+    const { impl } = recordingFetch(slowFirst)
+
+    await expect(loadRemoteSources({ ref: 'abc123', fetchImpl: impl })).rejects.toThrow(
+      /fetch failed for .*accounts-service\/openapi\.yaml: HTTP 404/,
+    )
+  })
+
+  it('settles every request before rejecting, so nothing is still in flight at exit', async () => {
+    // The crash this guards against is a process.exit() on a live event loop:
+    // Promise.all rejects with ten sockets still open. Observable here as every
+    // request having been both issued and completed by the time we see the
+    // rejection.
+    let completed = 0
+    const { calls, impl } = recordingFetch(async (url) => {
+      await new Promise((resolve) => setTimeout(resolve, 5))
+      completed += 1
+      return url.includes('audit-service') ? response('nope', { ok: false, status: 404 }) : response(specYaml(url))
+    })
+
+    await expect(loadRemoteSources({ fetchImpl: impl })).rejects.toThrow(/HTTP 404/)
+    expect(calls).toHaveLength(SERVICE_IDS.length)
+    expect(completed).toBe(SERVICE_IDS.length)
+  })
 })
 
 describe('loadSpecSources routing', () => {
