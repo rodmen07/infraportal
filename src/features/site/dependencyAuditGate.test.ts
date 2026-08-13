@@ -45,6 +45,21 @@
  *      The last describe block asserts both directions against the recorded
  *      required-context list.
  *
+ *   5. "non-blocking" stops being true ONE LEVEL UP. Added 2026-08-13
+ *      (ADVISORY-RED-MAIN-1, option (c)). Branch protection could already see
+ *      that the full-tree job blocks no merge, and the Pages deploy is
+ *      `push`-triggered rather than a `workflow_run` consumer, so it blocks no
+ *      deploy either. But while that job ALSO ran on `push` to main, a dev-tree
+ *      advisory would show the `Tests` RUN on main as failed with all five
+ *      required contexts green -- and the run-level colour of `Tests` is what
+ *      every reader treats as "main is green", including autodev's preemption
+ *      ladder, which takes a red main as a tier-1 interrupt. The job is now
+ *      `if: github.event_name != 'push'` and its calendar arm moved to
+ *      `security-audit.yml`'s daily cron. Both halves are asserted, because
+ *      dropping the push arm WITHOUT adding the cron arm is the cheaper edit
+ *      and is a genuine loss of coverage; so is the symmetric mistake of
+ *      silencing the REQUIRED audit on main the same way.
+ *
  * WIDENED 2026-08-08 (DevSecOps). This file used to read exactly one
  * hand-named workflow, `test.yml`. That was correct while `test.yml` held the
  * only `npm audit` line in the repo, and it silently stopped being correct the
@@ -92,11 +107,20 @@ interface WorkflowStep {
 
 interface WorkflowJob {
   name?: string
+  /**
+   * A job-level `if:`. GitHub still CREATES the job for an event the workflow
+   * triggers on and then reports it `skipped`, so this expression — not the
+   * workflow's `on:` block — is what decides whether an advisory audit can
+   * colour a run. It is therefore read as part of the corpus, not ignored.
+   */
+  if?: string
   steps?: WorkflowStep[]
 }
 
 interface WorkflowTriggers {
   schedule?: { cron?: string }[]
+  /** `push:` with no body parses to `null`, which is still a live trigger. */
+  push?: { branches?: string[] } | null
 }
 
 interface Workflow {
@@ -115,6 +139,8 @@ interface AuditStep extends WorkflowStep {
    * property this file can actually assert.
    */
   context: string
+  /** The owning job's `if:` expression, verbatim, or `undefined` if it has none. */
+  jobIf?: string
 }
 
 interface PackageManifest {
@@ -171,6 +197,7 @@ const auditSteps: AuditStep[] = [...WORKFLOWS.entries()].flatMap(
           workflow: file,
           jobId,
           context: job.name ?? jobId,
+          jobIf: job.if,
         })),
     ),
 )
@@ -212,6 +239,62 @@ const isRequiredContext = (context: string) =>
  */
 const isProductionScoped = (step: AuditStep) =>
   /--omit=dev\b/.test(step.run as string)
+
+/**
+ * Does the step's workflow run on `push` at all? `push:` with no body is a live
+ * trigger that parses to `null`, so presence of the KEY is the question, not
+ * truthiness of the value.
+ */
+const workflowRunsOnPush = (file: string) =>
+  'push' in (triggersOf(WORKFLOWS.get(file) as Workflow) as Record<string, unknown>)
+
+/**
+ * The job-level `if:` expressions that provably exclude the `push` event.
+ *
+ * A general GitHub expression cannot be evaluated statically, so this is a
+ * deliberate allow-list of the two forms that are unambiguous, rather than a
+ * substring search for "push" (which `github.event_name == 'push'` — the exact
+ * inverse — would also satisfy). Anything else counts as NOT excluding push:
+ * an unrecognised guard fails closed, which is the direction that reports a
+ * problem instead of hiding one.
+ */
+const PUSH_EXCLUDING_JOB_GUARDS = [
+  "github.event_name != 'push'",
+  "github.event_name == 'pull_request'",
+] as const
+
+/** `${{ github.event_name != 'push' }}` and the bare form normalise the same. */
+const normaliseExpression = (expression: string) =>
+  expression
+    .replace(/^\s*\$\{\{\s*/, '')
+    .replace(/\s*\}\}\s*$/, '')
+    .replace(/\s+/g, ' ')
+    .replace(/"/g, "'")
+    .trim()
+
+const jobExcludesPush = (step: AuditStep) =>
+  step.jobIf !== undefined &&
+  (PUSH_EXCLUDING_JOB_GUARDS as readonly string[]).includes(
+    normaliseExpression(step.jobIf),
+  )
+
+/**
+ * Can this audit step run — and therefore colour the workflow RUN — on a
+ * `push` to main? Both halves matter: the workflow must trigger on push, and
+ * the owning job must not be guarded off it.
+ */
+const isReachableOnPush = (step: AuditStep) =>
+  workflowRunsOnPush(step.workflow) && !jobExcludesPush(step)
+
+/** A cron that fires every day, i.e. `<m> <h> * * *`. */
+const isDailyCron = (cron: unknown) =>
+  typeof cron === 'string' && /^\S+ \S+ \* \* \*$/.test(cron.trim())
+
+/** Does the step's workflow carry a cron that fires daily? */
+const workflowRunsDaily = (file: string) =>
+  (triggersOf(WORKFLOWS.get(file) as Workflow).schedule ?? []).some((entry) =>
+    isDailyCron(entry?.cron),
+  )
 
 /**
  * npm's `--audit-level` scale, least to most severe. The gate must sit at or
@@ -446,6 +529,39 @@ describe('Required npm-audit gate: threshold', () => {
     ).toHaveLength(1)
   })
 
+  it('runs every FULL-TREE npm audit with the SAME command', () => {
+    // The twin of the assertion above, in the other partition, added 2026-08-13
+    // when ADVISORY-RED-MAIN-1 option (c) created a SECOND full-tree invocation
+    // (security-audit.yml's daily arm, replacing the `push`-to-main arm the
+    // test.yml job lost). Until that moment there was exactly one full-tree
+    // audit in the repo and nothing could disagree with it; a partition of size
+    // one needs no parity assertion, which is precisely why forking it is the
+    // moment to write one (L-066: a hand-shaped guard goes silently partial the
+    // instant a sibling appears, and it stays green while doing so).
+    //
+    // The two are edited independently in two files and answer the same
+    // question, so a drift between them would make "the advisory audit is
+    // green" mean two different things depending on which run is being read --
+    // the exact confusion the production twin exists to prevent.
+    const commands = [
+      ...new Set(
+        auditSteps
+          .filter((step) => !isProductionScoped(step))
+          .map((step) => (step.run as string).trim().replace(/\s+/g, ' ')),
+      ),
+    ]
+
+    expect(
+      commands,
+      `the repo's full-tree \`npm audit\` invocations disagree: ${commands
+        .map((command) => JSON.stringify(command))
+        .join(' vs ')}. Discovered in ${auditSteps
+        .filter((step) => !isProductionScoped(step))
+        .map((step) => step.workflow)
+        .join(', ')}. Keep one command, or state here why they must differ.`,
+    ).toHaveLength(1)
+  })
+
   it('holds the full-tree audit to the SAME threshold as the required gate', () => {
     // The two scopes are allowed to differ. The severity floor is not: if the
     // advisory job sat at `high` while the required gate sat at `moderate`,
@@ -535,6 +651,98 @@ describe('Advisory full-tree audit: visible, and structurally non-blocking', () 
         `required status context (${REQUIRED_CONTEXTS.join(', ')}). The ` +
         'merge-blocking dependency gate is gone: an advisory against a SHIPPED ' +
         'package would no longer stop a merge.',
+    ).not.toEqual([])
+  })
+})
+
+describe('Advisory full-tree audit: on the calendar, off the main-push path', () => {
+  // ADVISORY-RED-MAIN-1, closed 2026-08-13 with option (c).
+  //
+  // "Non-blocking" was already true at the two places branch protection can
+  // see: the full-tree job is not a required context, and `Deploy to GitHub
+  // Pages` is `push`-triggered rather than a `workflow_run` consumer of
+  // `Tests`. It was NOT true one level up. While the job also ran on `push` to
+  // main, the first real dev-tree advisory would show the `Tests` RUN on main
+  // as failed with all five required contexts green -- and `Tests` is the
+  // workflow whose run-level colour every reader, human and automated, treats
+  // as "main is green". autodev's preemption ladder takes a red main as a
+  // tier-1 interrupt, so a `typescript` advisory could have claimed a whole
+  // increment: the toolchain veto over delivery that the owner's 2026-08-10
+  // decision was chosen to deny, re-entering above the gate it was denied at.
+  //
+  // The old workflow comment said "read which job failed before treating it as
+  // a broken-main incident". Prose is not a mechanism; this file is.
+  //
+  // The signal is MOVED, not weakened, and that is why both halves are asserted
+  // here. Removing the `push` arm without adding the cron arm would be a real
+  // loss of coverage, and it is the cheaper of the two edits.
+  const fullTreeAudits = auditSteps.filter((step) => !isProductionScoped(step))
+  const productionAudits = auditSteps.filter(isProductionScoped)
+
+  it('sees a `push:` trigger on an auditing workflow', () => {
+    // Vacuity anchor for the trigger parse. If `workflowRunsOnPush` ever stops
+    // finding the key -- a yaml-parser change moving `on:` to the YAML 1.1
+    // boolean `true`, a schema change, a rename -- then "no full-tree audit is
+    // reachable on push" becomes true of everything and passes on an empty set,
+    // which is the same green a correctly guarded repo reports.
+    expect(
+      WORKFLOW_FILES.filter(workflowRunsOnPush),
+      'no discovered workflow declares a `push:` trigger, so the push-reachability ' +
+        'assertions below would pass vacuously. `test.yml` runs on push to main.',
+    ).toContain(TESTS_WORKFLOW_PATH)
+  })
+
+  it('keeps every full-tree audit OFF the `push` path', () => {
+    const onPush = fullTreeAudits
+      .filter(isReachableOnPush)
+      .map(
+        (step) =>
+          `${whereIs(step)} -> job \`if:\` is ${
+            step.jobIf === undefined ? 'absent' : JSON.stringify(step.jobIf)
+          }`,
+      )
+
+    expect(
+      onPush,
+      'a full-tree `npm audit` can run on a `push` event, so a dev-tree ' +
+        'advisory would colour that workflow RUN red on main while every ' +
+        'required context stayed green -- indistinguishable from a broken main ' +
+        'to any reader that does not open the run. Guard the job with one of ' +
+        `${PUSH_EXCLUDING_JOB_GUARDS.map((guard) => `\`${guard}\``).join(' or ')}` +
+        ', or move it to a workflow that does not trigger on push. The daily ' +
+        `arm in ${SCHEDULED_AUDIT_WORKFLOW_PATH} is what replaces the cadence.`,
+    ).toEqual([])
+  })
+
+  it('keeps a production audit ON the `push` path', () => {
+    // The symmetric direction, and the one a future "just make main green"
+    // edit would break: copying `if: github.event_name != 'push'` onto the
+    // `test` job would silence the REQUIRED, merge-blocking audit on main too,
+    // and would look like the same one-line fix in review.
+    expect(
+      productionAudits.filter(isReachableOnPush).map(whereIs),
+      'no `npm audit --omit=dev` step can run on a `push` event any more. The ' +
+        'advisory audit was moved off the push path on purpose (ADVISORY-RED-MAIN-1, ' +
+        '2026-08-13); the REQUIRED production gate was not, and must still run ' +
+        'when a commit lands on main.',
+    ).not.toEqual([])
+  })
+
+  it('audits the FULL tree on a daily cron', () => {
+    // Losing the `push`-to-main arm costs real calendar coverage unless
+    // something replaces it. Note the direction of the trade: `push` fired on
+    // OUR commit rate (measured 2026-08-08: gaps up to 76.0 h between advisory
+    // checks on main), a daily cron fires on the calendar, so this is a
+    // tightening rather than a swap.
+    const daily = fullTreeAudits.filter((step) => workflowRunsDaily(step.workflow))
+
+    expect(
+      daily.map(whereIs),
+      'no workflow running a FULL-TREE `npm audit` carries a daily `cron:`. ' +
+        'Since 2026-08-13 the full-tree audit no longer runs on `push` to main, ' +
+        `so ${SCHEDULED_AUDIT_WORKFLOW_PATH}'s cron is the ONLY thing bounding ` +
+        'how long a dev-tree advisory can sit unreported between pull requests. ' +
+        'Restore the daily arm rather than deleting this assertion.',
     ).not.toEqual([])
   })
 })

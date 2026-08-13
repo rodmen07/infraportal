@@ -42,18 +42,48 @@ jobs:
   # green while finding advisories, which is an inert surface, not a
   # non-blocking one — the distinction this whole item is about.
   #
-  # OPERATIONAL NOTE: because this job also runs on `push` to main, a dev-tree
-  # advisory will show the `Tests` workflow RUN as failed on main while all five
-  # required contexts stay green. That is a TRIAGE signal, not a broken-main
-  # incident: read which job failed before treating it as one.
+  # WHY THE `if:` BELOW (ADVISORY-RED-MAIN-1, 2026-08-13, option (c)) ────────
+  #
+  # This job used to run on `push` to main as well, and the note here used to
+  # read:
+  #
+  #   "OPERATIONAL NOTE: because this job also runs on `push` to main, a
+  #    dev-tree advisory will show the `Tests` workflow RUN as failed on main
+  #    while all five required contexts stay green. That is a TRIAGE signal,
+  #    not a broken-main incident: read which job failed before treating it as
+  #    one."
+  #
+  # That note was correct and it was not a mechanism. `Tests` is THE workflow
+  # whose run-level colour every human and every automated reader treats as
+  # "main is green"; autodev's own preemption ladder reads a red main as a
+  # tier-1 interrupt. So the first real dev-tree advisory would have coloured
+  # main red and claimed an increment — handing the toolchain the veto over
+  # delivery that the owner's DEP-AUDIT-SCOPE-1 decision (option (b),
+  # 2026-08-10) was chosen to deny, one level up from branch protection.
+  #
+  # The advisory signal is not weakened, it is MOVED. It still runs here on
+  # every pull request, and the calendar arm it lost on `push` is replaced by a
+  # second job on `.github/workflows/security-audit.yml`'s daily 24 h cron,
+  # which audits the same full tree with the same command. Net cadence is
+  # BETTER, not worse: `push` to main fired on our commit rate (measured gaps
+  # up to 76.0 h), the cron fires every day.
+  #
+  # `!= 'push'` rather than `== 'pull_request'` so a `workflow_dispatch` run can
+  # still exercise this job on demand; the only event being dropped is the one
+  # that colours main.
   #
   # Guarded by src/features/site/dependencyAuditGate.test.ts, which discovers
   # every `npm audit` invocation in every workflow, holds each to the same
-  # severity floor, and asserts this one lives outside the required-context jobs
-  # while the `--omit=dev` gate stays inside one.
+  # severity floor, asserts this one lives outside the required-context jobs
+  # while the `--omit=dev` gate stays inside one, and — since 2026-08-13 —
+  # asserts no full-tree audit is reachable on a `push` run while the full tree
+  # is still audited on a daily cron somewhere.
   audit-full-tree:
     runs-on: ubuntu-latest
     name: Full-tree audit (advisory)
+    # Never on `push`: a dev-tree advisory must not colour `Tests` on main.
+    # The daily arm lives in security-audit.yml.
+    if: github.event_name != 'push'
     permissions:
       contents: read
     steps:
