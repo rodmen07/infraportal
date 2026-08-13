@@ -33,12 +33,32 @@ name: Scheduled security audit
 # daily cron there would also inject schedule-event runs into the history of
 # `Unit Tests`, a REQUIRED status context. This job installs and audits only.
 #
+# ─── Two scopes on this cron, since 2026-08-13 (ADVISORY-RED-MAIN-1, opt. (c)) ──
+#
+# This workflow used to carry only the PRODUCTION (`--omit=dev`) audit, because
+# the full-tree advisory audit added by DEP-AUDIT-SCOPE-1 lived in test.yml and
+# ran on `push` to main, which gave it a calendar arm of sorts. It also gave a
+# dev-tree advisory the power to turn the `Tests` run on main red while all five
+# required contexts stayed green — a triage signal that reads identically to a
+# broken main, and that autodev's preemption ladder would take as a tier-1
+# interrupt. test.yml's job is now `if: github.event_name != 'push'`, so that
+# cannot happen; the daily coverage it lost is the second job below.
+#
+# The two jobs are deliberately SEPARATE jobs rather than two steps in one:
+#
+#   - steps stop at the first failure, so a production advisory would silently
+#     skip the full-tree step — the audit would go missing exactly when the tree
+#     is known to be dirty;
+#   - the check names then say which SCOPE failed without opening the log.
+#
 # ─── What guards this file ──────────────────────────────────────────────────────
 #
 # src/features/site/dependencyAuditGate.test.ts discovers every `npm audit`
 # invocation across ALL workflow files (glob, not a hand-written list) and holds
-# each one to the same floor, so the command below cannot drift looser than the
-# required gate's without that suite going red.
+# each one to the same floor, so the commands below cannot drift looser than the
+# required gate's without that suite going red. Since 2026-08-13 it also asserts
+# that SOME full-tree audit sits on a daily cron and that NO full-tree audit is
+# reachable on a `push` run, which is the pair of properties option (c) is.
 
 on:
   schedule:
@@ -104,3 +124,51 @@ jobs:
         # removal leaves a detached subtree executable, causing XSS") sat in a
         # DIRECT production dependency while that step still exited 0.
         run: npm audit --omit=dev --audit-level=moderate
+
+  audit-full-tree:
+    name: Scheduled full-tree audit (advisory)
+    runs-on: ubuntu-latest
+
+    # Same least-privilege posture as the job above: read the lockfile, report
+    # through this job's own conclusion, write nothing.
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Audit the full dependency tree
+        # IDENTICAL to test.yml's "Audit the full dependency tree" step, and
+        # held identical by dependencyAuditGate.test.ts's full-tree parity
+        # assertion — the mirror of the one that already holds the two
+        # `--omit=dev` invocations to one command. Two full-tree audits that
+        # disagree would make "the advisory audit is green" mean two different
+        # things depending on which run you happen to read, which is exactly
+        # the confusion the production-scope parity assertion was written for.
+        #
+        # No `--omit=dev`: that omission IS the point of this job. It sees the
+        # devDependencies tree — build tools, the type-checker, the test runner
+        # — which the required gate is structurally incapable of reporting on.
+        run: npm audit --audit-level=moderate
+
+      - name: Explain a failure
+        # Deliberately avoids the literal token this job's own guard scans for:
+        # dependencyAuditGate.test.ts discovers audit steps by matching
+        # `npm audit` in `run:`, so prose naming the command would be parsed as
+        # another audit invocation with no `--audit-level`.
+        if: failure()
+        run: |
+          echo "::warning::The full-tree dependency audit found a moderate+ advisory outside the shipped tree."
+          echo "::warning::This job is NOT a required status check and blocks no merge and no deploy (DEP-AUDIT-SCOPE-1, owner decision 2026-08-10)."
+          echo "::warning::Triage it: fix, or record an accepted risk with its advisory id in the infraportal backlog."
+        shell: bash

@@ -114,6 +114,20 @@ context: it makes dev-tool advisories visible without letting a toolchain
 advisory block delivery of the app (DEP-AUDIT-SCOPE-1, owner decision
 2026-08-10). A red there is a triage item, not a broken build.
 
+That job runs on **pull requests only**. `.github/workflows/security-audit.yml`
+carries the calendar arm: a daily cron auditing **both** scopes in two jobs,
+`Scheduled security audit` (`--omit=dev`) and `Scheduled full-tree audit
+(advisory)` (whole tree). Neither is a required context either.
+
+(Until 2026-08-13 the advisory job also ran on pushes to `main`, and this block
+read: *"A red there is a triage item, not a broken build."* — which was true and
+was not a mechanism. A dev-tree advisory would have shown the whole **Tests**
+run on `main` as failed while all five required contexts stayed green, which is
+indistinguishable from a broken `main` to anyone who does not open the run.
+ADVISORY-RED-MAIN-1 moved the cadence to the daily cron instead of relying on
+the note. The push arm fired on our commit rate — measured gaps of up to 76 h —
+so the daily cron is a tightening, not a swap.)
+
 (This block read `--audit-level=high` until 2026-08-10. The threshold moved to
 `moderate` in PR #137 on 2026-08-07, after GHSA-55q2-fjhq-7xh7 — a moderate XSS
 in dompurify, the app's only HTML sanitiser — sat in a direct production
