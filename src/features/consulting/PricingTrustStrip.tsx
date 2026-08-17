@@ -20,13 +20,18 @@
 // container plus a repo-wide sweep that fails any class-string literal
 // setting a divide width without a divide colour.
 
+import { SHIPPED_MICROSERVICE_COUNT } from '../topology/topologyModel'
+
 interface TrustStat {
   value: string
   label: string
 }
 
 const STATS: TrustStat[] = [
-  { value: '16', label: 'services shipped' },
+  // Derived from the topology model, the single source of this count
+  // (TOPOLOGY-1); it also feeds the home proof strip and the case-studies
+  // page header.
+  { value: String(SHIPPED_MICROSERVICE_COUNT), label: 'services shipped' },
   { value: 'GCP + AWS', label: 'multi-cloud' },
   { value: 'SOC 2', label: 'compliance-ready' },
   { value: '< 1 day', label: 'response time' },

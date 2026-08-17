@@ -1,9 +1,9 @@
 // The one platform-health endpoint this site reads.
 //
-// Two surfaces consume it now (the `#/status` board and the home-page proof
-// tile), so the URL lives here rather than being re-derived per caller: a
-// duplicated base URL is exactly the kind of pair that drifts silently when
-// one copy is updated and the other is not.
+// Three surfaces consume it now (the `#/status` board, the home-page proof
+// tile, and the case-studies topology diagram), so the URL lives here rather
+// than being re-derived per caller: a duplicated base URL is exactly the kind
+// of pair that drifts silently when one copy is updated and the other is not.
 
 /** Gateway origin, overridable per-environment, never with a trailing slash. */
 export const GATEWAY_URL = (

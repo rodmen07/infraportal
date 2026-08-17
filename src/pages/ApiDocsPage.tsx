@@ -1,6 +1,7 @@
 import { PageLayout } from './PageLayout'
 import { SPEC_SERVICES, SPEC_MANIFEST, TOTAL_OPERATIONS } from '../api-specs'
 import { ApiSpecExplorer } from '../features/apiDocs/ApiSpecExplorer'
+import { ApiSurfaceChart } from '../features/apiDocs/ApiSurfaceChart'
 import { EXECUTABLE_OPERATION_COUNT } from '../lib/tryItAdapter.mock'
 import { DataTable, DataTableBody, DataTableHead, DataTableRow } from '../components/ui/DataTable'
 
@@ -55,6 +56,9 @@ export function ApiDocsPage() {
             </a>
           </div>
         </div>
+
+        {/* API surface map (API-SURFACE-1) */}
+        <ApiSurfaceChart />
 
         {/* Auth Callout */}
         <div className="forge-panel surface-card-strong border-l-4 border-accent-line p-5">

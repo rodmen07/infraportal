@@ -74,6 +74,7 @@ const THEMED_ROLE_VARIABLES = [
   '--surface-hover',
   '--border-soft',
   '--border-strong',
+  '--diagram-ink',
   '--text-primary',
   '--text-secondary',
   '--text-muted',
