@@ -3,7 +3,7 @@
   "info": {
     "title": "search-service API",
     "version": "1.16.1",
-    "description": "Platform search index for the InfraPortal CRM. Rust (axum 0.8) with\nPostgreSQL persistence and an optional read replica: when\nDATABASE_REPLICA_URL is set, search, list, and get queries run on the\nreplica pool while indexing writes and the health ping run on the primary.\nPeer services (accounts-service and the other CRM services) push documents\ninto this index on entity create, update, and delete, fire-and-forget.\n\nThis spec documents the API contract as implemented in code\n(src/lib/router.rs, src/lib/handlers/, src/lib/models.rs, src/lib/auth.rs).\nRuntime status is not asserted in this document: the deployed base URL is\nlisted under `servers` below, and live per-service health is published on\nthe platform status board at https://rodmen07.github.io/infraportal/#/status.\n\nAuthentication: every /api/v1 route validates a bearer JWT in the handler.\nAs of 2026-07-18 this service is authenticated but NOT role-gated on main:\nthe decoded roles claim is never checked, so any valid token can read and\nwrite the search index, and this service never returns 403. The planned\ngating (admin or service role required) is not yet implemented.\n\nError envelope: service-generated errors use the ApiError shape\n{\"code\", \"message\", \"details?\"}; this service never populates details.\nFramework-generated rejections (malformed JSON, JSON body that fails\ndeserialization, missing or invalid query parameters) are produced by axum\nbefore the handler runs, which means before the auth check, and have\ntext/plain bodies; they are documented per operation below.\n\nRate limiting: enforced at the platform gateway (go-gateway, shipped in\nv1.10), not in this service. The gateway sets X-RateLimit-Limit,\nX-RateLimit-Remaining, and X-RateLimit-Reset on every proxied response and\nadds Retry-After on 429. Platform tiers: auth routes 5 rps, write routes\n30 rps, read routes 60 rps, per client IP per route. Requests sent directly\nto the service bypass the gateway and carry none of these headers.\n",
+    "description": "Platform search index for the InfraPortal CRM. Rust (axum 0.8) with\nPostgreSQL persistence and an optional read replica: when\nDATABASE_REPLICA_URL is set, search, list, and get queries run on the\nreplica pool while indexing writes and the health ping run on the primary.\nPeer services (accounts-service and the other CRM services) push documents\ninto this index on entity create, update, and delete, fire-and-forget.\n\nThis spec documents the API contract as implemented in code\n(src/lib/router.rs, src/lib/handlers/, src/lib/models.rs, src/lib/auth.rs).\nRuntime status is not asserted in this document: the deployed base URL is\nlisted under `servers` below, and live per-service health is published on\nthe platform status board at https://rodmen07.github.io/infraportal/#/status.\n\nAuthentication and authorization: every /api/v1 route validates a bearer\nJWT in the handler and then checks the roles claim. The gate has two tiers.\nThe query, read, update-by-id and delete-by-id routes require the \"admin\"\nrole, the same gate the sibling CRM services apply. The two WRITE-THROUGH\nroutes — POST /api/v1/search/documents and\nDELETE /api/v1/search/documents/by-entity/{entity_id}, which the CRM\nservices call fire-and-forget when an entity changes — require \"admin\" OR\n\"service\", so a machine identity can keep the index in sync without being\nan administrator. A missing, malformed, or invalid token receives 401; a\nvalid token whose roles claim does not carry the role the route requires\nreceives 403 with code FORBIDDEN and message \"admin role required\" or\n\"admin or service role required\" respectively. The health and readiness\nprobes are unauthenticated.\n\nError envelope: service-generated errors use the ApiError shape\n{\"code\", \"message\", \"details?\"}; this service never populates details.\nFramework-generated rejections (malformed JSON, JSON body that fails\ndeserialization, missing or invalid query parameters) are produced by axum\nbefore the handler runs, which means before the auth check, and have\ntext/plain bodies; they are documented per operation below.\n\nRate limiting: enforced at the platform gateway (go-gateway, shipped in\nv1.10), not in this service. The gateway sets X-RateLimit-Limit,\nX-RateLimit-Remaining, and X-RateLimit-Reset on every proxied response and\nadds Retry-After on 429. Platform tiers: auth routes 5 rps, write routes\n30 rps, read routes 60 rps, per client IP per route. Requests sent directly\nto the service bypass the gateway and carry none of these headers.\n",
     "contact": {
       "name": "InfraPortal platform"
     }
@@ -29,11 +29,11 @@
     },
     {
       "name": "Search",
-      "description": "Query the search index. Requires a bearer JWT; no role check is\nperformed on main as of 2026-07-18.\n"
+      "description": "Query the search index. Requires a bearer JWT whose roles claim includes\nadmin.\n"
     },
     {
       "name": "Documents",
-      "description": "Document index CRUD, used by peer services to keep the index in sync.\nRequires a bearer JWT; no role check is performed on main as of\n2026-07-18.\n"
+      "description": "Document index CRUD, used by peer services to keep the index in sync.\nRequires a bearer JWT whose roles claim includes admin, except for the\ntwo write-through routes (POST /api/v1/search/documents and\nDELETE /api/v1/search/documents/by-entity/{entity_id}), which also admit\nthe service role that peer services carry.\n"
     }
   ],
   "security": [
@@ -204,6 +204,9 @@
           "401": {
             "$ref": "#/components/responses/Unauthorized"
           },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
           "429": {
             "$ref": "#/components/responses/RateLimited"
           },
@@ -268,6 +271,9 @@
           },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
           },
           "429": {
             "$ref": "#/components/responses/RateLimited"
@@ -345,6 +351,9 @@
           "401": {
             "$ref": "#/components/responses/Unauthorized"
           },
+          "403": {
+            "$ref": "#/components/responses/ForbiddenWriteThrough"
+          },
           "422": {
             "$ref": "#/components/responses/UnprocessableEntity"
           },
@@ -411,6 +420,9 @@
           },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
           },
           "404": {
             "$ref": "#/components/responses/NotFound"
@@ -491,6 +503,9 @@
           "401": {
             "$ref": "#/components/responses/Unauthorized"
           },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
           "404": {
             "$ref": "#/components/responses/NotFound"
           },
@@ -529,6 +544,9 @@
           },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
           },
           "404": {
             "$ref": "#/components/responses/NotFound"
@@ -580,6 +598,9 @@
           "401": {
             "$ref": "#/components/responses/Unauthorized"
           },
+          "403": {
+            "$ref": "#/components/responses/ForbiddenWriteThrough"
+          },
           "429": {
             "$ref": "#/components/responses/RateLimited"
           },
@@ -596,7 +617,7 @@
         "type": "http",
         "scheme": "bearer",
         "bearerFormat": "JWT",
-        "description": "Bearer JWT issued by auth-service. Validated in-handler with HS256 by\ndefault (AUTH_JWT_ALGORITHM also accepts HS384, HS512, RS256, RS384,\nRS512; RS variants read a PEM public key from AUTH_JWT_PUBLIC_KEY).\nThe token must carry an exp claim and an iss claim matching\nAUTH_ISSUER (default \"auth-service\"). The sub claim identifies the\ncaller and is logged as the actor. The roles claim (array of strings,\ndefaults to empty) is decoded but NOT checked by any route on main\nas of 2026-07-18: any valid token can call every /api/v1\nroute, and 403 is never returned. Planned gating (admin or service\nrole) is not yet implemented.\n"
+        "description": "Bearer JWT issued by auth-service. Validated in-handler with HS256 by\ndefault (AUTH_JWT_ALGORITHM also accepts HS384, HS512, RS256, RS384,\nRS512; RS variants read a PEM public key from AUTH_JWT_PUBLIC_KEY).\nThe token must carry an exp claim and an iss claim matching\nAUTH_ISSUER (default \"auth-service\"). The sub claim identifies the\ncaller and is logged as the actor. The roles claim (array of strings,\ndefaults to empty, matched case-insensitively) is ENFORCED: every\n/api/v1 route requires \"admin\", except the two write-through routes\n(POST /api/v1/search/documents and\nDELETE /api/v1/search/documents/by-entity/{entity_id}), which accept\n\"admin\" or \"service\". A token carrying neither receives 403.\n"
       }
     },
     "schemas": {
@@ -838,6 +859,56 @@
                   "message": "token validation failed"
                 }
               }
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "Token is valid but its roles claim does not include admin.",
+        "headers": {
+          "X-RateLimit-Limit": {
+            "$ref": "#/components/headers/XRateLimitLimit"
+          },
+          "X-RateLimit-Remaining": {
+            "$ref": "#/components/headers/XRateLimitRemaining"
+          },
+          "X-RateLimit-Reset": {
+            "$ref": "#/components/headers/XRateLimitReset"
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ApiError"
+            },
+            "example": {
+              "code": "FORBIDDEN",
+              "message": "admin role required"
+            }
+          }
+        }
+      },
+      "ForbiddenWriteThrough": {
+        "description": "Token is valid but its roles claim includes neither admin nor service.\nThis is the write-through tier: peer CRM services call these two routes\nwith a service identity, so the gate admits either role.\n",
+        "headers": {
+          "X-RateLimit-Limit": {
+            "$ref": "#/components/headers/XRateLimitLimit"
+          },
+          "X-RateLimit-Remaining": {
+            "$ref": "#/components/headers/XRateLimitRemaining"
+          },
+          "X-RateLimit-Reset": {
+            "$ref": "#/components/headers/XRateLimitReset"
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ApiError"
+            },
+            "example": {
+              "code": "FORBIDDEN",
+              "message": "admin or service role required"
             }
           }
         }
