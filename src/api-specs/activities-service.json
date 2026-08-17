@@ -198,7 +198,7 @@
           "Activities"
         ],
         "summary": "Create an activity",
-        "description": "Creates an activity owned by the caller (owner_id is taken from the\nJWT sub claim). activity_type and subject are trimmed and must be\nnon-empty; violations return 422 with the ApiError envelope. notes and\ndue_at are stored verbatim (not trimmed) and default to null.\ncompleted is always false at creation and cannot be set here.\n\nIf account_id is provided it is verified against accounts-service\n(GET /api/v1/accounts/{id}, forwarding the caller's Authorization\nheader); likewise contact_id against contacts-service. A failed lookup\nreturns 422 with code INVALID_ACCOUNT or INVALID_CONTACT. When the\nACCOUNTS_SERVICE_URL or CONTACTS_SERVICE_URL environment variable is\nunset the corresponding check is skipped entirely (fail-open); when it\nis set but the HTTP call errors, the check fails closed and returns\n422.\n\nOn success the service also emits an activity.created platform event,\nindexes the activity in search-service (both fire-and-forget), and\nemits an audit event. Write tier: 30 rps at the gateway.\n",
+        "description": "Creates an activity owned by the caller (owner_id is taken from the\nJWT sub claim). activity_type and subject are trimmed and must be\nnon-empty; violations return 422 with the ApiError envelope. notes and\ndue_at are stored verbatim (not trimmed) and default to null.\ncompleted is always false at creation and cannot be set here.\n\nIf account_id is provided it is verified against accounts-service\n(GET /api/v1/accounts/{id}, forwarding the caller's Authorization\nheader); likewise contact_id against contacts-service. The peer's\nanswer decides the status, and the three failure modes are distinct:\na 404 from the peer means the id is wrong and returns 422 with code\nINVALID_ACCOUNT or INVALID_CONTACT; a peer that cannot be reached at\nall (connection refused, DNS or TLS failure, or the 5s client timeout\nexpiring) returns 503 UPSTREAM_UNAVAILABLE, which is retryable and\ndoes not mean the id is wrong; any other non-2xx answer from the peer\n(for example a 403 refusing the forwarded token) returns 502\nUPSTREAM_REJECTED with the peer's own status in details.\nWhen the ACCOUNTS_SERVICE_URL or CONTACTS_SERVICE_URL environment\nvariable is unset or blank the corresponding check is skipped entirely\n(fail-open) and none of the three applies.\n\nOn success the service also emits an activity.created platform event,\nindexes the activity in search-service (both fire-and-forget), and\nemits an audit event. Write tier: 30 rps at the gateway.\n",
         "operationId": "createActivity",
         "requestBody": {
           "required": true,
@@ -271,7 +271,7 @@
             "$ref": "#/components/responses/Forbidden"
           },
           "422": {
-            "description": "Two distinct producers share this status. Handler validation\nfailures return the ApiError envelope (application/json):\nVALIDATION_ERROR for a blank activity_type or subject,\nINVALID_ACCOUNT or INVALID_CONTACT when a referenced record fails\nthe cross-service existence check. Separately, a syntactically\nvalid JSON body that fails deserialization (for example a missing\nrequired field) is rejected by the axum Json extractor before the\nhandler runs, with a text/plain body.\n",
+            "description": "Two distinct producers share this status. Handler validation\nfailures return the ApiError envelope (application/json):\nVALIDATION_ERROR for a blank activity_type or subject,\nINVALID_ACCOUNT or INVALID_CONTACT when the peer service answers\n404 for a referenced record. A cross-service check that could not\nreach the peer, or that got a non-404 error from it, is NOT this\nstatus: see 502 and 503 below. Separately, a syntactically\nvalid JSON body that fails deserialization (for example a missing\nrequired field) is rejected by the axum Json extractor before the\nhandler runs, with a text/plain body.\n",
             "content": {
               "application/json": {
                 "schema": {
@@ -337,6 +337,43 @@
           },
           "500": {
             "$ref": "#/components/responses/InternalError"
+          },
+          "502": {
+            "description": "A referenced account_id or contact_id could not be validated\nbecause the peer service answered with a status that is neither\n2xx nor 404 — most often a 403 refusing this service's forwarded\ntoken, which is a platform misconfiguration rather than a client\nerror. details.upstream_status carries the peer's own status. The\nsubmitted id may be perfectly valid; this is not a validation\nfailure and retrying the same body will not help until the peer is\nfixed.\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                },
+                "example": {
+                  "code": "UPSTREAM_REJECTED",
+                  "message": "accounts-service refused the validation request for account_id",
+                  "details": {
+                    "field": "account_id",
+                    "upstream": "accounts-service",
+                    "upstream_status": 403
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A referenced account_id or contact_id could not be validated\nbecause the peer service could not be reached at all (connection\nrefused, DNS or TLS failure, or the 5s client timeout expiring on\na cold instance). Retryable: nothing about the submitted body is\nknown to be wrong.\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                },
+                "example": {
+                  "code": "UPSTREAM_UNAVAILABLE",
+                  "message": "accounts-service could not be reached to validate account_id",
+                  "details": {
+                    "field": "account_id",
+                    "upstream": "accounts-service"
+                  }
+                }
+              }
+            }
           }
         }
       }
