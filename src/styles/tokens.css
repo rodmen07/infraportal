@@ -72,6 +72,14 @@
   --border-soft: rgba(113, 113, 122, 0.38);   /* zinc-500/38 - default card border */
   --border-strong: rgba(161, 161, 170, 0.55); /* zinc-400/55 - hover / emphasis border */
 
+  /* Diagram line ink (TOPOLOGY-1). Meaning-carrying strokes in the topology
+     SVG: edges, arrowheads, legend swatches. Distinct from --border-strong,
+     which is tuned as a 1px box border and composites under the 3:1 WCAG
+     1.4.11 bar when promoted to standalone line ink (2.93:1 dark, 1.99:1
+     light on the card). These values composite to >=3.3:1 on --surface-1 in
+     both themes; measured by src/styles/diagramInkToken.test.ts. */
+  --diagram-ink: rgba(161, 161, 170, 0.62); /* zinc-400/62 */
+
   /* Text */
   --text-primary: #f4f4f5;              /* zinc-100 */
   --text-secondary: rgb(212, 212, 216); /* zinc-300 */
@@ -172,6 +180,7 @@
 
   --border-soft: rgba(0, 0, 0, 0.13);
   --border-strong: rgba(0, 0, 0, 0.28);
+  --diagram-ink: rgba(0, 0, 0, 0.45);
 
   --text-primary: #18181b;       /* zinc-900 */
   --text-secondary: #27272a;     /* zinc-800 */

@@ -2,6 +2,8 @@ import { PageLayout } from './PageLayout'
 import { PageHeader } from '../features/site/PageHeader'
 import { CaseStudyCard } from '../features/consulting/CaseStudyCard'
 import { MedallionDemo } from '../features/site/MedallionDemo'
+import { PlatformTopology } from '../features/topology/PlatformTopology'
+import { SHIPPED_MICROSERVICE_COUNT } from '../features/topology/topologyModel'
 import { ContactCTA } from '../features/site/ContactCTA'
 import { useCaseStudiesContent } from '../features/consulting/useCaseStudiesContent'
 import { RECURRING_COST_PHRASE } from '../features/site/platformCost'
@@ -17,7 +19,9 @@ export function CaseStudiesPage() {
         title="Case Studies"
         subtitle={<p className="text-base font-semibold text-text-primary">{intro}</p>}
         stats={[
-          { value: '16', label: 'Microservices' },
+          // Derived from the topology model, the single source of this count
+          // (it also feeds the home proof strip and the pricing trust strip).
+          { value: String(SHIPPED_MICROSERVICE_COUNT), label: 'Microservices' },
           { value: '4+', label: 'Languages' },
           { value: 'Multi', label: 'Cloud' },
         ]}
@@ -51,6 +55,21 @@ export function CaseStudiesPage() {
           <p className="mt-1 text-sm text-text-muted">Bronze → Silver → Gold medallion transform over the live NIST NVD CVE feed, running right here in your browser.</p>
         </div>
         <MedallionDemo defaultLayer="gold" />
+      </section>
+
+      <section className="space-y-3">
+        <div>
+          <h2 className="text-base font-semibold text-white">Platform architecture</h2>
+          <p className="mt-1 text-sm text-text-muted">
+            Every service box maps to a repo in this portfolio; the data tier and LLM boxes are
+            the managed and external systems around them. The structure is committed data; the
+            health dots are measured from the gateway's aggregate when it is reachable, and
+            omitted when it is not.
+          </p>
+        </div>
+        <div className="surface-card rounded-2xl p-5">
+          <PlatformTopology />
+        </div>
       </section>
 
       <section className="surface-card rounded-2xl p-5">

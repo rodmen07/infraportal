@@ -1,4 +1,5 @@
 import type { LiveServicesState } from '../status/useLiveServices'
+import { SHIPPED_MICROSERVICE_COUNT } from '../topology/topologyModel'
 
 // The home-page proof tiles, as data.
 //
@@ -19,9 +20,15 @@ export interface ProofStat {
   readonly href?: string
 }
 
-/** Facts about shipped work; nothing here depends on what is deployed today. */
+/**
+ * Facts about shipped work; nothing here depends on what is deployed today.
+ * The service count is derived from the topology model rather than typed
+ * here: the same figure also appears on the case-studies header and the
+ * pricing trust strip, and three hand-maintained copies of one number is the
+ * drift class this file exists to prevent (TOPOLOGY-1).
+ */
 export const BUILT_PROOF_STATS: readonly ProofStat[] = [
-  { value: '16', label: 'Microservices shipped' },
+  { value: String(SHIPPED_MICROSERVICE_COUNT), label: 'Microservices shipped' },
   { value: '4+', label: 'Languages in production' },
 ] as const
 
