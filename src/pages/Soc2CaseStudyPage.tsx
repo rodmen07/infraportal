@@ -2,29 +2,10 @@ import { useState } from 'react'
 import { PageLayout } from './PageLayout'
 import { CodeBlock } from '../features/consulting/CodeBlock'
 import { MedallionDemo } from '../features/site/MedallionDemo'
+import { Soc2ControlMatrix } from '../features/soc2/Soc2ControlMatrix'
+import { CONTROL_COUNT } from '../features/soc2/soc2Controls'
 
 const TECH_STACK = ['Terraform', 'GCP', 'AWS', 'Secret Manager', 'Secrets Manager', 'KMS', 'CloudTrail', 'Cloud Audit Logs', 'VPC', 'IAM', 'OIDC', 'Workload Identity Federation', 'ECS / Fargate']
-
-const CONTROLS: [string, string, string, string, string][] = [
-  ['CC6.1', 'Logical access',         'GCP', 'Per-service SA; no roles/owner or roles/editor',              'modules/gcp/iam.tf'],
-  ['CC6.1', 'Logical access',         'AWS', 'Per-service IAM role; resource-scoped ARNs; no wildcard actions','modules/aws/iam.tf'],
-  ['CC6.2', 'Authentication',          'GCP', 'Workload Identity Federation — no SA key files issued',        'modules/gcp/iam.tf'],
-  ['CC6.2', 'Authentication',          'AWS', 'OIDC role assumption — no long-lived access keys',            'modules/aws/iam.tf'],
-  ['CC6.3', 'Privileged access',       'GCP', 'roles/cloudsql.client + roles/secretmanager.secretAccessor only', 'modules/gcp/iam.tf'],
-  ['CC6.3', 'Privileged access',       'AWS', 'Inline policies scoped to exact resource ARNs',               'modules/aws/iam.tf'],
-  ['CC6.7', 'Secrets management',      'GCP', 'Secret Manager auto-replication; SA-bound IAM; prevent_destroy','modules/gcp/secrets.tf'],
-  ['CC6.7', 'Secrets management',      'AWS', 'Secrets Manager + KMS CMK with key rotation; resource policy', 'modules/aws/secrets.tf'],
-  ['CC6.8', 'Non-root containers',     'GCP', 'Artifact Registry; Dockerfile USER requirement + CI lint check','modules/gcp/containers.tf'],
-  ['CC6.8', 'Non-root containers',     'AWS', 'ECR immutable tags; ECS task user: "65534"; drop: ["ALL"]',   'modules/aws/containers.tf'],
-  ['CC7.2', 'System monitoring',       'GCP', 'Cloud Audit Logs DATA_READ/WRITE for SM, SQL, Run + GCS sink', 'modules/gcp/audit.tf'],
-  ['CC7.2', 'System monitoring',       'AWS', 'CloudTrail multi-region, log file validation, S3 versioning',  'modules/aws/audit.tf'],
-  ['CC7.3', 'Incident detection',      'GCP', 'Cloud Monitoring alert on Secret Manager access spike',       'modules/gcp/audit.tf'],
-  ['CC7.3', 'Incident detection',      'AWS', 'CloudWatch alarm on root account usage',                      'modules/aws/audit.tf'],
-  ['CC8.1', 'Change management',       'GCP', 'prevent_destroy on secrets; state backend documented',        'modules/gcp/secrets.tf'],
-  ['CC8.1', 'Change management',       'AWS', 'S3 versioning on trail bucket; DynamoDB state lock example',  'modules/aws/audit.tf'],
-  ['A1.2',  'Availability',            'GCP', 'Cloud Run min_instances; Cloud SQL backups enabled',          'modules/gcp/containers.tf'],
-  ['A1.2',  'Availability',            'AWS', 'Multi-AZ subnets; ECS desired_count = 2; min_healthy = 100%', 'modules/aws/containers.tf'],
-]
 
 const HIGHLIGHTS: { label: string; detail: string; file: string; code: string; language?: string }[] = [
   {
@@ -173,7 +154,7 @@ export function Soc2CaseStudyPage() {
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-white">SOC 2 Baseline — Terraform Module</h1>
-            <p className="mt-1 text-sm text-amber-300/80">Cloud-agnostic · GCP + AWS · IaC · 9 SOC 2 Type II Controls</p>
+            <p className="mt-1 text-sm text-amber-300/80">Cloud-agnostic · GCP + AWS · IaC · {CONTROL_COUNT} SOC 2 Type II Controls</p>
           </div>
           <div className="flex gap-2">
             <a
@@ -194,9 +175,10 @@ export function Soc2CaseStudyPage() {
         </div>
         <p className="mt-4 text-sm leading-relaxed text-text-secondary">
           A standalone, reusable Terraform module extracted from the InfraPortal v0.2 security hardening
-          release. Cloud-agnostic by design: parallel GCP and AWS sub-modules implement the same 9 SOC 2
-          Type II controls with an identical variable interface. Each control maps directly to the
-          Terraform resource that implements it.
+          release. Cloud-agnostic by design: parallel GCP and AWS sub-modules cover {CONTROL_COUNT} SOC 2
+          Type II controls with an identical variable interface. The matrix below maps every
+          control-cloud cell to its evidence — and records the cells that are not covered yet, because a
+          compliance table that cannot say "gap" cannot be trusted to say "covered".
         </p>
       </section>
 
@@ -228,40 +210,8 @@ export function Soc2CaseStudyPage() {
         </div>
       </section>
 
-      {/* SOC 2 compliance mapping table */}
-      <section className="forge-panel overflow-hidden rounded-2xl border border-zinc-500/30 bg-zinc-900/80 backdrop-blur-xl">
-        <div className="border-b border-zinc-700/40 px-5 py-4">
-          <h2 className="text-base font-semibold text-white">SOC 2 Type II — Control Mapping</h2>
-          <p className="mt-0.5 text-xs text-text-subtle">9 controls · each maps to the Terraform file that implements it</p>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-xs">
-            <thead>
-              <tr className="border-b border-zinc-700/40 text-left">
-                <th className="px-4 py-2.5 font-semibold text-text-muted">Control</th>
-                <th className="px-4 py-2.5 font-semibold text-text-muted">Cloud</th>
-                <th className="px-4 py-2.5 font-semibold text-text-muted">Implementation</th>
-                <th className="px-4 py-2.5 font-semibold text-text-muted hidden sm:table-cell">Evidence File</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-zinc-800/50">
-              {CONTROLS.map(([control, desc, cloud, impl, file]) => (
-                <tr key={`${control}-${cloud}`} className="transition hover:bg-zinc-800/20">
-                  <td className="whitespace-nowrap px-4 py-2.5">
-                    <span className="font-mono font-semibold text-amber-300">{control}</span>
-                    <span className="ml-2 text-text-subtle">{desc}</span>
-                  </td>
-                  <td className="px-4 py-2.5">
-                    <span className={`rounded border px-1.5 py-0.5 text-scale-xs font-semibold ${cloudColor(cloud)}`}>{cloud}</span>
-                  </td>
-                  <td className="px-4 py-2.5 text-text-secondary">{impl}</td>
-                  <td className="px-4 py-2.5 font-mono text-text-subtle hidden sm:table-cell">{file}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
+      {/* SOC 2 control x cloud coverage matrix (SOC2-MATRIX-1) */}
+      <Soc2ControlMatrix />
 
       {/* Live pipeline — CloudTrail feeds directly into this */}
       <section className="space-y-3">
