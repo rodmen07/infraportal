@@ -80,7 +80,7 @@ export function relativeTime(timestamp: string | undefined, nowMs: number): stri
   return `${Math.floor(hr / 24)}d ago`
 }
 
-export type ConnectionState = 'connecting' | 'live' | 'reconnecting'
+export type ConnectionState = 'connecting' | 'live' | 'reconnecting' | 'offline'
 
 /** A short human label for the connection state. */
 export function connectionLabel(state: ConnectionState): string {
@@ -91,5 +91,18 @@ export function connectionLabel(state: ConnectionState): string {
       return 'Live'
     case 'reconnecting':
       return 'Reconnecting…'
+    case 'offline':
+      return 'Offline'
   }
+}
+
+/**
+ * The SSE hub base URL from build config, or '' when there is none. The Pages
+ * deploy exports an unset repo variable as '', so missing and empty both mean
+ * "no stream". There is deliberately no hardcoded fallback host: the old one
+ * named a Fly app destroyed on 2026-11-11, and a released app name can be
+ * claimed by anyone, who would then be feeding this public panel.
+ */
+export function resolveStreamUrl(raw: string | undefined): string {
+  return (raw ?? '').trim().replace(/\/+$/, '')
 }
