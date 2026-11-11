@@ -5,6 +5,7 @@ import {
   formatEventLabel,
   relativeTime,
   connectionLabel,
+  resolveStreamUrl,
   type StreamEvent,
 } from './eventModel'
 
@@ -118,5 +119,25 @@ describe('connectionLabel', () => {
     expect(connectionLabel('connecting')).toBe('Connecting…')
     expect(connectionLabel('live')).toBe('Live')
     expect(connectionLabel('reconnecting')).toBe('Reconnecting…')
+    expect(connectionLabel('offline')).toBe('Offline')
+  })
+})
+
+describe('resolveStreamUrl', () => {
+  it('treats missing, empty and blank config as no stream', () => {
+    // The Pages deploy exports an unset repo variable as '', not undefined.
+    expect(resolveStreamUrl(undefined)).toBe('')
+    expect(resolveStreamUrl('')).toBe('')
+    expect(resolveStreamUrl('   ')).toBe('')
+  })
+
+  it('strips trailing slashes so the path join stays single-slashed', () => {
+    expect(resolveStreamUrl('https://hub.example.com/')).toBe('https://hub.example.com')
+    expect(resolveStreamUrl('https://hub.example.com//')).toBe('https://hub.example.com')
+    expect(resolveStreamUrl(' https://hub.example.com ')).toBe('https://hub.example.com')
+  })
+
+  it('never invents a host', () => {
+    expect(resolveStreamUrl(undefined)).not.toMatch(/fly\.dev/)
   })
 })

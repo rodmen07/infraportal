@@ -6,6 +6,7 @@ import {
   formatEventLabel,
   relativeTime,
   connectionLabel,
+  resolveStreamUrl,
   type StreamEvent,
   type ConnectionState,
 } from './eventModel'
@@ -20,19 +21,24 @@ import {
 // quiet, so the feed leads with its CONNECTION state (a connected SSE stream is
 // itself the live signal) and shows a calm empty state rather than pretending
 // there is activity. Events render the moment any flow.
+//
+// With no stream configured the feed says "Offline" and opens no connection.
+// (An empty base URL used to yield `new EventSource('/events/stream')`, which
+// hit GitHub Pages, 404'd, and retried forever while showing "Connecting…".)
 
-const STREAM_URL = (import.meta.env.VITE_EVENT_STREAM_URL ?? 'https://event-stream-service.fly.dev').replace(/\/$/, '')
+const STREAM_URL = resolveStreamUrl(import.meta.env.VITE_EVENT_STREAM_URL)
 const MAX_EVENTS = 20
 
 const DOT: Record<ConnectionState, string> = {
   connecting: 'bg-text-subtle',
   live: 'bg-success',
   reconnecting: 'bg-warning',
+  offline: 'bg-text-subtle',
 }
 
 export function ActivityFeed() {
   const [events, setEvents] = useState<StreamEvent[]>([])
-  const [connection, setConnection] = useState<ConnectionState>('connecting')
+  const [connection, setConnection] = useState<ConnectionState>(STREAM_URL ? 'connecting' : 'offline')
   const [now, setNow] = useState(() => Date.now())
   const reducedMotion = usePrefersReducedMotion()
   const sawOpen = useRef(false)
@@ -40,7 +46,7 @@ export function ActivityFeed() {
   // Subscribe to the SSE stream. EventSource reconnects on its own after a drop;
   // we surface that as the "reconnecting" state and flip back to "live" on open.
   useEffect(() => {
-    if (typeof EventSource === 'undefined') return
+    if (!STREAM_URL || typeof EventSource === 'undefined') return
     const source = new EventSource(`${STREAM_URL}/events/stream`)
 
     source.onopen = () => {
@@ -83,7 +89,9 @@ export function ActivityFeed() {
         <p className="max-w-prose text-sm text-text-secondary">
           {connection === 'live'
             ? 'Connected to the platform event stream. It is quiet right now; new service events will appear here in real time as they happen.'
-            : 'Connecting to the platform event stream…'}
+            : connection === 'offline'
+              ? 'The platform event stream is not connected in this deployment (VITE_EVENT_STREAM_URL is not set), so there is no live activity to show.'
+              : 'Connecting to the platform event stream…'}
         </p>
       ) : (
         <ul className="flex flex-col divide-y divide-border-soft" aria-live="polite">
